@@ -18,6 +18,7 @@ function createWindow() {
 
     win.loadFile('index.html');
 
+    // Ignore Autofill errors
     win.webContents.on('console-message', (event, level, message, line, sourceId) => {
         if (message.includes("Autofill")) {
             event.preventDefault();
@@ -37,6 +38,13 @@ function loginWindow() {
     });
 
     winlogin.loadFile('login.html');
+
+    // Ignore Autofill errors
+    winlogin.webContents.on('console-message', (event, level, message, line, sourceId) => {
+        if (message.includes("Autofill")) {
+            event.preventDefault();
+        }
+    });
 }
 
 app.whenReady().then(loginWindow);
@@ -55,6 +63,28 @@ app.on('activate', () => {
 
 ipcMain.handle('login', (event, obj) => {
     validatelogin(obj);
+});
+
+ipcMain.handle('logout', async () => {
+    return new Promise((resolve, reject) => {
+        try {
+            winlogin = new BrowserWindow({
+                width: 800,
+                height: 600,
+                webPreferences: {
+                    preload: path.join(__dirname, 'login.js'),
+                    nodeIntegration: true,
+                    contextIsolation: false
+                }
+            });
+            
+            winlogin.loadFile('login.html');
+            win.close();
+            resolve();
+        } catch (error) {
+            reject(error);
+        }
+    });
 });
 
 function validatelogin(obj) {
