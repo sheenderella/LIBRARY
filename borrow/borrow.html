@@ -4,58 +4,28 @@
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-    
     <title> GRUBA LAW LIBRARY </title>
-
     <link rel="stylesheet" type="text/css" href="borrow.css">
 </head>
 <body>
     <div class="container">
-        <h1> Borrower's Log </h1>
+        <h1> Borrowers' Log </h1>
         <p> List of people who borrowed books. </p>
-
 
         <div> 
             <a class="nav-link" href="../index.html"> Back </a>
         </div>
 
-        <div>
-            <input type="text" id="borrowerId" hidden>
-            
-            <div class="form-group">
-                <input class="form-control" type="text" id="borrowerName" placeholder="Borrower Name">
-            </div>
-
-            <div class="form-group">
-                <input class="form-control" type="text" id="bookTitle" placeholder="Book Title">
-            </div>
-            
-            <div class="form-group">
-                <input class="form-control" type="date" id="borrowDate" placeholder="Borrow Date">
-            </div>
-            
-            <div class="form-group">
-                <select class="form-control" id="borrowStatus">
-                    <option value="borrowed">Borrowed</option>
-                    <option value="returned">Returned</option>
-                </select>
-            </div>
-
-            <button id="addBorrow" class="btn btn-success">Add Borrow</button>
-            <button id="updateBorrow" class="btn btn-primary">Update Borrow</button>
-        
-        </div>
+        <button id="addBorrow" class="btn btn-success">Add Borrow</button>
 
         <!-- Search, Filter and Sort Controls -->
         <div class="search-sort">
             <input type="text" id="searchInput" class="form-control1" placeholder="Search by Name or Title">
-            
             <select id="statusFilter" class="form-control">
                 <option value=""> Sort by Status </option>
                 <option value="borrowed"> Borrowed</option>
                 <option value="returned"> Returned</option>
             </select>
-
             <input type="date" id="dateFilter" class="form-control">
         </div>
 
@@ -67,7 +37,6 @@
                         <button id="sortBorrowerNameAsc" class="sort-btn">↑</button>
                         <button id="sortBorrowerNameDesc" class="sort-btn">↓</button>
                     </th>
-
                     <th>
                         Book Title
                         <button id="sortBookTitleAsc" class="sort-btn"> ↑ </button>
@@ -83,16 +52,26 @@
                         <button id="sortBorrowStatusAsc" class="sort-btn">↑</button>
                         <button id="sortBorrowStatusDesc" class="sort-btn">↓</button>
                     </th>
+                    
                     <th>Actions</th>
                 </tr>
             </thead>
 
             <tbody id="borrowList">
-
                 <!-- Borrow records will be displayed here -->
-
             </tbody>
-        </table>
+            
+        <!-- Pagination controls -->
+        <div id="paginationControls" class="pagination-controls">
+            <button id="prevPage" class="pagination-btn">Previous</button>
+            <span id="pageInfo">Page 1</span>
+            <button id="nextPage" class="pagination-btn">Next</button>
+        </div>
+
+        <!-- Container for Borrower Log -->
+        <div id="borrowerLogContainer">
+            <!-- Borrower's log will be dynamically loaded here -->
+        </div>
     </div>
     <script src="borrow.js"></script>
 </body>

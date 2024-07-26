@@ -2,52 +2,65 @@ const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const db = require('./database.js');
 
-let win;
-let winlogin;
+let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow;
 
-function createWindow() {
-    win = new BrowserWindow({
-        width: 800,
-        height: 600,
+function createWindow(options) {
+    const window = new BrowserWindow({
+        width: options.width || 800,
+        height: options.height || 600,
+        parent: options.parent || null,
         webPreferences: {
-            preload: path.join(__dirname, 'index.js'),
             nodeIntegration: true,
-            contextIsolation: false
-        }
+            contextIsolation: false,
+        },
     });
 
-    win.loadFile('index.html');
+    window.loadFile(options.filePath);
 
-    // Ignore Autofill errors
-    win.webContents.on('console-message', (event, level, message, line, sourceId) => {
-        if (message.includes("Autofill")) {
-            event.preventDefault();
-        }
+    window.on('closed', () => {
+        if (options.onClose) options.onClose();
+    });
+
+    return window;
+}
+
+function createMainWindow() {
+    mainWindow = createWindow({
+        filePath: 'index.html',
     });
 }
 
-function loginWindow() {
-    winlogin = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            preload: path.join(__dirname, 'login.js'),
-            nodeIntegration: true,
-            contextIsolation: false
-        }
-    });
-
-    winlogin.loadFile('login.html');
-
-    // Ignore Autofill errors
-    winlogin.webContents.on('console-message', (event, level, message, line, sourceId) => {
-        if (message.includes("Autofill")) {
-            event.preventDefault();
-        }
+function createLoginWindow() {
+    loginWindow = createWindow({
+        filePath: 'login.html',
     });
 }
 
-app.whenReady().then(loginWindow);
+function createAddBorrowWindow() {
+    addBorrowWindow = createWindow({
+        filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
+        width: 400,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (addBorrowWindow = null),
+    });
+}
+
+function createUpdateBorrowWindow(record) {
+    updateBorrowWindow = createWindow({
+        filePath: path.join(__dirname, 'borrow', 'updateBorrow.html'),
+        width: 400,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (updateBorrowWindow = null),
+    });
+
+    updateBorrowWindow.webContents.on('did-finish-load', () => {
+        updateBorrowWindow.webContents.send('fill-update-form', record);
+    });
+}
+
+app.whenReady().then(createLoginWindow);
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -57,38 +70,70 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
+        createMainWindow();
     }
 });
 
-ipcMain.handle('login', (event, obj) => {
-    validatelogin(obj);
-});
+// Handle IPC calls
+ipcMain.handle('login', (event, obj) => validatelogin(obj));
 
 ipcMain.handle('logout', async () => {
-    return new Promise((resolve, reject) => {
-        try {
-            winlogin = new BrowserWindow({
-                width: 800,
-                height: 600,
-                webPreferences: {
-                    preload: path.join(__dirname, 'login.js'),
-                    nodeIntegration: true,
-                    contextIsolation: false
-                }
-            });
-            
-            winlogin.loadFile('login.html');
-            win.close();
-            resolve();
-        } catch (error) {
-            reject(error);
-        }
-    });
+    createLoginWindow();
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.close();
+    }
 });
 
-function validatelogin(obj) {
-    const { username, password } = obj;
+ipcMain.handle('addBorrow', async (event, record) => executeQuery(
+    'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, datetime("now"))',
+    [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus],
+    function () {
+        record.id = this.lastID;
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('borrow-record-added', record);
+        }
+    }
+));
+
+ipcMain.handle('updateBorrow', async (event, record) => {
+    try {
+        await executeQuery(
+            'UPDATE borrow SET borrowerName = ?, bookTitle = ?, borrowDate = ?, borrowStatus = ? WHERE id = ?',
+            [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus, record.id]
+        );
+
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('borrow-record-updated', record);
+        }
+
+        if (updateBorrowWindow && !updateBorrowWindow.isDestroyed()) {
+            updateBorrowWindow.close();
+        }
+    } catch (error) {
+        console.error('Error updating borrow record:', error);
+    }
+});
+
+
+ipcMain.handle('deleteBorrow', async (event, id) => executeQuery(
+    'DELETE FROM borrow WHERE id = ?',
+    [id]
+));
+
+ipcMain.handle('getBorrows', async () => executeSelectQuery(
+    'SELECT * FROM borrow ORDER BY createdAt DESC'
+));
+
+ipcMain.handle('getBorrowerLog', async (event, name) => executeSelectQuery(
+    'SELECT * FROM borrow WHERE borrowerName = ?',
+    [name]
+));
+
+ipcMain.on('open-add-borrow-window', createAddBorrowWindow);
+ipcMain.on('open-update-window', (event, record) => createUpdateBorrowWindow(record));
+ipcMain.on('close-form-window', closeAllFormWindows);
+
+function validatelogin({ username, password }) {
     const sql = "SELECT * FROM user WHERE username=? AND password=?";
     db.get(sql, [username, password], (error, result) => {
         if (error) {
@@ -97,22 +142,34 @@ function validatelogin(obj) {
         }
 
         if (result) {
-            createWindow();
-            win.show();
-            winlogin.close();
+            createMainWindow();
+            if (mainWindow) mainWindow.show();
+            if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
         } else {
             new Notification({
                 title: "Login",
-                body: 'Username or password incorrect'
+                body: 'Username or password incorrect',
             }).show();
         }
     });
 }
 
-// Handle CRUD operations for borrow
-ipcMain.handle('getBorrows', async () => {
+function executeQuery(sql, params, callback) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM borrow', (err, rows) => {
+        db.run(sql, params, function (err) {
+            if (err) {
+                reject(err);
+            } else {
+                if (callback) callback.call(this);
+                resolve();
+            }
+        });
+    });
+}
+
+function executeSelectQuery(sql, params = []) {
+    return new Promise((resolve, reject) => {
+        db.all(sql, params, (err, rows) => {
             if (err) {
                 reject(err);
             } else {
@@ -120,86 +177,10 @@ ipcMain.handle('getBorrows', async () => {
             }
         });
     });
-});
+}
 
-ipcMain.handle('addBorrow', async (event, record) => {
-    return new Promise((resolve, reject) => {
-        const sql = 'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, borrowStatus) VALUES (?, ?, ?, ?)';
-        db.run(sql, [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus], function (err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(this.lastID);
-            }
-        });
+function closeAllFormWindows() {
+    [addBorrowWindow, updateBorrowWindow].forEach(window => {
+        if (window && !window.isDestroyed()) window.close();
     });
-});
-
-ipcMain.handle('getBorrow', async (event, id) => {
-    return new Promise((resolve, reject) => {
-        db.get('SELECT * FROM borrow WHERE id = ?', [id], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row);
-            }
-        });
-    });
-});
-
-ipcMain.handle('updateBorrow', async (event, record) => {
-    return new Promise((resolve, reject) => {
-        const sql = 'UPDATE borrow SET borrowerName = ?, bookTitle = ?, borrowDate = ?, borrowStatus = ? WHERE id = ?';
-        db.run(sql, [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus, record.id], function (err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
-});
-
-ipcMain.handle('deleteBorrow', async (event, id) => {
-    return new Promise((resolve, reject) => {
-        const sql = 'DELETE FROM borrow WHERE id = ?';
-        db.run(sql, [id], function (err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
-});
-
-ipcMain.handle('getBorrowerLog', async (event, borrowerName) => {
-    return new Promise((resolve, reject) => {
-        const sql = 'SELECT bookTitle, borrowDate, borrowStatus FROM borrow WHERE borrowerName = ?';
-        db.all(sql, [borrowerName], (err, rows) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(rows);
-            }
-        });
-    });
-});
-
-ipcMain.on('open-borrower-log', (event, borrowerName) => {
-    const borrowerLogWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            preload: path.join(__dirname, 'borrowerLog.js'),
-            nodeIntegration: true,
-            contextIsolation: false
-        }
-    });
-
-    borrowerLogWindow.loadFile('borrowerLog.html');
-
-    borrowerLogWindow.webContents.once('did-finish-load', () => {
-        borrowerLogWindow.webContents.send('load-borrower-log', borrowerName);
-    });
-});
+}

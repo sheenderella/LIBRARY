@@ -1,31 +1,43 @@
 const { ipcRenderer } = require('electron');
 
-// Function to get query parameters
-function getQueryParam(param) {
+document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
+    const borrowerName = urlParams.get('borrowerName');
+
+    if (borrowerName) {
+        updateBorrowerName(borrowerName);
+        fetchBorrowerLog(borrowerName);
+    } else {
+        console.error('No borrower name specified in the URL.');
+    }
+});
+
+async function fetchBorrowerLog(borrowerName) {
+    try {
+        const log = await ipcRenderer.invoke('getBorrowerLog', borrowerName);
+        displayLog(log);
+    } catch (error) {
+        console.error('Error fetching borrower log:', error);
+    }
 }
 
-window.onload = function() {
-    const borrowerName = getQueryParam('borrowerName');
-    if (borrowerName) {
-        document.getElementById('logTitle').textContent = `${borrowerName}'s Borrow Log`;
-        getBorrowerLog(borrowerName);
-    }
-};
+function displayLog(log) {
+    const container = document.getElementById('borrowerLogContainer');
+    let rows = '';
 
-async function getBorrowerLog(name) {
-    const logs = await ipcRenderer.invoke('getBorrowerLog', name);
-    const logList = document.getElementById('logList');
-    let template = "";
-    logs.forEach(log => {
-        template += `
+    log.forEach(entry => {
+        rows += `
             <tr>
-                <td>${log.bookTitle}</td>
-                <td>${log.borrowDate}</td>
-                <td>${log.borrowStatus}</td>
+                <td>${entry.bookTitle}</td>
+                <td>${entry.borrowDate}</td>
+                <td>${entry.borrowStatus}</td>
             </tr>
         `;
     });
-    logList.innerHTML = template;
+
+    container.innerHTML = rows;
+}
+
+function updateBorrowerName(borrowerName) {
+    document.getElementById('borrowerName').textContent = `Log for ${borrowerName}`;
 }
