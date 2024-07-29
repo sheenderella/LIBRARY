@@ -1,3 +1,9 @@
+/**
+ * Handles displaying borrower logs in the UI. 
+ * Fetches log data from the main process using IPC, updates the borrower name in the UI, 
+ * and displays the fetched log entries in a table format.
+ */
+
 const { ipcRenderer } = require('electron');
 
 // Function to get query parameters

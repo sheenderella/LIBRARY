@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <title>Library Books</title>
+    <link rel="stylesheet" type="text/css" href="books.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Library Books</h1>
+        <p>List of books in the library.</p>
+
+        <div> 
+            <a class="nav-link" href="../index.html">Back</a>
+        </div>
+
+        <button id="addBook" class="btn btn-success">Add Book</button>
+
+        <!-- Search, Filter and Sort Controls -->
+        <div class="search-sort">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search :>">
+            <select id="classFilter" class="form-control">
+                <option value="">Sort by Class</option>
+                <!-- Populate with options dynamically if needed -->
+            </select>
+            <input type="date" id="dateFilter" class="form-control">
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        Number
+                        <button id="sortNumberAsc" class="sort-btn">↑</button>
+                        <button id="sortNumberDesc" class="sort-btn">↓</button>
+                    </th>
+                    <th>
+                        Date Received
+                        <button id="sortDateReceivedAsc" class="sort-btn">↑</button>
+                        <button id="sortDateReceivedDesc" class="sort-btn">↓</button>
+                    </th>
+                    <th>
+                        Class
+                        <button id="sortClassAsc" class="sort-btn">↑</button>
+                        <button id="sortClassDesc" class="sort-btn">↓</button>
+                    </th>
+                    <th>
+                        Author
+                        <button id="sortAuthorAsc" class="sort-btn">↑</button>
+                        <button id="sortAuthorDesc" class="sort-btn">↓</button>
+                    </th>
+                    <th>
+                        Title
+                        <button id="sortTitleAsc" class="sort-btn">↑</button>
+                        <button id="sortTitleDesc" class="sort-btn">↓</button>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bookList">
+                <!-- Book records will be displayed here -->
+            </tbody>
+        </table>
+        
+        <!-- Pagination controls -->
+        <div id="paginationControls" class="pagination-controls">
+            <button id="prevPage" class="pagination-btn">Previous</button>
+            <span id="pageInfo">Page 1</span>
+            <button id="nextPage" class="pagination-btn">Next</button>
+        </div>
+    </div>
+    <script src="books.js"></script>
+</body>
+</html>
