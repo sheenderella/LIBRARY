@@ -32,7 +32,7 @@ function createWindow(options) {
     return window;
 }
 
-//DASHBOARD
+// DASHBOARD
 function createMainWindow() {
     mainWindow = createWindow({
         filePath: 'index.html',
@@ -51,7 +51,7 @@ function createLoginWindow() {
     });
 }
 
-//BORROWER
+// BORROWER
 function createAddBorrowWindow() {
     addBorrowWindow = createWindow({
         filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
@@ -76,7 +76,7 @@ function createUpdateBorrowWindow(record) {
     });
 }
 
-//BOOKS
+// BOOKS
 function createAddBookWindow() {
     addBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'addBook.html'),
@@ -124,8 +124,8 @@ app.on('activate', () => {
 });
 
 // Handle IPC calls
-//LOGIN
-ipcMain.handle('login', (event, obj) => validatelogin(obj));
+// LOGIN
+ipcMain.handle('login', async (event, obj) => await validatelogin(obj));
 
 ipcMain.handle('logout', async () => {
     createLoginWindow();
@@ -134,7 +134,7 @@ ipcMain.handle('logout', async () => {
     }
 });
 
-//BORROW
+// BORROW
 ipcMain.handle('addBorrow', async (event, record) => executeQuery(
     'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, datetime("now"))',
     [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus],
@@ -209,12 +209,6 @@ function validatelogin({ username, password }) {
     });
 }
 
-ipcMain.handle('login', async (event, obj) => {
-    return await validatelogin(obj);
-});
-
-
-
 function executeQuery(sql, params, callback) {
     return new Promise((resolve, reject) => {
         db.run(sql, params, function (err) {
@@ -246,7 +240,7 @@ function closeAllFormWindows() {
     });
 }
 
-///BOOKS
+/// BOOKS
 // Books IPC Handlers
 ipcMain.handle('addBook', async (event, record) => {
     try {
