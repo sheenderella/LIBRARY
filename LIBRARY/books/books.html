@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; script-src 'self';">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; script-src 'self';">
+    <title>Library Books</title>
+    <link rel="stylesheet" type="text/css" href="books.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Library Books</h1>
+        <p>List of books in the library.</p>
+
+        <div>
+            <a class="nav-link" href="../index.html">Back</a>
+        </div>
+
+        <div class="button-header">
+
+        <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i>Add Book</button>
+        <button id="deleteSelected" class="btn btn-danger">Delete Selected</button>
+
+        <div class="search-sort">
+            <select id="searchColumn" class="form-control">
+                <option value="all">All</option>
+                <option value="number">Number</option>
+                <option value="date_received">Date Received</option>
+                <option value="class">Class</option>
+                <option value="author">Author</option>
+                <option value="title_of_book">Title of Book</option>
+                <option value="edition">Edition</option>
+                <option value="volume">Volume</option>
+                <option value="source_of_fund">Source of Fund</option>
+                <option value="pages">Pages</option>
+                <option value="cost_price">Cost Price</option>
+                <option value="publisher">Publisher</option>
+                <option value="year">Year</option>
+                <option value="remarks">Remarks</option>
+            </select>
+            <div class="input-container">
+                <i class="icon fas fa-search"></i>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search">
+            </div>
+        </div>
+
+        </div>
+        
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>Number <button data-column="number" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Date Received <button data-column="date_received" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Class <button data-column="class" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Author <button data-column="author" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Title of Book <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Edition <button data-column="edition" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Volume <button data-column="volume" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Source of Fund <button data-column="source_of_fund" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Pages <button data-column="pages" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Cost Price <button data-column="cost_price" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Publisher <button data-column="publisher" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Year <button data-column="year" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookList"></tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="pagination-container"></div>
+    </div>
+    <script src="books.js"></script>
+</body>
+</html>
