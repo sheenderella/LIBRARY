@@ -9,6 +9,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectAllCheckbox = document.getElementById('selectAll');
     const paginationContainer = document.getElementById('pagination');
     
+    // MAKE A SCROLL BAR TOP OF THE TABLE
+    const scrollbarTop = document.querySelector('.scrollbar-top');
+    const tableContainer = document.querySelector('.table-container');
+  
+    scrollbarTop.addEventListener('scroll', function() {
+      tableContainer.scrollLeft = scrollbarTop.scrollLeft;
+    });
+  
+    tableContainer.addEventListener('scroll', function() {
+      scrollbarTop.scrollLeft = tableContainer.scrollLeft;
+    });
+  
+    // Create a dummy content to ensure scrollbar appears
+    const dummyContent = document.createElement('div');
+    dummyContent.style.width = tableContainer.scrollWidth + 'px';
+    dummyContent.style.height = '1px';
+    scrollbarTop.appendChild(dummyContent);
+
+    // ADD-DELETE-EDIT ACTIONS
     addBookButton.addEventListener('click', () => {
         openAddBookWindow();
     });
@@ -53,6 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePagination();
     });
 
+    window.addEventListener('resize', adjustBooksPerPage);
+    
+    // Initial adjustment
+    adjustBooksPerPage();
+
     loadBooks();
 });
 
@@ -67,8 +91,16 @@ function openEditBookWindow(record) {
 let originalBooks = [];
 let currentBooks = [];
 let currentPage = 1;
-const booksPerPage = 10;
+let booksPerPage = 10; // Default value
 
+function adjustBooksPerPage() {
+    // Adjust the number of books per page based on window width
+    const isNotMaximized = window.innerWidth < screen.width;
+    booksPerPage = isNotMaximized ? 5 : 10;
+    currentPage = 1; // Reset to the first page when changing books per page
+    displayBooks();
+    updatePagination();
+}
 
 function loadBooks() {
     ipcRenderer.invoke('getBooks').then(books => {
@@ -238,7 +270,31 @@ function updatePagination() {
     const totalPages = Math.ceil(currentBooks.length / booksPerPage);
     if (totalPages <= 1) return;
 
-    for (let i = 1; i <= totalPages; i++) {
+    const maxPagesToShow = 10;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (totalPages > maxPagesToShow) {
+        if (currentPage > Math.floor(maxPagesToShow / 2)) {
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '&laquo;';
+            prevButton.classList.add('page-btn');
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage = Math.max(1, currentPage - 10);
+                    updatePagination();
+                    displayBooks();
+                }
+            });
+            paginationContainer.appendChild(prevButton);
+        }
+
+        if (endPage - startPage + 1 < maxPagesToShow) {
+            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
         const pageButton = document.createElement('button');
         pageButton.textContent = i;
         pageButton.classList.add('page-btn');
@@ -249,6 +305,20 @@ function updatePagination() {
             updatePagination();
         });
         paginationContainer.appendChild(pageButton);
+    }
+
+    if (totalPages > maxPagesToShow && endPage < totalPages) {
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = '&raquo;';
+        nextButton.classList.add('page-btn');
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage = Math.min(totalPages, currentPage + 10);
+                updatePagination();
+                displayBooks();
+            }
+        });
+        paginationContainer.appendChild(nextButton);
     }
 }
 

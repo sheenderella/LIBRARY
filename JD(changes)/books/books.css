@@ -6,10 +6,11 @@ body {
     padding: 0;
     box-sizing: border-box;
     background-color: #f8f9fa;
+
 }
 
 .container {
-    width: 95%;
+    width: 95;
     margin: auto;
     padding: 2rem;
     background-color: #fff;
@@ -71,7 +72,7 @@ p {
     display: flex;
     flex-wrap: wrap; /* Allows wrapping of elements if needed */
     gap: 10px; /* Adds spacing between elements */
-    margin-bottom: 20px; /* Adds space below the button-header */
+    margin-bottom: 10px; /* Adds space below the button-header */
     align-items: center; /* Vertically aligns items in the center */
 }
 
@@ -138,9 +139,23 @@ p {
 
 
 
+.scroll-container {
+    position: relative;
+    width: 100%;
+    position: sticky;
+}
+  
+.scrollbar-top {
+    overflow-x: scroll;
+    overflow-y: hidden; /* Ensure only horizontal scrollbar appears */
+    height: 20px; /* Adjust based on your design */
+}
+    
 .table-container {
-    overflow-x: auto;
+    margin-top: 1rem;
     margin-bottom: 1rem;
+    position: relative;
+    overflow-x: scroll;
 }
 
 table {
@@ -152,6 +167,9 @@ table {
 thead {
     background-color: #007bff;
     color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Ensure the header stays on top */
 }
 
 th, td {
@@ -186,20 +204,38 @@ th input[type="checkbox"] {
     margin-left: 3rem;
 }
 
-.pagination {
+#pagination {
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-top: 20px;
 }
 
-.page-btn {
-    background-color: #daddde;
-    margin: 0.15rem;
+.pagination-container {
+    background: white;
 }
 
-.pagination .btn:hover {
-    background-color: #5a6268;
+.page-btn {
+    background-color: #ffffff;
+    margin: 0.15rem;
+    border-radius: 0.25rem;
+    border-color: #c2c2c2;
+    border-width: 1.5px;
+    padding: 0.25rem;
+    border: none;
 }
+
+.page-btn:hover {
+    background-color: #c8c6c6;
+}
+
+.page-btn.active {
+    background-color: lightblue; /* Highlight color */
+    border: 1px solid #007BFF; /* Optional: Add border for better visibility */
+    font-weight: bold;
+    color: #383838;
+}
+
 
 /* Common icon button styling */
 .icon-btn {
