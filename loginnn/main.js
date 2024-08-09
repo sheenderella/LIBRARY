@@ -125,7 +125,7 @@ app.on('activate', () => {
 
 // Handle IPC calls
 // LOGIN
-ipcMain.handle('login', async (event, obj) => await validatelogin(obj));
+ipcMain.handle('login', async (_event, obj) => await validatelogin(obj));
 
 ipcMain.handle('logout', async () => {
     createLoginWindow();
@@ -135,7 +135,7 @@ ipcMain.handle('logout', async () => {
 });
 
 // BORROW
-ipcMain.handle('addBorrow', async (event, record) => executeQuery(
+ipcMain.handle('addBorrow', async (_event, record) => executeQuery(
     'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, datetime("now"))',
     [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus],
     function () {
@@ -146,7 +146,7 @@ ipcMain.handle('addBorrow', async (event, record) => executeQuery(
     }
 ));
 
-ipcMain.handle('updateBorrow', async (event, record) => {
+ipcMain.handle('updateBorrow', async (_event, record) => {
     try {
         await executeQuery(
             'UPDATE borrow SET borrowerName = ?, bookTitle = ?, borrowDate = ?, borrowStatus = ? WHERE id = ?',
@@ -165,7 +165,7 @@ ipcMain.handle('updateBorrow', async (event, record) => {
     }
 });
 
-ipcMain.handle('deleteBorrow', async (event, id) => {
+ipcMain.handle('deleteBorrow', async (_event, id) => {
     await executeQuery(
         'DELETE FROM borrow WHERE id = ?',
         [id],
@@ -181,13 +181,13 @@ ipcMain.handle('getBorrows', async () => executeSelectQuery(
     'SELECT * FROM borrow ORDER BY createdAt DESC'
 ));
 
-ipcMain.handle('getBorrowerLog', async (event, name) => executeSelectQuery(
+ipcMain.handle('getBorrowerLog', async (_event, name) => executeSelectQuery(
     'SELECT * FROM borrow WHERE borrowerName = ?',
     [name]
 ));
 
 ipcMain.on('open-add-borrow-window', createAddBorrowWindow);
-ipcMain.on('open-update-window', (event, record) => createUpdateBorrowWindow(record));
+ipcMain.on('open-update-window', (_event, record) => createUpdateBorrowWindow(record));
 ipcMain.on('close-form-window', closeAllFormWindows);
 
 function validatelogin({ username, password }) {
@@ -210,11 +210,15 @@ function validatelogin({ username, password }) {
 }
 
 function executeQuery(sql, params, callback) {
+    console.log('Executing SQL Query:', sql);
+    console.log('With Parameters:', params);
     return new Promise((resolve, reject) => {
         db.run(sql, params, function (err) {
             if (err) {
+                console.error('Database Error:', err);
                 reject(err);
             } else {
+                console.log('Query executed successfully.');
                 if (callback) callback.call(this);
                 resolve();
             }
@@ -222,10 +226,12 @@ function executeQuery(sql, params, callback) {
     });
 }
 
+
 function executeSelectQuery(sql, params = []) {
     return new Promise((resolve, reject) => {
         db.all(sql, params, (err, rows) => {
             if (err) {
+                console.error('Database Select Error:', err);
                 reject(err);
             } else {
                 resolve(rows);
@@ -242,7 +248,7 @@ function closeAllFormWindows() {
 
 /// BOOKS
 // Books IPC Handlers
-ipcMain.handle('addBook', async (event, record) => {
+ipcMain.handle('addBook', async (_event, record) => {
     try {
         await executeQuery(
             'INSERT INTO books (number, date_received, class, author, title_of_book, edition, volume, pages, year, source_of_fund, cost_price, publisher, remarks, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
@@ -260,7 +266,7 @@ ipcMain.handle('addBook', async (event, record) => {
     }
 });
 
-ipcMain.handle('updateBook', async (event, record) => {
+ipcMain.handle('updateBook', async (_event, record) => {
     try {
         await executeQuery(
             'UPDATE books SET number = ?, date_received = ?, class = ?, author = ?, title_of_book = ?, edition = ?, volume = ?, pages = ?, year = ?, source_of_fund = ?, cost_price = ?, publisher = ?, remarks = ? WHERE id = ?',
@@ -275,7 +281,7 @@ ipcMain.handle('updateBook', async (event, record) => {
     }
 });
 
-ipcMain.handle('deleteBook', async (event, id) => {
+ipcMain.handle('deleteBook', async (_event, id) => {
     try {
         await executeQuery(
             'DELETE FROM books WHERE id = ?',
@@ -309,7 +315,7 @@ ipcMain.on('open-add-book-window', () => {
     }
 });
 
-ipcMain.on('open-edit-book-window', (event, record) => {
+ipcMain.on('open-edit-book-window', (_event, record) => {
     if (!editBookWindow) {
         createEditBookWindow(record);
     } else {
@@ -317,3 +323,37 @@ ipcMain.on('open-edit-book-window', (event, record) => {
         editBookWindow.webContents.send('fill-edit-form', record);
     }
 });
+
+
+ipcMain.handle('update-login-credentials', async (_event, { id, newUsername, newPassword, oldUsername, oldPassword }) => {
+    try {
+        // Validate old username and password
+        const isValid = await validatelogin({ username: oldUsername, password: oldPassword });
+        if (!isValid.success) {
+            return { success: false, message: 'Invalid old username or password' };
+        }
+
+        // Update query
+        await executeQuery(
+            "UPDATE user SET username = ?, password = ? WHERE id = ?",
+            [newUsername, newPassword, id]
+        );
+
+        // Verify update
+        const verifyUpdate = await executeSelectQuery(
+            "SELECT * FROM user WHERE id = ? AND username = ? AND password = ?",
+            [id, newUsername, newPassword]
+        );
+
+        if (verifyUpdate.length > 0) {
+            return { success: true, message: 'Username and password updated successfully' };
+        } else {
+            return { success: false, message: 'Update failed to reflect in the database.' };
+        }
+    } catch (error) {
+        console.error('Error updating login credentials:', error);
+        return { success: false, message: 'Error updating login credentials' };
+    }
+});
+
+

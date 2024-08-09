@@ -10,4 +10,15 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
+db.serialize(() => {
+    db.run("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT, password TEXT)");
+    db.get("SELECT COUNT(*) AS count FROM user", (err, row) => {
+        if (err) {
+            console.error('Error checking user table:', err.message);
+        } else if (row.count === 0) {
+            db.run("INSERT INTO user (username, password) VALUES ('admin', 'admin')"); // Initial user
+        }
+    });
+});
+
 module.exports = db;

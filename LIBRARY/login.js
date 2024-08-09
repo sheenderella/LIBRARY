@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 
-window.onload = function() { 
+window.onload = function() {
     const username = document.getElementById("username");
     const password = document.getElementById("password");
     const btnlogin = document.getElementById("login");
@@ -19,6 +19,10 @@ window.onload = function() {
         ipcRenderer.invoke("login", obj).then(result => {
             if (!result.success) {
                 alert('Incorrect username or password. Please try again.');
+                // Reload the page after incorrect login attempt
+                location.reload();
+            } else {
+                // Handle successful login if needed
             }
         });
     }

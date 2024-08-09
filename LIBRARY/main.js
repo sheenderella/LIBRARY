@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const db = require('./database.js');
 
-let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
+let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, updateCredentials;
 
 function createWindow(options) {
     const window = new BrowserWindow({
@@ -209,6 +209,7 @@ function validatelogin({ username, password }) {
     });
 }
 
+
 function executeQuery(sql, params, callback) {
     return new Promise((resolve, reject) => {
         db.run(sql, params, function (err) {
@@ -317,3 +318,21 @@ ipcMain.on('open-edit-book-window', (event, record) => {
         editBookWindow.webContents.send('fill-edit-form', record);
     }
 });
+
+
+// Update credentials function
+function updateCredentials({ username, password }) {
+    const sql = "UPDATE user SET username = ?, password = ? WHERE id = ?";
+    const userId = 1; // Assuming user ID is 1 for demonstration purposes
+
+    return new Promise((resolve, reject) => {
+        db.run(sql, [username, password, userId], function (error) {
+            if (error) {
+                console.log(error);
+                resolve({ success: false });
+            } else {
+                resolve({ success: true });
+            }
+        });
+    });
+}

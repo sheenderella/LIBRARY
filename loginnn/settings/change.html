@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <title>Update Username and Password</title>
+</head>
+<body>
+    <h1>Update Username and Password</h1>
+    <form id="update-form">
+        <label for="old-username">Current Username:</label>
+        <input type="text" id="old-username" name="old-username" required><br><br>
+
+        <label for="old-password">Current Password:</label>
+        <input type="password" id="old-password" name="old-password" required><br><br>
+
+        <label for="new-username">New Username:</label>
+        <input type="text" id="new-username" name="new-username" required><br><br>
+
+        <label for="new-password">New Password:</label>
+        <input type="password" id="new-password" name="new-password" required><br><br>
+
+        <button type="submit">Update</button>
+    </form>
+
+    <div id="message"></div>
+
+    <!-- Include the external JavaScript file -->
+    <script src="change.js"></script>
+</body>
+</html>
