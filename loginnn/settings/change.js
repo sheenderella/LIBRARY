@@ -1,7 +1,11 @@
+/**
+ * Handles the form submission for updating the user's login credentials.
+ * Collects form data, sends it to the main process via IPC, and provides feedback to the user.
+ */
+
 const { ipcRenderer } = require('electron');
 
-// Assume id is set somewhere in the app and you retrieve it when needed
-document.getElementById('update-form').addEventListener('submit', async (event) => {
+async function handleUpdateCredentials(event) {
     event.preventDefault();
 
     const oldUsername = document.getElementById('old-username').value;
@@ -10,14 +14,25 @@ document.getElementById('update-form').addEventListener('submit', async (event) 
     const newPassword = document.getElementById('new-password').value;
 
     try {
-        const result = await ipcRenderer.invoke('update-login-credentials', {
-            id: userId, oldUsername, oldPassword, newUsername, newPassword
-        });
-
+        const credentials = {
+            oldUsername,
+            oldPassword,
+            newUsername,
+            newPassword
+        };
+        
+        const result = await ipcRenderer.invoke('update-login-credentials', credentials);
+        
         const messageDiv = document.getElementById('message');
-        messageDiv.innerText = result.success ? 'Username and password updated successfully!' : `Error: ${result.message}`;
+        if (result.success) {
+            messageDiv.innerText = 'Username and password updated successfully!';
+        } else {
+            messageDiv.innerText = `Error: ${result.message}`;
+        }
     } catch (error) {
-        console.error('Error invoking IPC:', error);
+        console.error('Error updating credentials:', error);
         document.getElementById('message').innerText = 'An unexpected error occurred.';
     }
-});
+}
+
+module.exports = handleUpdateCredentials;

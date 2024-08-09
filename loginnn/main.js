@@ -191,23 +191,25 @@ ipcMain.on('open-update-window', (_event, record) => createUpdateBorrowWindow(re
 ipcMain.on('close-form-window', closeAllFormWindows);
 
 function validatelogin({ username, password }) {
-    const sql = "SELECT * FROM user WHERE username=? AND password=?";
+    const sql = "SELECT * FROM user WHERE username = ? AND password = ?";
     return new Promise((resolve, reject) => {
-        db.get(sql, [username, password], (error, result) => {
+        db.get(sql, [username, password], (error, row) => {
             if (error) {
-                console.log(error);
+                console.error('Error querying database:', error);
                 reject(error);
-            } else if (result) {
+            } else if (row) {
                 createMainWindow();
                 if (mainWindow) mainWindow.show();
                 if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
-                resolve({ success: true });
+                resolve({ success: true, userId: row.id });
             } else {
                 resolve({ success: false });
             }
         });
     });
 }
+
+
 
 function executeQuery(sql, params, callback) {
     console.log('Executing SQL Query:', sql);
@@ -324,36 +326,53 @@ ipcMain.on('open-edit-book-window', (_event, record) => {
     }
 });
 
+function createChangeCredentialsWindow() {
+    const changeCredentialsWindow = createWindow({
+        filePath: 'change.html',
+        width: 400,
+        height: 500,
+        parent: mainWindow,
+        onClose: () => (changeCredentialsWindow = null),
+    });
+}
 
-ipcMain.handle('update-login-credentials', async (_event, { id, newUsername, newPassword, oldUsername, oldPassword }) => {
-    try {
-        // Validate old username and password
-        const isValid = await validatelogin({ username: oldUsername, password: oldPassword });
-        if (!isValid.success) {
-            return { success: false, message: 'Invalid old username or password' };
-        }
-
-        // Update query
-        await executeQuery(
-            "UPDATE user SET username = ?, password = ? WHERE id = ?",
-            [newUsername, newPassword, id]
-        );
-
-        // Verify update
-        const verifyUpdate = await executeSelectQuery(
-            "SELECT * FROM user WHERE id = ? AND username = ? AND password = ?",
-            [id, newUsername, newPassword]
-        );
-
-        if (verifyUpdate.length > 0) {
-            return { success: true, message: 'Username and password updated successfully' };
-        } else {
-            return { success: false, message: 'Update failed to reflect in the database.' };
-        }
-    } catch (error) {
-        console.error('Error updating login credentials:', error);
-        return { success: false, message: 'Error updating login credentials' };
+// Add an IPC listener to open the change credentials window
+ipcMain.on('open-change-credentials-window', () => {
+    if (!changeCredentialsWindow) {
+        createChangeCredentialsWindow();
+    } else {
+        changeCredentialsWindow.focus();
     }
 });
 
 
+
+
+ipcMain.handle('update-login-credentials', async (_event, credentials) => {
+    const { oldUsername, oldPassword, newUsername, newPassword } = credentials;
+
+    // Validate old credentials
+    const validateQuery = "SELECT * FROM user WHERE username = ? AND password = ?";
+    const updateQuery = "UPDATE user SET username = ?, password = ? WHERE username = ? AND password = ?";
+
+    return new Promise((resolve, reject) => {
+        db.get(validateQuery, [oldUsername, oldPassword], (error, row) => {
+            if (error) {
+                console.error('Error validating credentials:', error);
+                reject({ success: false, message: 'Database error during validation.' });
+            } else if (row) {
+                // If old credentials are valid, update to new credentials
+                db.run(updateQuery, [newUsername, newPassword, oldUsername, oldPassword], (err) => {
+                    if (err) {
+                        console.error('Error updating credentials:', err);
+                        reject({ success: false, message: 'Database error during update.' });
+                    } else {
+                        resolve({ success: true });
+                    }
+                });
+            } else {
+                resolve({ success: false, message: 'Old username or password is incorrect.' });
+            }
+        });
+    });
+});
