@@ -16,13 +16,16 @@
 
 <body>
     <div class="container">
-        <!-- Main title of the page -->
-        <h1>Borrowers' Log</h1>
-        <!-- Brief description -->
-        <p>List of people who borrowed books.</p>
         <!-- Navigation link to go back to the main page -->
         <a class="nav-link" href="../index.html">Back</a>
+                
+        <!-- Main title of the page -->
+        <h1>Borrowers' Log</h1>
+
+        <!-- Brief description -->
+        <p>List of people who borrowed books.</p>
         
+
         <!-- Controls for searching, filtering, and sorting records -->
         <div class="controls">
             
@@ -91,9 +94,17 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="borrowList">
+                <tbody id="borrowList">
                 <!-- Dynamic content: Borrow records will be inserted here -->
-            </tbody>
+                <tr>
+                    <!-- Other columns -->
+                    <td>
+                        <!-- Align the edit and delete buttons in one line -->
+                        <button class="edit-btn"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                </tbody>
         </table>
         
         <!-- Pagination controls for navigating between pages -->

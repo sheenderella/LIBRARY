@@ -286,18 +286,18 @@ td.status-borrowed {
 }
 
 /* Icon styling */
-td.actions {
+.edit-btn, .delete-btn {
+    margin: 0;
+    padding: 5px;
+    display: inline-block;
+    color: #333C42;
+    font-size: 18px;
+    background: none; /* Remove background for icons */
+    border: none; /* Ensure no border around icons */
     text-align: center;
     cursor: pointer;
 }
 
-td.actions i {
-    color: #0099ff;
-    font-size: 18px;
-    background: none; /* Remove background for icons */
-    padding: 0; /* Remove any padding */
-    border: none; /* Ensure no border around icons */
-}
 
 /* Sort buttons */
 .sort-btn {

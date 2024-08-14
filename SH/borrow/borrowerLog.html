@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="borrowerLog.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="borrowerLog.js" defer></script>
-    
     <title>Borrower's Log</title>
+
 </head>
+
 <body class="container">
-    <!-- Back to Borrow Page Button -->
-    <a href="borrow.html" id="backToBorrowPage" class="btn btn-secondary">Back to Borrow Page</a>
+  <!-- Back to Borrow Page Button -->
+  <a href="borrow.html" id="backToBorrowPage" class="btn btn-secondary">
+    <i class="fa fa-arrow-left"></i> </a>
 
     <!-- Page Heading -->
     <h1>Borrowers Log</h1>
@@ -19,6 +22,7 @@
 
     <!-- Filters Section -->
     <div id="filters" class="form-group row">
+
         <!-- Search Box -->
         <div class="input-group col">
             <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
@@ -46,6 +50,7 @@
                 Filter by Date
                 <i class="fa fa-caret-down dropdown-icon"></i>
             </button>
+            
             <div class="dropdown-content">
                 <label for="startDateFilter">Start Date:</label>
                 <input type="date" id="startDateFilter" class="form-control">
