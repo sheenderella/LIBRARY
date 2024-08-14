@@ -9,16 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectAllCheckbox = document.getElementById('selectAll');
     const paginationContainer = document.getElementById('pagination');
     
-    // MAKE A SCROLL BAR TOP OF THE TABLE
     const scrollbarTop = document.querySelector('.scrollbar-top');
     const tableContainer = document.querySelector('.table-container');
   
+    // Synchronize scrolling between top scrollbar and table container
     scrollbarTop.addEventListener('scroll', function() {
-      tableContainer.scrollLeft = scrollbarTop.scrollLeft;
+        tableContainer.scrollLeft = scrollbarTop.scrollLeft;
     });
   
     tableContainer.addEventListener('scroll', function() {
-      scrollbarTop.scrollLeft = tableContainer.scrollLeft;
+        scrollbarTop.scrollLeft = tableContainer.scrollLeft;
     });
   
     // Create a dummy content to ensure scrollbar appears
@@ -27,33 +27,31 @@ document.addEventListener('DOMContentLoaded', () => {
     dummyContent.style.height = '1px';
     scrollbarTop.appendChild(dummyContent);
 
-    // ADD-DELETE-EDIT ACTIONS
-    addBookButton.addEventListener('click', () => {
-        openAddBookWindow();
-    });
+    // Center the scrollbar and table content horizontally
+    const centerScroll = () => {
+        const maxScrollLeft = tableContainer.scrollWidth - tableContainer.clientWidth;
+        const centerPosition = maxScrollLeft / 2;
 
-    deleteSelectedButton.addEventListener('click', () => {
-        deleteSelectedBooks();
-    });
+        tableContainer.scrollLeft = centerPosition;
+        scrollbarTop.scrollLeft = centerPosition;
+    };
 
-    searchInput.addEventListener('input', () => {
-        filterBooks();
-    });
+    // Initial centering after the table is loaded
+    loadBooks().then(centerScroll);
 
-    searchColumn.addEventListener('change', () => {
-        filterBooks();
-    });
+    // Event listeners for various actions
+    addBookButton.addEventListener('click', openAddBookWindow);
+    deleteSelectedButton.addEventListener('click', deleteSelectedBooks);
+    searchInput.addEventListener('input', filterBooks);
+    searchColumn.addEventListener('change', filterBooks);
 
     sortButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            sortBooks(button.dataset.column, button);
-        });
+        button.addEventListener('click', () => sortBooks(button.dataset.column, button));
     });
 
     selectAllCheckbox.addEventListener('change', () => {
         const selectAll = selectAllCheckbox.checked;
-        const checkboxes = document.querySelectorAll('.select-book');
-        checkboxes.forEach(checkbox => {
+        document.querySelectorAll('.select-book').forEach(checkbox => {
             checkbox.checked = selectAll;
         });
     });
@@ -61,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('book-record-added', (event, record) => {
         addBookToTable(record, true);
         updatePagination();
+        centerScroll(); // Re-center the table after a new book is added
     });
 
     ipcRenderer.on('book-record-updated', (event, record) => {
@@ -70,15 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('book-record-deleted', (event, id) => {
         deleteBookFromTable(id);
         updatePagination();
+        centerScroll(); // Re-center the table after a book is deleted
     });
 
-    window.addEventListener('resize', adjustBooksPerPage);
+    window.addEventListener('resize', () => {
+        adjustBooksPerPage();
+        centerScroll(); // Re-center the table when window is resized
+    });
     
-    // Initial adjustment
     adjustBooksPerPage();
-
-    loadBooks();
 });
+
+
 
 function openAddBookWindow() {
     ipcRenderer.send('open-add-book-window');
@@ -114,13 +116,27 @@ function loadBooks() {
 function displayBooks() {
     const bookList = document.getElementById('bookList');
     bookList.innerHTML = '';
+
+    if (currentBooks.length === 0) {
+        const emptyMessageRow = document.createElement('tr');
+        const emptyMessageCell = document.createElement('td');
+        emptyMessageCell.colSpan = 15;
+        emptyMessageCell.textContent = "You haven't added any books yet";
+        emptyMessageCell.classList.add('empty-message-cell'); // Add this line
+        emptyMessageRow.appendChild(emptyMessageCell);
+        bookList.appendChild(emptyMessageRow);
+        return;
+    }
+
     const start = (currentPage - 1) * booksPerPage;
     const end = start + booksPerPage;
     const booksToShow = currentBooks.slice(start, end);
+
     booksToShow.forEach(book => {
         addBookToTable(book);
     });
 }
+
 
 function addBookToTable(book, prepend = false) {
     const bookList = document.getElementById('bookList');

@@ -280,6 +280,14 @@ th input[type="checkbox"] {
     color: #127a8a;
 }
 
+.empty-message-cell {
+    text-align: center;
+    padding: 3.45rem 0 3.45rem 0;
+    margin: 10px;
+    font-size: 1.5rem; /* Optional */
+    color: #666; /* Optional */
+}
+
 /* Media queries for responsiveness */
 @media (max-width: 768px) {
     .button-header {
