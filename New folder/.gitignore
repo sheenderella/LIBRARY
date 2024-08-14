@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Package lock file
+package-lock.json
+
+# Package file (if you want to ignore it as well)
+package.json
