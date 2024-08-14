@@ -2,30 +2,24 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-    <link rel="stylesheet" href="#">
-    
-    <title> GRUBA LAW LIBRARY </title>
-
+    <title>GRUBA LAW LIBRARY - Settings</title>
+    <link rel="stylesheet" href="./settings.css">
 </head>
-
 <body>
     <div class="main-content">
-        <h1> SETTINGS </h1>
+        <h1>SETTINGS</h1>
         
-        <div>
-            <a class="nav-link" href="./change.html"> <br> Update Username and Password </a>
-            <a class="nav-link" href="#"> <br> Import data </a>
-            <a class="nav-link" href="#"> <br> Export data </a>
-        </div>
+        <a class="nav-link" href="./change.html"><br>Update Username and Password</a>
+        <button id="backup-btn">Backup Database</button>
+        <button id="restore-btn">Restore Database</button>
+        <a class="nav-link" href="./guide.html"><br> User Guide </a>
 
     </div>
 
-
-    <div> 
+    <div>
         <a class="nav-link" href="../index.html">Back</a>
     </div>
 
+    <script src="./settings.js"></script>
 </body>
 </html>

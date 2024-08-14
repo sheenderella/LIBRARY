@@ -6,8 +6,6 @@
  * integration with the Electron main process through IPC.
  */
 
-
-
 const { ipcRenderer } = require('electron');
 const handleAddBorrow = require('./addBorrow.js');
 const handleUpdateBorrow = require('./updateBorrow.js');
@@ -16,7 +14,7 @@ const pagination = require('./pagination.js');
 const { debounce, filterBorrowRecords } = require('./filters.js');
 
 // DOM Elements
-let borrowList, searchInput, statusFilter, dateFilter;
+let borrowList, searchInput, statusFilter, startDateFilter, endDateFilter;
 let allRecords = [];
 let currentSort = { column: null, direction: 'asc' };
 
@@ -26,12 +24,12 @@ function init() {
     borrowList = document.getElementById("borrowList");
     searchInput = document.getElementById("searchInput");
     statusFilter = document.getElementById("statusFilter");
-    dateFilter = document.getElementById("dateFilter");
+    startDateFilter = document.getElementById("startDateFilter");
+    endDateFilter = document.getElementById("endDateFilter");
 
     setupEventListeners();
     fetchBorrowRecords();
 }
-
 function setupEventListeners() {
     const addBorrowForm = document.getElementById('addBorrowForm');
     const updateBorrowForm = document.getElementById('updateBorrowForm');
@@ -40,17 +38,30 @@ function setupEventListeners() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const prevPageButton = document.getElementById('prevPage');
     const nextPageButton = document.getElementById('nextPage');
+    const cancelDateFilterButton = document.getElementById('cancelDateFilter');
+    const applyDateFilterButton = document.getElementById('applyDateFilter');
+    const dateFilterButton = document.querySelector('.dropbtn');
+    const dropdownContent = document.querySelector('.dropdown-content');
 
-    addEvent(addBorrowForm, 'submit', handleAddBorrowSubmit);
-    addEvent(updateBorrowForm, 'submit', handleUpdateBorrowSubmit);
-    addEvent(addBorrowButton, 'click', () => ipcRenderer.send('open-add-borrow-window'));
-    addEvent(deleteSelectedButton, 'click', handleDeleteSelected);
-    addEvent(selectAllCheckbox, 'change', handleSelectAll);
-    addEvent(searchInput, 'input', debounce(filterAndRenderRecords, 300));
-    addEvent(statusFilter, 'change', filterAndRenderRecords);
-    addEvent(dateFilter, 'change', filterAndRenderRecords);
-    addEvent(prevPageButton, 'click', () => pagination.changePage(-1, renderBorrowRecords));
-    addEvent(nextPageButton, 'click', () => pagination.changePage(1, renderBorrowRecords));
+    if (cancelDateFilterButton) addEvent(cancelDateFilterButton, 'click', handleCancelDateFilter);
+    if (applyDateFilterButton) addEvent(applyDateFilterButton, 'click', handleApplyDateFilter);
+    if (dateFilterButton) addEvent(dateFilterButton, 'click', toggleDropdown);
+    if (document) addEvent(document, 'click', closeDropdownOnOutsideClick);
+    if (addBorrowForm) addEvent(addBorrowForm, 'submit', handleAddBorrowSubmit);
+    if (updateBorrowForm) addEvent(updateBorrowForm, 'submit', handleUpdateBorrowSubmit);
+    if (addBorrowButton) addEvent(addBorrowButton, 'click', () => ipcRenderer.send('open-add-borrow-window'));
+    if (deleteSelectedButton) addEvent(deleteSelectedButton, 'click', handleDeleteSelected);
+    if (selectAllCheckbox) addEvent(selectAllCheckbox, 'change', handleSelectAll);
+    if (searchInput) addEvent(searchInput, 'input', debounce(filterAndRenderRecords, 300));
+    if (statusFilter) addEvent(statusFilter, 'change', filterAndRenderRecords);
+    if (prevPageButton) addEvent(prevPageButton, 'click', () => pagination.changePage(-1, renderBorrowRecords));
+    if (nextPageButton) addEvent(nextPageButton, 'click', () => pagination.changePage(1, renderBorrowRecords));
+
+    document.getElementById('statusFilter')?.addEventListener('change', function() {
+        var selectedOption = this.options[this.selectedIndex].text;
+        var statusText = selectedOption === 'All' ? 'Filter by Status' : selectedOption;
+        document.getElementById('statusFilterText').textContent = statusText;
+    });
 
     addSortEventListeners();
 
@@ -61,6 +72,47 @@ function setupEventListeners() {
     ipcRenderer.on('fill-update-form', (event, record) => fillUpdateForm(record));
     ipcRenderer.on('borrow-record-deleted', (event, id) => handleRecordDeletion(id));
 }
+
+
+document.getElementById('statusFilter').addEventListener('change', function() {
+    var selectedOption = this.options[this.selectedIndex].text;
+    var statusText = selectedOption === 'All' ? 'Filter by Status' : selectedOption;
+    document.getElementById('statusFilterText').textContent = statusText;
+
+    // Call the function to filter and render records
+    filterAndRenderRecords();
+});
+
+function handleCancelDateFilter() {
+    startDateFilter.value = '';
+    endDateFilter.value = '';
+    filterAndRenderRecords();
+    closeDropdown();
+}
+
+function handleApplyDateFilter() {
+    filterAndRenderRecords();
+    closeDropdown();
+}
+
+function toggleDropdown(event) {
+    event.stopPropagation();
+    const dropdownContent = document.querySelector('.dropdown-content');
+    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+}
+
+function closeDropdown() {
+    const dropdownContent = document.querySelector('.dropdown-content');
+    dropdownContent.style.display = 'none';
+}
+
+function closeDropdownOnOutsideClick(event) {
+    const dropdownContent = document.querySelector('.dropdown-content');
+    if (!dropdownContent.contains(event.target) && !document.querySelector('.dropbtn').contains(event.target)) {
+        closeDropdown();
+    }
+}
+
 
 function handleSelectAll(event) {
     const isChecked = event.target.checked;
@@ -74,51 +126,21 @@ function handleDeleteSelected() {
     selectedIds.forEach(id => deleteBorrowRecord(id));
 }
 
-
-
-
 function handleRecordDeletion(id) {
     allRecords = allRecords.filter(record => record.id !== parseInt(id));
-    pagination.renderBorrowRecords(allRecords, renderBorrowRecords);
+    filterAndRenderRecords();
 }
+
 function addEvent(element, event, handler) {
     if (element) element.addEventListener(event, handler);
 }
 
 function addSortEventListeners() {
-    const sortBorrowerNameAsc = document.getElementById('sortBorrowerNameAsc');
-    const sortBorrowerNameDesc = document.getElementById('sortBorrowerNameDesc');
-    const sortBookTitleAsc = document.getElementById('sortBookTitleAsc');
-    const sortBookTitleDesc = document.getElementById('sortBookTitleDesc');
-    const sortBorrowDateAsc = document.getElementById('sortBorrowDateAsc');
-    const sortBorrowDateDesc = document.getElementById('sortBorrowDateDesc');
-    const sortBorrowStatusAsc = document.getElementById('sortBorrowStatusAsc');
-    const sortBorrowStatusDesc = document.getElementById('sortBorrowStatusDesc');
-
-    if (sortBorrowerNameAsc) {
-        sortBorrowerNameAsc.addEventListener('click', () => sortTable('borrowerName', 'asc'));
-    }
-
-    if (sortBorrowerNameDesc) {
-        sortBorrowerNameDesc.addEventListener('click', () => sortTable('borrowerName', 'desc'));
-    }
-
-    if (sortBookTitleAsc) {
-        sortBookTitleAsc.addEventListener('click', () => sortTable('bookTitle', 'asc'));
-    }
-
-    if (sortBookTitleDesc) {
-        sortBookTitleDesc.addEventListener('click', () => sortTable('bookTitle', 'desc'));
-    }
-
-    if (sortBorrowDateAsc) {
-        sortBorrowDateAsc.addEventListener('click', () => sortTable('borrowDate', 'asc'));
-    }
-
-    if (sortBorrowDateDesc) {
-        sortBorrowDateDesc.addEventListener('click', () => sortTable('borrowDate', 'desc'));
-    }
+    document.querySelectorAll('.sort-btn').forEach(button => {
+        button.addEventListener('click', () => sortTable(button.dataset.column, button));
+    });
 }
+
 async function handleAddBorrowSubmit(event) {
     event.preventDefault();
     try {
@@ -145,7 +167,7 @@ async function fetchBorrowRecords() {
     try {
         allRecords = await ipcRenderer.invoke('getBorrows');
         allRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        pagination.renderBorrowRecords(allRecords, renderBorrowRecords);
+        filterAndRenderRecords();
     } catch (error) {
         console.error('Error fetching borrow records:', error);
     }
@@ -165,8 +187,8 @@ function renderBorrowRecords(records) {
             <td>${record.borrowDate}</td>
             <td>${record.borrowStatus}</td>
             <td>
-                <button class="btn btn-info edit-btn" data-id="${record.id}">Edit</button>
-                <button class="btn btn-danger delete-btn" data-id="${record.id}">Delete</button>
+                <button class="btn btn-info edit-btn" data-id="${record.id}">  <i class="fas fa-pencil-alt"></i> </button>
+                <button class="delete-btn" data-id="${record.id}"> <i class="fas fa-trash"></i> </button>
             </td>
         </tr>
     `).join('');
@@ -200,6 +222,7 @@ function setupRecordEventListeners() {
         });
     });
 }
+
 async function deleteBorrowRecord(id) {
     try {
         console.log('Deleting record with ID:', id);
@@ -208,7 +231,6 @@ async function deleteBorrowRecord(id) {
         console.error('Error handling delete borrow:', error);
     }
 }
-
 
 function openUpdateWindow(recordId) {
     const record = allRecords.find(r => r.id === parseInt(recordId));
@@ -254,34 +276,63 @@ function resetForm(formId) {
 }
 
 function filterAndRenderRecords() {
-    filterBorrowRecords(allRecords, searchInput, statusFilter, dateFilter, pagination, renderBorrowRecords);
+    const filteredRecords = filterBorrowRecords(allRecords, searchInput, statusFilter, startDateFilter, endDateFilter);
+    const sortedRecords = sortRecords(filteredRecords, currentSort.column, currentSort.direction);
+    pagination.setCurrentPage(1);
+    pagination.renderBorrowRecords(sortedRecords, renderBorrowRecords);
 }
 
-function sortTable(column, direction) {
-    console.log(`Sorting by column: ${column}, direction: ${direction}`);
-    if (currentSort.column === column && currentSort.direction === direction) {
-        // If the same column and direction are clicked again, reset to default sort
-        currentSort = { column: null, direction: 'asc' };
-        allRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+function sortTable(column, button) {
+    let order = button.dataset.order || 'asc';
+
+    if (order === 'asc') {
+        order = 'desc';
+    } else if (order === 'desc') {
+        order = 'default';
     } else {
-        currentSort = { column, direction };
+        order = 'asc';
+    }
+    button.dataset.order = order;
 
-        allRecords.sort((a, b) => {
-            const valueA = a[column] ? a[column].toString().toLowerCase() : '';
-            const valueB = b[column] ? b[column].toString().toLowerCase() : '';
-            
-            console.log(`Comparing ${valueA} with ${valueB}`);
+    const currentIcon = button.querySelector('i');
+    document.querySelectorAll('.sort-btn i').forEach(icon => {
+        icon.classList.remove('fa-sort-up', 'fa-sort-down');
+        icon.classList.add('fa-sort');
+    });
 
-            if (valueA < valueB) return direction === 'asc' ? -1 : 1;
-            if (valueA > valueB) return direction === 'asc' ? 1 : -1;
-            return 0;
-        });
+    if (order === 'asc') {
+        currentIcon.classList.remove('fa-sort');
+        currentIcon.classList.add('fa-sort-up');
+        currentSort = { column, direction: 'asc' };
+    } else if (order === 'desc') {
+        currentIcon.classList.remove('fa-sort');
+        currentIcon.classList.add('fa-sort-down');
+        currentSort = { column, direction: 'desc' };
+    } else {
+        currentIcon.classList.remove('fa-sort-up', 'fa-sort-down');
+        currentIcon.classList.add('fa-sort');
+        currentSort = { column: null, direction: 'asc' };
     }
 
-    renderBorrowRecords(allRecords);
-    pagination.renderBorrowRecords(allRecords, renderBorrowRecords);
+    filterAndRenderRecords();
 }
 
+function sortRecords(records, column, direction) {
+    if (!column) return records;
+
+    const sortedRecords = [...records];
+    sortedRecords.sort((a, b) => {
+        const aText = a[column] ? a[column].toString().trim() : '';
+        const bText = b[column] ? b[column].toString().trim() : '';
+        if (!isNaN(aText) && !isNaN(bText)) {
+            return direction === 'asc' ? aText - bText : bText - aText;
+        } else {
+            return direction === 'asc' ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        }
+    });
+
+    return sortedRecords;
+}
 
 function updateRecordList(record, action) {
     if (action === 'add') {
@@ -292,7 +343,5 @@ function updateRecordList(record, action) {
         const index = allRecords.findIndex(r => r.id === record.id);
         if (index !== -1) allRecords[index] = record;
     }
-    allRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    renderBorrowRecords(allRecords);
-    pagination.renderBorrowRecords(allRecords, renderBorrowRecords);
+    filterAndRenderRecords();
 }

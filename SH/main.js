@@ -4,12 +4,13 @@ const db = require('./database.js');
 
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
 
+require('./settings/backupRestore.js'); // Add this line to include backup functionalities
+
 function createWindow(options) {
     const window = new BrowserWindow({
         width: options.width || 800,
         height: options.height || 600,
         parent: options.parent || null,
-
         resizable: false, // Prevents resizing
         webPreferences: {
             nodeIntegration: true,
@@ -22,8 +23,8 @@ function createWindow(options) {
     window.on('closed', () => {
         if (options.onClose) options.onClose();
     });
-
     return window;
+
 }
 
 //DASHBOARD
@@ -35,7 +36,7 @@ function createMainWindow() {
     });
 }
 
-// LOGIN
+//LOGIN
 function createLoginWindow() {
     loginWindow = createWindow({
         filePath: 'login.html',
@@ -46,8 +47,8 @@ function createLoginWindow() {
 function createAddBorrowWindow() {
     addBorrowWindow = createWindow({
         filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
-        width: 1500,
-        height: 680,
+        width: 400,
+        height: 600,
         parent: mainWindow,
         onClose: () => (addBorrowWindow = null),
     });
@@ -71,8 +72,8 @@ function createUpdateBorrowWindow(record) {
 function createAddBookWindow() {
     addBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'addBook.html'),
-        // width: 500,
-        // height: 600,
+        width: 400,
+        height: 600,
         parent: mainWindow,
         onClose: () => (addBookWindow = null),
     });
@@ -81,9 +82,8 @@ function createAddBookWindow() {
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'editBook.html'),
-        // width: 500,
-        // height: 600,
-
+        width: 400,
+        height: 600,
         parent: mainWindow,
         onClose: () => (editBookWindow = null),
     });
@@ -303,3 +303,4 @@ ipcMain.on('open-edit-book-window', (event, record) => {
         editBookWindow.webContents.send('fill-edit-form', record);
     }
 });
+

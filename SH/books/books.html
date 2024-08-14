@@ -17,9 +17,7 @@
             <a class="nav-link" href="../index.html">Back</a>
         </div>
 
-        <div class="button-header">
-
-        <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i>Add Book</button>
+        <button id="addBook" class="btn btn-success">Add Book</button>
         <button id="deleteSelected" class="btn btn-danger">Delete Selected</button>
 
         <div class="search-sort">
@@ -39,46 +37,35 @@
                 <option value="year">Year</option>
                 <option value="remarks">Remarks</option>
             </select>
-            <div class="input-container">
-                <i class="icon fas fa-search"></i>
-                <input type="text" id="searchInput" class="form-control" placeholder="Search">
-            </div>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search :>">
         </div>
 
-        </div>
-        
-
-        <div class="scroll-container">
-            <div class="scrollbar-top"></div>
-            <div class="table-container">
-              <table>
+        <div class="table-container">
+            <table>
                 <thead>
-                  <tr>
-                    <th><input type="checkbox" id="selectAll"></th>
-                    <th>Number <button data-column="number" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Date Received <button data-column="date_received" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Class <button data-column="class" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Author <button data-column="author" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Title of Book <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Edition <button data-column="edition" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Volume <button data-column="volume" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Source of Fund <button data-column="source_of_fund" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Pages <button data-column="pages" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Cost Price <button data-column="cost_price" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Publisher <button data-column="publisher" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Year <button data-column="year" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                    <th>Remarks</th>
-                    <th>Actions</th>
-                  </tr>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>Number <button data-column="number" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Date Received <button data-column="date_received" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Class <button data-column="class" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Author <button data-column="author" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Title of Book <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Edition <button data-column="edition" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Volume <button data-column="volume" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Source of Fund <button data-column="source_of_fund" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Pages <button data-column="pages" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Cost Price <button data-column="cost_price" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Publisher <button data-column="publisher" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Year <button data-column="year" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
-                <tbody id="bookList">
-                  <!-- Table rows will be dynamically inserted here -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div id="pagination" class="pagination-container"></div>
+                <tbody id="bookList"></tbody>
+            </table>
         </div>
+
+        <div id="pagination" class="pagination-container"></div>
     </div>
     <script src="books.js"></script>
 </body>

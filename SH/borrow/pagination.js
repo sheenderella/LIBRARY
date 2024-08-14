@@ -6,7 +6,7 @@
 
 // Pagination variables
 let currentPage = 1;
-const recordsPerPage = 10;
+const recordsPerPage = 7;
 
 // Render borrow records with pagination
 function renderBorrowRecords(records, renderFunction) {

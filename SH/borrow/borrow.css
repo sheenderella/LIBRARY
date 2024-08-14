@@ -1,3 +1,4 @@
+/* General styles for the entire page */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -5,22 +6,22 @@ body {
     padding: 0;
 }
 
+/* Container to hold the main content */
 .container {
     width: 80%;
     margin: auto;
-    overflow: hidden;
     padding: 20px;
     background: #fff;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
     margin-top: 20px;
-    border-radius: 10px;
 }
 
+/* Styles for the main title */
 h1 {
-    text-align: left;
     color: #333;
 }
 
+/* Styles for the navigation link */
 .nav-link {
     display: inline-block;
     margin-bottom: 20px;
@@ -28,7 +29,6 @@ h1 {
     text-decoration: none;
     padding: 5px 10px;
     border: 1px solid #007BFF;
-    border-radius: 5px;
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -37,72 +37,210 @@ h1 {
     color: #fff;
 }
 
-.form-group {
-    margin-bottom: 15px;
-}
-
+/* General styles for form controls */
 .form-control {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+}
+
+/* Styles for the control panel (search, filter, sort, buttons) */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Flex item for search input, with a larger flex-grow */
+.search-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #30688B;
+    border: 1px solid #333C42;
+}
+
+.search-icon {
+    color: #fff;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 2; /* Larger flex-grow for the search input */
+}
+
+.search-input {
+    flex-grow: 1;
+    padding-left: 10px;
+    border: 1px solid #333C42;
+    margin-left: -1px;
+}
+
+
+
+/* Status filter container with default flex-grow */
+.status-filter-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjusted width */
+}
+
+.status-filter-box {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    color: #333C42;
+    cursor: pointer;
+    border: 1px solid #333C42;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%; /* Ensure it occupies the full container */
+    padding: 10px;
+}
+
+.filter-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #333C42;
+}
+
+#statusFilter {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
 }
 
-.form-control1 {
-    width: 150%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+#statusFilterText {
+    margin-left: 5px;
+    flex-grow: 1;
+    color: #333C42;
 }
 
+.dropdown-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #333C42;
+}
 
-.btn {
+/* Date filter dropdown */
+.dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjusted width */
+}
+
+.dropbtn {
+    background-color: #ffffff;
+    color: #333C42;
     padding: 10px 20px;
     font-size: 16px;
-    border: none;
-    border-radius: 5px;
+    border: 1px solid #333C42;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* Ensure it occupies the full container */
+}
+
+
+/* Style the calendar icon inside the 'Filter by Date' button */
+.dropbtn i.calendar-icon {
+    margin-right: 15px; /* Match the spacing with 'Filter by Status' */
+    font-size: 18px; /* Ensure icon size is consistent */
+    color: #333C42; /* Match icon color */
+}
+
+/* Style the dropdown arrow inside the 'Filter by Date' button */
+.dropbtn i.dropdown-icon {
+    margin-left: 20px; /* Push the dropdown icon to the right */
+    font-size: 18px; /* Ensure icon size is consistent */
+    color: #333C42; /* Match icon color */
+}
+
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position it directly below the button */
+    left: 0;
+    background-color: #e39797;
+    min-width: 100%; /* Match the dropdown button width */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Button group inside dropdown */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.button-group .btn {
+    flex-grow: 1;
+}
+
+/* Styles for delete and add buttons */
+#deleteSelected, #addBorrow {
+    flex-grow: 1;
+    max-width: 120px; /* Adjusted width */
+    padding: 10px;
+}
+
+.btn {
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-success {
-    background-color: #28a745;
-    color: #fff;
+    background-color: #30688B;
+    color: #ffffff;
+    border: 1px solid #333C42;
 }
 
-.btn-success:hover {
-    background-color: #218838;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-}
-
-.btn-info {
-    background-color: #17a2b8;
-    color: #fff;
-}
-
-.btn-info:hover {
-    background-color: #138496;
+.btn-success i {
+    margin-right: 5px; /* Add space between the icon and the text */
+    font-weight: 900; /* Make the icon bold */
+    font-size: 20px; /* Slightly increase the size for emphasis */
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    color: #fff;
+    background-color: transparent; /* Remove background */
+    border: none; /* Remove border */
+    color: #333C42; /* Keep the icon color */
+    padding: 0; /* Remove padding */
+    font-size: 18px; /* Adjust the icon size if needed */
+    width: 1px; /* Set the width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.btn-danger:hover {
-    background-color: #c82333;
-}
 
+/* Table styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -110,42 +248,102 @@ table {
 }
 
 thead {
-    background-color: #007bff;
+    background-color: #30688B;
     color: #fff;
 }
 
 th, td {
     padding: 10px;
-    border: 1px solid #ccc;
-    text-align: left;
+    border: none; /* Remove vertical lines */
+    text-align: center; /* Center column names */
 }
 
-th {
-    position: relative;
+tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
 }
 
+tbody tr:nth-child(even) {
+    background-color: #eeeeee;
+}
 
-.sort-btn {
-    background: none;
-    border: none;
+/* Status column styling */
+td.status-returned {
+    background-color: #d4edda;
+    color: #155724;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+td.status-borrowed {
+    background-color: #fff3cd;
+    color: #856404;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+/* Icon styling */
+td.actions {
+    text-align: center;
     cursor: pointer;
-    font-size: 12px;
-    margin-left: 5px;
 }
 
-.search-sort {
+td.actions i {
+    color: #0099ff;
+    font-size: 18px;
+    background: none; /* Remove background for icons */
+    padding: 0; /* Remove any padding */
+    border: none; /* Ensure no border around icons */
+}
+
+/* Sort buttons */
+.sort-btn {
+    background-color: transparent; /* Remove button background */
+    border: none; /* Remove button border */
+    padding: 0;
+    cursor: pointer;
+    color: #ffffff; /* Change the icon color */
+    font-size: 16px; /* Adjust icon size if needed */
+}
+
+/* hover effects */
+.sort-btn:hover {
+    color: rgb(227, 227, 227);
+}
+
+/*  Adjust the color of the sort icons when active (asc/desc) */
+.sort-btn i.fa-sort-up, .sort-btn i.fa-sort-down {
+    color: #ffffff; /* Example color when sorting is active */
+}
+
+.sort-btn i {
+    margin-left: 5px; /* Space between the text and the icon */
+}
+
+
+/* Pagination controls */
+.pagination-controls {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-top: 20px;
-    margin-bottom: 20px;
 }
 
-.search-sort input,
-.search-sort select {
-    padding: 10px;
-    font-size: 16px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+.pagination-controls button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #333C42;
+    background-color: #30688B;
+    color: white;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.pagination-controls span {
+    padding: 5px 10px;
+    color: #333C42;
+    font-weight: bold;
 }
