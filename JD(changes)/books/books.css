@@ -1,16 +1,15 @@
-/* books.css */
-
+/* Reset CSS */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     background-color: #f8f9fa;
-
 }
 
+/* Container for main content */
 .container {
-    width: 95;
+    width: 94%;
     margin: auto;
     padding: 2rem;
     background-color: #fff;
@@ -18,6 +17,7 @@ body {
     border-radius: 0.5rem;
 }
 
+/* Heading */
 h1 {
     font-size: 2em;
     color: #333;
@@ -25,6 +25,7 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Paragraph */
 p {
     font-size: 1em;
     color: #555;
@@ -32,6 +33,7 @@ p {
     margin-bottom: 20px;
 }
 
+/* Navigation link */
 .nav-link {
     display: inline-block;
     margin-bottom: 20px;
@@ -48,6 +50,7 @@ p {
     color: #fff;
 }
 
+/* Button styling */
 .btn {
     display: inline-block;
     padding: 10px 20px;
@@ -64,18 +67,7 @@ p {
     background-color: #218838;
 }
 
-.fas.fa-plus {
-    margin-right: 10px;
-}
-
-.button-header {
-    display: flex;
-    flex-wrap: wrap; /* Allows wrapping of elements if needed */
-    gap: 10px; /* Adds spacing between elements */
-    margin-bottom: 10px; /* Adds space below the button-header */
-    align-items: center; /* Vertically aligns items in the center */
-}
-
+/* Specific button styles */
 #deleteSelected {
     background-color: red;
 }
@@ -84,80 +76,89 @@ p {
     background-color: rgb(205, 3, 3);
 }
 
+/* Search column dropdown */
 #searchColumn {
     padding: .60rem;
     border-radius: 0.20rem;
     border-color: #d7d7d7;
 }
 
-.button-group {
+/* Button header styles */
+.button-header {
     display: flex;
-    gap: 10px; /* Adds space between buttons in the group */
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
 }
 
+/* Search and sort container alignment */
 .search-sort {
     display: flex;
-    gap: 10px; /* Adds spacing between elements */
-    align-items: center; /* Aligns elements vertically center */
-    margin-left: auto; /* Pushes search-sort to the right side */
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
     margin-bottom: 20px;
 }
 
+/* Input field styling */
 .search-sort input {
-    flex: 1; /* Allows input to take available space */
-    max-width: 100%; /* Ensures the input does not overflow */
-    flex: 1; /* Allows the input to take available space */
-    max-width: 100%; /* Ensures the input does not overflow */
+    flex: 1;
     padding: 10px;
     font-size: 1em;
     border: 1px solid #ced4da;
     border-radius: 5px;
 }
 
+/* Input container for search field */
 .input-container {
     position: relative;
-    width: 200px; /* Adjust as needed */
+    width: 200px;
 }
 
+/* Search field with icon */
 .input-container .form-control {
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid #dddddd; /* Example border style */
-    border-radius: 4px; /* Example border radius */
-    padding: 10px 10px 10px 35px; /* Adjust for desired input padding */
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    padding: 10px 10px 10px 35px;
 }
 
+/* Icon positioning inside the input field */
 .input-container .icon {
     position: absolute;
-    left: 10px; /* Positioning from the left edge of the container */
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 16px; /* Icon size */
-    color: #888; /* Icon color */
-    transition: opacity 0.3s ease; /* Smooth transition for fading */
+    font-size: 16px;
+    color: #888;
+    transition: opacity 0.3s ease;
 }
 
-
-
+/* Scroll container */
 .scroll-container {
     position: relative;
     width: 100%;
-    position: sticky;
 }
-  
+
+/* Scrollbar styling */
 .scrollbar-top {
     overflow-x: scroll;
-    overflow-y: hidden; /* Ensure only horizontal scrollbar appears */
-    height: 20px; /* Adjust based on your design */
+    overflow-y: hidden;
+    height: 20px;
 }
-    
+
+/* Table container styling */
 .table-container {
+    font-size: small;
     margin-top: 1rem;
     margin-bottom: 1rem;
     position: relative;
     overflow-x: scroll;
 }
 
+/* Table styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -169,7 +170,7 @@ thead {
     color: #fff;
     position: sticky;
     top: 0;
-    z-index: 1; /* Ensure the header stays on top */
+    z-index: 1;
 }
 
 th, td {
@@ -185,9 +186,10 @@ th {
 }
 
 th input[type="checkbox"] {
-    margin: 0; /* Remove margin around checkbox */
+    margin: 0;
 }
 
+/* Sort button in table headers */
 .sort-btn {
     position: absolute;
     right: 10px;
@@ -204,6 +206,7 @@ th input[type="checkbox"] {
     margin-left: 3rem;
 }
 
+/* Pagination container */
 #pagination {
     display: flex;
     justify-content: center;
@@ -215,6 +218,7 @@ th input[type="checkbox"] {
     background: white;
 }
 
+/* Page button styling */
 .page-btn {
     background-color: #ffffff;
     margin: 0.15rem;
@@ -230,14 +234,13 @@ th input[type="checkbox"] {
 }
 
 .page-btn.active {
-    background-color: lightblue; /* Highlight color */
-    border: 1px solid #007BFF; /* Optional: Add border for better visibility */
+    background-color: lightblue;
+    border: 1px solid #007BFF;
     font-weight: bold;
     color: #383838;
 }
 
-
-/* Common icon button styling */
+/* Icon button styling */
 .icon-btn {
     background: none;
     border: none;
@@ -249,53 +252,127 @@ th input[type="checkbox"] {
     padding: 1em;
 }
 
-/* Specific styling for edit button */
+/* Edit button styling */
 .edit-btn {
     color: #17a2b8;
     font-size: large;
-    /* Remove default button styling */
     border: none;
     background-color: transparent;
     box-shadow: none;
 }
 
-/* Specific styling for delete button */
+/* Delete button styling */
 .delete-btn {
     color: #da1313;
     font-size: large;
-        /* Remove default button styling */
-        border: none;
-        background-color: transparent;
-        box-shadow: none;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
 }
 
-/* Optional: Add hover effects */
+/* Hover effects for icon buttons */
 .icon-btn:hover {
     opacity: 0.7;
 }
+
 .delete-btn:hover {
     color: #a30e0e;
 }
+
 .edit-btn:hover {
     color: #127a8a;
 }
 
+/* Empty message cell styling */
 .empty-message-cell {
     text-align: center;
-    padding: 3.45rem 0 3.45rem 0;
-    margin: 10px;
-    font-size: 1.5rem; /* Optional */
-    color: #666; /* Optional */
+    padding: 3.45rem 0;
+    font-size: 1.5rem;
+    color: #555555;
+    background-color: #f9f9f9;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
 }
+
+/* Container for date range filter */
+.custom-range-narrow {
+    width: 15%; /* Adjust this value as needed */
+}
+
+.date-range-container {
+    padding-bottom: 1rem;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box; /* Ensures padding and border are included in the total width */
+}
+
+#dateRangeContainer {
+    flex: content;
+    margin-left: 18rem;
+    width: 15%;
+}
+
+/* Base style for the date range container */
+.date-range-container {
+    position: relative;
+}
+
+.date-range-container .form-control {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    padding: 11px 10px 9px 10px;
+    align-items: center;
+}
+
+/* Style for the custom date range section */
+.date-group {
+    display: none; /* Hide by default */
+    position: absolute;
+    top: 68%; /* Position it just below the select element */
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 87%;
+    z-index: 10; /* Ensure it appears above other elements */
+    margin: 0;
+}
+
+/* Style for labels */
+.date-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Style for date inputs */
+.date-group input[type="date"] {
+    width: calc(100% - 16px); /* Adjust width to fit inside container with padding */
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+
 
 /* Media queries for responsiveness */
 @media (max-width: 768px) {
     .button-header {
-        flex-direction: column; /* Stack buttons vertically */
-        align-items: flex-start; /* Align buttons to the start */
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .search-sort {
-        flex-direction: column; /* Stack search and sort elements vertically */
+        flex-direction: column;
+    }
+
+    .date-range-container {
+        margin-left: 0; /* Reset margin for small screens */
     }
 }

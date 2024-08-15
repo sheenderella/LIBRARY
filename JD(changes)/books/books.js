@@ -3,22 +3,54 @@ const { ipcRenderer } = require('electron');
 document.addEventListener('DOMContentLoaded', () => {
     const addBookButton = document.getElementById('addBook');
     const deleteSelectedButton = document.getElementById('deleteSelected');
-    const searchInput = document.getElementById('searchInput');
-    const searchColumn = document.getElementById('searchColumn');
     const sortButtons = document.querySelectorAll('.sort-btn');
     const selectAllCheckbox = document.getElementById('selectAll');
     const paginationContainer = document.getElementById('pagination');
+
+    const searchColumn = document.getElementById('searchColumn');
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', filterBooks);
+
+        // Add event listener for date range selection
+        document.getElementById('dateRangeSelect').addEventListener('change', function() {
+            const customRange = document.getElementById('customDateRange');
+            if (this.value === 'custom') {
+                customRange.style.display = 'block';
+                dateRangeContainer.classList.add('custom-range-narrow');
+            } else {
+                customRange.style.display = 'none';
+                dateRangeContainer.classList.remove('custom-range-narrow');
+            }
+            filterBooks(); // Apply filter when selection changes
+        });
     
+        // Add event listeners for date inputs
+        document.getElementById('startDate').addEventListener('change', filterBooks);
+        document.getElementById('endDate').addEventListener('change', filterBooks);
+
+
+        document.getElementById('dateRangeSelect').addEventListener('change', function() {
+            const customRange = document.getElementById('customDateRange');
+            
+            if (this.value === 'custom') {
+                customRange.style.display = 'block';
+            } else {
+                customRange.style.display = 'none';
+            }
+        });
+        
+
+
+    // MAKE A SCROLL BAR TOP OF THE TABLE
     const scrollbarTop = document.querySelector('.scrollbar-top');
     const tableContainer = document.querySelector('.table-container');
   
-    // Synchronize scrolling between top scrollbar and table container
     scrollbarTop.addEventListener('scroll', function() {
-        tableContainer.scrollLeft = scrollbarTop.scrollLeft;
+      tableContainer.scrollLeft = scrollbarTop.scrollLeft;
     });
   
     tableContainer.addEventListener('scroll', function() {
-        scrollbarTop.scrollLeft = tableContainer.scrollLeft;
+      scrollbarTop.scrollLeft = tableContainer.scrollLeft;
     });
   
     // Create a dummy content to ensure scrollbar appears
@@ -27,31 +59,33 @@ document.addEventListener('DOMContentLoaded', () => {
     dummyContent.style.height = '1px';
     scrollbarTop.appendChild(dummyContent);
 
-    // Center the scrollbar and table content horizontally
-    const centerScroll = () => {
-        const maxScrollLeft = tableContainer.scrollWidth - tableContainer.clientWidth;
-        const centerPosition = maxScrollLeft / 2;
+    // ADD-DELETE-EDIT ACTIONS
+    addBookButton.addEventListener('click', () => {
+        openAddBookWindow();
+    });
 
-        tableContainer.scrollLeft = centerPosition;
-        scrollbarTop.scrollLeft = centerPosition;
-    };
+    deleteSelectedButton.addEventListener('click', () => {
+        deleteSelectedBooks();
+    });
 
-    // Initial centering after the table is loaded
-    loadBooks().then(centerScroll);
+    searchInput.addEventListener('input', () => {
+        filterBooks();
+    });
 
-    // Event listeners for various actions
-    addBookButton.addEventListener('click', openAddBookWindow);
-    deleteSelectedButton.addEventListener('click', deleteSelectedBooks);
-    searchInput.addEventListener('input', filterBooks);
-    searchColumn.addEventListener('change', filterBooks);
+    searchColumn.addEventListener('change', () => {
+        filterBooks();
+    });
 
     sortButtons.forEach(button => {
-        button.addEventListener('click', () => sortBooks(button.dataset.column, button));
+        button.addEventListener('click', () => {
+            sortBooks(button.dataset.column, button);
+        });
     });
 
     selectAllCheckbox.addEventListener('change', () => {
         const selectAll = selectAllCheckbox.checked;
-        document.querySelectorAll('.select-book').forEach(checkbox => {
+        const checkboxes = document.querySelectorAll('.select-book');
+        checkboxes.forEach(checkbox => {
             checkbox.checked = selectAll;
         });
     });
@@ -59,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('book-record-added', (event, record) => {
         addBookToTable(record, true);
         updatePagination();
-        centerScroll(); // Re-center the table after a new book is added
     });
 
     ipcRenderer.on('book-record-updated', (event, record) => {
@@ -69,21 +102,29 @@ document.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('book-record-deleted', (event, id) => {
         deleteBookFromTable(id);
         updatePagination();
-        centerScroll(); // Re-center the table after a book is deleted
     });
 
-    window.addEventListener('resize', () => {
-        adjustBooksPerPage();
-        centerScroll(); // Re-center the table when window is resized
-    });
+    window.addEventListener('resize', adjustBooksPerPage);
     
+    // Initial adjustment
     adjustBooksPerPage();
+
+    loadBooks();
 });
-
-
 
 function openAddBookWindow() {
     ipcRenderer.send('open-add-book-window');
+}
+
+function openDeleteNotifWindow(ids) {
+    ipcRenderer.once('delete-confirmed', () => {
+        ids.forEach(id => {
+            ipcRenderer.invoke('deleteBook', id);
+        });
+        updatePagination();
+    });
+
+    ipcRenderer.send('open-delete-notif-window', ids);
 }
 
 function openEditBookWindow(record) {
@@ -121,8 +162,8 @@ function displayBooks() {
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 15;
-        emptyMessageCell.textContent = "You haven't added any books yet";
-        emptyMessageCell.classList.add('empty-message-cell'); // Add this line
+        emptyMessageCell.textContent = "No Existing Book";
+        emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
         emptyMessageRow.appendChild(emptyMessageCell);
         bookList.appendChild(emptyMessageRow);
         return;
@@ -131,12 +172,10 @@ function displayBooks() {
     const start = (currentPage - 1) * booksPerPage;
     const end = start + booksPerPage;
     const booksToShow = currentBooks.slice(start, end);
-
     booksToShow.forEach(book => {
         addBookToTable(book);
     });
 }
-
 
 function addBookToTable(book, prepend = false) {
     const bookList = document.getElementById('bookList');
@@ -169,8 +208,8 @@ function addBookToTable(book, prepend = false) {
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
         const id = book.id;
-        ipcRenderer.invoke('deleteBook', id);
-    });
+        openDeleteNotifWindow(id); // Open the confirmation popup with the book ID
+    });    
 
     if (prepend) {
         bookList.insertBefore(row, bookList.firstChild);
@@ -212,27 +251,85 @@ function deleteSelectedBooks() {
     const selectedBooks = document.querySelectorAll('.select-book:checked');
     const ids = Array.from(selectedBooks).map(book => book.dataset.id);
 
-    ids.forEach(id => {
-        ipcRenderer.invoke('deleteBook', id);
-    });
-    updatePagination();
+    if (ids.length > 0) {
+        openDeleteNotifWindow(ids);
+    } else {
+        alert("No books selected");
+    }
 }
 
 function filterBooks() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
     const searchColumn = document.getElementById('searchColumn').value;
+    const dateRangeSelect = document.getElementById('dateRangeSelect').value;
+    const startDateInput = document.getElementById('startDate').value;
+    const endDateInput = document.getElementById('endDate').value;
+
+    // Parse dates for filtering
+    let startDate = startDateInput ? new Date(startDateInput) : null;
+    let endDate = endDateInput ? new Date(endDateInput) : null;
+
     currentBooks = originalBooks.filter(book => {
-        const cells = Object.values(book);
+        let matches = true;
+
         if (searchColumn === 'all') {
-            return cells.some(cell => String(cell).toLowerCase().includes(searchInput));
+            matches = Object.values(book).some(cell => String(cell).toLowerCase().includes(searchInput));
         } else {
-            return String(book[searchColumn]).toLowerCase().includes(searchInput);
+            matches = String(book[searchColumn]).toLowerCase().includes(searchInput);
         }
+
+        // Apply date range filtering
+        if (dateRangeSelect !== '') {
+            const bookDate = new Date(book.date_received);
+
+            if (dateRangeSelect === 'last_7_days') {
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                matches = bookDate >= sevenDaysAgo;
+            } else if (dateRangeSelect === 'last_30_days') {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                matches = bookDate >= thirtyDaysAgo;
+            } else if (dateRangeSelect === 'this_month') {
+                const today = new Date();
+                matches = bookDate.getMonth() === today.getMonth() && bookDate.getFullYear() === today.getFullYear();
+            } else if (dateRangeSelect === 'last_month') {
+                const today = new Date();
+                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                const firstDayOfLastMonth = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+                const lastDayOfLastMonth = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+                matches = bookDate >= firstDayOfLastMonth && bookDate <= lastDayOfLastMonth;
+            } else if (dateRangeSelect === 'custom') {
+                if (startDate && endDate) {
+                    matches = bookDate >= startDate && bookDate <= endDate;
+                } else {
+                    matches = false;
+                }
+            }
+        }
+
+        return matches;
     });
+
     currentPage = 1;
     displayBooks();
     updatePagination();
 }
+
+document.getElementById('searchColumn').addEventListener('change', () => {
+    const searchColumn = document.getElementById('searchColumn').value;
+    const textInputContainer = document.getElementById('textInputContainer');
+    const dateInputContainer = document.getElementById('dateInputContainer');
+
+    if (searchColumn === 'date_received') {
+        textInputContainer.style.display = 'none';
+        dateInputContainer.style.display = 'block';
+    } else {
+        textInputContainer.style.display = 'block';
+        dateInputContainer.style.display = 'none';
+    }
+    filterBooks();
+});
 
 function sortBooks(column, button) {
     const bookList = document.getElementById('bookList');

@@ -2,26 +2,20 @@ const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const db = require('./database.js');
 
-let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
+let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 
 function createWindow(options) {
     const window = new BrowserWindow({
         width: options.width || 800,
         height: options.height || 600,
         parent: options.parent || null,
-        minWidth: options.minWidth || 400, // Set minimum width
-        minHeight: options.minHeight || 300, // Set minimum height
-        maxWidth: options.maxWidth || 1920, // Set maximum width
-        maxHeight: options.maxHeight || 1080, // Set maximum height
+
+        resizable: false, // Prevents resizing
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
         },
     });
-
-    if (options.maximize) {
-        window.maximize(); // Maximize the window
-    }
 
     window.loadFile(options.filePath);
 
@@ -36,9 +30,8 @@ function createWindow(options) {
 function createMainWindow() {
     mainWindow = createWindow({
         filePath: 'index.html',
-        maximize: true, // Maximize the main window on start
-        minWidth: 800, // Set minimum width (adjust as needed)
-        minHeight: 600, // Set minimum height (adjust as needed)
+        width: 1200,
+        height: 680,
     });
 }
 
@@ -46,8 +39,17 @@ function createMainWindow() {
 function createLoginWindow() {
     loginWindow = createWindow({
         filePath: 'login.html',
-        minWidth: 400, // Set minimum width (adjust as needed)
-        minHeight: 300, // Set minimum height (adjust as needed)
+    });
+}
+
+//DELETE WARNING
+function createDeleteNotifWindow() {
+    deleteNotifWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
+        width: 400,
+        height: 300,
+        parent: mainWindow,
+        onClose: () => (deleteNotifWindow = null),
     });
 }
 
@@ -55,8 +57,8 @@ function createLoginWindow() {
 function createAddBorrowWindow() {
     addBorrowWindow = createWindow({
         filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
-        width: 400,
-        height: 600,
+        width: 500,
+        height: 680,
         parent: mainWindow,
         onClose: () => (addBorrowWindow = null),
     });
@@ -80,12 +82,8 @@ function createUpdateBorrowWindow(record) {
 function createAddBookWindow() {
     addBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'addBook.html'),
-        width: 500,
+        width: 600,
         height: 600,
-        maxWidth: 500,
-        maxHeight: 600,
-        minWidth: 500,
-        minHeight: 600,
         parent: mainWindow,
         onClose: () => (addBookWindow = null),
     });
@@ -94,12 +92,9 @@ function createAddBookWindow() {
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'editBook.html'),
-        width: 500,
+        width: 600,
         height: 600,
-        maxWidth: 500,
-        maxHeight: 600,
-        minWidth: 500,
-        minHeight: 600,
+
         parent: mainWindow,
         onClose: () => (editBookWindow = null),
     });
@@ -310,6 +305,20 @@ ipcMain.on('open-add-book-window', () => {
         addBookWindow.focus();
     }
 });
+
+ipcMain.on('open-delete-notif-window', (event, id) => {
+    if (!deleteNotifWindow) {
+        createDeleteNotifWindow();
+    } else {
+        deleteNotifWindow.focus();
+    }
+
+    // Send the book ID to the deleteNotif window after it's ready
+    deleteNotifWindow.webContents.on('did-finish-load', () => {
+        deleteNotifWindow.webContents.send('set-book-id', id);
+    });
+});
+
 
 ipcMain.on('open-edit-book-window', (event, record) => {
     if (!editBookWindow) {
