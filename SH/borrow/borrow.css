@@ -1,0 +1,350 @@
+/* General styles for the entire page */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container to hold the main content */
+.container {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+/* Styles for the main title */
+h1 {
+    color: #333;
+}
+
+/* Styles for the navigation link */
+.nav-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #007BFF;
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 1px solid #007BFF;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link:hover {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+/* General styles for form controls */
+.form-control {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+}
+
+/* Styles for the control panel (search, filter, sort, buttons) */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Flex item for search input, with a larger flex-grow */
+.search-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #30688B;
+    border: 1px solid #333C42;
+}
+
+.search-icon {
+    color: #fff;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 2; /* Larger flex-grow for the search input */
+}
+
+.search-input {
+    flex-grow: 1;
+    padding-left: 10px;
+    border: 1px solid #333C42;
+    margin-left: -1px;
+}
+
+
+
+/* Status filter container with default flex-grow */
+.status-filter-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjusted width */
+}
+
+.status-filter-box {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    color: #333C42;
+    cursor: pointer;
+    border: 1px solid #333C42;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%; /* Ensure it occupies the full container */
+    padding: 10px;
+}
+
+.filter-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #333C42;
+}
+
+#statusFilter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+#statusFilterText {
+    margin-left: 5px;
+    flex-grow: 1;
+    color: #333C42;
+}
+
+.dropdown-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #333C42;
+}
+
+/* Date filter dropdown */
+.dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjusted width */
+}
+
+.dropbtn {
+    background-color: #ffffff;
+    color: #333C42;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: 1px solid #333C42;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* Ensure it occupies the full container */
+}
+
+
+/* Style the calendar icon inside the 'Filter by Date' button */
+.dropbtn i.calendar-icon {
+    margin-right: 15px; /* Match the spacing with 'Filter by Status' */
+    font-size: 18px; /* Ensure icon size is consistent */
+    color: #333C42; /* Match icon color */
+}
+
+/* Style the dropdown arrow inside the 'Filter by Date' button */
+.dropbtn i.dropdown-icon {
+    margin-left: 20px; /* Push the dropdown icon to the right */
+    font-size: 18px; /* Ensure icon size is consistent */
+    color: #333C42; /* Match icon color */
+}
+
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position it directly below the button */
+    left: 0;
+    background-color: #e39797;
+    min-width: 100%; /* Match the dropdown button width */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Button group inside dropdown */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.button-group .btn {
+    flex-grow: 1;
+}
+
+/* Styles for delete and add buttons */
+#deleteSelected, #addBorrow {
+    flex-grow: 1;
+    max-width: 120px; /* Adjusted width */
+    padding: 10px;
+}
+
+.btn {
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-success {
+    background-color: #30688B;
+    color: #ffffff;
+    border: 1px solid #333C42;
+}
+
+.btn-success i {
+    margin-right: 5px; /* Add space between the icon and the text */
+    font-weight: 900; /* Make the icon bold */
+    font-size: 20px; /* Slightly increase the size for emphasis */
+}
+
+.btn-danger {
+    background-color: transparent; /* Remove background */
+    border: none; /* Remove border */
+    color: #333C42; /* Keep the icon color */
+    padding: 0; /* Remove padding */
+    font-size: 18px; /* Adjust the icon size if needed */
+    width: 1px; /* Set the width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Table styling */
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+thead {
+    background-color: #30688B;
+    color: #fff;
+}
+
+th, td {
+    padding: 10px;
+    border: none; /* Remove vertical lines */
+    text-align: center; /* Center column names */
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #eeeeee;
+}
+
+/* Status column styling */
+td.status-returned {
+    background-color: #d4edda;
+    color: #155724;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+td.status-borrowed {
+    background-color: #fff3cd;
+    color: #856404;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+/* Icon styling */
+.edit-btn, .delete-btn {
+    margin: 0;
+    padding: 5px;
+    display: inline-block;
+    color: #333C42;
+    font-size: 18px;
+    background: none; /* Remove background for icons */
+    border: none; /* Ensure no border around icons */
+    text-align: center;
+    cursor: pointer;
+}
+
+
+/* Sort buttons */
+.sort-btn {
+    background-color: transparent; /* Remove button background */
+    border: none; /* Remove button border */
+    padding: 0;
+    cursor: pointer;
+    color: #ffffff; /* Change the icon color */
+    font-size: 16px; /* Adjust icon size if needed */
+}
+
+/* hover effects */
+.sort-btn:hover {
+    color: rgb(227, 227, 227);
+}
+
+/*  Adjust the color of the sort icons when active (asc/desc) */
+.sort-btn i.fa-sort-up, .sort-btn i.fa-sort-down {
+    color: #ffffff; /* Example color when sorting is active */
+}
+
+.sort-btn i {
+    margin-left: 5px; /* Space between the text and the icon */
+}
+
+
+/* Pagination controls */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination-controls button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #333C42;
+    background-color: #30688B;
+    color: white;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.pagination-controls span {
+    padding: 5px 10px;
+    color: #333C42;
+    font-weight: bold;
+}

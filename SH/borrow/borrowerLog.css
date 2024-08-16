@@ -1,0 +1,297 @@
+/* General Styles */
+body {
+    padding: 20px;
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+/* Headings */
+h1 {
+    font-size: 2.5rem;
+    color: #343a40;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h2#borrowerName {
+    font-size: 1.75rem;
+    color: #6c757d;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Container */
+.container {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+/* Filters Section */
+#filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Search Box */
+.input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #30688B;
+    border: 1px solid #333C42;
+}
+
+.search-icon {
+    color: #fff;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    flex-grow: 2; /* Larger flex-grow for the search input */
+}
+
+/* Input and Select Elements */
+#filters input[type="text"],
+#filters select {
+    padding: 10px;
+    border: 1px solid #333C42;
+    font-size: 1rem;
+}
+
+#searchTitle {
+    flex-grow: 1;
+    padding-left: 10px;
+    border: 100px solid #ff0000;
+    margin-left: -1px;
+    
+}
+
+/* Status Filter */
+.status-filter-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjusted width */
+}
+
+.status-filter-box {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    color: #333C42;
+    cursor: pointer;
+    border: 1px solid #333C42;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%; /* Ensure it occupies the full container */
+    padding: 10px;
+}
+
+.filter-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #333C42;
+}
+
+.dropdown-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #333C42;
+}
+
+#statusFilterText {
+    margin-left: 5px;
+    flex-grow: 1;
+    color: #333C42;
+}
+
+#filterStatus {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Date Filter Dropdown */
+.dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjusted width */
+}
+
+.dropbtn {
+    background-color: #ffffff;
+    color: #333C42;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: 1px solid #333C42;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* Ensure it occupies the full container */
+}
+
+/* Style the calendar icon inside the 'Filter by Date' button */
+.dropbtn i.calendar-icon {
+    margin-right: 15px; /* Match the spacing with 'Filter by Status' */
+    font-size: 18px; /* Ensure icon size is consistent */
+    color: #333C42; /* Match icon color */
+}
+
+/* Style the dropdown arrow inside the 'Filter by Date' button */
+.dropbtn i.dropdown-icon {
+    margin-left: 20px; /* Push the dropdown icon to the right */
+    font-size: 18px; /* Ensure icon size is consistent */
+    color: #333C42; /* Match icon color */
+}
+
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%; /* Position it directly below the button */
+    left: 0;
+    background-color: #e39797;
+    min-width: 100%; /* Match the dropdown button width */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.dropdown.show .dropdown-content {
+    display: block;
+}
+
+/* Button group inside dropdown */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+
+.button-group .btn {
+    flex-grow: 1;
+}
+
+/* Styles for delete and add buttons */
+#deleteSelected, #addBorrow {
+    flex-grow: 1;
+    max-width: 120px; /* Adjusted width */
+    padding: 10px;
+}
+
+.btn {
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-success {
+    background-color: #30688B;
+    color: #ffffff;
+    border: 1px solid #333C42;
+}
+
+.btn-success i {
+    margin-right: 5px; /* Add space between the icon and the text */
+    font-weight: 900; /* Make the icon bold */
+    font-size: 20px; /* Slightly increase the size for emphasis */
+}
+
+.btn-danger {
+    background-color: transparent; /* Remove background */
+    border: none; /* Remove border */
+    color: #333C42; /* Keep the icon color */
+    padding: 0; /* Remove padding */
+    font-size: 18px; /* Adjust the icon size if needed */
+    width: 1px; /* Set the width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Borrower Log Table */
+#borrowerLogTable {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+
+#borrowerLogTable th, 
+#borrowerLogTable td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+}
+
+#borrowerLogTable th {
+    background-color: #30688B;
+    color: white;
+    text-transform: uppercase;
+}
+
+#borrowerLogTable tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Back to Borrow Page Button */
+#backToBorrowPage {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+#backToBorrowPage:hover {
+    background-color: #52b4ff;
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-container button {
+    margin: 0 5px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    cursor: pointer;
+}
+
+.pagination-container button.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.pagination-container button:hover {
+    background-color: #0056b3;
+    color: white;
+}
