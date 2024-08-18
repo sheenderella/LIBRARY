@@ -48,7 +48,7 @@ function createAddBorrowWindow() {
     addBorrowWindow = createWindow({
         filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
         width: 400,
-        height: 600,
+        height: 540,
         parent: mainWindow,
         onClose: () => (addBorrowWindow = null),
     });
@@ -58,7 +58,7 @@ function createUpdateBorrowWindow(record) {
     updateBorrowWindow = createWindow({
         filePath: path.join(__dirname, 'borrow', 'updateBorrow.html'),
         width: 400,
-        height: 600,
+        height: 560,
         parent: mainWindow,
         onClose: () => (updateBorrowWindow = null),
     });
