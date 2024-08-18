@@ -1,0 +1,72 @@
+/* login.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+  }
+  
+  .container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card {
+    border: none;
+    border-radius: 10px;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  .form-control {
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 100%;
+  }
+  
+  .form-control:focus {
+    border-color: #aaa;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .form-check-input {
+    margin-top: 10px;
+  }
+  
+  .form-check-label {
+    margin-left: 10px;
+  }
+  
+  .btn {
+    border-radius: 5px;
+    padding: 10px 20px;
+    width: 100%;
+  }
+  
+  .btn-info {
+    background-color: #03a9f4;
+    border: none;
+    color: #fff;
+  }
+  
+  .btn-info:hover {
+    background-color: #007ac1;
+  }
+  
+  #logout-link {
+    text-decoration: none;
+    color: #337ab7;
+  }
+  
+  #error-message {
+    font-size: 14px;
+    color: #f00;
+    margin-top: 10px;
+  }

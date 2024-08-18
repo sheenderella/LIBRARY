@@ -1,0 +1,121 @@
+/* General styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Container for the sidebar and main content */
+#wrapper {
+    display: flex;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Sidebar styling */
+#sidebar-wrapper {
+    width: 250px;
+    background-color: #30688B;
+    transition: width 0.3s ease-in-out;
+    position: fixed;
+    height: 100%;
+}
+
+/* Collapsed sidebar styling */
+#sidebar-wrapper.collapsed {
+    width: 80px;
+}
+
+/* Sidebar header */
+.sidebar-header {
+    padding: 15px;
+    text-align: center;
+}
+
+/* Image styling within the sidebar header */
+.sidebar-header img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Sidebar toggle button */
+.sidebar-header button {
+    border: none;
+    background: transparent;
+    color: #fff;
+}
+
+/* Navigation link styling */
+.nav-link {
+    padding: 15px 10px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.3s ease-in-out;
+}
+
+.nav-link i {
+    margin-right: 10px;
+}
+
+.nav-link .link-text {
+    display: inline-block;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Collapsed sidebar link styling */
+#sidebar-wrapper.collapsed .nav-link {
+    text-align: center;
+}
+
+#sidebar-wrapper.collapsed .nav-link .link-text {
+    opacity: 0;
+}
+
+/* Main content area */
+#page-content-wrapper {
+    flex-grow: 1;
+    padding: 20px;
+    transition: margin-left 0.3s ease-in-out;
+    margin-left: 250px;
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 80px;
+}
+
+
+
+/* Custom Alert Styles */
+.custom-alert {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 1000; /* Ensures it is on top */
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-alert-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    text-align: center;
+}
+
+.custom-alert-content p {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.custom-alert-content .btn {
+    padding: 10px 20px;
+    font-size: 16px;
+}

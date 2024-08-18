@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const db = require('./database.js');
 
-let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
+let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 
 require('./settings/backupRestore.js'); // Add this line to include backup functionalities
 
@@ -43,6 +43,7 @@ function createLoginWindow() {
     });
 }
 
+
 //BORROWER
 function createAddBorrowWindow() {
     addBorrowWindow = createWindow({
@@ -72,7 +73,7 @@ function createUpdateBorrowWindow(record) {
 function createAddBookWindow() {
     addBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'addBook.html'),
-        width: 400,
+        width: 600,
         height: 600,
         parent: mainWindow,
         onClose: () => (addBookWindow = null),
@@ -82,8 +83,9 @@ function createAddBookWindow() {
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'editBook.html'),
-        width: 400,
+        width: 600,
         height: 600,
+
         parent: mainWindow,
         onClose: () => (editBookWindow = null),
     });
@@ -107,10 +109,30 @@ app.on('activate', () => {
     }
 });
 
+//DELETE WARNING
+function createDeleteNotifWindow() {
+    deleteNotifWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
+        width: 400,
+        height: 300,
+        parent: mainWindow,
+        onClose: () => (deleteNotifWindow = null),
+    });
+}
+
+
 // Handle IPC calls
 //LOGIN
-ipcMain.handle('login', (event, obj) => validatelogin(obj));
+ipcMain.handle('login', async (event, obj) => {
+    try {
+        const loginResult = await validatelogin(obj);
+        return loginResult;
+    } catch (error) {
+        return { success: false, error: 'An error occurred during login' };
+    }
+});
 
+//LOGOUT
 ipcMain.handle('logout', async () => {
     createLoginWindow();
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -174,6 +196,7 @@ ipcMain.on('open-add-borrow-window', createAddBorrowWindow);
 ipcMain.on('open-update-window', (event, record) => createUpdateBorrowWindow(record));
 ipcMain.on('close-form-window', closeAllFormWindows);
 
+//LOGIN
 function validatelogin({ username, password }) {
     const sql = "SELECT * FROM user WHERE username=? AND password=?";
     db.get(sql, [username, password], (error, result) => {
@@ -187,12 +210,36 @@ function validatelogin({ username, password }) {
             if (mainWindow) mainWindow.show();
             if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
         } else {
-            new Notification({
-                title: "Login",
-                body: 'Username or password incorrect',
-            }).show();
+            createLoginErrorWindow();
+            clearLoginFields();
         }
     });
+}
+
+function createLoginErrorWindow() {
+    const errorWindow = new BrowserWindow({
+        width: 400,
+        height: 220,
+        parent: loginWindow,
+        modal: true,
+        show: false,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    errorWindow.loadFile('loginError.html');
+    errorWindow.once('ready-to-show', () => {
+        errorWindow.show();
+    });
+}
+
+function clearLoginFields() {
+    if (loginWindow) {
+        loginWindow.webContents.send('clear-login-fields');
+    }
 }
 
 function executeQuery(sql, params, callback) {
@@ -295,6 +342,20 @@ ipcMain.on('open-add-book-window', () => {
     }
 });
 
+ipcMain.on('open-delete-notif-window', (event, id) => {
+    if (!deleteNotifWindow) {
+        createDeleteNotifWindow();
+    } else {
+        deleteNotifWindow.focus();
+    }
+
+    // Send the book ID to the deleteNotif window after it's ready
+    deleteNotifWindow.webContents.on('did-finish-load', () => {
+        deleteNotifWindow.webContents.send('set-book-id', id);
+    });
+});
+
+
 ipcMain.on('open-edit-book-window', (event, record) => {
     if (!editBookWindow) {
         createEditBookWindow(record);
@@ -303,4 +364,3 @@ ipcMain.on('open-edit-book-window', (event, record) => {
         editBookWindow.webContents.send('fill-edit-form', record);
     }
 });
-
