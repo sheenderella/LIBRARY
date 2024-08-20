@@ -3,23 +3,38 @@
 <head>
     <meta charset="UTF-8" />
     <title>GRUBA LAW LIBRARY - Settings</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="./settings.css">
 </head>
 <body>
-    <div class="main-content">
-        <h1>SETTINGS</h1>
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h1>Settings</h1>
+        </div>
         
-        <a class="nav-link" href="./change.html"><br>Update Username and Password</a>
-        <button id="backup-btn">Backup Database</button>
-        <button id="restore-btn">Restore Database</button>
-        <a class="nav-link" href="./guide.html"><br> User Guide </a>
-
+        <div class="text-center mb-4">
+            <a class="btn btn-primary" href="./change.html">Update Username and Password</a>
+        </div>
+        
+        <div class="text-center mb-4">
+            <button class="btn btn-warning" id="backup-btn">Backup Database</button>
+            <button class="btn btn-danger" id="restore-btn">Restore Database</button>
+        </div>
+        
+        <div class="text-center mb-4">
+            <a class="btn btn-info" href="./guide.html">User Guide</a>
+        </div>
     </div>
 
-    <div>
-        <a class="nav-link" href="../index.html">Back</a>
+    <div class="text-center mt-4">
+        <a class="btn btn-secondary" href="../index.html">Back</a>
     </div>
 
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="./settings.js"></script>
 </body>
 </html>

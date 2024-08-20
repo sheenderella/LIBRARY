@@ -1,38 +1,30 @@
-/**
- * Handles the form submission for updating the user's login credentials.
- * Collects form data, sends it to the main process via IPC, and provides feedback to the user.
- */
-
 const { ipcRenderer } = require('electron');
 
-async function handleUpdateCredentials(event) {
+document.getElementById('change-form').onsubmit = async function(event) {
     event.preventDefault();
 
-    const oldUsername = document.getElementById('old-username').value;
-    const oldPassword = document.getElementById('old-password').value;
-    const newUsername = document.getElementById('new-username').value;
-    const newPassword = document.getElementById('new-password').value;
+    const newUsername = document.getElementById('username').value || null;
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value || null;
 
     try {
-        const credentials = {
-            oldUsername,
-            oldPassword,
+        const result = await ipcRenderer.invoke('change-credentials', {
             newUsername,
+            currentPassword,
             newPassword
-        };
+        });
+
+        const alertMessage = document.getElementById('alert-message');
+        alertMessage.classList.remove('hidden');
         
-        const result = await ipcRenderer.invoke('update-login-credentials', credentials);
-        
-        const messageDiv = document.getElementById('message');
         if (result.success) {
-            messageDiv.innerText = 'Username and password updated successfully!';
+            alertMessage.textContent = 'Credentials updated successfully!';
+            document.getElementById('change-form').reset();
         } else {
-            messageDiv.innerText = `Error: ${result.message}`;
+            alertMessage.textContent = result.error;
         }
     } catch (error) {
         console.error('Error updating credentials:', error);
-        document.getElementById('message').innerText = 'An unexpected error occurred.';
+        document.getElementById('alert-message').textContent = 'An error occurred. Please try again.';
     }
-}
-
-module.exports = handleUpdateCredentials;
+};

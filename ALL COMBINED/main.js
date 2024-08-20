@@ -5,6 +5,8 @@ const db = require('./database.js');
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 
 require('./settings/backupRestore.js'); // Add this line to include backup functionalities
+let loggedInUsername = null; // Keep track of the logged-in username
+
 
 function createWindow(options) {
     const window = new BrowserWindow({
@@ -39,7 +41,7 @@ function createMainWindow() {
 //LOGIN
 function createLoginWindow() {
     loginWindow = createWindow({
-        filePath: 'login.html',
+        filePath: path.join(__dirname, 'login', 'login.html'),
     });
 }
 
@@ -197,6 +199,7 @@ ipcMain.on('open-update-window', (event, record) => createUpdateBorrowWindow(rec
 ipcMain.on('close-form-window', closeAllFormWindows);
 
 //LOGIN
+// After successful login, store the username
 function validatelogin({ username, password }) {
     const sql = "SELECT * FROM user WHERE username=? AND password=?";
     db.get(sql, [username, password], (error, result) => {
@@ -206,6 +209,7 @@ function validatelogin({ username, password }) {
         }
 
         if (result) {
+            loggedInUsername = username; // Store the logged-in username
             createMainWindow();
             if (mainWindow) mainWindow.show();
             if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
@@ -215,7 +219,6 @@ function validatelogin({ username, password }) {
         }
     });
 }
-
 function createLoginErrorWindow() {
     const errorWindow = new BrowserWindow({
         width: 400,
@@ -230,7 +233,7 @@ function createLoginErrorWindow() {
         },
     });
 
-    errorWindow.loadFile('loginError.html');
+    errorWindow.loadFile(path.join(__dirname, 'login', 'loginError.html'));
     errorWindow.once('ready-to-show', () => {
         errorWindow.show();
     });
@@ -272,6 +275,82 @@ function closeAllFormWindows() {
         if (window && !window.isDestroyed()) window.close();
     });
 }
+
+
+//CHANGE
+function createChangeCredentialsWindow() {
+    const changeCredentialsWindow = new BrowserWindow({
+        width: 600,
+        height: 400,
+        parent: mainWindow,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    changeCredentialsWindow.loadFile(path.join(__dirname, 'settings', 'change.html'));
+
+    changeCredentialsWindow.on('closed', () => {
+        changeCredentialsWindow = null;
+    });
+}
+
+
+ipcMain.handle('change-credentials', async (event, { newUsername, currentPassword, newPassword }) => {
+    try {
+        const user = await validateCurrentPassword(currentPassword);
+        
+        if (!user) {
+            return { success: false, error: 'Current password is incorrect' };
+        }
+
+        const updates = [];
+        const params = [];
+
+        if (newUsername) {
+            updates.push('username = ?');
+            params.push(newUsername);
+        }
+
+        if (newPassword) {
+            updates.push('password = ?');
+            params.push(newPassword);
+        }
+
+        if (updates.length > 0) {
+            params.push(user.id);
+            const sql = `UPDATE user SET ${updates.join(', ')} WHERE id = ?`;
+            await executeQuery(sql, params);
+
+            // Update loggedInUsername if the username is changed
+            if (newUsername) loggedInUsername = newUsername;
+
+            return { success: true };
+        }
+
+        return { success: false, error: 'No changes made' };
+    } catch (error) {
+        console.error('Error changing credentials:', error);
+        return { success: false, error: 'An error occurred while updating credentials' };
+    }
+});
+
+async function validateCurrentPassword(password) {
+    const sql = "SELECT * FROM user WHERE username = ? AND password = ?";
+    return new Promise((resolve, reject) => {
+        db.get(sql, [loggedInUsername, password], (error, row) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(row);
+            }
+        });
+    });
+}
+
+
 
 ///BOOKS
 // Books IPC Handlers

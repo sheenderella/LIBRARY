@@ -3,40 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Change Username and Password</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Add your styles here -->
+    <title>Change Credentials</title>
+    <link rel="stylesheet" href="change.css">
 </head>
-
 <body>
-    <div class="form-container">
-        <h2>Change Username and Password</h2>
+    <div id="change-container">
+        <h1>Change Credentials</h1>
+
         <form id="change-form">
             <div class="input-group">
-                <label for="old-username">Old Username</label>
-                <input type="text" id="old-username" required>
+                <label for="username">New Username</label>
+                <input type="text" id="username" name="username">
             </div>
+
             <div class="input-group">
-                <label for="old-password">Old Password</label>
-                <input type="password" id="old-password" required>
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" name="current-password" required>
             </div>
-            <div class="input-group">
-                <label for="new-username">New Username</label>
-                <input type="text" id="new-username" required>
-            </div>
+
             <div class="input-group">
                 <label for="new-password">New Password</label>
-                <input type="password" id="new-password" required>
+                <input type="password" id="new-password" name="new-password" required>
             </div>
-            <div class="input-group">
-                <button type="submit" id="update-button">Update</button>
-            </div>
+
+            <button type="submit">Update</button>
         </form>
 
-        <div id="message"></div> <!-- This div will show success/error messages -->
-        <div> 
-            <a class="nav-link" href="./settings.html">Back</a>
+        <div id="alert-message" class="alert hidden"></div>
+        
+        <div class="text-center mt-4">
+            <a class="btn btn-secondary" href="./settings.html">Back</a>
         </div>
+
     </div>
+
+
     <script src="change.js"></script>
 </body>
 </html>

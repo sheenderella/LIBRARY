@@ -1,0 +1,112 @@
+/* login.css */
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+}
+
+.container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  border: none;
+  border-radius: 10px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.form-control {
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 100%;
+}
+
+.form-control:focus {
+  border-color: #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.form-check-input {
+  margin-top: 10px;
+}
+
+.form-check-label {
+  margin-left: 10px;
+}
+
+.btn {
+  border-radius: 5px;
+  padding: 10px 20px;
+  width: 100%;
+}
+
+.btn-info {
+  background-color: #03a9f4;
+  border: none;
+  color: #fff;
+}
+
+.btn-info:hover {
+  background-color: #007ac1;
+}
+
+#logout-link {
+  text-decoration: none;
+  color: #337ab7;
+}
+
+#error-message {
+  font-size: 14px;
+  color: #f00;
+  margin-top: 10px;
+}
+
+/* Alert Modal Styles */
+.alert-modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.alert-modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  text-align: center;
+  width: 80%;
+  max-width: 300px;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#alert-message {
+  font-size: 16px;
+  color: #d9534f; /* Bootstrap's danger color */
+  margin: 20px 0;
+}
