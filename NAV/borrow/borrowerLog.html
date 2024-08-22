@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="borrowerLog.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="borrowerLog.js" defer></script>
+    <title>Borrower's Log</title>
+
+</head>
+
+<body class="container">
+  <!-- Back to Borrow Page Button -->
+  <a href="borrow.html" id="backToBorrowPage" class="btn btn-secondary">
+    <i class="fa fa-arrow-left"></i> </a>
+
+    <!-- Page Heading -->
+    <h1>Borrowers Log</h1>
+    <h2 id="borrowerName">Loading borrower name...</h2>
+
+    <!-- Filters Section -->
+    <div id="filters" class="form-group row">
+
+        <!-- Search Box -->
+        <div class="input-group col">
+            <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
+            <input type="text" id="searchTitle" class="form-control" placeholder="Search by book title">
+        </div>
+        
+        <!-- Status Filter -->
+        <div class="status-filter-container col">
+            <div class="status-filter-box">
+                <i class="fa fa-filter filter-icon"></i>
+                <span id="statusFilterText">Filter by Status</span>
+                <i class="fa fa-caret-down dropdown-icon"></i>
+                <select id="filterStatus" class="form-control">
+                    <option value="" selected>All</option>
+                    <option value="borrowed">Borrowed</option>
+                    <option value="returned">Returned</option>
+                </select>
+            </div>
+        </div>
+    
+        <!-- Date Filter Dropdown -->
+        <div class="dropdown col">
+            <button class="dropbtn">
+                <i class="fa fa-calendar calendar-icon"></i>
+                Filter by Date
+                <i class="fa fa-caret-down dropdown-icon"></i>
+            </button>
+            
+            <div class="dropdown-content">
+                <label for="startDateFilter">Start Date:</label>
+                <input type="date" id="startDateFilter" class="form-control">
+                <label for="endDateFilter">End Date:</label>
+                <input type="date" id="endDateFilter" class="form-control">
+                <div class="button-group">
+                    <button id="applyDateFilter" class="btn btn-primary">Apply</button>
+                    <button id="clearDateFilter" class="btn btn-secondary">Clear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Borrower Log Table -->
+    <table id="borrowerLogTable" class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Book Title</th>
+                <th>Borrow Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="borrowerLogContainer">
+            <!-- Content will be loaded by JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div id="paginationControls" class="pagination-container">
+        <button id="prevPage" class="pagination-btn" disabled>Previous</button>
+        <span id="pageInfo">Page 1</span>
+        <button id="nextPage" class="pagination-btn">Next</button>
+    </div>
+</body>
+</html>

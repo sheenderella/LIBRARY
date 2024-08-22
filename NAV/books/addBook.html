@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Book</title>
+    <link rel="stylesheet" type="text/css" href="addBook.css">
+</head>
+<body>
+    <form id="addBookForm">
+        <label for="number">Number:</label>
+        <input type="number" id="number" name="number" min="1"><br>
+
+        <label for="date_received">Date Received:</label>
+        <input type="date" id="date_received" name="date_received"><br>
+
+        <label for="class">Class:</label>
+        <input type="text" id="class" name="class"><br>
+
+        <label for="author">Author:</label>
+        <input type="text" id="author" name="author"><br>
+
+        <label for="title_of_book">Title of Book:</label>
+        <input type="text" id="title_of_book" name="title_of_book" required ><br>
+
+        <label for="edition">Edition:</label>
+        <input type="text" id="edition" name="edition"><br>
+
+        <label for="volume">Volume:</label>
+        <input type="text" id="volume" name="volume"><br>
+
+        <label for="pages">Pages:</label>
+        <input type="number" id="pages" name="pages" min="1"><br>
+
+        <label for="source_of_fund">Source of Fund:</label>
+        <input type="text" id="source_of_fund" name="source_of_fund"><br>
+
+        <label for="cost_price">Cost Price:</label>
+        <input type="number" id="cost_price" name="cost_price" min="0"><br>
+
+        <label for="publisher">Publisher:</label>
+        <input type="text" id="publisher" name="publisher"><br>
+
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" min="1000"><br>  <!-- Added Year field -->
+
+        <label for="remarks">Remarks:</label>
+        <input type="text" id="remarks" name="remarks"><br>
+
+        <button type="submit">Add Book</button>
+    </form>
+
+    <script src="addbook.js"></script>
+</body>
+</html>
