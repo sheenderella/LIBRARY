@@ -5,11 +5,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteSelectedButton = document.getElementById('deleteSelected');
     const sortButtons = document.querySelectorAll('.sort-btn');
     const selectAllCheckbox = document.getElementById('selectAll');
-    const paginationContainer = document.getElementById('pagination');
 
     const searchColumn = document.getElementById('searchColumn');
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', filterBooks);
+
+    //clear button
+    const clearDateRangeButton = document.getElementById('clearDateRange');
+    clearDateRangeButton.addEventListener('click', () => {
+        // Reset date inputs
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+
+        // Hide custom date range container
+        document.getElementById('customDateRange').style.display = 'none';
+        document.getElementById('dateRangeSelect').value = ''; // Optionally reset the dropdown
+
+        // Reset the filter and display default content
+        filterBooks();
+    });
 
         // Add event listener for date range selection
         document.getElementById('dateRangeSelect').addEventListener('change', function() {
@@ -23,6 +37,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             filterBooks(); // Apply filter when selection changes
         });
+
+        document.addEventListener('click', function(event) {
+            const customRange = document.getElementById('customDateRange');
+            const dateRangeSelect = document.getElementById('dateRangeSelect');
+        
+            if (dateRangeSelect.value === 'custom') {
+                // Check if the click is outside of the customDateRange div
+                if (!customRange.contains(event.target) && !dateRangeSelect.contains(event.target)) {
+                    customRange.style.display = 'none';
+                    dateRangeSelect.value = ''; // Optionally reset the dropdown
+                }
+            }
+        });
+        
     
         // Add event listeners for date inputs
         document.getElementById('startDate').addEventListener('change', filterBooks);
@@ -302,7 +330,11 @@ function filterBooks() {
             } else if (dateRangeSelect === 'custom') {
                 if (startDate && endDate) {
                     matches = bookDate >= startDate && bookDate <= endDate;
-                } else {
+                } 
+                else if(startDate==NULL || endDate==NULL) {
+                    matches = true;
+                }
+                else {
                     matches = false;
                 }
             }
@@ -311,10 +343,12 @@ function filterBooks() {
         return matches;
     });
 
+    // Reset to first page after filtering
     currentPage = 1;
     displayBooks();
     updatePagination();
 }
+
 
 document.getElementById('searchColumn').addEventListener('change', () => {
     const searchColumn = document.getElementById('searchColumn').value;
@@ -332,8 +366,7 @@ document.getElementById('searchColumn').addEventListener('change', () => {
 });
 
 function sortBooks(column, button) {
-    const bookList = document.getElementById('bookList');
-    const rows = Array.from(bookList.querySelectorAll('tr'));
+    // Toggle sort order
     let order = button.dataset.order || 'asc';
 
     if (order === 'asc') {
@@ -345,33 +378,42 @@ function sortBooks(column, button) {
     }
     button.dataset.order = order;
 
-    const currentIcon = button.querySelector('i');
+    // Update sorting icons
     document.querySelectorAll('.sort-btn i').forEach(icon => {
         icon.classList.remove('fa-sort-up', 'fa-sort-down');
         icon.classList.add('fa-sort');
     });
 
+    const currentIcon = button.querySelector('i');
     if (order === 'asc') {
         currentIcon.classList.remove('fa-sort');
         currentIcon.classList.add('fa-sort-up');
-        currentBooks.sort((a, b) => {
-            const aText = a[column].toString().trim();
-            const bText = b[column].toString().trim();
-            return !isNaN(aText) && !isNaN(bText) ? aText - bText : aText.localeCompare(bText);
-        });
     } else if (order === 'desc') {
         currentIcon.classList.remove('fa-sort');
         currentIcon.classList.add('fa-sort-down');
+    } else {
+        currentIcon.classList.remove('fa-sort-up', 'fa-sort-down');
+        currentIcon.classList.add('fa-sort');
+    }
+
+    // Sort books
+    if (order === 'asc') {
         currentBooks.sort((a, b) => {
-            const aText = a[column].toString().trim();
-            const bText = b[column].toString().trim();
+            const aText = a[column] ? a[column].toString().trim() : '';
+            const bText = b[column] ? b[column].toString().trim() : '';
+            return !isNaN(aText) && !isNaN(bText) ? aText - bText : aText.localeCompare(bText);
+        });
+    } else if (order === 'desc') {
+        currentBooks.sort((a, b) => {
+            const aText = a[column] ? a[column].toString().trim() : '';
+            const bText = b[column] ? b[column].toString().trim() : '';
             return !isNaN(aText) && !isNaN(bText) ? bText - aText : bText.localeCompare(aText);
         });
     } else {
-        currentBooks = originalBooks.slice();
+        currentBooks = originalBooks.slice(); // Reset to original order
     }
 
-    currentPage = 1;
+    currentPage = 1; // Reset to first page after sorting
     displayBooks();
     updatePagination();
 }

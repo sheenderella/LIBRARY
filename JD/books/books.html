@@ -2,20 +2,72 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; script-src 'self';">
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; script-src 'self';">
-    <title>Library Books</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
+    
+    <title>LIBRARY BOOKS</title>
+    
     <link rel="stylesheet" type="text/css" href="books.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+    
 </head>
 <body>
-    <div class="container">
-        <h1>Library Books</h1>
-        <p>List of books in the library.</p>
 
-        <div>
-            <a class="nav-link" href="../index.html">Back</a>
-        </div>
+
+
+    <div id="wrapper" class="d-flex">
+        <!-- Sidebar -->
+        <nav id="sidebar-wrapper" class="text-white">
+            <div class="sidebar-header p-3 d-flex flex-column align-items-left">
+                <button class="btn btn-outline-light btn-sm mb-3" id="sidebarCollapse" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <img src="../logo/2.png" alt="Gruba Law Library Logo" class="img-fluid mb-3">
+            </div>
+            
+            <ul id="sidebar-menu" class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../index.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="link-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../books/books.html">
+                        <i class="fas fa-book"></i>
+                        <span class="link-text">Books</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../borrow/borrow.html">
+                        <i class="fas fa-user"></i>
+                        <span class="link-text">Borrower</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../settings/settings.html">
+                        <i class="fas fa-cog"></i>
+                        <span class="link-text">Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" id="logout-link" href="#">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="link-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main id="page-content-wrapper" class="p-4">
+            <div class="container mt-5">
+                <div class="text-center mb-4">
+                    <h1>Books</h1>
+                   <p>List of books in the library.</p>
+                </div>
 
         <div class="button-header">
             <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i>Add Book</button>
@@ -36,6 +88,7 @@
                   <input type="date" id="startDate" class="form-control">
                   <label for="endDate">End Date</label>
                   <input type="date" id="endDate" class="form-control">
+                  <button id="clearDateRange" type="button">Clear</button>
               </div>
             </div>
 
@@ -45,7 +98,7 @@
                   <option value="number">Number</option>
                   <option value="class">Class</option>
                   <option value="author">Author</option>
-                  <option value="title_of_book">Title of Book</option>
+                  <option value="title_of_book">Book Title</option>
                   <option value="edition">Edition</option>
                   <option value="volume">Volume</option>
                   <option value="source_of_fund">Source of Fund</option>
@@ -75,7 +128,7 @@
                             <th>Date Received <button data-column="date_received" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Class <button data-column="class" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Author <button data-column="author" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Title of Book <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th>Book Title <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Edition <button data-column="edition" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Volume <button data-column="volume" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Source of Fund <button data-column="source_of_fund" class="sort-btn"><i class="fa fa-sort"></i></button></th>
@@ -95,8 +148,12 @@
         </div>
 
         <div id="pagination" class="pagination-container"></div>
+    </main>
     </div>
+
+   
     <script src="books.js"></script>
+    
     <script>
         document.getElementById('dateRangeSelect').addEventListener('change', function() {
             const customRange = document.getElementById('customDateRange');
@@ -107,5 +164,11 @@
             }
         });
     </script>
+
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../index.js"></script>
+    <script src="../login/logout.js"></script> <!-- Link to logout.js -->
+    
 </body>
 </html>

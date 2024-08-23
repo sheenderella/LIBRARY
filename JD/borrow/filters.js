@@ -3,7 +3,6 @@
  * based on search input, status, and date filters, with pagination support.
  */
 
-
 let debounceTimer;
 
 const debounce = (func, delay) => {
@@ -13,10 +12,11 @@ const debounce = (func, delay) => {
     };
 };
 
-const filterBorrowRecords = (allRecords, searchInput, statusFilter, dateFilter, pagination, renderBorrowRecords) => {
+const filterBorrowRecords = (allRecords, searchInput, statusFilter, startDateFilter, endDateFilter) => {
     const searchText = searchInput.value.toLowerCase();
     const statusValue = statusFilter.value;
-    const dateValue = dateFilter.value;
+    const startDate = startDateFilter.value;
+    const endDate = endDateFilter.value;
 
     const filteredRecords = allRecords.filter(record => {
         const borrowerName = record.borrowerName ? record.borrowerName.toLowerCase() : '';
@@ -24,15 +24,16 @@ const filterBorrowRecords = (allRecords, searchInput, statusFilter, dateFilter, 
         const borrowDate = record.borrowDate || '';
         const borrowStatus = record.borrowStatus || '';
 
+        const isDateInRange = (!startDate || borrowDate >= startDate) && (!endDate || borrowDate <= endDate);
+
         return (
             (borrowerName.includes(searchText) || bookTitle.includes(searchText)) &&
             (statusValue === '' || borrowStatus === statusValue) &&
-            (dateValue === '' || borrowDate === dateValue)
+            isDateInRange
         );
     });
 
-    pagination.setCurrentPage(1);
-    pagination.renderBorrowRecords(filteredRecords, renderBorrowRecords);
+    return filteredRecords;
 };
 
 module.exports = {

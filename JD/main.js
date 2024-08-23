@@ -4,12 +4,15 @@ const db = require('./database.js');
 
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 
+require('./settings/backupRestore.js'); // Add this line to include backup functionalities
+let loggedInUsername = null; // Keep track of the logged-in username
+
+
 function createWindow(options) {
     const window = new BrowserWindow({
         width: options.width || 800,
         height: options.height || 600,
         parent: options.parent || null,
-
         resizable: false, // Prevents resizing
         webPreferences: {
             nodeIntegration: true,
@@ -22,8 +25,8 @@ function createWindow(options) {
     window.on('closed', () => {
         if (options.onClose) options.onClose();
     });
-
     return window;
+
 }
 
 //DASHBOARD
@@ -35,30 +38,20 @@ function createMainWindow() {
     });
 }
 
-// LOGIN
+//LOGIN
 function createLoginWindow() {
     loginWindow = createWindow({
-        filePath: 'login.html',
+        filePath: path.join(__dirname, 'login', 'login.html'),
     });
 }
 
-//DELETE WARNING
-function createDeleteNotifWindow() {
-    deleteNotifWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
-        width: 400,
-        height: 300,
-        parent: mainWindow,
-        onClose: () => (deleteNotifWindow = null),
-    });
-}
 
 //BORROWER
 function createAddBorrowWindow() {
     addBorrowWindow = createWindow({
         filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
-        width: 500,
-        height: 680,
+        width: 400,
+        height: 540,
         parent: mainWindow,
         onClose: () => (addBorrowWindow = null),
     });
@@ -68,7 +61,7 @@ function createUpdateBorrowWindow(record) {
     updateBorrowWindow = createWindow({
         filePath: path.join(__dirname, 'borrow', 'updateBorrow.html'),
         width: 400,
-        height: 600,
+        height: 560,
         parent: mainWindow,
         onClose: () => (updateBorrowWindow = null),
     });
@@ -118,10 +111,30 @@ app.on('activate', () => {
     }
 });
 
+//DELETE WARNING
+function createDeleteNotifWindow() {
+    deleteNotifWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
+        width: 400,
+        height: 300,
+        parent: mainWindow,
+        onClose: () => (deleteNotifWindow = null),
+    });
+}
+
+
 // Handle IPC calls
 //LOGIN
-ipcMain.handle('login', (event, obj) => validatelogin(obj));
+ipcMain.handle('login', async (event, obj) => {
+    try {
+        const loginResult = await validatelogin(obj);
+        return loginResult;
+    } catch (error) {
+        return { success: false, error: 'An error occurred during login' };
+    }
+});
 
+//LOGOUT
 ipcMain.handle('logout', async () => {
     createLoginWindow();
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -185,6 +198,8 @@ ipcMain.on('open-add-borrow-window', createAddBorrowWindow);
 ipcMain.on('open-update-window', (event, record) => createUpdateBorrowWindow(record));
 ipcMain.on('close-form-window', closeAllFormWindows);
 
+//LOGIN
+// After successful login, store the username
 function validatelogin({ username, password }) {
     const sql = "SELECT * FROM user WHERE username=? AND password=?";
     db.get(sql, [username, password], (error, result) => {
@@ -194,16 +209,40 @@ function validatelogin({ username, password }) {
         }
 
         if (result) {
+            loggedInUsername = username; // Store the logged-in username
             createMainWindow();
             if (mainWindow) mainWindow.show();
             if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
         } else {
-            new Notification({
-                title: "Login",
-                body: 'Username or password incorrect',
-            }).show();
+            createLoginErrorWindow();
+            clearLoginFields();
         }
     });
+}
+function createLoginErrorWindow() {
+    const errorWindow = new BrowserWindow({
+        width: 400,
+        height: 220,
+        parent: loginWindow,
+        modal: true,
+        show: false,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    errorWindow.loadFile(path.join(__dirname, 'login', 'loginError.html'));
+    errorWindow.once('ready-to-show', () => {
+        errorWindow.show();
+    });
+}
+
+function clearLoginFields() {
+    if (loginWindow) {
+        loginWindow.webContents.send('clear-login-fields');
+    }
 }
 
 function executeQuery(sql, params, callback) {
@@ -237,6 +276,82 @@ function closeAllFormWindows() {
     });
 }
 
+
+//CHANGE
+function createChangeCredentialsWindow() {
+    const changeCredentialsWindow = new BrowserWindow({
+        width: 600,
+        height: 400,
+        parent: mainWindow,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    changeCredentialsWindow.loadFile(path.join(__dirname, 'settings', 'change.html'));
+
+    changeCredentialsWindow.on('closed', () => {
+        changeCredentialsWindow = null;
+    });
+}
+
+
+ipcMain.handle('change-credentials', async (event, { newUsername, currentPassword, newPassword }) => {
+    try {
+        const user = await validateCurrentPassword(currentPassword);
+        
+        if (!user) {
+            return { success: false, error: 'Current password is incorrect' };
+        }
+
+        const updates = [];
+        const params = [];
+
+        if (newUsername) {
+            updates.push('username = ?');
+            params.push(newUsername);
+        }
+
+        if (newPassword) {
+            updates.push('password = ?');
+            params.push(newPassword);
+        }
+
+        if (updates.length > 0) {
+            params.push(user.id);
+            const sql = `UPDATE user SET ${updates.join(', ')} WHERE id = ?`;
+            await executeQuery(sql, params);
+
+            // Update loggedInUsername if the username is changed
+            if (newUsername) loggedInUsername = newUsername;
+
+            return { success: true };
+        }
+
+        return { success: false, error: 'No changes made' };
+    } catch (error) {
+        console.error('Error changing credentials:', error);
+        return { success: false, error: 'An error occurred while updating credentials' };
+    }
+});
+
+async function validateCurrentPassword(password) {
+    const sql = "SELECT * FROM user WHERE username = ? AND password = ?";
+    return new Promise((resolve, reject) => {
+        db.get(sql, [loggedInUsername, password], (error, row) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(row);
+            }
+        });
+    });
+}
+
+
+
 ///BOOKS
 // Books IPC Handlers
 ipcMain.handle('addBook', async (event, record) => {
@@ -249,6 +364,7 @@ ipcMain.handle('addBook', async (event, record) => {
                 record.createdAt = new Date().toISOString();
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.webContents.send('book-record-added', record);
+                    mainWindow.webContents.reload();
                 }
             }
         );
@@ -266,6 +382,7 @@ ipcMain.handle('updateBook', async (event, record) => {
 
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('book-record-updated', record);
+            mainWindow.webContents.reload();
         }
     } catch (error) {
         console.error('Error updating book record:', error);
@@ -280,6 +397,7 @@ ipcMain.handle('deleteBook', async (event, id) => {
             function () {
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.webContents.send('book-record-deleted', id);
+                    mainWindow.webContents.reload();
                 }
             }
         );

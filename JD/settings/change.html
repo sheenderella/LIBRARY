@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Credentials</title>
+    <link rel="stylesheet" href="change.css">
+</head>
+<body>
+    <div id="change-container">
+        <h1>Change Credentials</h1>
+
+        <form id="change-form">
+            <div class="input-group">
+                <label for="username">New Username</label>
+                <input type="text" id="username" name="username">
+            </div>
+
+            <div class="input-group">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" name="current-password" required>
+            </div>
+
+            <div class="input-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" name="new-password" required>
+            </div>
+
+            <button type="submit">Update</button>
+        </form>
+
+        <div id="alert-message" class="alert hidden"></div>
+        
+        <div class="text-center mt-4">
+            <a class="btn btn-secondary" href="./settings.html">Back</a>
+        </div>
+
+    </div>
+
+
+    <script src="change.js"></script>
+</body>
+</html>
