@@ -430,7 +430,7 @@ th input[type="checkbox"] {
     align-items: center; /* Vertically center align the icon and text */
     justify-content: flex-start; /* Align icon and text to the left */
 }
-
+ 
 /* Hover effect for navigation links */
 .nav-link:hover {
     background-color: #1e4f6b; /* Darker background on hover */
@@ -450,6 +450,8 @@ th input[type="checkbox"] {
     display: inline-block; /* Display link text inline */
     margin-left: 15px; /* Space between the icon and text */
     transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
+    font-family: Arial, sans-serif;
+
 }
 
 /* Collapsed sidebar link styling */
