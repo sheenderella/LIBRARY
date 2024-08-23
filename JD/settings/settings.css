@@ -5,6 +5,7 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
+/* SIDE NAVBAR */
 /* Container for the sidebar and main content */
 #wrapper {
     display: flex; /* Flexbox layout for sidebar and content */
@@ -65,7 +66,6 @@ body {
 /* Navigation link styling */
 .nav-link {
     padding: 15px 60px; /* Padding around each link */
-    color: #e60000; /* Text color */
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflow text */
     text-overflow: ellipsis; /* Show "..." for overflow text */
@@ -111,7 +111,6 @@ body {
 #sidebar-wrapper.collapsed .nav-link .link-text {
     display: none; /* Hide the link text when sidebar is collapsed */
 }
-
 
 
 /* Main content area */
