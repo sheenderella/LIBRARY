@@ -5,17 +5,6 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-
-/* Container for main content */
-.container {
-    width: 60%;
-    margin: auto;
-    padding: 2rem;
-    background-color: #fff;
-    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
-    border-radius: 0.5rem;
-}
-
 /* Heading */
 h1 {
     font-size: 2em;
@@ -150,16 +139,18 @@ table {
 thead {
     background-color: #007bff;
     color: #fff;
-    position: sticky;
+    /* position: sticky; */
     top: 0;
     z-index: 1;
 }
+
 
 th, td {
     text-align: center;
     vertical-align: middle;
     padding: 10px;
     border: 1px solid #ddd;
+    width: fit-content;
 }
 
 th {
@@ -291,8 +282,18 @@ th input[type="checkbox"] {
 
 #dateRangeContainer {
     flex: content;
-    margin-left: 18rem;
-    width: 15%;
+    width: 100%;
+    position: relative;
+}
+
+#customDateRange {
+    width: 100%; /* Match width of dateRangeContainer */
+    position: absolute;
+    top: 68%; /* Position below the dateRangeContainer */
+    left: 0;
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    background-color: white; /* Optional: Add background to cover any content behind */
+    z-index: 1; /* Ensure it's above other content */
 }
 
 /* Base style for the date range container */
@@ -429,7 +430,7 @@ th input[type="checkbox"] {
     align-items: center; /* Vertically center align the icon and text */
     justify-content: flex-start; /* Align icon and text to the left */
 }
-
+ 
 /* Hover effect for navigation links */
 .nav-link:hover {
     background-color: #1e4f6b; /* Darker background on hover */
@@ -449,6 +450,8 @@ th input[type="checkbox"] {
     display: inline-block; /* Display link text inline */
     margin-left: 15px; /* Space between the icon and text */
     transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
+    font-family: Arial, sans-serif;
+
 }
 
 /* Collapsed sidebar link styling */
@@ -467,9 +470,14 @@ th input[type="checkbox"] {
     display: none; /* Hide the link text when sidebar is collapsed */
 }
 
+#wrapper:not(.collapsed) #page-content-wrapper {
+    width: calc(100% - 250px); /* Adjust based on the sidebar width */
+}
 
 /* Main content area */
 #page-content-wrapper {
+    width: auto;
+    flex: none;
     flex-grow: 1; /* Allow the content to expand to fill available space */
     padding: 20px; /* Padding around the content */
     transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */

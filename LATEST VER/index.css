@@ -5,7 +5,9 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Container for the sidebar and main content */
+/* SIDE NAVBAR */
+
+/* Container to hold the sidebar and main content */
 #wrapper {
     display: flex; /* Flexbox layout for sidebar and content */
     transition: all 0.3s ease-in-out; /* Smooth transition for expanding/collapsing */
@@ -63,9 +65,9 @@ body {
 }
 
 /* Navigation link styling */
-.nav-link {
+
+#sidebar-wrapper .nav-link {
     padding: 15px 60px; /* Padding around each link */
-    color: #e60000; /* Text color */
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflow text */
     text-overflow: ellipsis; /* Show "..." for overflow text */
@@ -75,25 +77,28 @@ body {
     justify-content: flex-start; /* Align icon and text to the left */
 }
 
+
 /* Hover effect for navigation links */
-.nav-link:hover {
+#sidebar-wrapper .nav-link:hover {
     background-color: #1e4f6b; /* Darker background on hover */
     color: #fff; /* Text color on hover (optional, you can change this) */
     text-decoration: none; /* Remove underline from text */
+ 
 }
 
-.nav-link i {
+#sidebar-wrapper .nav-link i {
     flex-shrink: 0; /* Prevent icon from shrinking */
     width: 24px; /* Set a fixed width for the icon */
     text-align: center; /* Center align the icon */
     font-size: 20px; /* Icon size */
 }
 
-.nav-link .link-text {
+#sidebar-wrapper .nav-link .link-text {
     flex-grow: 1; /* Allow the text to take up available space */
     display: inline-block; /* Display link text inline */
     margin-left: 15px; /* Space between the icon and text */
     transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
+    font-family: Arial, sans-serif;
 }
 
 /* Collapsed sidebar link styling */
@@ -112,8 +117,6 @@ body {
     display: none; /* Hide the link text when sidebar is collapsed */
 }
 
-
-
 /* Main content area */
 #page-content-wrapper {
     flex-grow: 1; /* Allow the content to expand to fill available space */
@@ -127,11 +130,17 @@ body {
     margin-left: 80px; /* Reduced margin when sidebar is collapsed */
 }
 
+
+
+
 /* Flexbox container for book list and pie chart */
 .books-and-chart-container {
     display: flex;
     justify-content: space-between;
 }
+
+
+
 
 /* Books Table */
 .books-table-container {

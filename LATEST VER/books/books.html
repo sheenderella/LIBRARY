@@ -14,6 +14,9 @@
     
 </head>
 <body>
+
+
+
     <div id="wrapper" class="d-flex">
         <!-- Sidebar -->
         <nav id="sidebar-wrapper" class="text-white">
@@ -59,7 +62,7 @@
         </nav>
 
         <!-- Main Content -->
-        <main id="page-content-wrapper" class="flex-grow-1 p-4">
+        <main id="page-content-wrapper" class="p-4">
             <div class="container mt-5">
                 <div class="text-center mb-4">
                     <h1>Books</h1>
@@ -85,6 +88,7 @@
                   <input type="date" id="startDate" class="form-control">
                   <label for="endDate">End Date</label>
                   <input type="date" id="endDate" class="form-control">
+                  <button id="clearDateRange" type="button">Clear</button>
               </div>
             </div>
 
@@ -94,7 +98,7 @@
                   <option value="number">Number</option>
                   <option value="class">Class</option>
                   <option value="author">Author</option>
-                  <option value="title_of_book">Title of Book</option>
+                  <option value="title_of_book">Book Title</option>
                   <option value="edition">Edition</option>
                   <option value="volume">Volume</option>
                   <option value="source_of_fund">Source of Fund</option>
@@ -124,7 +128,7 @@
                             <th>Date Received <button data-column="date_received" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Class <button data-column="class" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Author <button data-column="author" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Title of Book <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th>Book Title <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Edition <button data-column="edition" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Volume <button data-column="volume" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th>Source of Fund <button data-column="source_of_fund" class="sort-btn"><i class="fa fa-sort"></i></button></th>

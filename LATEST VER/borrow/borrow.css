@@ -406,6 +406,7 @@ td.status-borrowed {
     display: inline-block; /* Display link text inline */
     margin-left: 15px; /* Space between the icon and text */
     transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
+    font-family: Arial, sans-serif;
 }
 
 /* Collapsed sidebar link styling */
