@@ -4,9 +4,8 @@ body {
     font-family: Arial, sans-serif;
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
-
-
 /* SIDE NAVBAR */
+
 /* Container to hold the sidebar and main content */
 #wrapper {
     display: flex; /* Flexbox layout for sidebar and content */
