@@ -5,6 +5,29 @@ const rowsPerPage = 3;
 let logData = [];
 let filteredLogData = []; // Store the filtered results
 
+// Sidebar toggle functionality
+document.getElementById('sidebarCollapse').addEventListener('click', function () {
+    const wrapper = document.getElementById('wrapper');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    
+    wrapper.classList.toggle('collapsed');
+    sidebar.classList.toggle('collapsed');
+});
+
+//LOGOUT
+document.getElementById('logout-link').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default link behavior
+
+    ipcRenderer.invoke('logout').then(() => {
+        window.location.href = './login/login.html'; // Redirect to login page after logout
+    }).catch(error => {
+        console.error('Error during logout:', error);
+        alert('An error occurred. Please try again.');
+    });
+});
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const borrowerName = urlParams.get('borrowerName');

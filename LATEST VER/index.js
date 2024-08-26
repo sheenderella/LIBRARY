@@ -11,10 +11,16 @@ document.getElementById('sidebarCollapse').addEventListener('click', function ()
     sidebar.classList.toggle('collapsed');
 });
 
-// Logout functionality
+//LOGOUT
 document.getElementById('logout-link').addEventListener('click', function(event) {
-    event.preventDefault();
-    window.location.href = 'login.html';
+    event.preventDefault(); // Prevent default link behavior
+
+    ipcRenderer.invoke('logout').then(() => {
+        window.location.href = './login/login.html'; // Redirect to login page after logout
+    }).catch(error => {
+        console.error('Error during logout:', error);
+        alert('An error occurred. Please try again.');
+    });
 });
 
 
