@@ -1,5 +1,27 @@
 const { ipcRenderer } = require('electron');
 
+// Sidebar toggle functionality
+document.getElementById('sidebarCollapse').addEventListener('click', function () {
+    const wrapper = document.getElementById('wrapper');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    
+    wrapper.classList.toggle('collapsed');
+    sidebar.classList.toggle('collapsed');
+});
+
+document.getElementById('logout-link').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default link behavior
+
+    ipcRenderer.invoke('logout').then(() => {
+        window.location.href = './login/login.html'; // Redirect to login page after logout
+    }).catch(error => {
+        console.error('Error during logout:', error);
+        alert('An error occurred. Please try again.');
+    });
+});
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const addBookButton = document.getElementById('addBook');
     const deleteSelectedButton = document.getElementById('deleteSelected');
@@ -118,14 +140,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    ipcRenderer.on('book-record-added', (event, record) => {
-        addBookToTable(record, true);
-        updatePagination();
-    });
+// Listen for book record added event
+ipcRenderer.on('book-record-added', (event, record) => {
+    addBookToTable(record, true);
+    updatePagination();
+    showNotification('Book added successfully!', 'success');
+});
 
-    ipcRenderer.on('book-record-updated', (event, record) => {
-        updateBookInTable(record);
-    });
+// Listen for book record updated event
+ipcRenderer.on('book-record-updated', (event, record) => {
+    updateBookInTable(record);
+    showNotification('Book updated successfully!', 'success');
+});
+
+// Optional: Handle any errors
+ipcRenderer.on('error', (event, error) => {
+    console.error('Error:', error);
+    showNotification('An error occurred while processing the request.', 'error');
+});
+
 
     ipcRenderer.on('book-record-deleted', (event, id) => {
         deleteBookFromTable(id);
@@ -205,9 +238,30 @@ function displayBooks() {
     });
 }
 
+// Function to show notifications
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.classList.add('notification', type);
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Automatically remove the notification after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 function addBookToTable(book, prepend = false) {
     const bookList = document.getElementById('bookList');
     const row = document.createElement('tr');
+
+    // Check if cost_price has a value, add "₱" prefix, format with commas, and round to two decimal places
+    const formattedCostPrice = book.cost_price 
+        ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+        : '';
+
+
     row.innerHTML = `
         <td><input type="checkbox" class="select-book" data-id="${book.id}"></td>
         <td>${book.number}</td>
@@ -219,7 +273,7 @@ function addBookToTable(book, prepend = false) {
         <td>${book.volume}</td>
         <td>${book.source_of_fund}</td>
         <td>${book.pages}</td>
-        <td>${book.cost_price}</td>
+        <td>${formattedCostPrice}</td>
         <td>${book.publisher}</td>
         <td>${book.year}</td>
         <td>${book.remarks}</td>
@@ -237,7 +291,7 @@ function addBookToTable(book, prepend = false) {
     row.querySelector('.delete-btn').addEventListener('click', () => {
         const id = book.id;
         openDeleteNotifWindow(id); // Open the confirmation popup with the book ID
-    });    
+    });
 
     if (prepend) {
         bookList.insertBefore(row, bookList.firstChild);
@@ -246,8 +300,13 @@ function addBookToTable(book, prepend = false) {
     }
 }
 
+
 function updateBookInTable(book) {
     const row = document.querySelector(`button[data-id="${book.id}"]`).closest('tr');
+    const formattedCostPrice = book.cost_price 
+    ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : '';
+
     row.innerHTML = `
         <td><input type="checkbox" class="select-book" data-id="${book.id}"></td>
         <td>${book.number}</td>
@@ -259,7 +318,7 @@ function updateBookInTable(book) {
         <td>${book.volume}</td>
         <td>${book.source_of_fund}</td>
         <td>${book.pages}</td>
-        <td>${book.cost_price}</td>
+        <td>${formattedCostPrice}</td>
         <td>${book.publisher}</td>
         <td>${book.year}</td>
         <td>${book.remarks}</td>

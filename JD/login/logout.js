@@ -1,7 +1,3 @@
-// logout.js
-
-const { ipcRenderer } = require('electron');
-
 document.getElementById('logout-link').addEventListener('click', function(event) {
     event.preventDefault(); // Prevent default link behavior
 

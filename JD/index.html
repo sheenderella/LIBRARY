@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
     <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Add Chart.js -->
+
     <title>Gruba Law Library</title>
 </head>
 
@@ -59,12 +61,59 @@
         <!-- Main Content -->
         <main id="page-content-wrapper" class="flex-grow-1 p-4">
             <h1 class="h3">Dashboard</h1>
-            <p>Welcome to the Book Inventory Dashboard!</p>
+        
+            <div class="d-flex justify-content-between mb-4">
+                <a href="#" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Book
+                </a>
+                
+                <div class="btn-group">
+                    <a href="#" id="total-books-link" class="btn btn-info btn-lg total-books-link">
+                        Total Books: <span id="total-books-count">0</span>
+                    </a>
+                    <a href="./borrow/borrow.html" class="btn btn-info btn-lg">
+                        Total Borrowed Books: <span id="totalCount">0</span>
+                    </a>
+                    <a href="./borrow/borrow.html" class="btn btn-secondary btn-lg">
+                        Total Borrowers: <span id="total-borrowers-count">0</span>
+                    </a>
+                </div>
+            </div>
+        
+            <div class="d-flex">
+                <!-- Books List -->
+                <div class="books-table-container me-4 flex-grow-1">
+                    <div class="books-header">
+                        <h2>Books List</h2>
+                        <a href="#" id="view-all-books" class="view-all-button">View All</a>
+                    </div>
+                    <table class="books-table">
+                        <thead>
+                            <tr>
+                                <th>Number</th>
+                                <th>Title of Book</th>
+                                <th>Author</th>
+                            </tr>
+                        </thead>
+                        <tbody id="books-list">
+                            <!-- Rows will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+        
+                <!-- Pie Chart Container -->
+                <div class="chart-container">
+                    <h2>Library Statistics</h2>
+                    <canvas id="libraryPieChart"></canvas>
+                </div>
+            </div>
         </main>
+        
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="index.js"></script>
+    
+    <script src="./index.js"></script>
     <script src="./login/logout.js"></script> <!-- Link to logout.js -->
 </body>
 </html>

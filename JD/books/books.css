@@ -358,7 +358,27 @@ th input[type="checkbox"] {
     }
 }
 
+/* NOTIFICATION WINDOW FOR UPDATE AND ADDING BOOKS */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    opacity: 0.9;
+    transition: opacity 0.5s ease-in-out;
+}
 
+.notification.success {
+    background-color: #28a745;
+}
+
+.notification.error {
+    background-color: #dc3545;
+}
 
 
 /* SIDE NAVBAR */
@@ -392,6 +412,10 @@ th input[type="checkbox"] {
     flex-direction: column; /* Stack items vertically */
     align-items: flex-start; /* Align items to the left */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
 }
 
 /* Sidebar toggle button */

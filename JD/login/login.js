@@ -4,15 +4,17 @@ window.onload = function() {
     const username = document.getElementById("username");
     const password = document.getElementById("password");
     const btnlogin = document.getElementById("login");
-    const showPasswordCheckbox = document.getElementById("show-password");
+    const togglePassword = document.getElementById("toggle-password");
     const alertModal = document.getElementById("alert-modal");
     const alertMessage = document.getElementById("alert-message");
     const closeButton = document.querySelector(".close-button");
     const errorMessage = document.getElementById("error-message");
 
-    // Show/Hide password functionality
-    showPasswordCheckbox.onchange = function() {
-        password.type = showPasswordCheckbox.checked ? "text" : "password";
+    // Show/Hide password functionality using icon
+    togglePassword.onclick = function() {
+        const passwordType = password.type === "password" ? "text" : "password";
+        password.type = passwordType;
+        togglePassword.innerHTML = passwordType === "text" ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
     };
 
     // Close alert modal functionality
@@ -31,20 +33,20 @@ window.onload = function() {
                 alertMessage.textContent = 'Incorrect username or password';
                 alertModal.style.display = "block";
 
-                // Clear the username and password fields, and reset the checkbox
+                // Clear the username and password fields
                 username.value = '';
                 password.value = '';
                 password.type = 'password'; // Ensure password field is hidden
-                showPasswordCheckbox.checked = false;
+                togglePassword.innerHTML = '<i class="fas fa-eye"></i>'; // Reset icon to 'eye'
             }
         }).catch(error => {
             console.error('Login Error:', error);
             
-            // Clear the username and password fields, and reset the checkbox
+            // Clear the username and password fields
             username.value = '';
             password.value = '';
             password.type = 'password';
-            showPasswordCheckbox.checked = false;
+            togglePassword.innerHTML = '<i class="fas fa-eye"></i>'; // Reset icon to 'eye'
         });
     };
 };

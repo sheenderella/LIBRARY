@@ -5,13 +5,6 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* General styles for form controls */
-.form-control {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-}
-
 /* Styles for the control panel (search, filter, sort, buttons) */
 .controls {
     display: flex;
@@ -20,6 +13,7 @@ body {
     margin: 20px 0;
     flex-wrap: wrap;
     gap: 10px;
+
 }
 
 /* Flex item for search input, with a larger flex-grow */
@@ -30,6 +24,7 @@ body {
     padding: 10px;
     background-color: #30688B;
     border: 1px solid #333C42;
+    height: 45px;
 }
 
 .search-icon {
@@ -42,18 +37,17 @@ body {
     display: flex;
     align-items: center;
     flex-grow: 2; /* Larger flex-grow for the search input */
-
-
+    height: 45px;
 }
 
 .search-input {
     flex-grow: 1;
     padding-left: 10px;
-    border: 1px solid #d30b0b;
-    margin-left: -1px;
+    border: none;
+    height: 45px;
+    border: 1px solid #333C42;
+    border-radius: 0; /* Sharp corners */
 }
-
-
 
 /* Status filter container with default flex-grow */
 .status-filter-container {
@@ -351,6 +345,10 @@ td.status-borrowed {
     flex-direction: column; /* Stack items vertically */
     align-items: flex-start; /* Align items to the left */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
 }
 
 /* Sidebar toggle button */

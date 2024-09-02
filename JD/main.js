@@ -5,8 +5,6 @@ const db = require('./database.js');
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 
 require('./settings/backupRestore.js'); // Add this line to include backup functionalities
-let loggedInUsername = null; // Keep track of the logged-in username
-
 
 function createWindow(options) {
     const window = new BrowserWindow({
@@ -37,6 +35,115 @@ function createMainWindow() {
         height: 680,
     });
 }
+
+// Create a new function for the Add Book button in index.html
+function createAddBookFromIndexWindow() {
+    addBookWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'addBook.html'),
+        width: 600,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (addBookWindow = null),
+    });
+
+    // Ensure the window is not reused elsewhere
+    addBookWindow.webContents.on('did-finish-load', () => {
+        // You can send specific data or commands here if necessary
+    });
+}
+
+// Listen for the event from index.js
+ipcMain.on('open-add-book-from-index-window', () => {
+    if (!addBookWindow) {
+        createAddBookFromIndexWindow();
+    } else {
+        addBookWindow.focus();
+    }
+});
+
+// Function to open the books page
+function createBooksPageWindow() {
+    if (!mainWindow) {
+        createMainWindow(); // Make sure the main window is created if it's not already
+    }
+    // You can adjust the navigation logic to ensure the books page is loaded within the main window
+    mainWindow.loadFile(path.join(__dirname, 'books', 'books.html'));
+}
+
+// Listen for the event to open the books page
+ipcMain.on('open-books-page', () => {
+    createBooksPageWindow();
+});
+
+// Listen for the event to open the books page
+ipcMain.on('open-books-page', () => {
+    createBooksPageWindow();
+});
+
+
+// Function to get the total number of borrowed books
+async function getBorrowedBooksCount() {
+    const sql = "SELECT COUNT(*) AS count FROM borrow";
+    return new Promise((resolve, reject) => {
+        db.get(sql, [], (error, row) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(row.count);
+            }
+        });
+    });
+}
+
+// Register the IPC handler for getBorrowedBooksCount
+ipcMain.handle('getBorrowedBooksCount', async () => {
+    try {
+        const count = await getBorrowedBooksCount();
+        return count;
+    } catch (error) {
+        console.error('Error fetching borrowed books count:', error);
+        throw error;
+    }
+});
+
+
+
+// Function to fetch unique borrowers
+ipcMain.handle('getUniqueBorrowers', async () => {
+    try {
+        // Assuming you have a function `getUniqueBorrowersFromDB` that returns an array of unique borrower names
+        const uniqueBorrowers = await getUniqueBorrowersFromDB();
+        return uniqueBorrowers;
+    } catch (error) {
+        console.error('Error fetching unique borrowers:', error);
+        return [];
+    }
+});
+
+// Function to fetch unique borrowers from the database
+async function getUniqueBorrowersFromDB() {
+    const sql = 'SELECT DISTINCT borrowerName FROM borrow';
+    return executeSelectQuery(sql);
+}
+
+
+//GRAPH
+// Register IPC handlers
+ipcMain.handle('getBooksCount', async (event) => {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT COUNT(*) AS count FROM books', (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row.count);
+            }
+        });
+    });
+});
+
+
+
+
 
 //LOGIN
 function createLoginWindow() {
@@ -277,11 +384,63 @@ function closeAllFormWindows() {
 }
 
 
-//CHANGE
-function createChangeCredentialsWindow() {
-    const changeCredentialsWindow = new BrowserWindow({
-        width: 600,
-        height: 400,
+//CHANGE PASSWORD N USERNAME
+function createChangeUsernameWindow() {
+    let changeUsernameWindow = new BrowserWindow({
+        width: 400,
+        height: 560,
+        parent: mainWindow, // Ensures it is a child of the main window
+        resizable: false,
+        show: true, // Ensures the window is visible when created
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    changeUsernameWindow.loadFile(path.join(__dirname, 'settings', 'username.html')); // Load the HTML file for the Change Username window
+
+    changeUsernameWindow.on('closed', () => {
+        changeUsernameWindow = null; // Handle cleanup when the window is closed
+    });
+}
+
+
+// Listen for the event to open the Change Password window
+ipcMain.handle('open-change-username-window', () => {
+    createChangeUsernameWindow(); // Calls the function to create the Change Username window
+});
+
+// IPC handler to change the username
+ipcMain.handle('change-username', async (event, { newUsername, currentPassword }) => {
+    try {
+        const user = await validateCurrentPassword(currentPassword);
+
+        if (!user) {
+            return { success: false, error: 'Current password is incorrect' };
+        }
+
+        await executeQuery('UPDATE user SET username = ? WHERE id = ?', [newUsername, user.id]);
+
+        // Update the loggedInUsername after changing it
+        loggedInUsername = newUsername;
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error changing username:', error);
+        return { success: false, error: 'An error occurred while changing the username' };
+    }
+});
+
+ipcMain.handle('open-change-password-window', () => {
+    createChangePasswordWindow(); // Calls the function to create the Change Username window
+});
+
+// Function to open the Change Password window
+function createChangePasswordWindow() {
+    let changePasswordWindow = new BrowserWindow({
+        width: 400,
+        height: 560,
         parent: mainWindow,
         resizable: false,
         webPreferences: {
@@ -290,50 +449,37 @@ function createChangeCredentialsWindow() {
         },
     });
 
-    changeCredentialsWindow.loadFile(path.join(__dirname, 'settings', 'change.html'));
+    changePasswordWindow.loadFile(path.join(__dirname, 'settings', 'password.html'));
 
-    changeCredentialsWindow.on('closed', () => {
-        changeCredentialsWindow = null;
+    changePasswordWindow.on('closed', () => {
+        changePasswordWindow = null;
     });
 }
 
 
-ipcMain.handle('change-credentials', async (event, { newUsername, currentPassword, newPassword }) => {
+
+// Change Password IPC Handler
+ipcMain.handle('change-password', async (event, { currentPassword, newPassword }) => {
     try {
+        console.log('Received change-password request');
         const user = await validateCurrentPassword(currentPassword);
-        
+
         if (!user) {
+            console.log('Current password is incorrect');
             return { success: false, error: 'Current password is incorrect' };
         }
 
-        const updates = [];
-        const params = [];
-
-        if (newUsername) {
-            updates.push('username = ?');
-            params.push(newUsername);
+        if (currentPassword === newPassword) {
+            console.log('New password is the same as the current password');
+            return { success: false, error: 'The new password cannot be the same as the current password.' };
         }
 
-        if (newPassword) {
-            updates.push('password = ?');
-            params.push(newPassword);
-        }
-
-        if (updates.length > 0) {
-            params.push(user.id);
-            const sql = `UPDATE user SET ${updates.join(', ')} WHERE id = ?`;
-            await executeQuery(sql, params);
-
-            // Update loggedInUsername if the username is changed
-            if (newUsername) loggedInUsername = newUsername;
-
-            return { success: true };
-        }
-
-        return { success: false, error: 'No changes made' };
+        await executeQuery('UPDATE user SET password = ? WHERE id = ?', [newPassword, user.id]);
+        console.log('Password updated successfully');
+        return { success: true };
     } catch (error) {
-        console.error('Error changing credentials:', error);
-        return { success: false, error: 'An error occurred while updating credentials' };
+        console.error('Error changing password:', error);
+        return { success: false, error: error.message };
     }
 });
 
@@ -351,7 +497,6 @@ async function validateCurrentPassword(password) {
 }
 
 
-
 ///BOOKS
 // Books IPC Handlers
 ipcMain.handle('addBook', async (event, record) => {
@@ -364,7 +509,6 @@ ipcMain.handle('addBook', async (event, record) => {
                 record.createdAt = new Date().toISOString();
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.webContents.send('book-record-added', record);
-                    mainWindow.webContents.reload();
                 }
             }
         );
@@ -382,7 +526,6 @@ ipcMain.handle('updateBook', async (event, record) => {
 
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('book-record-updated', record);
-            mainWindow.webContents.reload();
         }
     } catch (error) {
         console.error('Error updating book record:', error);
@@ -397,7 +540,6 @@ ipcMain.handle('deleteBook', async (event, id) => {
             function () {
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.webContents.send('book-record-deleted', id);
-                    mainWindow.webContents.reload();
                 }
             }
         );
