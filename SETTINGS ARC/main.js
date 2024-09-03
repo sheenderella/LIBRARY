@@ -142,9 +142,6 @@ ipcMain.handle('getBooksCount', async (event) => {
 });
 
 
-
-
-
 //LOGIN
 function createLoginWindow() {
     loginWindow = createWindow({
