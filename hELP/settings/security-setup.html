@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Setup</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./security-setup.css">
+</head>
+
+<div class="container">
+    <h1>Security Setup</h1>
+    <form id="security-setup-form">
+        <div class="form-group">
+            <label for="security-question">Select Security Question:</label>
+            <select id="security-question" class="form-control">
+                <option value="" disabled selected>Select a common question</option>
+                <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                <option value="What is the name of the street you grew up on?">What is the name of the street you grew up on?</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="custom-question">Or Personalize Your Question:</label>
+            <input type="text" id="custom-question" class="form-control" placeholder="Enter your custom question">
+        </div>
+        <div class="form-group">
+            <label for="answer">Answer:</label>
+            <input type="text" id="answer" class="form-control" placeholder="Enter your answer">
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="./security-setup.js"></script>
+</body>
+
+</html>
