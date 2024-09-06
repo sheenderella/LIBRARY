@@ -152,28 +152,39 @@ function createLoginWindow() {
 
 //BORROWER
 function createAddBorrowWindow() {
-    addBorrowWindow = createWindow({
-        filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
-        width: 400,
-        height: 540,
-        parent: mainWindow,
-        onClose: () => (addBorrowWindow = null),
-    });
+    if (!addBorrowWindow) {
+        addBorrowWindow = createWindow({
+            filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
+            width: 400,
+            height: 540,
+            parent: mainWindow,
+            onClose: () => (addBorrowWindow = null),
+        });
+    } else {
+        addBorrowWindow.focus(); // Bring the existing window to the front
+    }
 }
+
 
 function createUpdateBorrowWindow(record) {
-    updateBorrowWindow = createWindow({
-        filePath: path.join(__dirname, 'borrow', 'updateBorrow.html'),
-        width: 400,
-        height: 560,
-        parent: mainWindow,
-        onClose: () => (updateBorrowWindow = null),
-    });
+    if (!updateBorrowWindow) {
+        updateBorrowWindow = createWindow({
+            filePath: path.join(__dirname, 'borrow', 'updateBorrow.html'),
+            width: 400,
+            height: 560,
+            parent: mainWindow,
+            onClose: () => (updateBorrowWindow = null),
+        });
 
-    updateBorrowWindow.webContents.on('did-finish-load', () => {
+        updateBorrowWindow.webContents.on('did-finish-load', () => {
+            updateBorrowWindow.webContents.send('fill-update-form', record);
+        });
+    } else {
+        updateBorrowWindow.focus(); // Bring the existing window to the front
         updateBorrowWindow.webContents.send('fill-update-form', record);
-    });
+    }
 }
+
 
 //BOOKS
 function createAddBookWindow() {
