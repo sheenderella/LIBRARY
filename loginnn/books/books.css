@@ -1,0 +1,135 @@
+/* books.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f8f9fa;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    max-width: 1200px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+h1 {
+    font-size: 2em;
+    color: #333;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 1em;
+    color: #555;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.nav-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    font-size: 1em;
+    color: #007bff;
+    text-decoration: none;
+    padding: 10px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+}
+
+.nav-link:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.btn:hover {
+    background-color: #218838;
+}
+
+.search-sort {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.search-sort input {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+thead {
+    background-color: #007bff;
+    color: #fff;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    position: relative;
+    padding-right: 30px; /* Space for the icon */
+}
+
+.sort-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.sort-btn i {
+    color: #ffffff; /* Icon color */
+    font-size: 1em; /* Adjust the size of the icon */
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination .btn {
+    background-color: #6c757d;
+}
+
+.pagination .btn:hover {
+    background-color: #5a6268;
+}

@@ -1,112 +1,100 @@
-/* login.css */
-
-body {
+/* General page styling */
+body, html {
+  height: 100%;
+  margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+  background-color: #007bff; /* Blue background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+/* Container for the login card */
 .container {
+  width: 100%;
   max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Card styling */
 .card {
-  border: none;
+  background-color: #ffffff; /* White background */
   border-radius: 10px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* Centering and spacing the card content */
 .card-body {
   padding: 20px;
 }
 
+/* Adding the logo at the top */
+.card-body::before {
+  content: url('logo.png'); /* Replace 'logo.png' with the path to your logo */
+  display: block;
+  margin: 0 auto 20px;
+  text-align: center;
+  width: 100px; /* Adjust based on your logo size */
+  height: auto;
+}
+
+/* Form element spacing */
 .form-control {
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  width: 100%;
   padding: 10px;
-  width: 100%;
-}
-
-.form-control:focus {
-  border-color: #aaa;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-.form-check-input {
-  margin-top: 10px;
-}
-
-.form-check-label {
-  margin-left: 10px;
-}
-
-.btn {
+  margin: 5px 0;
+  box-sizing: border-box;
   border-radius: 5px;
-  padding: 10px 20px;
-  width: 100%;
+  border: 1px solid #ced4da;
 }
 
 .btn-info {
-  background-color: #03a9f4;
+  width: 100%;
+  background-color: #007bff;
+  color: white;
   border: none;
-  color: #fff;
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 10px;
+  cursor: pointer;
 }
 
 .btn-info:hover {
-  background-color: #007ac1;
+  background-color: #0056b3;
 }
 
-#logout-link {
-  text-decoration: none;
-  color: #337ab7;
-}
-
-#error-message {
-  font-size: 14px;
-  color: #f00;
-  margin-top: 10px;
-}
-
-/* Alert Modal Styles */
+/* Custom modal styling */
 .alert-modal {
-  display: none; /* Hidden by default */
+  display: none;
   position: fixed;
-  z-index: 999;
+  z-index: 1;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .alert-modal-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  background-color: #fefefe;
+  margin: 15% auto;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  text-align: center;
+  border: 1px solid #888;
   width: 80%;
   max-width: 300px;
+  border-radius: 10px;
 }
 
 .close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  font-size: 18px;
+  color: #aaa;
+  float: right;
+  font-size: 28px;
   font-weight: bold;
+  cursor: pointer;
 }
 
-#alert-message {
-  font-size: 16px;
-  color: #d9534f; /* Bootstrap's danger color */
-  margin: 20px 0;
+.close-button:hover,
+.close-button:focus {
+  color: black;
 }
+

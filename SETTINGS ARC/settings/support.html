@@ -68,14 +68,414 @@
         <!-- Main Content -->
         <main id="page-content-wrapper" class="flex-grow-1 p-4">
             <div class="container mt-5">
-                <div class="text-center mb-4">
-                    <h1>FAQs</h1>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="faq-header"><b><i class="fa-solid fa-circle-question"></i>User Guide and FAQs</b></h1>
+                    <div class="search">
+                        <input type="text" id="input-box" placeholder="Search" autocomplete="off">
+                        <button class="ml-0">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
+         <!-- User Guide -->
+          <div class="container mt-5">
+            <div class="left-aligned-header mb-4">
+                <h2><b>User Guide</b></h2>
+            </div>
+        </div>
 
             
-        </main>
+            <!-- user guide -->
+            <div class="accordion mb-4" id="faqAccordion">
+                <!-- How do I log in? -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingLogin">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogin" aria-expanded="false" aria-controls="collapseLogin">
+                            <i class="fa-solid fa-key"></i> How do I log in?
+                        </button>
+                    </h2>
+                    <div id="collapseLogin" class="accordion-collapse collapse" aria-labelledby="headingLogin" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body p-0">
+                            <div class="d-flex flex-column align-items-start">
+                                <div class="w-100 p-3">
+                                    <p>
+                                        <i class="fa-regular fa-lightbulb"></i> Enter your username and password on the login screen. After successfully logging in, you'll be redirected to the dashboard.
+                                    </p>
+                                    <p>
+                                        <i class="fa-solid fa-exclamation"></i> If you receive an "Invalid credentials" message, double-check your username and password. If the problem persists, ensure your Caps Lock is off and try again.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How do I add a new book? -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingAddBook">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAddBook" aria-expanded="false" aria-controls="collapseAddBook">
+                            <i class="fa-solid fa-book"></i> How do I add a new book?
+                        </button>
+                    </h2>
+                    <div id="collapseAddBook" class="accordion-collapse collapse" aria-labelledby="headingAddBook" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body p-0">
+                            <div class="d-flex flex-column align-items-start">
+                                <div class="w-100 p-3">
+                                    <p>
+                                        <i class="fa-regular fa-lightbulb"></i> Click on the "Add Book" button in the main dashboard. Fill in the book details, including the title, author, and other required fields, then click "Save."
+                                    </p>
+                                    <p>
+                                        <i class="fa-solid fa-exclamation"></i> If you encounter an error while saving, ensure all required fields are filled out correctly. If the error persists, restart the app and try again.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How do I borrow a book? -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingBorrowBook">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBorrowBook" aria-expanded="false" aria-controls="collapseBorrowBook">
+                            <i class="fa-solid fa-book"></i> How do I borrow a book?
+                        </button>
+                    </h2>
+                    <div id="collapseBorrowBook" class="accordion-collapse collapse" aria-labelledby="headingBorrowBook" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body p-0">
+                            <div class="d-flex flex-column align-items-start">
+                                <div class="w-100 p-3">
+                                    <p>
+                                        <i class="fa-regular fa-lightbulb"></i> Go to the "Borrow Books" section, select the book you want to borrow, and enter the borrower's information. Confirm the details to complete the borrowing process.
+                                    </p>
+                                    <p>
+                                        <i class="fa-solid fa-exclamation"></i> If the book is not available for borrowing, ensure it hasn't already been borrowed. If an error occurs, check that the borrower's information is correctly entered.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How do I update a borrow record? -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingUpdateBorrow">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpdateBorrow" aria-expanded="false" aria-controls="collapseUpdateBorrow">
+                            <i class="fa-solid fa-pen-to-square"></i> How do I update a borrow record?
+                        </button>
+                    </h2>
+                    <div id="collapseUpdateBorrow" class="accordion-collapse collapse" aria-labelledby="headingUpdateBorrow" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body p-0">
+                            <div class="d-flex flex-column align-items-start">
+                                <div class="w-100 p-3">
+                                    <p>
+                                        <i class="fa-regular fa-lightbulb"></i> In the "Borrow Records" section, find the record you wish to update. Click "Edit," make the necessary changes, and then click "Update" to save.
+                                    </p>
+                                    <p>
+                                        <i class="fa-solid fa-exclamation"></i> If the record fails to update, ensure all fields are correctly filled. If the error continues, restart the app and attempt the update again.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- How do I return a book? -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingReturnBook">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReturnBook" aria-expanded="false" aria-controls="collapseReturnBook">
+            <i class="fa-solid fa-rotate-left"></i> How do I return a book?
+        </button>
+    </h2>
+    <div id="collapseReturnBook" class="accordion-collapse collapse" aria-labelledby="headingReturnBook" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> Locate the borrow record in the "Borrow Records" section, click "Return," and confirm the return to update the record.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If you can't return the book, check if the borrow record is correct and the book hasn't already been marked as returned.
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+<!-- How do I delete a book? -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingDeleteBook">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDeleteBook" aria-expanded="false" aria-controls="collapseDeleteBook">
+            <i class="fa-solid fa-trash"></i> How do I delete a book?
+        </button>
+    </h2>
+    <div id="collapseDeleteBook" class="accordion-collapse collapse" aria-labelledby="headingDeleteBook" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> Find the book you want to delete in the "Books" section, click the "Delete" button, and confirm the action. The book will be removed from the system.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If an error occurs while deleting, ensure that the book is not currently borrowed. If it is, return the book first before deleting it.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- How do I backup the database? -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingBackupDatabase">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBackupDatabase" aria-expanded="false" aria-controls="collapseBackupDatabase">
+            <i class="fas fa-download"></i>  How do I backup the database?
+        </button>
+    </h2>
+    <div id="collapseBackupDatabase" class="accordion-collapse collapse" aria-labelledby="headingBackupDatabase" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> Go to "Settings," select "Backup," and follow the prompts to create a backup of your library database. The backup file will be saved in the specified location.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If the backup fails, ensure you have write permissions for the save location. If you encounter persistent issues, check that there’s enough disk space and try again.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- How do I restore the database? -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingRestoreDatabase">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRestoreDatabase" aria-expanded="false" aria-controls="collapseRestoreDatabase">
+            <i class="fas fa-upload"></i>  How do I restore the database?
+        </button>
+    </h2>
+    <div id="collapseRestoreDatabase" class="accordion-collapse collapse" aria-labelledby="headingRestoreDatabase" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> In the "Settings" section, select "Restore," choose the backup file, and follow the prompts to restore your database from the backup.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If the restore process fails, ensure the backup file is not corrupted and that it matches the format required by the app. Verify that you have proper permissions to access the file.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQs -->
+<div class="container mt-5">
+    <div class="left-aligned-header mb-4">
+        <h2><b>FAQs</b></h2>
+    </div>
+</div>
+<!-- 1. Logging In -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingLoggingIn">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLoggingIn" aria-expanded="false" aria-controls="collapseLoggingIn">
+            <i class="fa-solid fa-right-to-bracket"></i> Logging In
+        </button>
+    </h2>
+    <div id="collapseLoggingIn" class="accordion-collapse collapse" aria-labelledby="headingLoggingIn" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> On the login screen, enter your username and password. If your credentials are correct, you will be directed to the main dashboard.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If you get locked out after multiple failed attempts, you may need to reset your password or contact the system administrator.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- *Adding a Book* -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingAddingBook">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAddingBook" aria-expanded="false" aria-controls="collapseAddingBook">
+            <i class="fa-solid fa-plus"></i> Adding a Book
+        </button>
+    </h2>
+    <div id="collapseAddingBook" class="accordion-collapse collapse" aria-labelledby="headingAddingBook" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> Click the "Add Book" button. Enter the book's details such as the title, author, and publication year. After filling in all the information, click "Save" to add the book to the library.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If the book doesn't save, check for missing or incorrectly formatted fields. Restart the app if necessary and re-enter the details.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- *Borrowing a Book* -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingBorrowingBook">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBorrowingBook" aria-expanded="false" aria-controls="collapseBorrowingBook">
+            <i class="fa-solid fa-book-reader"></i> Borrowing a Book
+        </button>
+    </h2>
+    <div id="collapseBorrowingBook" class="accordion-collapse collapse" aria-labelledby="headingBorrowingBook" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> Navigate to the "Borrow Books" section. Select the book you wish to borrow and provide the borrower's information. Confirm to finalize the borrowing process.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If the borrowing process fails, ensure that the book is available and that the borrower's details are correct. If the problem persists, verify that your database is working properly.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- *Updating a Borrow Record* -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingUpdateBorrowRecord">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpdateBorrowRecord" aria-expanded="false" aria-controls="collapseUpdateBorrowRecord">
+            <i class="fa-solid fa-pen-to-square"></i> Updating a Borrow Record
+        </button>
+    </h2>
+    <div id="collapseUpdateBorrowRecord" class="accordion-collapse collapse" aria-labelledby="headingUpdateBorrowRecord" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> In the "Borrow Records" section, find the record that needs updating. Click on "Edit," modify the necessary fields, and click "Update" to save your changes.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If the update doesn’t go through, make sure the fields aren’t empty and that the record exists. Reload the app if issues continue.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- *Returning a Book* -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingReturnBook2">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReturnBook2" aria-expanded="false" aria-controls="collapseReturnBook2">
+            <i class="fa-solid fa-rotate-left"></i> Returning a Book
+        </button>
+    </h2>
+    <div id="collapseReturnBook2" class="accordion-collapse collapse" aria-labelledby="headingReturnBook2" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> To return a book, locate the borrow record, click "Return," and confirm the action. The system will update the record to show the book has been returned.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If the return fails, verify that the book was correctly borrowed under the same record. Restart the app if necessary.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- *Deleting a Book* -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingDeleteBook2">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDeleteBook2" aria-expanded="false" aria-controls="collapseDeleteBook2">
+            <i class="fa-solid fa-trash"></i> Deleting a Book
+        </button>
+    </h2>
+    <div id="collapseDeleteBook2" class="accordion-collapse collapse" aria-labelledby="headingDeleteBook2" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> Go to the "Books" section, find the book you want to delete, and click the "Delete" button. Confirm the deletion to remove the book from the library.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If deletion is unsuccessful, ensure no active borrow records are linked to the book. Clear any dependencies before attempting to delete again.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- *Backing Up the Database* -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingBackupDatabase2">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBackupDatabase2" aria-expanded="false" aria-controls="collapseBackupDatabase2">
+            <i class="fas fa-download"></i> Backing Up the Database
+        </button>
+    </h2>
+    <div id="collapseBackupDatabase2" class="accordion-collapse collapse" aria-labelledby="headingBackupDatabase2" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> In the "Settings" menu, click "Backup." Follow the instructions to save a backup of your database.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> Ensure the backup location is accessible and that you have enough storage space. If backup fails, consider saving to a different location.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- *Restoring the Database* -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingRestoreDatabase2">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRestoreDatabase2" aria-expanded="false" aria-controls="collapseRestoreDatabase2">
+            <i class="fas fa-upload"></i> Restoring the Database
+        </button>
+    </h2>
+    <div id="collapseRestoreDatabase2" class="accordion-collapse collapse" aria-labelledby="headingRestoreDatabase2" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> Go to "Settings" and select "Restore." Choose the backup file and follow the steps to restore your database.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If the restore fails, verify that the backup file is intact and compatible with your current database schema. Try restoring from an earlier backup if needed.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- *Changing Credentials* -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingChangeCredentials">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChangeCredentials" aria-expanded="false" aria-controls="collapseChangeCredentials">
+            <i class="fa-solid fa-key"></i> Changing Credentials
+        </button>
+    </h2>
+    <div id="collapseChangeCredentials" class="accordion-collapse collapse" aria-labelledby="headingChangeCredentials" data-bs-parent="#faqAccordion">
+        <div class="accordion-body p-0">
+            <div class="d-flex flex-column align-items-start">
+                <div class="w-100 p-3">
+                    <p>
+                        <i class="fa-regular fa-lightbulb"></i> Navigate to the "Settings" section, select "Change Credentials," and enter your current password along with your new username and/or password. Save the changes to update your login credentials.
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-exclamation"></i> If credentials do not update, confirm that the current password is correct and that the new username isn’t already taken. Retry the process if needed.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+             
+
+
+</main>
 
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

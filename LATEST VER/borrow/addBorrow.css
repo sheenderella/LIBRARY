@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream:LATEST VER/borrow/addBorrow.css
 body, html {
     margin: 0;
     padding: 0;
@@ -28,17 +29,35 @@ body, html {
     border: none;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-top: -50px; /* Remove any margins to avoid gaps */
+=======
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 400px;
+    margin: auto;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+>>>>>>> Stashed changes:loginnn/borrow/addBorrow.css
 }
 
 .card-header {
     background-color: #30688B;
     color: #fff;
     padding: 10px;
+<<<<<<< Updated upstream:LATEST VER/borrow/addBorrow.css
     width: 100%; /* Make header stretch to full card width */
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0;
+=======
+>>>>>>> Stashed changes:loginnn/borrow/addBorrow.css
 }
 
 .card-header img {
@@ -47,10 +66,13 @@ body, html {
 
 .card-body {
     padding: 20px;
+<<<<<<< Updated upstream:LATEST VER/borrow/addBorrow.css
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
+=======
+>>>>>>> Stashed changes:loginnn/borrow/addBorrow.css
 }
 
 h1 {
@@ -58,7 +80,10 @@ h1 {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
+<<<<<<< Updated upstream:LATEST VER/borrow/addBorrow.css
     text-align: center;
+=======
+>>>>>>> Stashed changes:loginnn/borrow/addBorrow.css
 }
 
 .form-group {
@@ -67,7 +92,10 @@ h1 {
 
 .form-control {
     border: 1px solid #ced4da;
+<<<<<<< Updated upstream:LATEST VER/borrow/addBorrow.css
     border-radius: 0%;
+=======
+>>>>>>> Stashed changes:loginnn/borrow/addBorrow.css
     height: 45px;
     font-size: 16px;
 }
@@ -87,6 +115,7 @@ h1 {
 .btn-success:hover {
     background-color: #3A79A0;
 }
+<<<<<<< Updated upstream:LATEST VER/borrow/addBorrow.css
 
 /* Style the select dropdown */
 #addBorrowStatus option {
@@ -95,3 +124,5 @@ h1 {
     color: #000; /* Option text color */
     border-radius: 0px;
 }
+=======
+>>>>>>> Stashed changes:loginnn/borrow/addBorrow.css

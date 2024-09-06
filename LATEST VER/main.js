@@ -8,6 +8,8 @@ require('./settings/backupRestore.js'); // Add this line to include backup funct
 let loggedInUsername = null; // Keep track of the logged-in username
 
 
+require('./settings/backupRestore.js'); // Add this line to include backup functionalities
+
 function createWindow(options) {
     const window = new BrowserWindow({
         width: options.width || 800,
@@ -38,6 +40,7 @@ function createMainWindow() {
     });
 }
 
+<<<<<<< Updated upstream:LATEST VER/main.js
 // Create a new function for the Add Book button in index.html
 function createAddBookFromIndexWindow() {
     addBookWindow = createWindow({
@@ -164,6 +167,15 @@ function createLoginWindow() {
 }
 
 
+=======
+//LOGIN
+function createLoginWindow() {
+    loginWindow = createWindow({
+        filePath: 'login.html',
+    });
+}
+
+>>>>>>> Stashed changes:loginnn/main.js
 //BORROWER
 function createAddBorrowWindow() {
     addBorrowWindow = createWindow({
@@ -193,7 +205,11 @@ function createUpdateBorrowWindow(record) {
 function createAddBookWindow() {
     addBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'addBook.html'),
+<<<<<<< Updated upstream:LATEST VER/main.js
         width: 600,
+=======
+        width: 400,
+>>>>>>> Stashed changes:loginnn/main.js
         height: 600,
         parent: mainWindow,
         onClose: () => (addBookWindow = null),
@@ -203,9 +219,14 @@ function createAddBookWindow() {
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'editBook.html'),
+<<<<<<< Updated upstream:LATEST VER/main.js
         width: 600,
         height: 600,
 
+=======
+        width: 400,
+        height: 600,
+>>>>>>> Stashed changes:loginnn/main.js
         parent: mainWindow,
         onClose: () => (editBookWindow = null),
     });
@@ -229,6 +250,7 @@ app.on('activate', () => {
     }
 });
 
+<<<<<<< Updated upstream:LATEST VER/main.js
 //DELETE WARNING
 function createDeleteNotifWindow() {
     deleteNotifWindow = createWindow({
@@ -239,6 +261,11 @@ function createDeleteNotifWindow() {
         onClose: () => (deleteNotifWindow = null),
     });
 }
+=======
+// Handle IPC calls
+//LOGIN
+ipcMain.handle('login', (event, obj) => validatelogin(obj));
+>>>>>>> Stashed changes:loginnn/main.js
 
 
 // Handle IPC calls
@@ -327,11 +354,15 @@ function validatelogin({ username, password }) {
         }
 
         if (result) {
+<<<<<<< Updated upstream:LATEST VER/main.js
             loggedInUsername = username; // Store the logged-in username
+=======
+>>>>>>> Stashed changes:loginnn/main.js
             createMainWindow();
             if (mainWindow) mainWindow.show();
             if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
         } else {
+<<<<<<< Updated upstream:LATEST VER/main.js
             createLoginErrorWindow();
             clearLoginFields();
         }
@@ -363,6 +394,16 @@ function clearLoginFields() {
     }
 }
 
+=======
+            new Notification({
+                title: "Login",
+                body: 'Username or password incorrect',
+            }).show();
+        }
+    });
+}
+
+>>>>>>> Stashed changes:loginnn/main.js
 function executeQuery(sql, params, callback) {
     return new Promise((resolve, reject) => {
         db.run(sql, params, function (err) {
@@ -394,6 +435,7 @@ function closeAllFormWindows() {
     });
 }
 
+<<<<<<< Updated upstream:LATEST VER/main.js
 
 //CHANGE
 function createChangeCredentialsWindow() {
@@ -470,6 +512,8 @@ async function validateCurrentPassword(password) {
 
 
 
+=======
+>>>>>>> Stashed changes:loginnn/main.js
 ///BOOKS
 // Books IPC Handlers
 ipcMain.handle('addBook', async (event, record) => {
@@ -539,6 +583,7 @@ ipcMain.on('open-add-book-window', () => {
     }
 });
 
+<<<<<<< Updated upstream:LATEST VER/main.js
 ipcMain.on('open-delete-notif-window', (event, id) => {
     if (!deleteNotifWindow) {
         createDeleteNotifWindow();
@@ -553,6 +598,8 @@ ipcMain.on('open-delete-notif-window', (event, id) => {
 });
 
 
+=======
+>>>>>>> Stashed changes:loginnn/main.js
 ipcMain.on('open-edit-book-window', (event, record) => {
     if (!editBookWindow) {
         createEditBookWindow(record);
@@ -561,3 +608,7 @@ ipcMain.on('open-edit-book-window', (event, record) => {
         editBookWindow.webContents.send('fill-edit-form', record);
     }
 });
+<<<<<<< Updated upstream:LATEST VER/main.js
+=======
+
+>>>>>>> Stashed changes:loginnn/main.js

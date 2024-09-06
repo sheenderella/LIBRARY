@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream:LATEST VER/borrow/borrowerLog.css
 /* General styles */
 body {
     margin: 0;
@@ -135,6 +136,15 @@ body {
 
 
 
+=======
+/* General Styles */
+body {
+    padding: 20px;
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+>>>>>>> Stashed changes:loginnn/borrow/borrowerLog.css
 /* Headings */
 h1 {
     font-size: 2.5rem;
