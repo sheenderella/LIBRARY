@@ -65,61 +65,67 @@
         <main id="page-content-wrapper" class="p-4">
             <div class="container mt-5">
                 <div class="text-center mb-4">
-                    <h1>Books</h1>
-                   <p>List of books in the library.</p>
+                   <p class="top-head-h1">Books</p>
+                   <p class="top-head-p">List of books in the library.</p>
                 </div>
 
-        <div class="button-header">
-            <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i>Add Book</button>
-            <button id="deleteSelected" class="btn btn-danger">Delete Selected</button>
-
-            <!-- Date range select element -->
-            <div id="dateRangeContainer" class="date-range-container">
-              <select id="dateRangeSelect" class="form-control">
-                  <option value="">Search by Date</option>
-                  <option value="last_7_days">Last 7 Days</option>
-                  <option value="last_30_days">Last 30 Days</option>
-                  <option value="this_month">This Month</option>
-                  <option value="last_month">Last Month</option>
-                  <option value="custom">Custom Range</option>
-              </select>
-              <div id="customDateRange" class="date-group" style="display: none;">
-                  <label for="startDate">Start Date</label>
-                  <input type="date" id="startDate" class="form-control">
-                  <label for="endDate">End Date</label>
-                  <input type="date" id="endDate" class="form-control">
-                  <button id="clearDateRange" type="button">Clear</button>
-              </div>
-            </div>
-
-            <div class="search-sort">
-              <select id="searchColumn" class="form-control">
-                  <option value="all">All</option>
-                  <option value="number">Number</option>
-                  <option value="class">Class</option>
-                  <option value="author">Author</option>
-                  <option value="title_of_book">Book Title</option>
-                  <option value="edition">Edition</option>
-                  <option value="volume">Volume</option>
-                  <option value="source_of_fund">Source of Fund</option>
-                  <option value="pages">Pages</option>
-                  <option value="cost_price">Cost Price</option>
-                  <option value="publisher">Publisher</option>
-                  <option value="year">Year</option>
-                  <option value="remarks">Remarks</option>
-              </select>
-              <div class="input-container">
-                  <i class="icon fas fa-search"></i>
-                  <input type="text" id="searchInput" class="form-control" placeholder="Search">
-              </div>
-          </div>
-
-        </div>
+                <div class="button-header">
+                    <div class="right-side">
+                        <div id="dateRangeContainer" class="date-range-container">
+                            <i class="icon fas fa-calendar"></i>
+                            <select id="dateRangeSelect" class="form-control">
+                                <option value="">Search by Date</option>
+                                <option value="last_7_days">Last 7 Days</option>
+                                <option value="last_30_days">Last 30 Days</option>
+                                <option value="this_month">This Month</option>
+                                <option value="last_month">Last Month</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                            <div id="customDateRange" class="date-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" id="startDate" class="form-control">
+                                <label for="endDate">End Date</label>
+                                <input type="date" id="endDate" class="form-control">
+                                <button id="clearDateRange" type="button">Clear</button>
+                            </div>
+                        </div>
+                        <div class="dropdown-container">
+                            <i class="icon fas fa-filter"></i>
+                            <select id="searchColumn" class="search-form-control">
+                                <option value="all">All</option>
+                                <option value="number">Number</option>
+                                <option value="class">Class</option>
+                                <option value="author">Author</option>
+                                <option value="title_of_book">Book Title</option>
+                                <option value="edition">Edition</option>
+                                <option value="volume">Volume</option>
+                                <option value="source_of_fund">Source of Fund</option>
+                                <option value="pages">Pages</option>
+                                <option value="cost_price">Cost Price</option>
+                                <option value="publisher">Publisher</option>
+                                <option value="year">Year</option>
+                                <option value="remarks">Remarks</option>
+                            </select>
+                        </div>
+                        <div class="input-container">
+                            <i class="icon fas fa-search"></i>
+                            <input type="text" id="searchInput" class="search-form-control" placeholder="Search">
+                        </div>
+                    </div>
+                    <div class="right-side">
+                        <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i>Add</button>
+                        <button id="deleteSelected" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>                             
 
         <div class="scroll-container">
-            <div class="scrollbar-top"></div>
-            <div class="table-container">
- 
+            <!-- Sticky Scrollbar Container -->
+            <div class="scrollbar-top" id="scrollbarTop">
+                <div class="scroll-content"></div>
+            </div>
+        
+            <!-- Main Scrollable Table Container -->
+            <div class="table-container" id="tableContainer">
                 <table>
                     <thead>
                         <tr>
@@ -146,6 +152,7 @@
                 </table>
             </div>
         </div>
+        
 
         <div id="pagination" class="pagination-container"></div>
     </main>

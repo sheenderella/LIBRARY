@@ -54,6 +54,7 @@ function init() {
     setupEventListeners();
     fetchBorrowRecords();
 }
+
 function setupEventListeners() {
     const addBorrowForm = document.getElementById('addBorrowForm');
     const updateBorrowForm = document.getElementById('updateBorrowForm');

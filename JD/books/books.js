@@ -20,12 +20,9 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const addBookButton = document.getElementById('addBook');
     const deleteSelectedButton = document.getElementById('deleteSelected');
-    const sortButtons = document.querySelectorAll('.sort-btn');
     const selectAllCheckbox = document.getElementById('selectAll');
 
     const searchColumn = document.getElementById('searchColumn');
@@ -116,6 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     deleteSelectedButton.addEventListener('click', () => {
         deleteSelectedBooks();
+        loadBooks();
+        adjustBooksPerPage();
     });
 
     searchInput.addEventListener('input', () => {
@@ -124,12 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchColumn.addEventListener('change', () => {
         filterBooks();
-    });
-
-    sortButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            sortBooks(button.dataset.column, button);
-        });
     });
 
     selectAllCheckbox.addEventListener('change', () => {
@@ -143,8 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Listen for book record added event
 ipcRenderer.on('book-record-added', (event, record) => {
     addBookToTable(record, true);
-    updatePagination();
     showNotification('Book added successfully!', 'success');
+    loadBooks();
+    adjustBooksPerPage();
 });
 
 // Listen for book record updated event
@@ -159,17 +153,17 @@ ipcRenderer.on('error', (event, error) => {
     showNotification('An error occurred while processing the request.', 'error');
 });
 
-
     ipcRenderer.on('book-record-deleted', (event, id) => {
         deleteBookFromTable(id);
-        updatePagination();
+        loadBooks();
+        adjustBooksPerPage();
     });
 
     window.addEventListener('resize', adjustBooksPerPage);
     
     // Initial adjustment
+    setupSortButtons();
     adjustBooksPerPage();
-
     loadBooks();
 });
 
@@ -177,16 +171,33 @@ function openAddBookWindow() {
     ipcRenderer.send('open-add-book-window');
 }
 
+// Event listener setup for sort buttons
+function setupSortButtons() {
+    const sortButtons = document.querySelectorAll('.sort-btn');
+
+    sortButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            sortBooks(button.dataset.column, button);
+        });
+    });
+}
+
 function openDeleteNotifWindow(ids) {
+    if (ids.length === 0) {
+        console.error('No IDs provided for deletion.');
+        return;
+    }
+
     ipcRenderer.once('delete-confirmed', () => {
         ids.forEach(id => {
             ipcRenderer.invoke('deleteBook', id);
         });
-        updatePagination();
+        updatePagination();;
     });
 
     ipcRenderer.send('open-delete-notif-window', ids);
 }
+
 
 function openEditBookWindow(record) {
     ipcRenderer.send('open-edit-book-window', record);
@@ -195,15 +206,14 @@ function openEditBookWindow(record) {
 let originalBooks = [];
 let currentBooks = [];
 let currentPage = 1;
-let booksPerPage = 10; // Default value
+let booksPerPage = 1; // Default value
 
 function adjustBooksPerPage() {
     // Adjust the number of books per page based on window width
     const isNotMaximized = window.innerWidth < screen.width;
     booksPerPage = isNotMaximized ? 5 : 10;
-    currentPage = 1; // Reset to the first page when changing books per page
     displayBooks();
-    updatePagination();
+    updatePagination();;
 }
 
 function loadBooks() {
@@ -211,7 +221,7 @@ function loadBooks() {
         originalBooks = books.slice();
         currentBooks = originalBooks;
         displayBooks();
-        updatePagination();
+        updatePagination();;
     });
 }
 
@@ -219,11 +229,11 @@ function displayBooks() {
     const bookList = document.getElementById('bookList');
     bookList.innerHTML = '';
 
-    if (currentBooks.length === 0) {
+    if (currentBooks.length === null) {
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 15;
-        emptyMessageCell.textContent = "No Existing Book";
+        emptyMessageCell.textContent = "Please Add a New Book Record";
         emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
         emptyMessageRow.appendChild(emptyMessageCell);
         bookList.appendChild(emptyMessageRow);
@@ -289,8 +299,8 @@ function addBookToTable(book, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        const id = book.id;
-        openDeleteNotifWindow(id); // Open the confirmation popup with the book ID
+        openDeleteNotifWindow(book.id); // Open the confirmation popup with the book ID
+        updatePagination();;
     });
 
     if (prepend) {
@@ -298,6 +308,8 @@ function addBookToTable(book, prepend = false) {
     } else {
         bookList.appendChild(row);
     }
+
+    updatePagination();;
 }
 
 
@@ -332,6 +344,8 @@ function updateBookInTable(book) {
 function deleteBookFromTable(id) {
     const row = document.querySelector(`button[data-id="${id}"]`).closest('tr');
     row.remove();
+    updatePagination();;
+    displayBooks();
 }
 
 function deleteSelectedBooks() {
@@ -390,7 +404,7 @@ function filterBooks() {
                 if (startDate && endDate) {
                     matches = bookDate >= startDate && bookDate <= endDate;
                 } 
-                else if(startDate==NULL || endDate==NULL) {
+                else if(startDate==null || endDate==null) {
                     matches = true;
                 }
                 else {
@@ -402,10 +416,23 @@ function filterBooks() {
         return matches;
     });
 
+    const bookList = document.getElementById('bookList');
+    bookList.innerHTML = '';
+    if (currentBooks.length === 0) {
+        const emptyMessageRow = document.createElement('tr');
+        const emptyMessageCell = document.createElement('td');
+        emptyMessageCell.colSpan = 15;
+        emptyMessageCell.textContent = "Book Not Found";
+        emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
+        emptyMessageRow.appendChild(emptyMessageCell);
+        bookList.appendChild(emptyMessageRow);
+        return;
+    }
+
     // Reset to first page after filtering
     currentPage = 1;
     displayBooks();
-    updatePagination();
+    updatePagination();;
 }
 
 
@@ -425,56 +452,29 @@ document.getElementById('searchColumn').addEventListener('change', () => {
 });
 
 function sortBooks(column, button) {
-    // Toggle sort order
-    let order = button.dataset.order || 'asc';
-
-    if (order === 'asc') {
-        order = 'desc';
-    } else if (order === 'desc') {
-        order = 'default';
-    } else {
-        order = 'asc';
-    }
-    button.dataset.order = order;
-
-    // Update sorting icons
-    document.querySelectorAll('.sort-btn i').forEach(icon => {
-        icon.classList.remove('fa-sort-up', 'fa-sort-down');
-        icon.classList.add('fa-sort');
-    });
-
-    const currentIcon = button.querySelector('i');
-    if (order === 'asc') {
-        currentIcon.classList.remove('fa-sort');
-        currentIcon.classList.add('fa-sort-up');
-    } else if (order === 'desc') {
-        currentIcon.classList.remove('fa-sort');
-        currentIcon.classList.add('fa-sort-down');
-    } else {
-        currentIcon.classList.remove('fa-sort-up', 'fa-sort-down');
-        currentIcon.classList.add('fa-sort');
-    }
-
-    // Sort books
-    if (order === 'asc') {
-        currentBooks.sort((a, b) => {
-            const aText = a[column] ? a[column].toString().trim() : '';
-            const bText = b[column] ? b[column].toString().trim() : '';
-            return !isNaN(aText) && !isNaN(bText) ? aText - bText : aText.localeCompare(bText);
-        });
-    } else if (order === 'desc') {
-        currentBooks.sort((a, b) => {
-            const aText = a[column] ? a[column].toString().trim() : '';
-            const bText = b[column] ? b[column].toString().trim() : '';
-            return !isNaN(aText) && !isNaN(bText) ? bText - aText : bText.localeCompare(aText);
-        });
-    } else {
-        currentBooks = originalBooks.slice(); // Reset to original order
-    }
+     // Determine the current sort order
+     const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
+     button.dataset.order = order;
+ 
+     // Update the sort icon based on the current order
+     button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+ 
+     // Sort the books based on the selected column and order
+     currentBooks.sort((a, b) => {
+         let valueA = a[column];
+         let valueB = b[column];
+ 
+         // Handle sorting based on data type
+         if (typeof valueA === 'number' && typeof valueB === 'number') {
+             return order === 'asc' ? valueA - valueB : valueB - valueA;
+         } else {
+             return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+         }
+     });
 
     currentPage = 1; // Reset to first page after sorting
     displayBooks();
-    updatePagination();
+    updatePagination();;
 }
 
 function updatePagination() {
@@ -496,7 +496,7 @@ function updatePagination() {
             prevButton.addEventListener('click', () => {
                 if (currentPage > 1) {
                     currentPage = Math.max(1, currentPage - 10);
-                    updatePagination();
+                    updatePagination();;
                     displayBooks();
                 }
             });
@@ -516,7 +516,7 @@ function updatePagination() {
         pageButton.addEventListener('click', () => {
             currentPage = i;
             displayBooks();
-            updatePagination();
+            updatePagination();;
         });
         paginationContainer.appendChild(pageButton);
     }
@@ -528,7 +528,7 @@ function updatePagination() {
         nextButton.addEventListener('click', () => {
             if (currentPage < totalPages) {
                 currentPage = Math.min(totalPages, currentPage + 10);
-                updatePagination();
+                updatePagination();;
                 displayBooks();
             }
         });

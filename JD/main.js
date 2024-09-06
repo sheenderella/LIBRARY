@@ -3,6 +3,7 @@ const path = require('path');
 const db = require('./database.js');
 
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
+let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
 require('./settings/backupRestore.js'); // Add this line to include backup functionalities
 
@@ -220,12 +221,27 @@ app.on('activate', () => {
 
 //DELETE WARNING
 function createDeleteNotifWindow() {
-    deleteNotifWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
+    deleteNotifWindow = new BrowserWindow({
         width: 400,
         height: 300,
         parent: mainWindow,
-        onClose: () => (deleteNotifWindow = null),
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            preload: path.join(__dirname, 'preload.js') // Ensure you use the preload script if necessary
+        }
+    });
+
+    deleteNotifWindow.loadFile(path.join(__dirname, 'books', 'deleteNotif.html'));
+
+    // Handle the window close event
+    deleteNotifWindow.on('closed', () => {
+        deleteNotifWindow = null;
+    });
+
+    // Send the book IDs to the deleteNotif window after it's ready
+    deleteNotifWindow.webContents.on('did-finish-load', () => {
+        deleteNotifWindow.webContents.send('set-book-ids', selectedBookIds);
     });
 }
 
@@ -534,19 +550,33 @@ ipcMain.handle('updateBook', async (event, record) => {
 
 ipcMain.handle('deleteBook', async (event, id) => {
     try {
-        await executeQuery(
-            'DELETE FROM books WHERE id = ?',
-            [id],
-            function () {
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    mainWindow.webContents.send('book-record-deleted', id);
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'DELETE FROM books WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject promise if there's an error
+                    } else {
+                        resolve(results); // Resolve promise on success
+                    }
                 }
-            }
-        );
+            );
+        });
+
+        // Notify the main window after the record is deleted
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-deleted', id);
+        }
     } catch (error) {
         console.error('Error deleting book record:', error);
+        // Optionally send an error notification to the renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-deletion-error', error.message);
+        }
     }
 });
+
 
 ipcMain.handle('getBooks', async () => {
     try {
@@ -566,7 +596,8 @@ ipcMain.on('open-add-book-window', () => {
     }
 });
 
-ipcMain.on('open-delete-notif-window', (event, id) => {
+ipcMain.on('open-delete-notif-window', (event, ids) => {
+    selectedBookIds = ids; // Store the IDs in a variable to be used later
     if (!deleteNotifWindow) {
         createDeleteNotifWindow();
     } else {
@@ -574,9 +605,14 @@ ipcMain.on('open-delete-notif-window', (event, id) => {
     }
 
     // Send the book ID to the deleteNotif window after it's ready
-    deleteNotifWindow.webContents.on('did-finish-load', () => {
-        deleteNotifWindow.webContents.send('set-book-id', id);
-    });
+    // Ensure window is ready
+    if (deleteNotifWindow.webContents.isLoading()) {
+        deleteNotifWindow.webContents.on('did-finish-load', () => {
+            deleteNotifWindow.webContents.send('set-book-id', ids);
+        });
+    } else {
+        deleteNotifWindow.webContents.send('set-book-id', ids);
+    }
 });
 
 
