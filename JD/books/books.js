@@ -386,11 +386,11 @@ function addBookToTable(book, prepend = false) {
 
     row.innerHTML = `
         <td class="column-checkbox"><input type="checkbox" class="select-book" data-id="${book.id}"></td>
-        <td class="column-title_of_book">${book.title_of_book}</td>
         <td class="column-number">${book.number}</td>
         <td class="column-date_received">${book.date_received}</td>
         <td class="column-class">${book.class}</td>
         <td class="column-author">${book.author}</td>
+        <td class="column-title_of_book">${book.title_of_book}</td>
         <td class="column-edition">${book.edition}</td>
         <td class="column-volume">${book.volume}</td>
         <td class="column-source_of_fund">${book.source_of_fund}</td>
@@ -435,11 +435,11 @@ function updateBookInTable(book) {
 
     row.innerHTML = `
         <td><input type="checkbox" class="select-book" data-id="${book.id}"></td>
-        <td>${book.title_of_book}</td>
         <td>${book.number}</td>
         <td>${book.date_received}</td>
         <td>${book.class}</td>
         <td>${book.author}</td>
+        <td>${book.title_of_book}</td>
         <td>${book.edition}</td>
         <td>${book.volume}</td>
         <td>${book.source_of_fund}</td>
@@ -566,30 +566,37 @@ document.getElementById('searchColumn').addEventListener('change', () => {
 });
 
 function sortBooks(column, button) {
-     // Determine the current sort order
-     const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
-     button.dataset.order = order;
- 
-     // Update the sort icon based on the current order
-     button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
- 
-     // Sort the books based on the selected column and order
-     currentBooks.sort((a, b) => {
-         let valueA = a[column];
-         let valueB = b[column];
- 
-         // Handle sorting based on data type
-         if (typeof valueA === 'number' && typeof valueB === 'number') {
-             return order === 'asc' ? valueA - valueB : valueB - valueA;
-         } else {
-             return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-         }
-     });
+    // Determine the current sort order
+    const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
+    button.dataset.order = order;
 
-    currentPage = 1; // Reset to first page after sorting
+    // Update the sort icon based on the current order
+    button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+
+    // Sort the books based on the selected column and order
+    currentBooks.sort((a, b) => {
+        let valueA = a[column];
+        let valueB = b[column];
+
+        // Handle sorting based on data type
+        if (typeof valueA === 'number' && typeof valueB === 'number') {
+            return order === 'asc' ? valueA - valueB : valueB - valueA;
+        } else {
+            // Handle cases where valueA or valueB could be undefined or null
+            if (valueA == null) return 1;
+            if (valueB == null) return -1;
+            return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+        }
+    });
+
+    // Reset to first page after sorting
+    currentPage = 1; 
+
+    // Call functions to update the display and pagination
     displayBooks();
-    updatePagination();;
+    updatePagination();
 }
+
 
 function updatePagination() {
     const paginationContainer = document.getElementById('pagination');
