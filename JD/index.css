@@ -117,82 +117,283 @@ body {
     display: none; /* Hide the link text when sidebar is collapsed */
 }
 
+
+/* MAIN */
 /* Main content area */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 100px; 
+}
+
 #page-content-wrapper {
     flex-grow: 1; /* Allow the content to expand to fill available space */
     padding: 20px; /* Padding around the content */
     transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
-    margin-left: 250px; /* Default margin to make space for the sidebar */
+    margin-left: 280px; /* Default margin to make space for the sidebar */
+    margin-right: 50px; /* Default margin to make space for the sidebar */
+
 }
 
-/* Adjust main content margin when sidebar is collapsed */
-#wrapper.collapsed #page-content-wrapper {
-    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
+/* HEADER CONTAINER */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between the elements */
+    margin-bottom: 20px; /* Space below the header */
+}
+
+/* DASHBOARD TEXT */
+h1.h3 {
+    font-size: 70px; /* Larger than the default h3 for emphasis */
+    font-weight: bolder;
+    color: #30688B; /* Use the customizable text color */
+    margin: 0; /* Remove default margin */
+}
+
+/* SEARCH */
+
+/* Search Section: Flex item for search input, with a larger flex-grow */
+.search-box {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #30688B;
+    border: 1px solid #333C42;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    height: 40px;
+}
+
+.search-icon {
+    color: #fff;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.search-container {
+    margin-left: 200px;
+    display: flex;
+    align-items: right;
+    flex-grow: 2; /* Larger flex-grow for the search input */
+    height: 40px;
+}
+
+.search-input {
+    flex-grow: 1;
+    padding-left: 10px;
+    border: none;
+    height: 40px;
+    border: 1px solid #333C42;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
 }
 
 
+/* BUTTONS */
+.custom-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Align items vertically in the center */
+    margin-bottom: 1.5rem;
+    gap: 20px;
+}
+
+.btn-primary-custom {
+    background-color: #30688B;
+    color: white;
+    padding: 1rem;
+    text-decoration: none;
+    border-radius: 14px;
+    display: flex; /* Change from inline-block to flex */
+    flex-direction: column;
+    align-items: center; /* Center align text and icon */
+    text-align: center;
+    font-size: 16px;
+    width: 120px;
+    border: 1px solid #333C42; /* Adjust color and width as needed */
+}
+
+.btn-primary-custom i {
+    display: block;
+    color: white;
+    font-size: 50px; 
+}
+
+.btn-primary-custom:hover {
+    background-color: #3A79A0;
+}
+
+.btn-group-custom {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping if necessary */
+    gap: 20px;
+    align-items: center; /* Align items vertically in the center */
+}
+
+.btn-info-custom {
+    background-color: #F5F5F5;
+    color: #333C42;
+    padding: 1rem;
+    text-decoration: none;
+    width: 200px; /* Fixed width for consistency */
+    display: flex; /* Change from inline-block to flex */
+    flex-direction: column;
+    align-items: center; /* Center align text and icon */
+    text-align: center;
+    border: 1px solid #333C42; /* Adjust color and width as needed */
+    border-radius: 14px;
+}
+
+.btn-info-custom:hover {
+    background-color: #e1e1e1;
+}
+
+.number-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* Space between icon and number */
+    font-size: 2rem; /* Large font for number */
+    font-weight: bold;
+}
+
+.number-icon-container i {
+    font-size: 1.5rem; /* Icon size */
+}
+
+.btn-text, .btn-add {
+    margin-top: 0.5rem;
+    font-size: 12px;
+    font-weight: bolder;
+    color: white;
+}
+
+.btn-text {
+    color: #333C42;
+}
 
 
+/* TABLE */
 /* Flexbox container for book list and pie chart */
 .books-and-chart-container {
     display: flex;
     justify-content: space-between;
 }
 
-
-
-
-/* Books Table */
+/* Books Table Container */
 .books-table-container {
     flex-grow: 1;
     margin-right: 20px;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #30688B;
+    border: 1px solid #333C42;
+    border-radius: 14px;
+    padding: 10px;
 }
 
+/* Books Header */
 .books-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    padding: 15px;
 }
 
+/* Header Title */
+.books-header h2 {
+    font-size: 26px;
+    color: #ffffff;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* View All Button */
+.view-all-button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-decoration: none;
+    text-align: center;
+}
+
+/* Books Table */
 .books-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    background-color: #FFFFFF;
+    border-radius: 14px;
+    overflow: hidden;
+    text-align: center; /* Center align the text in the table */
 }
 
-.books-table th, .books-table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-.books-table th {
-    background-color: #30688B;
+/* Table Header */
+.books-table thead th {
+    background-color: #3A79A0;
     color: white;
+    padding: 10px;
+    border-bottom: 2px solid #ffffff;
+    text-align: center; /* Center align the header text */
+
+}
+
+/* Make the first and last headers rounded */
+.books-table thead th:first-child {
+    border-top-left-radius: 14px;
+    
+}
+
+.books-table thead th:last-child {
+    border-top-right-radius: 14px;
+}
+
+/* Table Body Rows */
+.books-table tbody td {
+    padding: 5px;
+    font-size: 16px;
+    border: none;
+    border-bottom: 1px solid #767676; /* Red horizontal line */
+    text-align: center; /* Center align the body text */
+    vertical-align: middle; /* Vertically center align the body text */
+}
+/* Remove bottom border from last row */
+.books-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Alternating row colors */
+.books-table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9; /* Light grey for odd rows */
 }
 
 .books-table tbody tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #ffffff; /* White for even rows */
 }
 
-/* Pie Chart Container */
+
+
+
+/* PIE CHART */
 .chart-container {
-    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 300px;
-    height: 300px;
+    height: 320px;
+    padding: 20px; /* Add padding */
+    background-color: #D9D9D9; /* Background color */
+    border: 1px solid #333C42; /* Border style */
+    border-radius: 14px; /* Rounded corners */
 }
 
+/* Customizable Pie Chart */
 #libraryPieChart {
     max-width: 100%;
     max-height: 100%;
-}
 
-/* Button Group for Top Buttons */
-.btn-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
+  }
+

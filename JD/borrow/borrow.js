@@ -1,11 +1,3 @@
-/**
- * Manages the main functionality for displaying, sorting, and filtering borrow records.
- * 
- * Handles user interactions, such as adding, updating, and deleting records, 
- * and updates the UI accordingly. Also manages pagination and provides 
- * integration with the Electron main process through IPC.
- */
-
 const { ipcRenderer } = require('electron');
 const handleAddBorrow = require('./addBorrow.js');
 const handleUpdateBorrow = require('./updateBorrow.js');
@@ -42,14 +34,20 @@ document.getElementById('logout-link').addEventListener('click', function(event)
 });
 
 
-
-
 function init() {
     borrowList = document.getElementById("borrowList");
     searchInput = document.getElementById("searchInput");
     statusFilter = document.getElementById("statusFilter");
     startDateFilter = document.getElementById("startDateFilter");
     endDateFilter = document.getElementById("endDateFilter");
+
+    console.log('Initialized DOM elements:', {
+        borrowList,
+        searchInput,
+        statusFilter,
+        startDateFilter,
+        endDateFilter
+    });
 
     setupEventListeners();
     fetchBorrowRecords();
@@ -68,8 +66,8 @@ function setupEventListeners() {
     const dateFilterButton = document.querySelector('.dropbtn');
     const dropdownContent = document.querySelector('.dropdown-content');
 
-    if (cancelDateFilterButton) addEvent(cancelDateFilterButton, 'click', handleCancelDateFilter);
-    if (applyDateFilterButton) addEvent(applyDateFilterButton, 'click', handleApplyDateFilter);
+
+
     if (dateFilterButton) addEvent(dateFilterButton, 'click', toggleDropdown);
     if (document) addEvent(document, 'click', closeDropdownOnOutsideClick);
     if (addBorrowForm) addEvent(addBorrowForm, 'submit', handleAddBorrowSubmit);
@@ -89,7 +87,7 @@ function setupEventListeners() {
     });
 
     addSortEventListeners();
-
+    
     ipcRenderer.on('borrow-record-added', (event, record) => updateRecordList(record, 'add'));
     ipcRenderer.on('borrow-record-updated', (event, record) => updateRecordList(record, 'update'));
     ipcRenderer.on('updateBorrow-renderer', (event, record) => updateRecordList(record, 'update'));
@@ -108,17 +106,123 @@ document.getElementById('statusFilter').addEventListener('change', function() {
     filterAndRenderRecords();
 });
 
-function handleCancelDateFilter() {
-    startDateFilter.value = '';
-    endDateFilter.value = '';
-    filterAndRenderRecords();
-    closeDropdown();
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const dateRangeSelect = document.getElementById('dateRangeSelect');
+    const customDateRange = document.getElementById('customDateRange');
+    const applyDateRangeButton = document.getElementById('applyDateRange');
+    const clearDateRangeButton = document.getElementById('clearDateRange');
+
+    // Show or hide the custom date range inputs based on the dropdown selection
+    dateRangeSelect.addEventListener('change', (event) => {
+        if (event.target.value === 'custom') {
+            customDateRange.style.display = 'block';
+        } else {
+            customDateRange.style.display = 'none';
+        }
+    });
+
+    // Apply custom date range
+    applyDateRangeButton.addEventListener('click', () => {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        // Handle the date range filtering logic here
+        console.log(`Applying date range from ${startDate} to ${endDate}`);
+        customDateRange.style.display = 'none';
+        dateRangeSelect.value = ''; // Optionally reset the dropdown
+    });
+
+    // Clear the date range selection
+    clearDateRangeButton.addEventListener('click', () => {
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        dateRangeSelect.value = '';
+        customDateRange.style.display = 'none';
+        // Handle clearing of date range filter here
+        console.log('Cleared date range filter');
+    });
+
+    // Close custom date range if clicking outside of it
+    document.addEventListener('click', (event) => {
+        const isClickInside = customDateRange.contains(event.target) || dateRangeSelect.contains(event.target);
+        if (!isClickInside) {
+            customDateRange.style.display = 'none';
+            dateRangeSelect.value = ''; // Optionally reset the dropdown
+        }
+    });
+});
+
+
+document.getElementById('dateRangeSelect').addEventListener('change', function() {
+    const customDateRange = document.getElementById('customDateRange');
+    if (this.value === 'custom') {
+        customDateRange.style.display = 'block';
+    } else {
+        customDateRange.style.display = 'none';
+    }
+});
+
+document.querySelector('.date-range-box').addEventListener('click', function() {
+    document.getElementById('dateRangeSelect').click();
+});
+
+
+function filterByDateRange() {
+    const selectedRange = dateRangeSelect.value;
+    let startDate = '';
+    let endDate = '';
+
+    const today = new Date();
+    if (selectedRange === 'last_7_days') {
+        startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
+        endDate = new Date().toISOString().split('T')[0];
+    } else if (selectedRange === 'last_30_days') {
+        startDate = new Date(today.setDate(today.getDate() - 30)).toISOString().split('T')[0];
+        endDate = new Date().toISOString().split('T')[0];
+    } else if (selectedRange === 'this_month') {
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+    } else if (selectedRange === 'last_month') {
+        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split('T')[0];
+        endDate = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split('T')[0];
+    } else if (selectedRange === 'reset') {
+        // Reset date filters
+        startDate = '';
+        endDate = '';
+    }
+
+    // Filter the records based on the computed startDate and endDate
+    const filteredRecords = allRecords.filter(record => {
+        const recordDate = new Date(record.borrowDate);
+        return (!startDate || recordDate >= new Date(startDate)) &&
+               (!endDate || recordDate <= new Date(endDate));
+    });
+
+    renderBorrowRecords(filteredRecords);
 }
 
-function handleApplyDateFilter() {
-    filterAndRenderRecords();
-    closeDropdown();
-}
+// Event listener for date range selection
+dateRangeSelect.addEventListener('change', filterByDateRange);
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Date range selection and display logic
+    const dateRangeSelect = document.getElementById('dateRangeSelect');
+    const customRange = document.getElementById('customDateRange');
+    const clearDateRangeButton = document.getElementById('clearDateRange');
+
+    dateRangeSelect.addEventListener('change', function () {
+        if (this.value === 'custom') {
+            customRange.style.display = 'block';
+        } else {
+            customRange.style.display = 'none';
+        }
+    });
+
+});
+
+
 
 function toggleDropdown(event) {
     event.stopPropagation();

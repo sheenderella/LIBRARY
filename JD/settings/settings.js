@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Change Password button not found!');
     }
 
+    //SECURITY
+document.getElementById('open-security-setup').addEventListener('click', () => {
+    ipcRenderer.invoke('open-security-setup-window');
+});
+
+
 
 document.getElementById('backup-btn').addEventListener('click', async () => {
     const result = await ipcRenderer.invoke('exportDatabase');
@@ -57,10 +63,6 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
-// Navigate to security setup page
-document.getElementById('security-setup-btn').addEventListener('click', () => {
-    window.location.href = './security-setup.html';
-});
 
 // Navigate to support page
 document.getElementById('support-btn').addEventListener('click', () => {

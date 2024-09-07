@@ -1,166 +1,8 @@
 const { ipcRenderer } = require('electron');
 
-// Sidebar toggle functionality
-document.getElementById('sidebarCollapse').addEventListener('click', function () {
-    const wrapper = document.getElementById('wrapper');
-    const sidebar = document.getElementById('sidebar-wrapper');
-    
-    wrapper.classList.toggle('collapsed');
-    sidebar.classList.toggle('collapsed');
-});
-
-document.getElementById('logout-link').addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent default link behavior
-
-    ipcRenderer.invoke('logout').then(() => {
-        window.location.href = './login/login.html'; // Redirect to login page after logout
-    }).catch(error => {
-        console.error('Error during logout:', error);
-        alert('An error occurred. Please try again.');
-    });
-});
-
 document.addEventListener('DOMContentLoaded', () => {
-    const addBookButton = document.getElementById('addBook');
-    const deleteSelectedButton = document.getElementById('deleteSelected');
-    const selectAllCheckbox = document.getElementById('selectAll');
-
-    const searchColumn = document.getElementById('searchColumn');
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', filterBooks);
-
-    //clear button
-    const clearDateRangeButton = document.getElementById('clearDateRange');
-    clearDateRangeButton.addEventListener('click', () => {
-        // Reset date inputs
-        document.getElementById('startDate').value = '';
-        document.getElementById('endDate').value = '';
-
-        // Hide custom date range container
-        document.getElementById('customDateRange').style.display = 'none';
-        document.getElementById('dateRangeSelect').value = ''; // Optionally reset the dropdown
-
-        // Reset the filter and display default content
-        filterBooks();
-    });
-
-        // Add event listener for date range selection
-        document.getElementById('dateRangeSelect').addEventListener('change', function() {
-            const customRange = document.getElementById('customDateRange');
-            if (this.value === 'custom') {
-                customRange.style.display = 'block';
-                dateRangeContainer.classList.add('custom-range-narrow');
-            } else {
-                customRange.style.display = 'none';
-                dateRangeContainer.classList.remove('custom-range-narrow');
-            }
-            filterBooks(); // Apply filter when selection changes
-        });
-
-        document.addEventListener('click', function(event) {
-            const customRange = document.getElementById('customDateRange');
-            const dateRangeSelect = document.getElementById('dateRangeSelect');
-        
-            if (dateRangeSelect.value === 'custom') {
-                // Check if the click is outside of the customDateRange div
-                if (!customRange.contains(event.target) && !dateRangeSelect.contains(event.target)) {
-                    customRange.style.display = 'none';
-                    dateRangeSelect.value = ''; // Optionally reset the dropdown
-                }
-            }
-        });
-        
-    
-        // Add event listeners for date inputs
-        document.getElementById('startDate').addEventListener('change', filterBooks);
-        document.getElementById('endDate').addEventListener('change', filterBooks);
-
-
-        document.getElementById('dateRangeSelect').addEventListener('change', function() {
-            const customRange = document.getElementById('customDateRange');
-            
-            if (this.value === 'custom') {
-                customRange.style.display = 'block';
-            } else {
-                customRange.style.display = 'none';
-            }
-        });
-        
-
-
-    // MAKE A SCROLL BAR TOP OF THE TABLE
-    const scrollbarTop = document.querySelector('.scrollbar-top');
-    const tableContainer = document.querySelector('.table-container');
-  
-    scrollbarTop.addEventListener('scroll', function() {
-      tableContainer.scrollLeft = scrollbarTop.scrollLeft;
-    });
-  
-    tableContainer.addEventListener('scroll', function() {
-      scrollbarTop.scrollLeft = tableContainer.scrollLeft;
-    });
-  
-    // Create a dummy content to ensure scrollbar appears
-    const dummyContent = document.createElement('div');
-    dummyContent.style.width = tableContainer.scrollWidth + 'px';
-    dummyContent.style.height = '1px';
-    scrollbarTop.appendChild(dummyContent);
-
-    // ADD-DELETE-EDIT ACTIONS
-    addBookButton.addEventListener('click', () => {
-        openAddBookWindow();
-    });
-
-    deleteSelectedButton.addEventListener('click', () => {
-        deleteSelectedBooks();
-        loadBooks();
-        adjustBooksPerPage();
-    });
-
-    searchInput.addEventListener('input', () => {
-        filterBooks();
-    });
-
-    searchColumn.addEventListener('change', () => {
-        filterBooks();
-    });
-
-    selectAllCheckbox.addEventListener('change', () => {
-        const selectAll = selectAllCheckbox.checked;
-        const checkboxes = document.querySelectorAll('.select-book');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAll;
-        });
-    });
-
-// Listen for book record added event
-ipcRenderer.on('book-record-added', (event, record) => {
-    addBookToTable(record, true);
-    showNotification('Book added successfully!', 'success');
-    loadBooks();
-    adjustBooksPerPage();
-});
-
-// Listen for book record updated event
-ipcRenderer.on('book-record-updated', (event, record) => {
-    updateBookInTable(record);
-    showNotification('Book updated successfully!', 'success');
-});
-
-// Optional: Handle any errors
-ipcRenderer.on('error', (event, error) => {
-    console.error('Error:', error);
-    showNotification('An error occurred while processing the request.', 'error');
-});
-
-    ipcRenderer.on('book-record-deleted', (event, id) => {
-        deleteBookFromTable(id);
-        loadBooks();
-        adjustBooksPerPage();
-    });
-
-    window.addEventListener('resize', adjustBooksPerPage);
-    
+    setupEventListeners();
+    setupIpcRenderers();
     // Initial adjustment
     setupSortButtons();
     adjustBooksPerPage();
@@ -169,6 +11,277 @@ ipcRenderer.on('error', (event, error) => {
 
 function openAddBookWindow() {
     ipcRenderer.send('open-add-book-window');
+}
+
+// Function to apply column visibility settings
+function applyColumnVisibility() {
+    var checkboxes = document.querySelectorAll('#columnForm input[type="checkbox"]');
+    
+    checkboxes.forEach(function(checkbox) {
+        var columnClass = 'column-' + checkbox.getAttribute('data-column');
+        var columnHeaders = document.querySelectorAll('#tableContainer table th.' + columnClass);
+        var columnDataCells = document.querySelectorAll('#tableContainer table td.' + columnClass);
+
+        columnHeaders.forEach(function(th) {
+            th.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+        });
+
+        columnDataCells.forEach(function(td) {
+            td.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+        });
+    });
+}
+
+function setupEventListeners() {
+    const addBookButton = document.getElementById('addBook');
+    const deleteSelectedButton = document.getElementById('deleteSelected');
+    const selectAllCheckbox = document.getElementById('selectAll');
+
+    const searchColumn = document.getElementById('searchColumn');
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', filterBooks);
+
+    // Close the form when clicking outside of it
+    document.addEventListener('click', function(event) {
+        var form = document.getElementById('columnVisibilityForm');
+        var toggleButton = document.getElementById('toggleColumns');
+        if (form.style.display === 'block' && !form.contains(event.target) && event.target !== toggleButton) {
+            form.style.display = 'none';  // Hide the form
+        }
+    });
+
+        // Ensure all columns are visible initially
+        document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+            el.style.display = '';  // Show all columns
+        });
+    
+        // Ensure checkboxes are unchecked (columns visible)
+        document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.checked = false;
+        });
+
+    //HIDE/UNHIDE COLUMNS
+    // Initial call to apply column visibility settings
+    applyColumnVisibility();
+
+// Toggle column visibility form
+document.getElementById('toggleColumns').addEventListener('click', function() {
+    var form = document.getElementById('columnVisibilityForm');
+    var checkboxes = document.querySelectorAll('#columnForm input[type="checkbox"]');
+
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        // No need to uncheck checkboxes again or show all columns here; handled in DOMContentLoaded
+    } else {
+        form.style.display = 'none';
+    }
+});
+
+// Show all columns
+document.getElementById('showAll').addEventListener('click', function() {
+    document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.checked = false;
+    });
+    document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+        el.style.display = '';  // Show all columns
+    });
+});
+
+// Hide all columns except specific ones
+document.getElementById('hideAll').addEventListener('click', function() {
+    document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.checked = true;
+    });
+    document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+        if (!el.classList.contains('column-title_of_book') &&
+            !el.classList.contains('column-actions') &&
+            !el.classList.contains('column-checkbox')) {
+            el.style.display = 'none';  // Hide columns
+        }
+    });
+});
+
+// Handle individual column visibility changes
+document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+        var columnClass = 'column-' + this.getAttribute('data-column');
+        var columnHeaders = document.querySelectorAll('#tableContainer table th.' + columnClass);
+        var columnDataCells = document.querySelectorAll('#tableContainer table td.' + columnClass);
+
+        columnHeaders.forEach(function(th) {
+            th.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+        });
+
+        columnDataCells.forEach(function(td) {
+            td.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+        });
+    });
+}); 
+
+    document.getElementById('dateRangeSelect').addEventListener('change', function() {
+        const customRange = document.getElementById('customDateRange');
+        if (this.value === 'custom') {
+            customRange.style.display = 'block';
+        } else {
+            customRange.style.display = 'none';
+        }
+    });
+
+    // Sidebar toggle functionality
+    document.getElementById('sidebarCollapse').addEventListener('click', function () {
+        const wrapper = document.getElementById('wrapper');
+        const sidebar = document.getElementById('sidebar-wrapper');
+        
+        wrapper.classList.toggle('collapsed');
+        sidebar.classList.toggle('collapsed');
+    });
+
+    document.getElementById('logout-link').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default link behavior
+
+        ipcRenderer.invoke('logout').then(() => {
+            window.location.href = './login/login.html'; // Redirect to login page after logout
+        }).catch(error => {
+            console.error('Error during logout:', error);
+            alert('An error occurred. Please try again.');
+        });
+    });
+
+        //clear button
+        const clearDateRangeButton = document.getElementById('clearDateRange');
+        clearDateRangeButton.addEventListener('click', () => {
+            // Reset date inputs
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+    
+            // Hide custom date range container
+            document.getElementById('customDateRange').style.display = 'none';
+            document.getElementById('dateRangeSelect').value = ''; // Optionally reset the dropdown
+    
+            // Reset the filter and display default content
+            filterBooks();
+        });
+    
+            // Add event listener for date range selection
+            document.getElementById('dateRangeSelect').addEventListener('change', function() {
+                const customRange = document.getElementById('customDateRange');
+                if (this.value === 'custom') {
+                    customRange.style.display = 'block';
+                    dateRangeContainer.classList.add('custom-range-narrow');
+                } else {
+                    customRange.style.display = 'none';
+                    dateRangeContainer.classList.remove('custom-range-narrow');
+                }
+                filterBooks(); // Apply filter when selection changes
+            });
+    
+            document.addEventListener('click', function(event) {
+                const customRange = document.getElementById('customDateRange');
+                const dateRangeSelect = document.getElementById('dateRangeSelect');
+            
+                if (dateRangeSelect.value === 'custom') {
+                    // Check if the click is outside of the customDateRange div
+                    if (!customRange.contains(event.target) && !dateRangeSelect.contains(event.target)) {
+                        customRange.style.display = 'none';
+                        dateRangeSelect.value = ''; // Optionally reset the dropdown
+                    }
+                }
+            });
+            
+        
+            // Add event listeners for date inputs
+            document.getElementById('startDate').addEventListener('change', filterBooks);
+            document.getElementById('endDate').addEventListener('change', filterBooks);
+    
+    
+            document.getElementById('dateRangeSelect').addEventListener('change', function() {
+                const customRange = document.getElementById('customDateRange');
+                
+                if (this.value === 'custom') {
+                    customRange.style.display = 'block';
+                } else {
+                    customRange.style.display = 'none';
+                }
+            });
+            
+    
+    
+        // MAKE A SCROLL BAR TOP OF THE TABLE
+        const scrollbarTop = document.querySelector('.scrollbar-top');
+        const tableContainer = document.querySelector('.table-container');
+      
+        scrollbarTop.addEventListener('scroll', function() {
+          tableContainer.scrollLeft = scrollbarTop.scrollLeft;
+        });
+      
+        tableContainer.addEventListener('scroll', function() {
+          scrollbarTop.scrollLeft = tableContainer.scrollLeft;
+        });
+      
+        // Create a dummy content to ensure scrollbar appears
+        const dummyContent = document.createElement('div');
+        dummyContent.style.width = tableContainer.scrollWidth + 'px';
+        dummyContent.style.height = '1px';
+        scrollbarTop.appendChild(dummyContent);
+    
+        // ADD-DELETE-EDIT ACTIONS
+        addBookButton.addEventListener('click', () => {
+            openAddBookWindow();
+        });
+    
+        deleteSelectedButton.addEventListener('click', () => {
+            deleteSelectedBooks();
+            loadBooks();
+            adjustBooksPerPage();
+        });
+    
+        searchInput.addEventListener('input', () => {
+            filterBooks();
+        });
+    
+        searchColumn.addEventListener('change', () => {
+            filterBooks();
+        });
+    
+        selectAllCheckbox.addEventListener('change', () => {
+            const selectAll = selectAllCheckbox.checked;
+            const checkboxes = document.querySelectorAll('.select-book');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll;
+            });
+        });
+
+        window.addEventListener('resize', adjustBooksPerPage);
+}
+
+function setupIpcRenderers() {
+    // Listen for book record added event
+    ipcRenderer.on('book-record-added', (event, record) => {
+        addBookToTable(record, true);
+        showNotification('Book added successfully!', 'success');
+        loadBooks();
+        adjustBooksPerPage();
+    });
+
+    // Listen for book record updated event
+    ipcRenderer.on('book-record-updated', (event, record) => {
+        updateBookInTable(record);
+        showNotification('Book updated successfully!', 'success');
+        loadBooks();
+        adjustBooksPerPage();
+    });
+
+    // Optional: Handle any errors
+    ipcRenderer.on('error', (event, error) => {
+        console.error('Error:', error);
+        showNotification('An error occurred while processing the request.', 'error');
+    });
+
+    ipcRenderer.on('book-record-deleted', (event, id) => {
+        deleteBookFromTable(id);
+        loadBooks();
+        adjustBooksPerPage();
+    });
 }
 
 // Event listener setup for sort buttons
@@ -271,23 +384,22 @@ function addBookToTable(book, prepend = false) {
         ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
         : '';
 
-
     row.innerHTML = `
-        <td><input type="checkbox" class="select-book" data-id="${book.id}"></td>
-        <td>${book.number}</td>
-        <td>${book.date_received}</td>
-        <td>${book.class}</td>
-        <td>${book.author}</td>
-        <td>${book.title_of_book}</td>
-        <td>${book.edition}</td>
-        <td>${book.volume}</td>
-        <td>${book.source_of_fund}</td>
-        <td>${book.pages}</td>
-        <td>${formattedCostPrice}</td>
-        <td>${book.publisher}</td>
-        <td>${book.year}</td>
-        <td>${book.remarks}</td>
-        <td>
+        <td class="column-checkbox"><input type="checkbox" class="select-book" data-id="${book.id}"></td>
+        <td class="column-title_of_book">${book.title_of_book}</td>
+        <td class="column-number">${book.number}</td>
+        <td class="column-date_received">${book.date_received}</td>
+        <td class="column-class">${book.class}</td>
+        <td class="column-author">${book.author}</td>
+        <td class="column-edition">${book.edition}</td>
+        <td class="column-volume">${book.volume}</td>
+        <td class="column-source_of_fund">${book.source_of_fund}</td>
+        <td class="column-pages">${book.pages}</td>
+        <td class="column-cost_price">${formattedCostPrice}</td>
+        <td class="column-publisher">${book.publisher}</td>
+        <td class="column-year">${book.year}</td>
+        <td class="column-remarks">${book.remarks}</td>
+        <td class="column-actions">
             <button class="edit-btn" data-id="${book.id}"> <i class="fas fa-pencil-alt"></i> </button>
             <button class="delete-btn" data-id="${book.id}"> <i class="fas fa-trash"></i> </button>
         </td>
@@ -300,7 +412,7 @@ function addBookToTable(book, prepend = false) {
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
         openDeleteNotifWindow(book.id); // Open the confirmation popup with the book ID
-        updatePagination();;
+        updatePagination();
     });
 
     if (prepend) {
@@ -309,9 +421,11 @@ function addBookToTable(book, prepend = false) {
         bookList.appendChild(row);
     }
 
-    updatePagination();;
-}
+    // Apply column visibility rules to the new row
+    applyColumnVisibility(row);
 
+    updatePagination();
+}
 
 function updateBookInTable(book) {
     const row = document.querySelector(`button[data-id="${book.id}"]`).closest('tr');
@@ -321,11 +435,11 @@ function updateBookInTable(book) {
 
     row.innerHTML = `
         <td><input type="checkbox" class="select-book" data-id="${book.id}"></td>
+        <td>${book.title_of_book}</td>
         <td>${book.number}</td>
         <td>${book.date_received}</td>
         <td>${book.class}</td>
         <td>${book.author}</td>
-        <td>${book.title_of_book}</td>
         <td>${book.edition}</td>
         <td>${book.volume}</td>
         <td>${book.source_of_fund}</td>

@@ -128,3 +128,200 @@ body {
 #wrapper.collapsed #page-content-wrapper {
     margin-left: 80px; /* Reduced margin when sidebar is collapsed */
 }
+
+
+
+
+
+
+
+
+
+
+/* Main Container Styling */
+#page-content-wrapper {
+    background-color: #ffffff;
+    padding: 40px;
+}
+
+/* Container and alignment adjustments */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Heading Styling */
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    text-align: left;
+    margin-left: 20px;
+}
+
+.faq-section {
+    margin-left: 20px; /* adjust the margin to your liking */
+  }
+
+h1 b {
+    color: #1e4f6b; /* Change to your brand color */
+}
+
+/* Accordion Styling */
+.accordion-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.accordion-header .accordion-button {
+    background-color: #1e4f6b; /*etoo papalitan mong colours*/
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-radius: 8px 8px 0 0;
+    padding: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-header .accordion-button:focus {
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #0056b3; /* Darker shade when active */ /*etoo papalitan mong colours*/
+}
+
+.accordion-body {
+    background-color: #fff; /*etoo papalitan mong colours*/
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Styling for Icons */
+.accordion-button i {
+    margin-right: 10px;
+}
+
+.accordion-body p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+/* Specific icon styling for lightbulb and exclamation */
+.fa-lightbulb {
+    color: #ffcc00;
+    margin-right: 5px;
+}
+
+.fa-exclamation {
+    color: #dc3545;
+    margin-right: 5px;
+}
+
+/* Padding and layout adjustments */
+.p-3 {
+    padding: 20px !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.flex-grow-1 {
+    flex-grow: 1 !important;
+}
+
+.flex-column {
+    flex-direction: column !important;
+}
+
+.align-items-start {
+    align-items: flex-start !important;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+/* Transition effects */
+.accordion-button {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.accordion-button:hover {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+/* Adjust margin and padding */
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.mt-5 {
+    margin-top: 3rem !important;
+}
+
+
+/* Styling for Search Bar */
+.search {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.search input[type="text"] {
+    padding: 10px;
+    border: none;
+    outline: none;
+    flex-grow: 1;
+}
+
+/* Styling for search input and icon */
+.search {
+    display: flex;
+    align-items: center; /* Align icon and input vertically */
+    position: relative;
+    width: 200px; /* Set a smaller width for the search bar */
+}
+
+#input-box {
+    flex-grow: 1; /* Let input box take up all available space */
+    padding: 4px 8px; /* Make padding smaller */
+    font-size: 14px; /* Smaller font size */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+}
+
+.search button {
+    position: absolute;
+    right: 0; /* Position the icon to the right */
+    padding: 4px 8px; /* Smaller padding */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px; /* Smaller icon */
+    color: #1e4f6b;
+}
+
+.search button i {
+    font-size: 16px; /* Adjust icon size */
+}
+
+.left-aligned-header {
+    text-align: left;
+    color: #1e4f6b;
+}
+.faq-header {
+    background-image: url('/logo/gruba.jpg'); /* Replace with your image path */
+    background-size: cover; /* Ensure the image covers the area */
+    background-position: center; /* Center the image */
+    padding: 20px; /* Adjust padding as needed */
+    color: white; /* Change text color to ensure readability */
+    border-radius: 5px; /* Optional: Add rounded corners */
+}

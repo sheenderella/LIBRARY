@@ -5,7 +5,41 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Styles for the control panel (search, filter, sort, buttons) */
+/* Main content area */
+#page-content-wrapper {
+    flex-grow: 1; /* Allow the content to expand to fill available space */
+    padding: 20px; /* Padding around the content */
+    padding-top: 0%;
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
+    margin-left: 250px; /* Default margin to make space for the sidebar */
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 50px; /* Reduced margin when sidebar is collapsed */
+}
+
+/* HEADER */
+/* Title Styling */
+.container h1 {
+    font-size: 60px; /* Larger than the default h3 for emphasis */
+    font-weight: bolder;
+    color: #30688B; /* Use the customizable text color */
+    margin-top: -40px; /* Remove default margin */
+    margin-bottom: -5px;
+}
+
+/* Description Styling */
+.container p {
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    color: #666;
+    font-style: italic; /* Make the text italic */
+    margin-bottom: 40px;
+    margin-left: 5px;
+}
+
+/* Controls Section: Styles for the control panel (search, filter, sort, buttons) */
 .controls {
     display: flex;
     justify-content: space-between;
@@ -13,10 +47,10 @@ body {
     margin: 20px 0;
     flex-wrap: wrap;
     gap: 10px;
-
 }
 
-/* Flex item for search input, with a larger flex-grow */
+/* SEARCH */
+/* Search Section: Flex item for search input, with a larger flex-grow */
 .search-box {
     display: flex;
     align-items: center;
@@ -24,6 +58,8 @@ body {
     padding: 10px;
     background-color: #30688B;
     border: 1px solid #333C42;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
     height: 45px;
 }
 
@@ -46,10 +82,12 @@ body {
     border: none;
     height: 45px;
     border: 1px solid #333C42;
-    border-radius: 0; /* Sharp corners */
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
 }
 
-/* Status filter container with default flex-grow */
+/* STATUS */
+/* Status Filter Section: Styles for filtering records by borrow status */
 .status-filter-container {
     display: flex;
     align-items: center;
@@ -64,6 +102,7 @@ body {
     color: #333C42;
     cursor: pointer;
     border: 1px solid #333C42;
+    border-radius: 9px;
     position: relative;
     box-sizing: border-box;
     width: 100%; /* Ensure it occupies the full container */
@@ -92,119 +131,128 @@ body {
     color: #333C42;
 }
 
+/* .dropdown-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #333C42;
+} */
+
+/* DATE */
+/* Date Range Filter Section: Styles for date range dropdown */
+.date-range-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjust this based on your needs */
+    position: relative; /* To ensure the custom date range is positioned correctly */
+}
+
+.date-range-box {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    color: #333C42;
+    cursor: pointer;
+    border: 1px solid #333C42;
+    border-radius: 9px;
+    box-sizing: border-box;
+    width: 100%; /* Ensure it occupies the full container */
+    padding: 10px;
+    position: relative;
+}
+
+.calendar-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #333C42;
+}
+
+#dateRangeFilterText {
+    margin-left: 5px;
+    flex-grow: 1;
+    color: #333C42;
+}
+
 .dropdown-icon {
     margin-left: auto;
     font-size: 18px;
     color: #333C42;
 }
 
-/* Date filter dropdown */
-.dropdown {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    max-width: 200px; /* Adjusted width */
-}
-
-.dropbtn {
-    background-color: #ffffff;
-    color: #333C42;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: 1px solid #333C42;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%; /* Ensure it occupies the full container */
-}
-
-
-/* Style the calendar icon inside the 'Filter by Date' button */
-.dropbtn i.calendar-icon {
-    margin-right: 15px; /* Match the spacing with 'Filter by Status' */
-    font-size: 18px; /* Ensure icon size is consistent */
-    color: #333C42; /* Match icon color */
-}
-
-/* Style the dropdown arrow inside the 'Filter by Date' button */
-.dropbtn i.dropdown-icon {
-    margin-left: 20px; /* Push the dropdown icon to the right */
-    font-size: 18px; /* Ensure icon size is consistent */
-    color: #333C42; /* Match icon color */
-}
-
-
-.dropdown-content {
-    display: none;
+#dateRangeSelect {
     position: absolute;
-    top: 100%; /* Position it directly below the button */
+    top: 0;
     left: 0;
-    background-color: #e39797;
-    min-width: 100%; /* Match the dropdown button width */
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Custom Date Range Section */
+#customDateRange {
+    display: none;
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #ced4da;
+    border-radius: 9px;
     padding: 10px;
-    box-sizing: border-box;
+    position: absolute;
+    top: calc(100% + 5px); /* Slightly below the dropdown */
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
 
-.dropdown:hover .dropdown-content {
-    display: block;
+.date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* Button group inside dropdown */
+.date-group label {
+    font-size: 0.9rem;
+    color: #333C42;
+}
+
+.date-group input {
+    height: 35px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 5px 10px;
+    font-size: 1rem;
+    color: #333C42;
+}
+
 .button-group {
     display: flex;
     gap: 10px;
-    margin-top: 10px;
 }
 
-.button-group .btn {
+.button-group button {
     flex-grow: 1;
-}
-
-/* Styles for delete and add buttons */
-#deleteSelected, #addBorrow {
-    flex-grow: 1;
-    max-width: 120px; /* Adjusted width */
-    padding: 10px;
-}
-
-.btn {
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.btn-success {
-    background-color: #30688B;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 1rem;
     color: #ffffff;
-    border: 1px solid #333C42;
+    cursor: pointer;
 }
 
-.btn-success i {
-    margin-right: 5px; /* Add space between the icon and the text */
-    font-weight: 900; /* Make the icon bold */
-    font-size: 20px; /* Slightly increase the size for emphasis */
+.button-group button:first-child {
+    background-color: #007bff; /* Apply button */
+    border: none;
 }
 
-.btn-danger {
-    background-color: transparent; /* Remove background */
-    border: none; /* Remove border */
-    color: #333C42; /* Keep the icon color */
-    padding: 0; /* Remove padding */
-    font-size: 18px; /* Adjust the icon size if needed */
-    width: 1px; /* Set the width */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.button-group button:last-child {
+    background-color: #6c757d; /* Clear button */
+    border: none;
 }
 
+/* DELETE & ADD */
 
-/* Table styling */
+
+
+/* Table Section: Styling for displaying the list of borrow records */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -230,7 +278,7 @@ tbody tr:nth-child(even) {
     background-color: #eeeeee;
 }
 
-/* Status column styling */
+/* Status Column Section: Styling for status labels */
 td.status-returned {
     background-color: #d4edda;
     color: #155724;
@@ -249,7 +297,7 @@ td.status-borrowed {
     padding: 5px 10px;
 }
 
-/* Icon styling */
+/* Icon Section: Styling for edit and delete icons */
 .edit-btn, .delete-btn {
     margin: 0;
     padding: 5px;
@@ -262,8 +310,7 @@ td.status-borrowed {
     cursor: pointer;
 }
 
-
-/* Sort buttons */
+/* Sort Buttons Section: Styling for sort buttons */
 .sort-btn {
     background-color: transparent; /* Remove button background */
     border: none; /* Remove button border */
@@ -273,12 +320,11 @@ td.status-borrowed {
     font-size: 16px; /* Adjust icon size if needed */
 }
 
-/* hover effects */
 .sort-btn:hover {
     color: rgb(227, 227, 227);
 }
 
-/*  Adjust the color of the sort icons when active (asc/desc) */
+/* Adjust the color of the sort icons when active (asc/desc) */
 .sort-btn i.fa-sort-up, .sort-btn i.fa-sort-down {
     color: #ffffff; /* Example color when sorting is active */
 }
@@ -287,8 +333,7 @@ td.status-borrowed {
     margin-left: 5px; /* Space between the text and the icon */
 }
 
-
-/* Pagination controls */
+/* Pagination Section: Controls for navigating between pages */
 .pagination-controls {
     display: flex;
     justify-content: center;
@@ -313,8 +358,8 @@ td.status-borrowed {
 }
 
 
-/* SIDE NAVBAR */
 
+/* SIDE NAVBAR */
 /* Container to hold the sidebar and main content */
 #wrapper {
     display: flex; /* Flexbox layout for sidebar and content */
@@ -345,10 +390,6 @@ td.status-borrowed {
     flex-direction: column; /* Stack items vertically */
     align-items: flex-start; /* Align items to the left */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
-}
-
-#sidebarCollapse {
-    font-family: Arial, sans-serif;
 }
 
 /* Sidebar toggle button */
@@ -429,15 +470,3 @@ td.status-borrowed {
     display: none; /* Hide the link text when sidebar is collapsed */
 }
 
-/* Main content area */
-#page-content-wrapper {
-    flex-grow: 1; /* Allow the content to expand to fill available space */
-    padding: 20px; /* Padding around the content */
-    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
-    margin-left: 250px; /* Default margin to make space for the sidebar */
-}
-
-/* Adjust main content margin when sidebar is collapsed */
-#wrapper.collapsed #page-content-wrapper {
-    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
-}

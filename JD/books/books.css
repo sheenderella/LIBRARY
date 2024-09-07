@@ -7,42 +7,55 @@ body {
 
 /* Heading */
 .top-head-h1 {
-    font-size: 3rem;
-    color: #333;
-    text-align: left;
-    text-align: center;
+    font-size: 60px; /* Larger than the default h3 for emphasis */
     font-weight: bolder;
+    color: #30688B; /* Use the customizable text color */
+    margin-top: -40px; /* Remove default margin */
+    margin-bottom: -5px;
 }
 
 /* Paragraph */
-p {
-    font-size: 1em;
-    color: #555;
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.5rem;
+.top-head-p {
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    color: #666;
+    font-style: italic; /* Make the text italic */
+    margin-left: 5px;
+}
+
+#columnForm {
+    overflow-y: scroll;
+    height: 12rem;
+    margin-bottom: 1rem;
+}
+
+.column-visibility-form {
+    display: none;
+    position: absolute;
+    top: 33.6%;
+    right: 4.9%;
+    background-color: whitesmoke;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 10px;
+    width: 230px;
+    z-index: 1000;
+    padding-left: 1rem;
+}
+
+.column-visibility-form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.column-visibility-form .btn-danger{
+    width: 5.5rem;
 }
 
 /* General Button Styles */
-.button-header {
-    display: flex;
-    justify-content: space-between; /* Space out the content */
-    align-items: center;
-    padding: 10px;
-}
-
-.button-header .right-side {
-    display: flex;
-    align-items: center;
-}
-
-.button-header .right-side {
-    display: flex;
-    align-items: center;
-}
-
 /* Buttons */
 .btn {
+    display: flexbox;
     padding: 8px 12px;
     font-size: 14px;
     border: none;
@@ -58,7 +71,8 @@ p {
 }
 
 .btn-success i{
-    margin: 5px 5px 5px 0;
+    margin: 0 7px 0 7px;
+    font-size: larger;
 }
 
 .btn-danger {
@@ -67,14 +81,17 @@ p {
     width: 3.5rem;
 }
 
+.btn-secondary {
+    width: 3.5rem;
+}
+
 .btn:hover {
     opacity: 0.8;
 }
 
-/* Search and Sort Container */
-.search-sort {
-    display: flex;
-    align-items: center;
+.right-side-buttons {
+    float: right;
+    margin-top: -50px;
 }
 
 /* Date Range Container */
@@ -83,13 +100,16 @@ p {
     align-items: center;
     position: relative;
     margin-right: 20px;
+    float: left;
 }
 
 .date-range-container .icon {
-    background-color: #127a8a;
+    background-color: #30688B;
     padding: 0.95rem;
     color: whitesmoke;
-    border: 1px solid #127a8a;
+    border: 1px solid #1f1f1f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
 }
 
 #dateRangeSelect {
@@ -97,6 +117,8 @@ p {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
     height: 3rem;
     width: 8rem;
 }
@@ -147,32 +169,45 @@ p {
 
 /* Dropdown Container */
 .dropdown-container {
-    margin-right: 20px;
-}
-#searchColumn {
-    margin-left: 3rem;
-}
-.dropdown-container .icon {
-    position: absolute;
-    left: 30.75rem;
-    background-color: #127a8a;
-    padding: 0.95rem;
-    color: whitesmoke;
-    border: 1px solid #127a8a;
+    float: left;
 }
 
-.search-form-control {
-    padding: 5px;
+.dropdown-container .icon {
+    background-color: #30688B;
+    top: 25px;
+    padding: 0.95rem;
+    color: whitesmoke;
+    border: 1px solid #1f1f1f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    margin-right: -4px;
+}
+
+.drop-search-form {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    width: 150px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    height: 2.98rem;
+    margin-right: 1rem;
+    width: 7rem;
+}
+
+.search-form-control {
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
     height: 3rem;
+    margin-right: 1rem;
 }
 
 .input-container {
     display: flex;
     align-items: center;
+    margin-right: 3.5rem;
 }
 
 .input-container input {
@@ -180,15 +215,19 @@ p {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
     width: 200px;
     height: 3rem;
 }
 
 .input-container .icon {
-    background-color: #127a8a;
+    background-color: #30688B;
     padding: .95rem;
     color: whitesmoke;
-    border: 1px solid #127a8a;
+    border: 1px solid #1f1f1f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
 }
 
 /* Container Styling */
@@ -224,7 +263,7 @@ p {
 thead th {
     position: sticky;
     top: 0;
-    background: rgb(0, 127, 166);
+    background: #30688B;
     color: #fff;
     z-index: 5;
 }
@@ -350,7 +389,7 @@ td input[type="checkbox"] {
 }
 
 .edit-btn:hover {
-    color: #127a8a;
+    color: #30688B;
 }
 
 /* Empty message cell styling */
@@ -362,23 +401,6 @@ td input[type="checkbox"] {
     background-color: #f9f9f9;
     border: 1px solid #dddddd;
     border-radius: 4px;
-}
-
-/* Media queries for responsiveness */
-@media (max-width: 768px) {
-    .button-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .search-sort {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .date-range-container {
-        margin-left: 0; /* Reset margin for small screens */
-    }
 }
 
 /* NOTIFICATION WINDOW FOR UPDATE AND ADDING BOOKS */
@@ -526,7 +548,7 @@ td input[type="checkbox"] {
 
 /* Main content area */
 #page-content-wrapper {
-    width: auto;
+    width: 10rem;
     flex: none;
     flex-grow: 1; /* Allow the content to expand to fill available space */
     padding: 20px; /* Padding around the content */

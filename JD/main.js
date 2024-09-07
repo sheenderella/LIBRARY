@@ -76,11 +76,6 @@ ipcMain.on('open-books-page', () => {
     createBooksPageWindow();
 });
 
-// Listen for the event to open the books page
-ipcMain.on('open-books-page', () => {
-    createBooksPageWindow();
-});
-
 
 // Function to get the total number of borrowed books
 async function getBorrowedBooksCount() {
@@ -143,9 +138,6 @@ ipcMain.handle('getBooksCount', async (event) => {
 });
 
 
-
-
-
 //LOGIN
 function createLoginWindow() {
     loginWindow = createWindow({
@@ -156,28 +148,39 @@ function createLoginWindow() {
 
 //BORROWER
 function createAddBorrowWindow() {
-    addBorrowWindow = createWindow({
-        filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
-        width: 400,
-        height: 540,
-        parent: mainWindow,
-        onClose: () => (addBorrowWindow = null),
-    });
+    if (!addBorrowWindow) {
+        addBorrowWindow = createWindow({
+            filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
+            width: 400,
+            height: 540,
+            parent: mainWindow,
+            onClose: () => (addBorrowWindow = null),
+        });
+    } else {
+        addBorrowWindow.focus(); // Bring the existing window to the front
+    }
 }
+
 
 function createUpdateBorrowWindow(record) {
-    updateBorrowWindow = createWindow({
-        filePath: path.join(__dirname, 'borrow', 'updateBorrow.html'),
-        width: 400,
-        height: 560,
-        parent: mainWindow,
-        onClose: () => (updateBorrowWindow = null),
-    });
+    if (!updateBorrowWindow) {
+        updateBorrowWindow = createWindow({
+            filePath: path.join(__dirname, 'borrow', 'updateBorrow.html'),
+            width: 400,
+            height: 560,
+            parent: mainWindow,
+            onClose: () => (updateBorrowWindow = null),
+        });
 
-    updateBorrowWindow.webContents.on('did-finish-load', () => {
+        updateBorrowWindow.webContents.on('did-finish-load', () => {
+            updateBorrowWindow.webContents.send('fill-update-form', record);
+        });
+    } else {
+        updateBorrowWindow.focus(); // Bring the existing window to the front
         updateBorrowWindow.webContents.send('fill-update-form', record);
-    });
+    }
 }
+
 
 //BOOKS
 function createAddBookWindow() {
@@ -221,27 +224,12 @@ app.on('activate', () => {
 
 //DELETE WARNING
 function createDeleteNotifWindow() {
-    deleteNotifWindow = new BrowserWindow({
+    deleteNotifWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
         width: 400,
         height: 300,
         parent: mainWindow,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            preload: path.join(__dirname, 'preload.js') // Ensure you use the preload script if necessary
-        }
-    });
-
-    deleteNotifWindow.loadFile(path.join(__dirname, 'books', 'deleteNotif.html'));
-
-    // Handle the window close event
-    deleteNotifWindow.on('closed', () => {
-        deleteNotifWindow = null;
-    });
-
-    // Send the book IDs to the deleteNotif window after it's ready
-    deleteNotifWindow.webContents.on('did-finish-load', () => {
-        deleteNotifWindow.webContents.send('set-book-ids', selectedBookIds);
+        onClose: () => (deleteNotifWindow = null),
     });
 }
 
@@ -400,11 +388,19 @@ function closeAllFormWindows() {
 }
 
 
-//CHANGE PASSWORD N USERNAME
+//CHANGE USERNAME
+let changeUsernameWindow; // Declare the variable at the top
+
+// Function to create the Change Username window
 function createChangeUsernameWindow() {
-    let changeUsernameWindow = new BrowserWindow({
+    if (changeUsernameWindow) {
+        changeUsernameWindow.focus(); // Bring the existing window to the front if it's already open
+        return;
+    }
+
+    changeUsernameWindow = new BrowserWindow({
         width: 400,
-        height: 560,
+        height: 600,
         parent: mainWindow, // Ensures it is a child of the main window
         resizable: false,
         show: true, // Ensures the window is visible when created
@@ -421,8 +417,7 @@ function createChangeUsernameWindow() {
     });
 }
 
-
-// Listen for the event to open the Change Password window
+// Listen for the event to open the Change Username window
 ipcMain.handle('open-change-username-window', () => {
     createChangeUsernameWindow(); // Calls the function to create the Change Username window
 });
@@ -430,12 +425,19 @@ ipcMain.handle('open-change-username-window', () => {
 // IPC handler to change the username
 ipcMain.handle('change-username', async (event, { newUsername, currentPassword }) => {
     try {
+        // Validate the current password and get the user details
         const user = await validateCurrentPassword(currentPassword);
 
         if (!user) {
             return { success: false, error: 'Current password is incorrect' };
         }
 
+        // Check if the new username is the same as the current one
+        if (user.username === newUsername) {
+            return { success: false, error: 'The new username is the same as the current username.' };
+        }
+
+        // Update the username in the database
         await executeQuery('UPDATE user SET username = ? WHERE id = ?', [newUsername, user.id]);
 
         // Update the loggedInUsername after changing it
@@ -444,38 +446,48 @@ ipcMain.handle('change-username', async (event, { newUsername, currentPassword }
         return { success: true };
     } catch (error) {
         console.error('Error changing username:', error);
-        return { success: false, error: 'An error occurred while changing the username' };
+        return { success: false, error: 'An error occurred while changing the username.' };
     }
 });
 
-ipcMain.handle('open-change-password-window', () => {
-    createChangePasswordWindow(); // Calls the function to create the Change Username window
-});
 
-// Function to open the Change Password window
+
+//CHANGE PASSWORD
+let changePasswordWindow; // Declare the variable at the top
+
+// Function to create the Change Password window
 function createChangePasswordWindow() {
-    let changePasswordWindow = new BrowserWindow({
+    if (changePasswordWindow) {
+        changePasswordWindow.focus(); // Bring the existing window to the front if it's already open
+        return;
+    }
+
+    changePasswordWindow = new BrowserWindow({
         width: 400,
-        height: 560,
-        parent: mainWindow,
+        height: 650,
+        parent: mainWindow, // Ensures it is a child of the main window
         resizable: false,
+        show: true, // Ensures the window is visible when created
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
         },
     });
 
-    changePasswordWindow.loadFile(path.join(__dirname, 'settings', 'password.html'));
+    changePasswordWindow.loadFile(path.join(__dirname, 'settings', 'password.html')); // Load the HTML file for the Change Password window
 
     changePasswordWindow.on('closed', () => {
-        changePasswordWindow = null;
+        changePasswordWindow = null; // Handle cleanup when the window is closed
     });
 }
 
-
+// Listen for the event to open the Change Password window
+ipcMain.handle('open-change-password-window', () => {
+    createChangePasswordWindow(); // Calls the function to create the Change Password window
+});
 
 // Change Password IPC Handler
-ipcMain.handle('change-password', async (event, { currentPassword, newPassword }) => {
+ipcMain.handle('change-password', async (event, { currentPassword, newPassword, passwordHint }) => {
     try {
         console.log('Received change-password request');
         const user = await validateCurrentPassword(currentPassword);
@@ -490,8 +502,10 @@ ipcMain.handle('change-password', async (event, { currentPassword, newPassword }
             return { success: false, error: 'The new password cannot be the same as the current password.' };
         }
 
-        await executeQuery('UPDATE user SET password = ? WHERE id = ?', [newPassword, user.id]);
-        console.log('Password updated successfully');
+        // Update the password and the hint in the database
+        await executeQuery('UPDATE user SET password = ?, hint = ? WHERE id = ?', [newPassword, passwordHint, user.id]);
+
+        console.log('Password and hint updated successfully');
         return { success: true };
     } catch (error) {
         console.error('Error changing password:', error);
@@ -511,6 +525,81 @@ async function validateCurrentPassword(password) {
         });
     });
 }
+
+// Add this handler to fetch the current password from the database
+ipcMain.handle('get-current-password', async () => {
+    try {
+        const sql = "SELECT password FROM user WHERE username = ?";
+        return new Promise((resolve, reject) => {
+            db.get(sql, [loggedInUsername], (error, row) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(row ? row.password : null);
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error fetching current password:', error);
+        throw error;
+    }
+});
+
+
+
+//SECURITY-SETUP
+let securitySetupWindow;
+
+// Function to create the Security Setup window
+function createSecuritySetupWindow() {
+    if (securitySetupWindow) {
+        securitySetupWindow.focus(); // Bring the existing window to the front if it's already open
+        return;
+    }
+
+    securitySetupWindow = new BrowserWindow({
+        width: 400,
+        height: 650,
+        parent: mainWindow, // Ensure it is a child of the main window
+        resizable: false,
+        show: true, // Ensure the window is visible when created
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    securitySetupWindow.loadFile(path.join(__dirname, 'settings', 'security.html')); // Load the HTML file for the Security Setup window
+
+    securitySetupWindow.on('closed', () => {
+        securitySetupWindow = null; // Handle cleanup when the window is closed
+    });
+}
+
+ipcMain.handle('open-security-setup-window', () => {
+    createSecuritySetupWindow(); // Calls the function to create the Security Setup window
+});
+
+// IPC handler to save the security question
+ipcMain.handle('save-security-question', async (event, { question, answer, currentPassword }) => {
+    try {
+        // Validate the current password
+        const user = await validateCurrentPassword(currentPassword);
+
+        if (!user) {
+            return { success: false, error: 'Current password is incorrect' };
+        }
+
+        // Save the security question and answer in the database
+        await executeQuery('UPDATE user SET security_question = ?, security_answer = ? WHERE id = ?', [question, answer, user.id]);
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error saving security question:', error);
+        return { success: false, error: 'An error occurred while saving the security question.' };
+    }
+});
+
 
 
 ///BOOKS

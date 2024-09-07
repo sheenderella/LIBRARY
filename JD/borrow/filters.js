@@ -13,10 +13,11 @@ const debounce = (func, delay) => {
 };
 
 const filterBorrowRecords = (allRecords, searchInput, statusFilter, startDateFilter, endDateFilter) => {
-    const searchText = searchInput.value.toLowerCase();
-    const statusValue = statusFilter.value;
-    const startDate = startDateFilter.value;
-    const endDate = endDateFilter.value;
+    // Default to empty strings if elements are not available
+    const searchText = searchInput ? searchInput.value.toLowerCase() : '';
+    const statusValue = statusFilter ? statusFilter.value : '';
+    const startDate = startDateFilter ? startDateFilter.value : '';
+    const endDate = endDateFilter ? endDateFilter.value : '';
 
     const filteredRecords = allRecords.filter(record => {
         const borrowerName = record.borrowerName ? record.borrowerName.toLowerCase() : '';

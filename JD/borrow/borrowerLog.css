@@ -257,110 +257,116 @@ h2#borrowerName {
     cursor: pointer;
 }
 
-/* Date Filter Dropdown */
-.dropdown {
-    position: relative;
+/* Date Range Filter Section: Styles for date range dropdown */
+.date-range-container {
     display: flex;
     align-items: center;
     flex-grow: 1;
-    max-width: 200px; /* Adjusted width */
+    max-width: 200px; /* Adjust this based on your needs */
+    position: relative; /* To ensure the custom date range is positioned correctly */
 }
 
-.dropbtn {
-    background-color: #ffffff;
-    color: #333C42;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: 1px solid #333C42;
-    cursor: pointer;
+.date-range-box {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 100%; /* Ensure it occupies the full container */
-}
-
-/* Style the calendar icon inside the 'Filter by Date' button */
-.dropbtn i.calendar-icon {
-    margin-right: 15px; /* Match the spacing with 'Filter by Status' */
-    font-size: 18px; /* Ensure icon size is consistent */
-    color: #333C42; /* Match icon color */
-}
-
-/* Style the dropdown arrow inside the 'Filter by Date' button */
-.dropbtn i.dropdown-icon {
-    margin-left: 20px; /* Push the dropdown icon to the right */
-    font-size: 18px; /* Ensure icon size is consistent */
-    color: #333C42; /* Match icon color */
-}
-
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    top: 100%; /* Position it directly below the button */
-    left: 0;
-    background-color: #e39797;
-    min-width: 100%; /* Match the dropdown button width */
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    padding: 10px;
+    background-color: #ffffff;
+    color: #333C42;
+    cursor: pointer;
+    border: 1px solid #333C42;
     box-sizing: border-box;
+    width: 100%; /* Ensure it occupies the full container */
+    padding: 10px;
+    position: relative;
+    border-radius: 4px;
 }
 
-.dropdown.show .dropdown-content {
-    display: block;
+.calendar-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #333C42;
 }
 
-/* Button group inside dropdown */
+#dateRangeFilterText {
+    margin-left: 5px;
+    flex-grow: 1;
+    color: #333C42;
+}
+
+.dropdown-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #333C42;
+}
+
+#dateRangeSelect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Custom Date Range Section */
+#customDateRange {
+    display: none;
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 10px;
+    position: absolute;
+    top: calc(100% + 5px); /* Slightly below the dropdown */
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.date-group label {
+    font-size: 0.9rem;
+    color: #333C42;
+}
+
+.date-group input {
+    height: 35px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 5px 10px;
+    font-size: 1rem;
+    color: #333C42;
+}
+
 .button-group {
     display: flex;
     gap: 10px;
-    margin-top: 10px;
 }
 
-
-.button-group .btn {
+.button-group button {
     flex-grow: 1;
-}
-
-/* Styles for delete and add buttons */
-#deleteSelected, #addBorrow {
-    flex-grow: 1;
-    max-width: 120px; /* Adjusted width */
-    padding: 10px;
-}
-
-.btn {
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.btn-success {
-    background-color: #30688B;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 1rem;
     color: #ffffff;
-    border: 1px solid #333C42;
+    cursor: pointer;
 }
 
-.btn-success i {
-    margin-right: 5px; /* Add space between the icon and the text */
-    font-weight: 900; /* Make the icon bold */
-    font-size: 20px; /* Slightly increase the size for emphasis */
+.button-group button:first-child {
+    background-color: #007bff; /* Apply button */
+    border: none;
 }
 
-.btn-danger {
-    background-color: transparent; /* Remove background */
-    border: none; /* Remove border */
-    color: #333C42; /* Keep the icon color */
-    padding: 0; /* Remove padding */
-    font-size: 18px; /* Adjust the icon size if needed */
-    width: 1px; /* Set the width */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.button-group button:last-child {
+    background-color: #6c757d; /* Clear button */
+    border: none;
 }
+
 
 /* Borrower Log Table */
 #borrowerLogTable {
@@ -403,25 +409,56 @@ h2#borrowerName {
 }
 
 /* Pagination */
+/* Container for pagination controls */
 .pagination-container {
     display: flex;
-    justify-content: center;
-    margin-top: 20px;
+    align-items: center;
+    justify-content: center; /* Center horizontally */
+    margin: 20px 0; /* Add margin to space out from other elements */
+    max-width: var(--pagination-max-width, 600px); /* Limit the maximum width of the pagination controls */
+    width: 100%; /* Full width to adjust within the max-width */
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto; /* Center horizontally */
 }
 
-.pagination-container button {
-    margin: 0 5px;
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    cursor: pointer;
+/* Pagination Button */
+.btn {
+    background-color: var(--btn-background-color, #ffffff); /* Background color */
+    border: var(--btn-border, 1px solid #dee2e6); /* Border color */
+    border-radius: var(--btn-border-radius, 5px); /* Border radius */
+    padding: var(--btn-padding, 6px 12px); /* Padding */
+    color: var(--btn-text-color, #007bff); /* Text and icon color */
+    font-size: var(--btn-font-size, 14px); /* Font size */
+    cursor: var(--btn-cursor, pointer); /* Cursor style */
+    transition: background-color 0.2s ease, color 0.2s ease; /* Transition for hover effect */
 }
 
-.pagination-container button.active {
-    background-color: #007bff;
-    color: white;
+/* Pagination Button Hover */
+.btn:hover {
+    background-color: var(--btn-hover-background-color, #e9ecef); /* Hover background color */
+    color: var(--btn-hover-text-color, #0056b3); /* Hover text and icon color */
 }
 
-.pagination-container button:hover {
-    background-color: #0056b3;
-    color: white;
+/* Pagination Button Disabled */
+.btn:disabled {
+    background-color: var(--btn-disabled-background-color, #f1f3f5); /* Disabled background color */
+    color: var(--btn-disabled-text-color, #6c757d); /* Disabled text color */
+    cursor: var(--btn-disabled-cursor, not-allowed); /* Cursor style for disabled */
+}
+
+/* Pagination Input Box Style */
+#pageLocation {
+    text-align: center; /* Center text inside input */
+    font-size: var(--input-font-size, 1rem); /* Font size */
+    width: var(--input-width, 80px); /* Fixed width for input */
+    height: 35px;
+    border: var(--input-border, 1px solid #ced4da); /* Border color */
+    border-radius: var(--input-border-radius, 5px); /* Border radius */
+    padding: var(--input-padding, 6px); /* Padding */
+}
+
+/* Total Pages Label Style */
+#totalPages {
+    margin-left: var(--label-margin-left, 10px); /* Space between input and label */
+    margin-right: var(--label-margin-right, 10px); /* Space between label and next button */
 }

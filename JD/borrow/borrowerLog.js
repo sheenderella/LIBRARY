@@ -14,7 +14,7 @@ document.getElementById('sidebarCollapse').addEventListener('click', function ()
     sidebar.classList.toggle('collapsed');
 });
 
-//LOGOUT
+// LOGOUT
 document.getElementById('logout-link').addEventListener('click', function(event) {
     event.preventDefault(); // Prevent default link behavior
 
@@ -26,8 +26,6 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const borrowerName = urlParams.get('borrowerName');
@@ -36,40 +34,33 @@ document.addEventListener('DOMContentLoaded', () => {
         updateBorrowerName(borrowerName);
         fetchBorrowerLog(borrowerName);
 
+        // Set up event listeners for filtering
         document.getElementById('searchTitle').addEventListener('input', debounce(applyFilters, 300));
         document.getElementById('filterStatus').addEventListener('change', applyFilters);
 
-        const dateFilterDropdown = document.querySelector('.dropdown');
-        const applyDateFilterBtn = document.getElementById('applyDateFilter');
-        const clearDateFilterBtn = document.getElementById('clearDateFilter');
+        const dateRangeSelect = document.getElementById('dateRangeSelect');
+        const applyDateRangeBtn = document.getElementById('applyDateRange');
+        const clearDateRangeBtn = document.getElementById('clearDateRange');
+        const customDateRange = document.getElementById('customDateRange');
 
-        // Date Filter Dropdown Toggle
-        dateFilterDropdown.addEventListener('click', (event) => {
-            dateFilterDropdown.classList.toggle('show');
-            event.stopPropagation();
+        // Show or hide custom date range inputs based on selection
+        dateRangeSelect.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+                applyFilters();
+            }
         });
 
-        // Prevent closing dropdown when interacting with date inputs or buttons inside the dropdown
-        const dropdownContent = document.querySelector('.dropdown-content');
-        dropdownContent.addEventListener('click', (event) => {
-            event.stopPropagation();
-        });
-
-        // Apply Date Filter
-        applyDateFilterBtn.addEventListener('click', () => {
+        // Apply date range filter
+        applyDateRangeBtn.addEventListener('click', () => {
             applyFilters();
-            dateFilterDropdown.classList.remove('show');
         });
 
-        // Clear Date Filter
-        clearDateFilterBtn.addEventListener('click', () => {
-            clearDateFilters();
-            dateFilterDropdown.classList.remove('show');
-        });
-
-        // Close the dropdown if the user clicks outside of it
-        document.addEventListener('click', () => {
-            dateFilterDropdown.classList.remove('show');
+        // Clear date range filter
+        clearDateRangeBtn.addEventListener('click', () => {
+            resetDateFilters();
         });
 
         // Pagination Controls
@@ -80,17 +71,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Fetch and display borrower log
 async function fetchBorrowerLog(borrowerName) {
     try {
         const log = await ipcRenderer.invoke('getBorrowerLog', borrowerName);
-        logData = log;
-        filteredLogData = log; // Set the filtered data to full data initially
+        
+        // Sort log data by borrowDate in descending order
+        logData = log.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
+        
+        filteredLogData = logData; // Set the filtered data to full data initially
         displayLog();
     } catch (error) {
         console.error('Error fetching borrower log:', error);
     }
 }
 
+
+// Display paginated log entries
 function displayLog() {
     const container = document.getElementById('borrowerLogContainer');
     container.innerHTML = '';
@@ -112,25 +109,63 @@ function displayLog() {
     updatePaginationControls();
 }
 
+// Update borrower name in the UI
 function updateBorrowerName(borrowerName) {
     document.getElementById('borrowerName').textContent = `Log for ${borrowerName}`;
 }
-
+// Apply filters to log data
 function applyFilters() {
+    // Get filter values
     const searchTitle = document.getElementById('searchTitle').value.toLowerCase();
     const filterStatus = document.getElementById('filterStatus').value;
-    const startDate = document.getElementById('startDateFilter').value;
-    const endDate = document.getElementById('endDateFilter').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const dateRangeSelect = document.getElementById('dateRangeSelect').value;
 
+    let startDateFilter = startDate;
+    let endDateFilter = endDate;
+
+    // Handle preset date ranges
+    if (dateRangeSelect === 'last_7_days') {
+        startDateFilter = new Date();
+        startDateFilter.setDate(startDateFilter.getDate() - 7);
+        endDateFilter = new Date();
+    } else if (dateRangeSelect === 'last_30_days') {
+        startDateFilter = new Date();
+        startDateFilter.setDate(startDateFilter.getDate() - 30);
+        endDateFilter = new Date();
+    } else if (dateRangeSelect === 'this_month') {
+        startDateFilter = new Date();
+        startDateFilter.setDate(1);
+        endDateFilter = new Date();
+        endDateFilter.setMonth(endDateFilter.getMonth() + 1);
+        endDateFilter.setDate(0);
+    } else if (dateRangeSelect === 'last_month') {
+        startDateFilter = new Date();
+        startDateFilter.setMonth(startDateFilter.getMonth() - 1);
+        startDateFilter.setDate(1);
+        endDateFilter = new Date();
+        endDateFilter.setDate(0);
+    } else if (dateRangeSelect === 'custom') {
+        customDateRange.style.display = 'block';
+        startDateFilter = startDate;
+        endDateFilter = endDate;
+    } else {
+        // If no date filter is selected, clear date filters
+        startDateFilter = null;
+        endDateFilter = null;
+    }
+
+    // Filter log data based on search title, status, and date range
     filteredLogData = logData.filter(entry => {
         const title = entry.bookTitle.toLowerCase();
         const status = entry.borrowStatus;
-        const borrowDate = entry.borrowDate;
+        const borrowDate = new Date(entry.borrowDate);
 
         const isTitleMatch = title.includes(searchTitle);
         const isStatusMatch = !filterStatus || filterStatus === "all" || status === filterStatus;
-        const isDateMatch = (!startDate || new Date(borrowDate) >= new Date(startDate)) &&
-                            (!endDate || new Date(borrowDate) <= new Date(endDate));
+        const isDateMatch = (!startDateFilter || borrowDate >= new Date(startDateFilter)) &&
+                            (!endDateFilter || borrowDate <= new Date(endDateFilter));
 
         return isTitleMatch && isStatusMatch && isDateMatch;
     });
@@ -139,12 +174,25 @@ function applyFilters() {
     displayLog();
 }
 
-function clearDateFilters() {
-    document.getElementById('startDateFilter').value = '';
-    document.getElementById('endDateFilter').value = '';
+
+// Reset date filters
+function resetDateFilters() {
+    // Clear the start and end date input values
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+
+    // Reset the "Search by Date" dropdown to its default value (assumed to be '')
+    document.getElementById('dateRangeSelect').value = '';
+
+    // Hide the custom date range inputs
+    document.getElementById('customDateRange').style.display = 'none';
+
+    // Reapply filters with no date restrictions
     applyFilters();
 }
 
+
+// Update pagination controls
 function updatePaginationControls() {
     const totalPages = Math.ceil(filteredLogData.length / rowsPerPage);
     document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
@@ -153,6 +201,7 @@ function updatePaginationControls() {
     document.getElementById('nextPage').disabled = currentPage === totalPages;
 }
 
+// Navigate to previous page
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
@@ -160,6 +209,7 @@ function prevPage() {
     }
 }
 
+// Navigate to next page
 function nextPage() {
     const totalPages = Math.ceil(filteredLogData.length / rowsPerPage);
     if (currentPage < totalPages) {
@@ -168,6 +218,7 @@ function nextPage() {
     }
 }
 
+// Debounce function to limit the rate at which a function is executed
 function debounce(func, wait) {
     let timeout;
     return function(...args) {
@@ -175,3 +226,13 @@ function debounce(func, wait) {
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
 }
+
+// Close the custom date range filter when clicking outside of it
+document.addEventListener('click', (event) => {
+    const customDateRange = document.getElementById('customDateRange');
+    const dateRangeSelect = document.getElementById('dateRangeSelect');
+
+    if (!dateRangeSelect.contains(event.target) && !customDateRange.contains(event.target)) {
+        customDateRange.style.display = 'none';
+    }
+});
