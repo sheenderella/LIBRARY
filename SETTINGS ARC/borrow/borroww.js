@@ -66,8 +66,8 @@ function setupEventListeners() {
     const dateFilterButton = document.querySelector('.dropbtn');
     const dropdownContent = document.querySelector('.dropdown-content');
 
-
-
+    if (cancelDateFilterButton) addEvent(cancelDateFilterButton, 'click', handleCancelDateFilter);
+    if (applyDateFilterButton) addEvent(applyDateFilterButton, 'click', handleApplyDateFilter);
     if (dateFilterButton) addEvent(dateFilterButton, 'click', toggleDropdown);
     if (document) addEvent(document, 'click', closeDropdownOnOutsideClick);
     if (addBorrowForm) addEvent(addBorrowForm, 'submit', handleAddBorrowSubmit);
@@ -223,6 +223,17 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+function handleCancelDateFilter() {
+    startDateFilter.value = '';
+    endDateFilter.value = '';
+    filterAndRenderRecords();
+    closeDropdown();
+}
+
+function handleApplyDateFilter() {
+    filterAndRenderRecords();
+    closeDropdown();
+}
 
 function toggleDropdown(event) {
     event.stopPropagation();

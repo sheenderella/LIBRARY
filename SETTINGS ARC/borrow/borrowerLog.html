@@ -102,25 +102,39 @@
         </div>
     
         <!-- Date Filter Dropdown -->
-        <div class="dropdown col">
-            <button class="dropbtn">
-                <i class="fa fa-calendar calendar-icon"></i>
-                Filter by Date
-                <i class="fa fa-caret-down dropdown-icon"></i>
-            </button>
-            
-            <div class="dropdown-content">
-                <label for="startDateFilter">Start Date:</label>
-                <input type="date" id="startDateFilter" class="form-control">
-                <label for="endDateFilter">End Date:</label>
-                <input type="date" id="endDateFilter" class="form-control">
-                <div class="button-group">
-                    <button id="applyDateFilter" class="btn btn-primary">Apply</button>
-                    <button id="clearDateFilter" class="btn btn-secondary">Clear</button>
-                </div>
-            </div>
+
+<!-- Date range select element -->
+<div id="dateRangeContainer" class="date-range-container">
+    <div class="date-range-box">
+        <i class="fa fa-calendar calendar-icon"></i>
+        <span id="dateRangeFilterText">Filter by Date</span>
+        <i class="fa fa-caret-down dropdown-icon"></i>
+        <select id="dateRangeSelect" class="form-control" style="display: none;">
+            <option value="reset">Reset Date Filter</option> <!-- Add this option -->
+            <option value="last_7_days">Last 7 Days</option>
+            <option value="last_30_days">Last 30 Days</option>
+            <option value="this_month">This Month</option>
+            <option value="last_month">Last Month</option>
+            <option value="custom">Custom Range</option>
+        </select>
+    </div>
+
+    <!-- Custom Date Range Inputs -->
+    <div id="customDateRange" class="custom-date-range">
+        <div class="date-group">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" class="form-control">
+        </div>
+        <div class="date-group">
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" class="form-control">
+        </div>
+        <div class="button-group">
+            <button id="applyDateRange" type="button">Apply</button>
+            <button id="clearDateRange" type="button">Clear</button>
         </div>
     </div>
+</div>
     
     <!-- Borrower Log Table -->
     <table id="borrowerLogTable" class="table table-bordered">
@@ -137,11 +151,23 @@
     </table>
 
     <!-- Pagination Controls -->
-    <div id="paginationControls" class="pagination-container">
-        <button id="prevPage" class="pagination-btn" disabled>Previous</button>
-        <span id="pageInfo">Page 1</span>
-        <button id="nextPage" class="pagination-btn">Next</button>
+    <div id="paginationControls" class="pagination-container d-flex align-items-center">
+        <button id="firstPage" class="btn btn-primary me-2" disabled>
+            <i class="fa-solid fa-backward-fast"></i>
+        </button>
+        <button id="prevPage" class="btn btn-primary me-2" disabled>
+            <i class="fa-solid fa-caret-left"></i>
+        </button>
+        <input type="text" id="pageLocation" class="form-control me-2" style="width: 80px;" value="1">
+        <span id="totalPages">of 1</span>
+        <button id="nextPage" class="btn btn-primary ms-2">
+            <i class="fa-solid fa-caret-right"></i>
+        </button>
+        <button id="lastPage" class="btn btn-primary ms-2">
+            <i class="fa-solid fa-forward-fast"></i>
+        </button>
     </div>
+
     
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

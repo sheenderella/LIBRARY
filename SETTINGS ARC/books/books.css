@@ -2,131 +2,231 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    overflow-x: hidden; /* Prevent horizontal scroll */
+    overflow-x: auto;
 }
 
 /* Heading */
-h1 {
-    font-size: 2em;
+.top-head-h1 {
+    font-size: 3rem;
     color: #333;
     text-align: left;
-    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bolder;
 }
 
 /* Paragraph */
 p {
     font-size: 1em;
     color: #555;
-    text-align: left;
+    text-align: center;
     margin-bottom: 20px;
+    font-size: 1.5rem;
 }
 
-/* Button styling */
+/* General Button Styles */
+.button-header {
+    display: flex;
+    justify-content: space-between; /* Space out the content */
+    align-items: center;
+    padding: 10px;
+}
+
+.button-header .right-side {
+    display: flex;
+    align-items: center;
+}
+
+.button-header .right-side {
+    display: flex;
+    align-items: center;
+}
+
+/* Buttons */
 .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 1em;
-    color: #fff;
-    background-color: #28a745;
+    padding: 8px 12px;
+    font-size: 14px;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    margin-bottom: 20px;
+    margin-right: 10px;
+    height: 3rem;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success i{
+    margin: 5px 5px 5px 0;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    width: 3.5rem;
 }
 
 .btn:hover {
-    background-color: #218838;
+    opacity: 0.8;
 }
 
-/* Specific button styles */
-#deleteSelected {
-    background-color: red;
-}
-
-#deleteSelected:hover {
-    background-color: rgb(205, 3, 3);
-}
-
-/* Search column dropdown */
-#searchColumn {
-    padding: .60rem;
-    border-radius: 0.20rem;
-    border-color: #d7d7d7;
-}
-
-/* Button header styles */
-.button-header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 10px;
-    align-items: center;
-}
-
-/* Search and sort container alignment */
+/* Search and Sort Container */
 .search-sort {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-left: auto;
-    margin-bottom: 20px;
 }
 
-/* Input field styling */
-.search-sort input {
-    flex: 1;
-    padding: 10px;
-    font-size: 1em;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-}
-
-/* Input container for search field */
-.input-container {
+/* Date Range Container */
+.date-range-container {
+    display: flex;
+    align-items: center;
     position: relative;
-    width: 200px;
+    margin-right: 20px;
 }
 
-/* Search field with icon */
-.input-container .form-control {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid #dddddd;
-    border-radius: 4px;
-    padding: 10px 10px 10px 35px;
+.date-range-container .icon {
+    background-color: #127a8a;
+    padding: 0.95rem;
+    color: whitesmoke;
+    border: 1px solid #127a8a;
 }
 
-/* Icon positioning inside the input field */
-.input-container .icon {
+#dateRangeSelect {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    height: 3rem;
+    width: 8rem;
+}
+
+/* CUSTOM DATE FORM */
+.date-group {
+    display: none;
     position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-    color: #888;
-    transition: opacity 0.3s ease;
+    top: 100%;
+    left: 0;
+    background-color: whitesmoke;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 10px;
+    width: 250px;
+    z-index: 1000;
 }
 
-/* Scroll container */
+.date-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.date-group input[type="date"] {
+    display: block;
+    margin-bottom: 10px;
+    width: calc(100% - 20px);
+}
+
+#clearDateRange {
+    background-color: #ffc107;
+    color: 1f1f1f;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 13rem;
+    margin-left: .35rem;
+    
+}
+
+#clearDateRange:hover {
+    opacity: 0.8;
+}
+
+/* Dropdown Container */
+.dropdown-container {
+    margin-right: 20px;
+}
+#searchColumn {
+    margin-left: 3rem;
+}
+.dropdown-container .icon {
+    position: absolute;
+    left: 30.75rem;
+    background-color: #127a8a;
+    padding: 0.95rem;
+    color: whitesmoke;
+    border: 1px solid #127a8a;
+}
+
+.search-form-control {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    width: 150px;
+    height: 3rem;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+}
+
+.input-container input {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    width: 200px;
+    height: 3rem;
+}
+
+.input-container .icon {
+    background-color: #127a8a;
+    padding: .95rem;
+    color: whitesmoke;
+    border: 1px solid #127a8a;
+}
+
+/* Container Styling */
 .scroll-container {
     position: relative;
     width: 100%;
-}
-
-/* Scrollbar styling */
-.scrollbar-top {
-    overflow-x: scroll;
-    overflow-y: hidden;
-    height: 20px;
-}
-
-/* Table container styling */
-.table-container {
-    font-size: small;
     margin-top: 1rem;
-    margin-bottom: 1rem;
-    position: relative;
-    overflow-x: scroll;
+}
+
+/* Sticky Scrollbar Styling */
+.scrollbar-top {
+    position: sticky;
+    top: 0;
+    height: 20px;
+    background-color: #f1f1f1;
+    overflow-x: auto;
+    z-index: 10;
+}
+
+/* Scrollable Content to Match Table Width */
+.scroll-content {
+    width: 100%; /* Adjust width to match your table width */
+    height: 1px; /* Minimal height to ensure scrollbar appears */
+}
+
+/* Main Table Container */
+.table-container {
+    overflow-x: auto;
+    overflow-y: hidden; /* Ensure only horizontal scrolling */
+}
+
+/* Sticky Table Header */
+thead th {
+    position: sticky;
+    top: 0;
+    background: rgb(0, 127, 166);
+    color: #fff;
+    z-index: 5;
 }
 
 /* Table styling */
@@ -135,15 +235,6 @@ table {
     border-collapse: collapse;
     margin-bottom: 20px;
 }
-
-thead {
-    background-color: #007bff;
-    color: #fff;
-    /* position: sticky; */
-    top: 0;
-    z-index: 1;
-}
-
 
 th, td {
     text-align: center;
@@ -160,6 +251,12 @@ th {
 
 th input[type="checkbox"] {
     margin: 0;
+    accent-color: #1f1f1f;
+}
+
+td input[type="checkbox"] {
+    margin: 0;
+    accent-color: #1f1f1f;
 }
 
 /* Sort button in table headers */
@@ -267,81 +364,6 @@ th input[type="checkbox"] {
     border-radius: 4px;
 }
 
-/* Container for date range filter */
-.custom-range-narrow {
-    width: 15%; /* Adjust this value as needed */
-}
-
-.date-range-container {
-    padding-bottom: 1rem;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box; /* Ensures padding and border are included in the total width */
-}
-
-#dateRangeContainer {
-    flex: content;
-    width: 100%;
-    position: relative;
-}
-
-#customDateRange {
-    width: 100%; /* Match width of dateRangeContainer */
-    position: absolute;
-    top: 68%; /* Position below the dateRangeContainer */
-    left: 0;
-    box-sizing: border-box; /* Ensure padding and border are included in the width */
-    background-color: white; /* Optional: Add background to cover any content behind */
-    z-index: 1; /* Ensure it's above other content */
-}
-
-/* Base style for the date range container */
-.date-range-container {
-    position: relative;
-}
-
-.date-range-container .form-control {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid #dddddd;
-    border-radius: 4px;
-    padding: 11px 10px 9px 10px;
-    align-items: center;
-}
-
-/* Style for the custom date range section */
-.date-group {
-    display: none; /* Hide by default */
-    position: absolute;
-    top: 68%; /* Position it just below the select element */
-    left: 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 87%;
-    z-index: 10; /* Ensure it appears above other elements */
-    margin: 0;
-}
-
-/* Style for labels */
-.date-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-/* Style for date inputs */
-.date-group input[type="date"] {
-    width: calc(100% - 16px); /* Adjust width to fit inside container with padding */
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
 /* Media queries for responsiveness */
 @media (max-width: 768px) {
     .button-header {
@@ -351,6 +373,7 @@ th input[type="checkbox"] {
 
     .search-sort {
         flex-direction: column;
+        align-items: flex-start;
     }
 
     .date-range-container {
@@ -358,7 +381,27 @@ th input[type="checkbox"] {
     }
 }
 
+/* NOTIFICATION WINDOW FOR UPDATE AND ADDING BOOKS */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    opacity: 0.9;
+    transition: opacity 0.5s ease-in-out;
+}
 
+.notification.success {
+    background-color: #28a745;
+}
+
+.notification.error {
+    background-color: #dc3545;
+}
 
 
 /* SIDE NAVBAR */
@@ -370,11 +413,14 @@ th input[type="checkbox"] {
 
 /* Sidebar styling */
 #sidebar-wrapper {
+    position: fixed; /* Keeps the sidebar fixed on the left */
+    z-index: 1000; /* High z-index to ensure it stays on top of main content */
     width: 250px; /* Default width of the sidebar */
     background-color: #30688B; /* Sidebar background color */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
     position: fixed; /* Sidebar remains fixed on the screen */
     height: 100%; /* Full height of the sidebar */
+    overflow-y: auto; /* Enables scrolling if the content overflows */
 }
 
 /* Collapsed sidebar styling */
@@ -392,6 +438,10 @@ th input[type="checkbox"] {
     flex-direction: column; /* Stack items vertically */
     align-items: flex-start; /* Align items to the left */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
 }
 
 /* Sidebar toggle button */

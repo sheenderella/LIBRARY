@@ -15,8 +15,8 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
-.container h2 {
-    margin-top: 0;
+.caution-text {
+    color: #ea2c25;
 }
 .button-group {
     margin-top: 20px;

@@ -1,5 +1,10 @@
 const { ipcRenderer } = require('electron');
 
+// Function to strip non-numeric characters except for the decimal point
+const sanitizeCostPrice = (price) => {
+    return price.replace(/[^\d.]/g, '');
+};
+
 ipcRenderer.on('fill-edit-form', (event, record) => {
     document.getElementById('id').value = record.id;
     document.getElementById('number').value = record.number;
@@ -11,7 +16,7 @@ ipcRenderer.on('fill-edit-form', (event, record) => {
     document.getElementById('volume').value = record.volume;
     document.getElementById('pages').value = record.pages;
     document.getElementById('source_of_fund').value = record.source_of_fund;
-    document.getElementById('cost_price').value = record.cost_price;
+    document.getElementById('cost_price').value = sanitizeCostPrice(record.cost_price);
     document.getElementById('publisher').value = record.publisher;
     document.getElementById('year').value = record.year; // Added Year field
     document.getElementById('remarks').value = record.remarks;

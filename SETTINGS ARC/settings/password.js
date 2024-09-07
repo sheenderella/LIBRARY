@@ -1,50 +1,88 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const updatePasswordButton = document.getElementById('update-password-button');
+const { ipcRenderer } = require('electron');
 
-    if (updatePasswordButton) {
-        updatePasswordButton.addEventListener('click', async () => {
-            const currentPassword = document.getElementById('current-password').value;
-            const newPassword = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
+// Function to toggle password visibility
+function togglePasswordVisibility(inputId, toggleIconId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(toggleIconId);
 
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                alert('Please fill in all the fields.');
-                return;
-            }
+    toggleIcon.addEventListener('click', () => {
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
 
-            if (newPassword !== confirmPassword) {
-                alert('New password and confirmation password do not match.');
-                return;
-            }
+        // Toggle the eye icon
+        toggleIcon.innerHTML = passwordInput.type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+    });
+}
 
-            if (currentPassword === newPassword) {
-                alert('The new password cannot be the same as the current password.');
-                return;
-            }
+// Attach password visibility toggling to the eye icons
+togglePasswordVisibility('current-password', 'toggle-current-password');
+togglePasswordVisibility('new-password', 'toggle-new-password');
+togglePasswordVisibility('confirm-password', 'toggle-confirm-password');
 
-            try {
-                const response = await updatePassword(currentPassword, newPassword);
+// Function to clear input fields while keeping the error message visible
+function clearInputFields() {
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+    document.getElementById('password-hint').value = '';
+}
 
-                if (response.success) {
-                    alert('Password updated successfully!');
-                    window.location.href = './settings.html'; // Redirect to settings after updating
-                } else {
-                    alert(`Error: ${response.error || 'Failed to update password'}`);
-                }
-            } catch (error) {
-                alert(`Error: ${error.message}`);
-            }
-        });
-    } else {
-        console.error("Update Password button not found.");
+// Handle password update form submission
+document.getElementById('update-password-button').addEventListener('click', async () => {
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const passwordHint = document.getElementById('password-hint').value;
+    const errorContainer = document.getElementById('error-container');
+    
+    // Clear previous error messages
+    errorContainer.style.display = 'none';
+    errorContainer.textContent = '';
+
+    if (newPassword !== confirmPassword) {
+        errorContainer.textContent = 'New passwords do not match!';
+        errorContainer.style.display = 'block';
+        return;
     }
 
-    async function updatePassword(currentPassword, newPassword) {
-        try {
-            const response = await ipcRenderer.invoke('change-password', { currentPassword, newPassword });
-            return response;
-        } catch (error) {
-            return { success: false, error: 'An unexpected error occurred' };
+    try {
+        const dbPassword = await ipcRenderer.invoke('get-current-password');
+
+        // Check if the entered current password matches the one in the database
+        if (currentPassword !== dbPassword) {
+            errorContainer.textContent = 'The current password is incorrect!';
+            errorContainer.style.display = 'block';
+            clearInputFields(); // Clear input fields without reloading the page
+            return;
         }
+
+        // Check if the new password matches the current one
+        if (newPassword === dbPassword) {
+            errorContainer.textContent = 'The new password cannot be the same as the current password!';
+            errorContainer.style.display = 'block';
+            clearInputFields(); // Clear input fields without reloading the page
+            return;
+        }
+
+        // Proceed to change the password
+        const result = await ipcRenderer.invoke('change-password', {
+            currentPassword: currentPassword,
+            newPassword: newPassword,
+            passwordHint: passwordHint
+        });
+
+        if (result.success) {
+            // Show an alert and then close the window
+            alert('Password changed successfully!');
+            window.close();
+        } else {
+            errorContainer.textContent = result.error;
+            errorContainer.style.display = 'block';
+            clearInputFields(); // Clear input fields without reloading the page
+        }
+    } catch (error) {
+        errorContainer.textContent = 'An error occurred. Please try again.';
+        errorContainer.style.display = 'block';
+        clearInputFields(); // Clear input fields without reloading the page
     }
 });

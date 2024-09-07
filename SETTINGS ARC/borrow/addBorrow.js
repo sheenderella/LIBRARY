@@ -1,15 +1,7 @@
-/**
- * Handles the form submission for adding a new borrow record. 
- * Collects form data, sends it to the main process via IPC, 
- * and returns the newly created record.
- */
-
-
 const { ipcRenderer } = require('electron');
 
 // Handle form submission for adding a borrow record
-async function handleAddBorrow(event) {
-    event.preventDefault();
+async function handleAddBorrow() {
     const borrowerName = document.getElementById('addBorrowerName').value;
     const bookTitle = document.getElementById('addBookTitle').value;
     const borrowDate = document.getElementById('addBorrowDate').value;

@@ -20,12 +20,9 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const addBookButton = document.getElementById('addBook');
     const deleteSelectedButton = document.getElementById('deleteSelected');
-    const sortButtons = document.querySelectorAll('.sort-btn');
     const selectAllCheckbox = document.getElementById('selectAll');
 
     const searchColumn = document.getElementById('searchColumn');
@@ -116,6 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     deleteSelectedButton.addEventListener('click', () => {
         deleteSelectedBooks();
+        loadBooks();
+        adjustBooksPerPage();
     });
 
     searchInput.addEventListener('input', () => {
@@ -126,12 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
         filterBooks();
     });
 
-    sortButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            sortBooks(button.dataset.column, button);
-        });
-    });
-
     selectAllCheckbox.addEventListener('change', () => {
         const selectAll = selectAllCheckbox.checked;
         const checkboxes = document.querySelectorAll('.select-book');
@@ -140,25 +133,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    ipcRenderer.on('book-record-added', (event, record) => {
-        addBookToTable(record, true);
-        updatePagination();
-    });
+// Listen for book record added event
+ipcRenderer.on('book-record-added', (event, record) => {
+    addBookToTable(record, true);
+    showNotification('Book added successfully!', 'success');
+    loadBooks();
+    adjustBooksPerPage();
+});
 
-    ipcRenderer.on('book-record-updated', (event, record) => {
-        updateBookInTable(record);
-    });
+// Listen for book record updated event
+ipcRenderer.on('book-record-updated', (event, record) => {
+    updateBookInTable(record);
+    showNotification('Book updated successfully!', 'success');
+});
+
+// Optional: Handle any errors
+ipcRenderer.on('error', (event, error) => {
+    console.error('Error:', error);
+    showNotification('An error occurred while processing the request.', 'error');
+});
 
     ipcRenderer.on('book-record-deleted', (event, id) => {
         deleteBookFromTable(id);
-        updatePagination();
+        loadBooks();
+        adjustBooksPerPage();
     });
 
     window.addEventListener('resize', adjustBooksPerPage);
     
     // Initial adjustment
+    setupSortButtons();
     adjustBooksPerPage();
-
     loadBooks();
 });
 
@@ -166,16 +171,33 @@ function openAddBookWindow() {
     ipcRenderer.send('open-add-book-window');
 }
 
+// Event listener setup for sort buttons
+function setupSortButtons() {
+    const sortButtons = document.querySelectorAll('.sort-btn');
+
+    sortButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            sortBooks(button.dataset.column, button);
+        });
+    });
+}
+
 function openDeleteNotifWindow(ids) {
+    if (ids.length === 0) {
+        console.error('No IDs provided for deletion.');
+        return;
+    }
+
     ipcRenderer.once('delete-confirmed', () => {
         ids.forEach(id => {
             ipcRenderer.invoke('deleteBook', id);
         });
-        updatePagination();
+        updatePagination();;
     });
 
     ipcRenderer.send('open-delete-notif-window', ids);
 }
+
 
 function openEditBookWindow(record) {
     ipcRenderer.send('open-edit-book-window', record);
@@ -184,15 +206,14 @@ function openEditBookWindow(record) {
 let originalBooks = [];
 let currentBooks = [];
 let currentPage = 1;
-let booksPerPage = 10; // Default value
+let booksPerPage = 1; // Default value
 
 function adjustBooksPerPage() {
     // Adjust the number of books per page based on window width
     const isNotMaximized = window.innerWidth < screen.width;
     booksPerPage = isNotMaximized ? 5 : 10;
-    currentPage = 1; // Reset to the first page when changing books per page
     displayBooks();
-    updatePagination();
+    updatePagination();;
 }
 
 function loadBooks() {
@@ -200,7 +221,7 @@ function loadBooks() {
         originalBooks = books.slice();
         currentBooks = originalBooks;
         displayBooks();
-        updatePagination();
+        updatePagination();;
     });
 }
 
@@ -208,11 +229,11 @@ function displayBooks() {
     const bookList = document.getElementById('bookList');
     bookList.innerHTML = '';
 
-    if (currentBooks.length === 0) {
+    if (currentBooks.length === null) {
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 15;
-        emptyMessageCell.textContent = "No Existing Book";
+        emptyMessageCell.textContent = "Please Add a New Book Record";
         emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
         emptyMessageRow.appendChild(emptyMessageCell);
         bookList.appendChild(emptyMessageRow);
@@ -227,9 +248,30 @@ function displayBooks() {
     });
 }
 
+// Function to show notifications
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.classList.add('notification', type);
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Automatically remove the notification after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 function addBookToTable(book, prepend = false) {
     const bookList = document.getElementById('bookList');
     const row = document.createElement('tr');
+
+    // Check if cost_price has a value, add "₱" prefix, format with commas, and round to two decimal places
+    const formattedCostPrice = book.cost_price 
+        ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+        : '';
+
+
     row.innerHTML = `
         <td><input type="checkbox" class="select-book" data-id="${book.id}"></td>
         <td>${book.number}</td>
@@ -241,7 +283,7 @@ function addBookToTable(book, prepend = false) {
         <td>${book.volume}</td>
         <td>${book.source_of_fund}</td>
         <td>${book.pages}</td>
-        <td>${book.cost_price}</td>
+        <td>${formattedCostPrice}</td>
         <td>${book.publisher}</td>
         <td>${book.year}</td>
         <td>${book.remarks}</td>
@@ -257,19 +299,26 @@ function addBookToTable(book, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        const id = book.id;
-        openDeleteNotifWindow(id); // Open the confirmation popup with the book ID
-    });    
+        openDeleteNotifWindow(book.id); // Open the confirmation popup with the book ID
+        updatePagination();;
+    });
 
     if (prepend) {
         bookList.insertBefore(row, bookList.firstChild);
     } else {
         bookList.appendChild(row);
     }
+
+    updatePagination();;
 }
+
 
 function updateBookInTable(book) {
     const row = document.querySelector(`button[data-id="${book.id}"]`).closest('tr');
+    const formattedCostPrice = book.cost_price 
+    ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : '';
+
     row.innerHTML = `
         <td><input type="checkbox" class="select-book" data-id="${book.id}"></td>
         <td>${book.number}</td>
@@ -281,7 +330,7 @@ function updateBookInTable(book) {
         <td>${book.volume}</td>
         <td>${book.source_of_fund}</td>
         <td>${book.pages}</td>
-        <td>${book.cost_price}</td>
+        <td>${formattedCostPrice}</td>
         <td>${book.publisher}</td>
         <td>${book.year}</td>
         <td>${book.remarks}</td>
@@ -295,6 +344,8 @@ function updateBookInTable(book) {
 function deleteBookFromTable(id) {
     const row = document.querySelector(`button[data-id="${id}"]`).closest('tr');
     row.remove();
+    updatePagination();;
+    displayBooks();
 }
 
 function deleteSelectedBooks() {
@@ -353,7 +404,7 @@ function filterBooks() {
                 if (startDate && endDate) {
                     matches = bookDate >= startDate && bookDate <= endDate;
                 } 
-                else if(startDate==NULL || endDate==NULL) {
+                else if(startDate==null || endDate==null) {
                     matches = true;
                 }
                 else {
@@ -365,10 +416,23 @@ function filterBooks() {
         return matches;
     });
 
+    const bookList = document.getElementById('bookList');
+    bookList.innerHTML = '';
+    if (currentBooks.length === 0) {
+        const emptyMessageRow = document.createElement('tr');
+        const emptyMessageCell = document.createElement('td');
+        emptyMessageCell.colSpan = 15;
+        emptyMessageCell.textContent = "Book Not Found";
+        emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
+        emptyMessageRow.appendChild(emptyMessageCell);
+        bookList.appendChild(emptyMessageRow);
+        return;
+    }
+
     // Reset to first page after filtering
     currentPage = 1;
     displayBooks();
-    updatePagination();
+    updatePagination();;
 }
 
 
@@ -388,56 +452,29 @@ document.getElementById('searchColumn').addEventListener('change', () => {
 });
 
 function sortBooks(column, button) {
-    // Toggle sort order
-    let order = button.dataset.order || 'asc';
-
-    if (order === 'asc') {
-        order = 'desc';
-    } else if (order === 'desc') {
-        order = 'default';
-    } else {
-        order = 'asc';
-    }
-    button.dataset.order = order;
-
-    // Update sorting icons
-    document.querySelectorAll('.sort-btn i').forEach(icon => {
-        icon.classList.remove('fa-sort-up', 'fa-sort-down');
-        icon.classList.add('fa-sort');
-    });
-
-    const currentIcon = button.querySelector('i');
-    if (order === 'asc') {
-        currentIcon.classList.remove('fa-sort');
-        currentIcon.classList.add('fa-sort-up');
-    } else if (order === 'desc') {
-        currentIcon.classList.remove('fa-sort');
-        currentIcon.classList.add('fa-sort-down');
-    } else {
-        currentIcon.classList.remove('fa-sort-up', 'fa-sort-down');
-        currentIcon.classList.add('fa-sort');
-    }
-
-    // Sort books
-    if (order === 'asc') {
-        currentBooks.sort((a, b) => {
-            const aText = a[column] ? a[column].toString().trim() : '';
-            const bText = b[column] ? b[column].toString().trim() : '';
-            return !isNaN(aText) && !isNaN(bText) ? aText - bText : aText.localeCompare(bText);
-        });
-    } else if (order === 'desc') {
-        currentBooks.sort((a, b) => {
-            const aText = a[column] ? a[column].toString().trim() : '';
-            const bText = b[column] ? b[column].toString().trim() : '';
-            return !isNaN(aText) && !isNaN(bText) ? bText - aText : bText.localeCompare(aText);
-        });
-    } else {
-        currentBooks = originalBooks.slice(); // Reset to original order
-    }
+     // Determine the current sort order
+     const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
+     button.dataset.order = order;
+ 
+     // Update the sort icon based on the current order
+     button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+ 
+     // Sort the books based on the selected column and order
+     currentBooks.sort((a, b) => {
+         let valueA = a[column];
+         let valueB = b[column];
+ 
+         // Handle sorting based on data type
+         if (typeof valueA === 'number' && typeof valueB === 'number') {
+             return order === 'asc' ? valueA - valueB : valueB - valueA;
+         } else {
+             return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+         }
+     });
 
     currentPage = 1; // Reset to first page after sorting
     displayBooks();
-    updatePagination();
+    updatePagination();;
 }
 
 function updatePagination() {
@@ -459,7 +496,7 @@ function updatePagination() {
             prevButton.addEventListener('click', () => {
                 if (currentPage > 1) {
                     currentPage = Math.max(1, currentPage - 10);
-                    updatePagination();
+                    updatePagination();;
                     displayBooks();
                 }
             });
@@ -479,7 +516,7 @@ function updatePagination() {
         pageButton.addEventListener('click', () => {
             currentPage = i;
             displayBooks();
-            updatePagination();
+            updatePagination();;
         });
         paginationContainer.appendChild(pageButton);
     }
@@ -491,7 +528,7 @@ function updatePagination() {
         nextButton.addEventListener('click', () => {
             if (currentPage < totalPages) {
                 currentPage = Math.min(totalPages, currentPage + 10);
-                updatePagination();
+                updatePagination();;
                 displayBooks();
             }
         });
