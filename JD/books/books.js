@@ -206,24 +206,46 @@ document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function
             
     
     
-        // MAKE A SCROLL BAR TOP OF THE TABLE
-        const scrollbarTop = document.querySelector('.scrollbar-top');
-        const tableContainer = document.querySelector('.table-container');
-      
-        scrollbarTop.addEventListener('scroll', function() {
-          tableContainer.scrollLeft = scrollbarTop.scrollLeft;
-        });
-      
-        tableContainer.addEventListener('scroll', function() {
-          scrollbarTop.scrollLeft = tableContainer.scrollLeft;
-        });
-      
-        // Create a dummy content to ensure scrollbar appears
-        const dummyContent = document.createElement('div');
-        dummyContent.style.width = tableContainer.scrollWidth + 'px';
-        dummyContent.style.height = '1px';
-        scrollbarTop.appendChild(dummyContent);
-    
+ // MAKE A SCROLL BAR TOP OF THE TABLE
+const scrollbarTop = document.querySelector('.scrollbar-top');
+const tableContainer = document.querySelector('.table-container');
+
+// Function to update the dummy content width to match the table container's scroll width
+function updateScrollbarWidth() {
+    const tableScrollWidth = tableContainer.scrollWidth;
+    const dummyContent = scrollbarTop.querySelector('.dummy-content');
+
+    // Set the dummy content width to match the table's full scroll width
+    dummyContent.style.width = `${tableScrollWidth}px`;
+}
+
+// Ensure scroll synchronization between the top scrollbar and the table
+scrollbarTop.addEventListener('scroll', () => {
+    tableContainer.scrollLeft = scrollbarTop.scrollLeft;
+});
+
+tableContainer.addEventListener('scroll', () => {
+    scrollbarTop.scrollLeft = tableContainer.scrollLeft;
+});
+
+// Initialize the dummy content inside the scrollbar top
+const dummyContent = document.createElement('div');
+dummyContent.className = 'dummy-content';
+dummyContent.style.height = '1px'; // Minimal height to ensure the scrollbar is visible
+scrollbarTop.appendChild(dummyContent);
+
+// Update the scrollbar width on load, resize, and when the table content changes
+window.addEventListener('resize', updateScrollbarWidth);
+updateScrollbarWidth(); // Initial call to set the correct width
+
+// Use a ResizeObserver to monitor the table container for size changes
+const resizeObserver = new ResizeObserver(updateScrollbarWidth);
+resizeObserver.observe(tableContainer);
+
+// Add a MutationObserver to watch for changes in table content (e.g., rows added or removed)
+const mutationObserver = new MutationObserver(updateScrollbarWidth);
+mutationObserver.observe(tableContainer, { childList: true, subtree: true });
+
         // ADD-DELETE-EDIT ACTIONS
         addBookButton.addEventListener('click', () => {
             openAddBookWindow();
@@ -295,23 +317,6 @@ function setupSortButtons() {
     });
 }
 
-function openDeleteNotifWindow(ids) {
-    if (ids.length === 0) {
-        console.error('No IDs provided for deletion.');
-        return;
-    }
-
-    ipcRenderer.once('delete-confirmed', () => {
-        ids.forEach(id => {
-            ipcRenderer.invoke('deleteBook', id);
-        });
-        updatePagination();;
-    });
-
-    ipcRenderer.send('open-delete-notif-window', ids);
-}
-
-
 function openEditBookWindow(record) {
     ipcRenderer.send('open-edit-book-window', record);
 }
@@ -365,6 +370,22 @@ function displayBooks() {
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.classList.add('notification', type);
+
+    // Apply styles based on the type of notification
+    switch (type) {
+        case 'success':
+            notification.classList.add('notification-success'); // Green styling
+            break;
+        case 'error':
+            notification.classList.add('notification-error'); // Red styling
+            break;
+        case 'warning':
+            notification.classList.add('notification-warning'); // Yellow styling
+            break;
+        default:
+            notification.classList.add('notification-success');
+    }
+
     notification.textContent = message;
 
     document.body.appendChild(notification);
@@ -411,7 +432,11 @@ function addBookToTable(book, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        openDeleteNotifWindow(book.id); // Open the confirmation popup with the book ID
+        // Use confirm() for deletion confirmation
+        if (confirm('Are you sure you want to delete this book record?')) {
+            deleteBookFromTable(book.id);
+            showNotification('A Book have been Deleted!', 'warning')
+        }
         updatePagination();
     });
 
@@ -457,6 +482,7 @@ function updateBookInTable(book) {
 
 function deleteBookFromTable(id) {
     const row = document.querySelector(`button[data-id="${id}"]`).closest('tr');
+    ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
     row.remove();
     updatePagination();;
     displayBooks();
@@ -465,11 +491,22 @@ function deleteBookFromTable(id) {
 function deleteSelectedBooks() {
     const selectedBooks = document.querySelectorAll('.select-book:checked');
     const ids = Array.from(selectedBooks).map(book => book.dataset.id);
+    const count = ids.length; // Count the number of selected books
 
-    if (ids.length > 0) {
-        openDeleteNotifWindow(ids);
+    if (count > 0) {
+        // Display a confirmation dialog showing the number of selected books
+        const confirmation = confirm(`Are you sure you want to delete ${count} selected book record(s)?`);
+        
+        if (confirmation) {
+            ids.forEach(id => {
+                ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
+            });
+            loadBooks();
+            adjustBooksPerPage();
+            showNotification(`${count} book(s) have been deleted!`, 'warning');
+        }
     } else {
-        alert("No books selected");
+        alert("No books selected.");
     }
 }
 

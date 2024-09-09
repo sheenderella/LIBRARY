@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const db = require('./database.js');
 
-let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
+let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow/*, deleteNotifWindow*/;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
 require('./settings/backupRestore.js'); // Add this line to include backup functionalities
@@ -223,15 +223,15 @@ app.on('activate', () => {
 });
 
 //DELETE WARNING
-function createDeleteNotifWindow() {
-    deleteNotifWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
-        width: 400,
-        height: 300,
-        parent: mainWindow,
-        onClose: () => (deleteNotifWindow = null),
-    });
-}
+// function createDeleteNotifWindow() {
+//     deleteNotifWindow = createWindow({
+//         filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
+//         width: 400,
+//         height: 300,
+//         parent: mainWindow,
+//         onClose: () => (deleteNotifWindow = null),
+//     });
+// }
 
 
 // Handle IPC calls
@@ -685,24 +685,24 @@ ipcMain.on('open-add-book-window', () => {
     }
 });
 
-ipcMain.on('open-delete-notif-window', (event, ids) => {
-    selectedBookIds = ids; // Store the IDs in a variable to be used later
-    if (!deleteNotifWindow) {
-        createDeleteNotifWindow();
-    } else {
-        deleteNotifWindow.focus();
-    }
+// ipcMain.on('open-delete-notif-window', (event, ids) => {
+//     selectedBookIds = ids; // Store the IDs in a variable to be used later
+//     if (!deleteNotifWindow) {
+//         createDeleteNotifWindow();
+//     } else {
+//         deleteNotifWindow.focus();
+//     }
 
-    // Send the book ID to the deleteNotif window after it's ready
-    // Ensure window is ready
-    if (deleteNotifWindow.webContents.isLoading()) {
-        deleteNotifWindow.webContents.on('did-finish-load', () => {
-            deleteNotifWindow.webContents.send('set-book-id', ids);
-        });
-    } else {
-        deleteNotifWindow.webContents.send('set-book-id', ids);
-    }
-});
+//     // Send the book ID to the deleteNotif window after it's ready
+//     // Ensure window is ready
+//     if (deleteNotifWindow.webContents.isLoading()) {
+//         deleteNotifWindow.webContents.on('did-finish-load', () => {
+//             deleteNotifWindow.webContents.send('set-book-id', ids);
+//         });
+//     } else {
+//         deleteNotifWindow.webContents.send('set-book-id', ids);
+//     }
+// });
 
 
 ipcMain.on('open-edit-book-window', (event, record) => {
