@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 const handleAddBorrow = require('./addBorrow.js');
-const handleUpdateBorrow = require('./updateBorrow.js');
+
 const handleDeleteBorrow = require('./deleteBorrow.js');
 const pagination = require('./pagination.js');
 const { debounce, filterBorrowRecords } = require('./filters.js');
@@ -317,25 +317,6 @@ async function handleAddBorrowSubmit(event) {
 }
 
 
-async function handleUpdateBorrowSubmit(event) {
-    event.preventDefault();
-
-    const confirmation = confirm('Are you sure you want to update this record?');
-
-    if (confirmation) {
-        try {
-            const updatedRecord = await handleUpdateBorrow(event);
-            ipcRenderer.send('updateBorrow', updatedRecord);
-            alert('Record updated successfully!'); // Alert for successful update
-        } catch (error) {
-            console.error('Error handling update borrow:', error);
-        }
-    } else {
-        console.log('Update cancelled.');
-    }
-}
-
-
 async function fetchBorrowRecords() {
     try {
         allRecords = await ipcRenderer.invoke('getBorrows');
@@ -389,13 +370,8 @@ function renderBorrowRecords(records) {
 
 
 function setupRecordEventListeners() {
-    document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const recordId = button.getAttribute('data-id');
-            console.log('Edit button clicked for ID:', recordId);
-            openUpdateWindow(recordId);
-        });
-    });
+
+    
 
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', () => {
@@ -433,10 +409,7 @@ async function deleteBorrowRecord(id) {
 }
 
 
-function openUpdateWindow(recordId) {
-    const record = allRecords.find(r => r.id === parseInt(recordId));
-    ipcRenderer.send('open-update-window', record);
-}
+
 
 function showBorrowerLog(borrowerName) {
     const url = `borrowerLog.html?borrowerName=${encodeURIComponent(borrowerName)}`;
@@ -463,13 +436,6 @@ function displayLog(log) {
     `).join('');
 }
 
-function fillUpdateForm(record) {
-    document.getElementById('updateBorrowerId').value = record.id;
-    document.getElementById('updateBorrowerName').value = record.borrowerName;
-    document.getElementById('updateBookTitle').value = record.bookTitle;
-    document.getElementById('updateBorrowDate').value = record.borrowDate;
-    document.getElementById('updateBorrowStatus').value = record.borrowStatus;
-}
 
 function resetForm(formId) {
     const form = document.getElementById(formId);
@@ -535,14 +501,4 @@ function sortRecords(records, column, direction) {
     return sortedRecords;
 }
 
-function updateRecordList(record, action) {
-    if (action === 'add') {
-        console.log('Adding new record:', record);
-        allRecords.unshift(record);
-    } else if (action === 'update') {
-        console.log('Updating record:', record);
-        const index = allRecords.findIndex(r => r.id === record.id);
-        if (index !== -1) allRecords[index] = record;
-    }
-    filterAndRenderRecords();
-}
+
