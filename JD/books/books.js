@@ -482,6 +482,7 @@ function updateBookInTable(book) {
 
 function deleteBookFromTable(id) {
     const row = document.querySelector(`button[data-id="${id}"]`).closest('tr');
+    ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
     row.remove();
     updatePagination();;
     displayBooks();
