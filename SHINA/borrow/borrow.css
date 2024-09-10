@@ -441,13 +441,13 @@ tbody tr:nth-child(even) {
     justify-content: center;
     width: 100%; /* Full width for centering */
     margin: 0 auto; /* Center it horizontally */
-    padding-top: 10px;
+    padding-top: 20px;
 
 }
 
 .pagination-container button {
-    padding: 6px 10px; /* Adjust button padding */
-
+    padding: 6px 18px; /* Adjust button padding */
+    background-color: #30688B;
     font-size: 14px;
     border-radius: 5px;
     transition: background-color 0.3s, box-shadow 0.3s;
@@ -459,8 +459,7 @@ tbody tr:nth-child(even) {
 }
 
 .pagination-container button:hover:not(:disabled) {
-    background-color: #0056b3;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    background-color: #3A79A0;
 }
 
 #pageLocation {
@@ -469,9 +468,11 @@ tbody tr:nth-child(even) {
     font-size: 14px;
     min-width: 40px; /* Initial width */
     border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    height: 45px;
+    box-shadow: 0 1px 3px 30688B;
     transition: width 0.2s ease-in-out; /* Smooth transition for width */
 }
+
 
 
 #totalPages {
