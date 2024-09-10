@@ -22,7 +22,9 @@ function setupPagination() {
 
         if (isNaN(enteredPage) || enteredPage < 1 || enteredPage > totalPages) {
             showNotification('Invalid page number!', 'error');
-            document.getElementById('pageLocation').value = currentPage; // Reset to current page
+            // Reset to the current page number and adjust width
+            pageLocationInput.value = currentPage;
+            adjustWidth();
         } else {
             goToPage(enteredPage, totalPages);
         }
@@ -55,7 +57,6 @@ function updatePaginationControls(totalPages) {
     document.getElementById('lastPage').disabled = (currentPage === totalPages || totalPages === 0);
 }
 
-//PAGINATION PAGE NO.
 // Get input element
 const pageLocationInput = document.getElementById('pageLocation');
 
