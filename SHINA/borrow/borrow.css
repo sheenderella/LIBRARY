@@ -304,7 +304,7 @@ button.btn {
 
 
 
-
+/* TABLE */
 /* Table Section: Styling for displaying the list of borrow records */
 table {
     width: 100%; /* Set a fixed width for the table */
@@ -340,10 +340,10 @@ th:nth-child(6), td:nth-child(6) {
 }
 
 th:nth-child(5), td:nth-child(5) {
-    width: 120px; /* Width for the sixth column */
+    width: 80px; /* Width for the sixth column */
 }
 th:nth-child(4), td:nth-child(4) {
-    width: 120px; /* Width for the sixth column */
+    width: 150px; /* Width for the sixth column */
 }
 
 /* Set widths for the other columns */
@@ -364,6 +364,33 @@ tbody tr:nth-child(even) {
 }
 
 
+/* STATUS HIGHLIGHT */
+/* General styling for the table */
+#borrowList {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Row styling */
+#borrowList tr {
+    height: 30px; /* Adjust the height if needed */
+}
+
+/* Styling for the status text to highlight */
+.status-text {
+    padding: 2px 4px; /* Small padding around the text */
+    border-radius: 4px; /* Rounded corners for better appearance */
+    display: inline-block; /* Ensure the background wraps only the text */
+}
+
+/* Highlighting based on status */
+.status-text.borrowed {
+    background-color: #FBEEAD; /* Light yellow for Borrowed */
+}
+
+.status-text.returned {
+    background-color: #C2FFC8; /* Light green for Returned */
+}
 
 
 /* Icon Section: Styling for edit and delete icons */
@@ -379,6 +406,8 @@ tbody tr:nth-child(even) {
     cursor: pointer;
 }
 
+
+/* SORT BUTTON */
 /* Sort Buttons Section: Styling for sort buttons */
 .sort-btn {
     background-color: transparent; /* Remove button background */
@@ -403,30 +432,58 @@ tbody tr:nth-child(even) {
 }
 
 
+
+
 /* PAGINATION */
-/* Pagination Section: Controls for navigating between pages */
-.pagination-controls {
+.pagination-container {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    justify-content: center;
+    width: 100%; /* Full width for centering */
+    margin: 0 auto; /* Center it horizontally */
+    padding-top: 10px;
+
 }
 
-.pagination-controls button {
-    padding: 5px 10px;
-    margin: 0 5px;
-    border: 1px solid #333C42;
-    background-color: #30688B;
-    color: white;
-    cursor: pointer;
-    border-radius: 3px;
+.pagination-container button {
+    padding: 6px 10px; /* Adjust button padding */
+
+    font-size: 14px;
+    border-radius: 5px;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-.pagination-controls span {
-    padding: 5px 10px;
-    color: #333C42;
+.pagination-container button:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+}
+
+.pagination-container button:hover:not(:disabled) {
+    background-color: #0056b3;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+#pageLocation {
+    text-align: center;
     font-weight: bold;
+    font-size: 14px;
+    min-width: 40px; /* Initial width */
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: width 0.2s ease-in-out; /* Smooth transition for width */
 }
+
+
+#totalPages {
+    font-weight: bold;
+    margin-left: 8px;
+    font-size: 14px;
+}
+
+button i {
+    font-size: 16px;
+}
+
 
 
 
@@ -583,33 +640,4 @@ tr {
     cursor: pointer;
     color: inherit; /* Keeps the same color as surrounding text */
     text-decoration: none; /* Removes any underline or link appearance */
-}
-
-
-/* STATUS */
-/* General styling for the table */
-#borrowList {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-/* Row styling */
-#borrowList tr {
-    height: 30px; /* Adjust the height if needed */
-}
-
-/* Styling for the status text to highlight */
-.status-text {
-    padding: 2px 4px; /* Small padding around the text */
-    border-radius: 4px; /* Rounded corners for better appearance */
-    display: inline-block; /* Ensure the background wraps only the text */
-}
-
-/* Highlighting based on status */
-.status-text.borrowed {
-    background-color: #FBEEAD; /* Light yellow for Borrowed */
-}
-
-.status-text.returned {
-    background-color: #C2FFC8; /* Light green for Returned */
 }

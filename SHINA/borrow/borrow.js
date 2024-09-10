@@ -34,7 +34,7 @@ function addBorrowToTable(record) {
     row.dataset.id = record.id;
 
     row.innerHTML = `
-        <td><input type="checkbox" class="select-borrow" data-id="${record.id}"></td>
+        <td><input type="checkbox" class="select-borrow" data-id="${record.id}" ${selectedRecords.has(record.id) ? 'checked' : ''}></td>
         <td><span class="borrower-name" data-name="${record.borrowerName}">${record.borrowerName}</span></td>
         <td>${record.bookTitle}</td>
         <td>${record.borrowDate}</td>
@@ -46,8 +46,20 @@ function addBorrowToTable(record) {
             <button class="delete-btn" data-id="${record.id}"> <i class="fas fa-trash"></i> </button>
         </td>
     `;
+
+    // Event listener to handle individual checkbox changes
+    row.querySelector('.select-borrow').addEventListener('change', function () {
+        if (this.checked) {
+            selectedRecords.add(record.id);
+        } else {
+            selectedRecords.delete(record.id);
+        }
+        updateSelectAllCheckbox();  // Update "Select All" checkbox based on full selection state
+    });
+
     borrowList.appendChild(row);
 }
+
 
 // Event listener for redirecting to borrower log
 document.addEventListener('click', function (event) {
@@ -167,6 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+
+
 document.getElementById('searchInput').addEventListener('input', loadBorrowRecords);
 document.getElementById('statusFilter').addEventListener('change', loadBorrowRecords);
 document.getElementById('applyDateRange').addEventListener('click', loadBorrowRecords);
@@ -176,30 +190,46 @@ document.getElementById('clearDateRange').addEventListener('click', () => {
     loadBorrowRecords();
 });
 
+//SELECT ALL
+document.getElementById('selectAll').addEventListener('change', function () {
+    const isChecked = this.checked;
 
-document.getElementById('selectAll').addEventListener('change', function() {
-    const checkboxes = document.querySelectorAll('.select-borrow');
-    checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-});
-
-
-document.getElementById('deleteSelected').addEventListener('click', function() {
-    const selectedIds = [];
-    document.querySelectorAll('.select-borrow:checked').forEach(checkbox => {
-        selectedIds.push(checkbox.dataset.id);
+    filteredRecords.forEach(record => {
+        const checkbox = document.querySelector(`.select-borrow[data-id="${record.id}"]`);
+        if (checkbox) checkbox.checked = isChecked;  // Check/Uncheck boxes on the current page
+        if (isChecked) {
+            selectedRecords.add(record.id);  // Add all records (even across pages)
+        } else {
+            selectedRecords.delete(record.id);  // Remove all records (even across pages)
+        }
     });
 
-    if (selectedIds.length === 0) {
+    updateSelectAllCheckbox();  // Update "Select All" based on the full selection state
+});
+
+// Update "Select All" checkbox based on the selection across all pages
+function updateSelectAllCheckbox() {
+    const totalRecords = filteredRecords.length;
+    const allSelected = selectedRecords.size === totalRecords && totalRecords > 0;  // Ensure all records across pages are selected
+    document.getElementById('selectAll').checked = allSelected;
+}
+
+//DELETE ALL
+document.getElementById('deleteSelected').addEventListener('click', function () {
+    if (selectedRecords.size === 0) {
         alert('No records selected for deletion.', 'error');
         return;
     }
 
     if (confirm('Are you sure you want to delete the selected records?')) {
+        const selectedIds = Array.from(selectedRecords);  // Convert Set to Array for processing
+
         selectedIds.forEach(id => {
             ipcRenderer.invoke('deleteBorrow', id)
                 .then(() => {
+                    selectedRecords.delete(id);  // Remove deleted record from selectedRecords
                     showNotification('Selected records deleted successfully!', 'delete');
-                    loadBorrowRecords();
+                    loadBorrowRecords();  // Reload records after deletion
                 })
                 .catch(error => {
                     console.error('Error deleting borrow record:', error);
@@ -208,62 +238,49 @@ document.getElementById('deleteSelected').addEventListener('click', function() {
         });
     }
 });
-
-
-let currentPage = 1;
-const recordsPerPage = 4;  // Display 4 records per page
-let filteredRecords = [];  // Store filtered records globally for pagination
-
+let selectedRecords = new Set();  // Track selected records across pages
 
 document.addEventListener('DOMContentLoaded', () => {
     loadBorrowRecords();
     setupPagination();
-    setupPagination();
 
     // Event listeners for search and filter functionality
-    document.getElementById('searchInput').addEventListener('input', loadBorrowRecords);
-    document.getElementById('statusFilter').addEventListener('change', loadBorrowRecords);
-    document.getElementById('applyDateRange').addEventListener('click', loadBorrowRecords);
+    ['searchInput', 'statusFilter'].forEach(id => {
+        document.getElementById(id).addEventListener('input', resetAndLoadRecords);
+    });
+
+    document.getElementById('applyDateRange').addEventListener('click', resetAndLoadRecords);
     document.getElementById('clearDateRange').addEventListener('click', () => {
-        document.getElementById('startDate').value = '';
-        document.getElementById('endDate').value = '';
-        loadBorrowRecords();
+        ['startDate', 'endDate'].forEach(id => document.getElementById(id).value = '');
+        resetAndLoadRecords();
     });
 
-    // Handle multi-select functionality
-    document.getElementById('selectAll').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.select-borrow');
-        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    // Handle multi-select functionality across pages
+    document.getElementById('selectAll').addEventListener('change', function () {
+        const isChecked = this.checked;
+        document.querySelectorAll('.select-borrow').forEach(checkbox => {
+            checkbox.checked = isChecked;
+            const recordId = checkbox.dataset.id;
+            isChecked ? selectedRecords.add(recordId) : selectedRecords.delete(recordId);
+        });
     });
 
-    // Reload the table when a new borrow record is added
-    ipcRenderer.on('borrow-record-added', (event, newRecord) => {
-        loadBorrowRecords();
-    });
-
-    // Reload the table when a borrow record is updated
+    ipcRenderer.on('borrow-record-added', loadBorrowRecords);
     ipcRenderer.on('borrow-record-updated', (event, updatedRecord) => {
         console.log('Borrow record updated:', updatedRecord);
-        loadBorrowRecords(); // Reload the table to reflect the updated record
-        showNotification('Borrow record updated successfully!', 'success'); // Show success notification
+        loadBorrowRecords();
+        showNotification('Borrow record updated successfully!', 'success');
     });
-
-
-
-    
 });
 
-
-
-
-
-
-
-
+// Helper function to reset to the first page and reload records
+function resetAndLoadRecords() {
+    currentPage = 1;
+    loadBorrowRecords();
+}
 
 
 // Function to reload the entire borrow list
-
 async function loadBorrowRecords() {
     try {
         const borrowRecords = await ipcRenderer.invoke('getBorrows');  // Fetch records
@@ -276,7 +293,7 @@ async function loadBorrowRecords() {
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
 
-        // Filter records based on the search query, status, and date range
+        // Filter records based on search query, status, and date range
         filteredRecords = borrowRecords.filter(record => {
             const matchesSearch = record.borrowerName.toLowerCase().includes(searchQuery) || record.bookTitle.toLowerCase().includes(searchQuery);
             const matchesStatus = statusFilter === '' || record.borrowStatus === statusFilter;
@@ -287,16 +304,16 @@ async function loadBorrowRecords() {
 
         const totalRecords = filteredRecords.length;
         const totalPages = Math.ceil(totalRecords / recordsPerPage);
-        
-        // Update pagination controls
-        updatePaginationControls(totalPages);
 
-        // If currentPage is greater than totalPages (because of filtering), set currentPage to the last page
+        // Update the total pages display
+        document.getElementById('totalPages').textContent = `of ${totalPages}`;
+
+        // If currentPage is greater than totalPages, reset to last page (useful for filters)
         if (currentPage > totalPages) {
-            currentPage = totalPages;
+            currentPage = totalPages > 0 ? totalPages : 1;
         }
 
-        // Slice the records to show only the ones for the current page
+        // Slice the records for the current page
         const paginatedRecords = filteredRecords.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage);
 
         if (paginatedRecords.length === 0) {
@@ -309,12 +326,17 @@ async function loadBorrowRecords() {
         } else {
             paginatedRecords.forEach(addBorrowToTable);
         }
+
+        // Update pagination controls based on new data
+        updatePaginationControls(totalPages);
+
+        // Update "Select All" checkbox based on full selection state
+        updateSelectAllCheckbox();
     } catch (error) {
         console.error('Error loading borrow records:', error);
         showNotification('Failed to load records. Please try again.', 'error');
     }
 }
-
 
 // Helper function to filter by date range
 function filterByDateRange(borrowDate, dateRange, startDate, endDate) {
@@ -346,54 +368,3 @@ function filterByDateRange(borrowDate, dateRange, startDate, endDate) {
 }
 
 
-
-//PAGINATION 
-// Setup pagination controls
-function setupPagination() {
-    document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
-    document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
-    document.getElementById('nextPage').addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-        goToPage(currentPage + 1, totalPages);
-    });
-    document.getElementById('lastPage').addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-        goToPage(totalPages);
-    });
-
-    // Event listener for page input field
-    document.getElementById('pageLocation').addEventListener('change', (event) => {
-        const enteredPage = parseInt(event.target.value, 10);
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-
-        // Validate the entered page number
-        if (isNaN(enteredPage) || enteredPage < 1 || enteredPage > totalPages) {
-            showNotification('Invalid page number!', 'error');
-            document.getElementById('pageLocation').value = currentPage; // Reset to current page
-        } else {
-            goToPage(enteredPage, totalPages);
-        }
-    });
-}
-
-// Function to change the page and reload records
-function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsPerPage)) {
-    if (page < 1 || page > totalPages) return; // Invalid page
-
-    currentPage = page;
-
-    // Update the page location display
-    document.getElementById('pageLocation').value = currentPage;
-    document.getElementById('totalPages').textContent = `of ${totalPages}`;
-
-    // Reload the records for the new page
-    loadBorrowRecords();
-}
-
-// Update pagination control button states
-function updatePaginationControls(totalPages) {
-    document.getElementById('firstPage').disabled = (currentPage === 1);
-    document.getElementById('prevPage').disabled = (currentPage === 1);
-    document.getElementById('nextPage').disabled = (currentPage === totalPages);
-    document.getElementById('lastPage').disabled = (currentPage === totalPages);
-}

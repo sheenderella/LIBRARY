@@ -136,13 +136,23 @@
 
                 <!-- Pagination Controls -->
                 <div id="paginationControls" class="pagination-container d-flex align-items-center">
-                    <button id="firstPage" class="btn btn-primary me-2" disabled><i class="fa-solid fa-backward-fast"></i></button>
-                    <button id="prevPage" class="btn btn-primary me-2" disabled><i class="fa-solid fa-caret-left"></i></button>
-                    <input type="text" id="pageLocation" class="form-control me-2" style="width: 80px;" value="1">
+                    <button id="firstPage" class="btn btn-primary me-2" disabled>
+                        <i class="fa-solid fa-backward-fast"></i>
+                    </button>
+                    <button id="prevPage" class="btn btn-primary me-2" disabled>
+                        <i class="fa-solid fa-caret-left"></i>
+                    </button>
+                    <input type="text" id="pageLocation" class="form-control me-2" style="width: 80px;" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); adjustWidth();">
                     <span id="totalPages">of 1</span>
-                    <button id="nextPage" class="btn btn-primary ms-2"><i class="fa-solid fa-caret-right"></i></button>
-                    <button id="lastPage" class="btn btn-primary ms-2"><i class="fa-solid fa-forward-fast"></i></button>
+                    <button id="nextPage" class="btn btn-primary ms-2">
+                        <i class="fa-solid fa-caret-right"></i>
+                    </button>
+                    <button id="lastPage" class="btn btn-primary ms-2">
+                        <i class="fa-solid fa-forward-fast"></i>
+                    </button>
                 </div>
+                
+                
             </div>
         </main>
     </div>
@@ -150,6 +160,8 @@
     <!-- JavaScript -->
     <script src="borrow.js"></script>
     <script src="notification.js"></script>
+    <script src="pagination.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
