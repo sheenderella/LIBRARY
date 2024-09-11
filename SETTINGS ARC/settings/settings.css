@@ -129,12 +129,15 @@ body {
 #wrapper.collapsed #page-content-wrapper {
     margin-left: 80px; /* Reduced margin when sidebar is collapsed */
 }
+.text-settings{
+    color: #30688B; /* Replace with your desired blue color */
+}
 
 
 /* MAIN CONTENT */
 /* Accordion Styles */
 .accordion-button {
-    background-color: #007bff;
+    background-color: #3A79A0;
     color: #fff;
     border: none;
     outline: none;
@@ -143,13 +146,16 @@ body {
     text-align: left;
     width: 100%;
 }
+.accordion-button:hover {
+    background-color: #295475; /* Darker blue color on hover */
+  }
 
 .accordion-button:focus {
     box-shadow: none;
 }
 
 .accordion-button:not(.collapsed) {
-    background-color: #0056b3;
+    background-color: rgb(3, 76, 155);
 }
 
 .accordion-body {
@@ -157,7 +163,7 @@ body {
 }
 
 .accordion-item {
-    border: 1px solid #007bff;
+    border: 1px solid #1e4f6b;
     border-radius: 5px;
     margin-bottom: 10px;
 }
@@ -180,7 +186,7 @@ body {
 #support-btn {
     font-size: 1.25rem;
     padding: 12px 20px;
-    background-color: #17a2b8;
+    background-color: #3A79A0;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -190,6 +196,6 @@ body {
 }
 
 #support-btn:hover {
-    background-color: #138496;
+    background-color: #295475;
 }
 
