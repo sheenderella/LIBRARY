@@ -1,7 +1,4 @@
-const { ipcRenderer } = require('electron');
 
-let logData = [];
-let filteredLogData = []; // Store the filtered results
 
 // Sidebar toggle functionality
 document.getElementById('sidebarCollapse').addEventListener('click', function () {
@@ -23,6 +20,12 @@ document.getElementById('logout-link').addEventListener('click', function(event)
         alert('An error occurred. Please try again.');
     });
 });
+
+const { ipcRenderer } = require('electron');
+
+let logData = [];
+let filteredLogData = []; // Store the filtered results
+
 
 // Update borrower name in the UI
 function updateBorrowerName(borrowerName) {
@@ -81,10 +84,11 @@ async function fetchBorrowerLog(borrowerName) {
         const log = await ipcRenderer.invoke('getBorrowerLog', borrowerName);
         
         // Sort log data by borrowDate in descending order
-        logData = log.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
+        filteredRecords = log.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
         
-        filteredLogData = logData; // Set the filtered data to full data initially
-        displayLog();
+        currentPage = 1; // Reset to the first page
+        displayLog(); // Display the log for the current page
+        updatePaginationControls(); // Update pagination controls
     } catch (error) {
         console.error('Error fetching borrower log:', error);
     }
@@ -96,25 +100,25 @@ function displayLog() {
     const container = document.getElementById('borrowerLogContainer');
     container.innerHTML = '';
 
-    const start = (currentPage - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    const paginatedLog = filteredLogData.slice(start, end);
+    const start = (currentPage - 1) * recordsPerPage;
+    const end = start + recordsPerPage;
+    const paginatedLog = filteredRecords.slice(start, end);
 
     paginatedLog.forEach(entry => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${entry.bookTitle}</td>
             <td>${entry.borrowDate}</td>
-            
-  <td>
+            <td>
                 <span class="status-text ${entry.borrowStatus}">${entry.borrowStatus}</span>
             </td>
         `;
         container.appendChild(row);
     });
 
-    updatePaginationControls();
+    updatePaginationControls(); // Update the pagination controls based on the current page
 }
+
 
 // Apply filters to log data
 function applyFilters() {
@@ -220,7 +224,7 @@ let currentPage = 1;
 const recordsPerPage = 3;  // Display 3 records per page
 let filteredRecords = [];  // Store filtered records globally for pagination
 
-// Pagination setup function
+// Initialize pagination setup
 function setupPagination() {
     document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
     document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
@@ -234,7 +238,7 @@ function setupPagination() {
     });
 
     // Event listener for page input field
-    document.getElementById('pageLocation').addEventListener('change', (event) => {
+    pageLocationInput.addEventListener('change', (event) => {
         const enteredPage = parseInt(event.target.value, 10);
         const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
 
@@ -248,15 +252,14 @@ function setupPagination() {
         }
     });
 }
-
 // Change page and reload records
 function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsPerPage)) {
     if (page < 1) {
-        currentPage = 1;  // Stay on first page
+        currentPage = 1; // Stay on the first page
     } else if (page > totalPages) {
-        currentPage = totalPages;  // Stay on last page
+        currentPage = totalPages; // Stay on the last page
     } else {
-        currentPage = page;  // Set to desired page
+        currentPage = page; // Set to the desired page
     }
 
     // Update pagination display
@@ -264,15 +267,21 @@ function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsP
     document.getElementById('totalPages').textContent = `of ${totalPages}`;
 
     // Reload the records for the new page
-    loadBorrowRecords();
+    displayLog();
 }
 
+
 // Update pagination control button states
-function updatePaginationControls(totalPages) {
+function updatePaginationControls() {
+    const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+
     document.getElementById('firstPage').disabled = (currentPage === 1);
     document.getElementById('prevPage').disabled = (currentPage === 1);
     document.getElementById('nextPage').disabled = (currentPage === totalPages || totalPages === 0);
     document.getElementById('lastPage').disabled = (currentPage === totalPages || totalPages === 0);
+
+    // Update total page count display
+    document.getElementById('totalPages').textContent = `of ${totalPages}`;
 }
 
 // Get input element
@@ -301,3 +310,6 @@ adjustWidth();
 
 // Initialize pagination width update based on user input
 pageLocationInput.addEventListener('input', adjustWidth);
+
+// Set up pagination controls when the page loads
+setupPagination();
