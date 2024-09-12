@@ -35,12 +35,67 @@ function applyColumnVisibility() {
 function setupEventListeners() {
     const addBookButton = document.getElementById('addBook');
     const deleteSelectedButton = document.getElementById('deleteSelected');
-    const selectAllCheckbox = document.getElementById('selectAll');
-
     const searchColumn = document.getElementById('searchColumn');
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', filterBooks);
 
+    // SEARCH BAR
+    document.getElementById('searchColumn').addEventListener('change', () => {
+        const searchColumn = document.getElementById('searchColumn').value;
+        const textInputContainer = document.getElementById('textInputContainer');
+        const dateInputContainer = document.getElementById('dateInputContainer');
+    
+        if (searchColumn === 'date_received') {
+            textInputContainer.style.display = 'none';
+            dateInputContainer.style.display = 'block';
+        } else {
+            textInputContainer.style.display = 'block';
+            dateInputContainer.style.display = 'none';
+        }
+        filterBooks();
+    });
+
+        // MAKE A SCROLL BAR TOP OF THE TABLE
+        const scrollbarTop = document.querySelector('.scrollbar-top');
+        const tableContainer = document.querySelector('.table-container');
+
+        // Function to update the dummy content width to match the table container's scroll width
+        function updateScrollbarWidth() {
+            const tableScrollWidth = tableContainer.scrollWidth;
+            const dummyContent = scrollbarTop.querySelector('.dummy-content');
+
+            // Set the dummy content width to match the table's full scroll width
+            dummyContent.style.width = `${tableScrollWidth}px`;
+        }
+
+        // Ensure scroll synchronization between the top scrollbar and the table
+        scrollbarTop.addEventListener('scroll', () => {
+            tableContainer.scrollLeft = scrollbarTop.scrollLeft;
+        });
+
+        tableContainer.addEventListener('scroll', () => {
+            scrollbarTop.scrollLeft = tableContainer.scrollLeft;
+        });
+
+        // Initialize the dummy content inside the scrollbar top
+        const dummyContent = document.createElement('div');
+        dummyContent.className = 'dummy-content';
+        dummyContent.style.height = '1px'; // Minimal height to ensure the scrollbar is visible
+        scrollbarTop.appendChild(dummyContent);
+
+        // Update the scrollbar width on load, resize, and when the table content changes
+        window.addEventListener('resize', updateScrollbarWidth);
+        updateScrollbarWidth(); // Initial call to set the correct width
+
+        // Use a ResizeObserver to monitor the table container for size changes
+        const resizeObserver = new ResizeObserver(updateScrollbarWidth);
+        resizeObserver.observe(tableContainer);
+
+        // Add a MutationObserver to watch for changes in table content (e.g., rows added or removed)
+        const mutationObserver = new MutationObserver(updateScrollbarWidth);
+        mutationObserver.observe(tableContainer, { childList: true, subtree: true });
+
+    
     // Close the form when clicking outside of it
     document.addEventListener('click', function(event) {
         var form = document.getElementById('columnVisibilityForm');
@@ -64,59 +119,59 @@ function setupEventListeners() {
     // Initial call to apply column visibility settings
     applyColumnVisibility();
 
-// Toggle column visibility form
-document.getElementById('toggleColumns').addEventListener('click', function() {
-    var form = document.getElementById('columnVisibilityForm');
-    var checkboxes = document.querySelectorAll('#columnForm input[type="checkbox"]');
+    // Toggle column visibility form
+    document.getElementById('toggleColumns').addEventListener('click', function() {
+        var form = document.getElementById('columnVisibilityForm');
+        var checkboxes = document.querySelectorAll('#columnForm input[type="checkbox"]');
 
-    if (form.style.display === 'none' || form.style.display === '') {
-        form.style.display = 'block';
-        // No need to uncheck checkboxes again or show all columns here; handled in DOMContentLoaded
-    } else {
-        form.style.display = 'none';
-    }
-});
-
-// Show all columns
-document.getElementById('showAll').addEventListener('click', function() {
-    document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
-        checkbox.checked = false;
-    });
-    document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
-        el.style.display = '';  // Show all columns
-    });
-});
-
-// Hide all columns except specific ones
-document.getElementById('hideAll').addEventListener('click', function() {
-    document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
-        checkbox.checked = true;
-    });
-    document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
-        if (!el.classList.contains('column-title_of_book') &&
-            !el.classList.contains('column-actions') &&
-            !el.classList.contains('column-checkbox')) {
-            el.style.display = 'none';  // Hide columns
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            // No need to uncheck checkboxes again or show all columns here; handled in DOMContentLoaded
+        } else {
+            form.style.display = 'none';
         }
     });
-});
 
-// Handle individual column visibility changes
-document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
-    checkbox.addEventListener('change', function() {
-        var columnClass = 'column-' + this.getAttribute('data-column');
-        var columnHeaders = document.querySelectorAll('#tableContainer table th.' + columnClass);
-        var columnDataCells = document.querySelectorAll('#tableContainer table td.' + columnClass);
-
-        columnHeaders.forEach(function(th) {
-            th.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+    // Show all columns
+    document.getElementById('showAll').addEventListener('click', function() {
+        document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.checked = false;
         });
-
-        columnDataCells.forEach(function(td) {
-            td.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+        document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+            el.style.display = '';  // Show all columns
         });
     });
-}); 
+
+    // Hide all columns except specific ones
+    document.getElementById('hideAll').addEventListener('click', function() {
+        document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.checked = true;
+        });
+        document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+            if (!el.classList.contains('column-title_of_book') &&
+                !el.classList.contains('column-actions') &&
+                !el.classList.contains('column-checkbox')) {
+                el.style.display = 'none';  // Hide columns
+            }
+        });
+    });
+
+    // Handle individual column visibility changes
+    document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var columnClass = 'column-' + this.getAttribute('data-column');
+            var columnHeaders = document.querySelectorAll('#tableContainer table th.' + columnClass);
+            var columnDataCells = document.querySelectorAll('#tableContainer table td.' + columnClass);
+
+            columnHeaders.forEach(function(th) {
+                th.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+            });
+
+            columnDataCells.forEach(function(td) {
+                td.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+            });
+        });
+    }); 
 
     document.getElementById('dateRangeSelect').addEventListener('change', function() {
         const customRange = document.getElementById('customDateRange');
@@ -206,45 +261,7 @@ document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function
             
     
     
- // MAKE A SCROLL BAR TOP OF THE TABLE
-const scrollbarTop = document.querySelector('.scrollbar-top');
-const tableContainer = document.querySelector('.table-container');
-
-// Function to update the dummy content width to match the table container's scroll width
-function updateScrollbarWidth() {
-    const tableScrollWidth = tableContainer.scrollWidth;
-    const dummyContent = scrollbarTop.querySelector('.dummy-content');
-
-    // Set the dummy content width to match the table's full scroll width
-    dummyContent.style.width = `${tableScrollWidth}px`;
-}
-
-// Ensure scroll synchronization between the top scrollbar and the table
-scrollbarTop.addEventListener('scroll', () => {
-    tableContainer.scrollLeft = scrollbarTop.scrollLeft;
-});
-
-tableContainer.addEventListener('scroll', () => {
-    scrollbarTop.scrollLeft = tableContainer.scrollLeft;
-});
-
-// Initialize the dummy content inside the scrollbar top
-const dummyContent = document.createElement('div');
-dummyContent.className = 'dummy-content';
-dummyContent.style.height = '1px'; // Minimal height to ensure the scrollbar is visible
-scrollbarTop.appendChild(dummyContent);
-
-// Update the scrollbar width on load, resize, and when the table content changes
-window.addEventListener('resize', updateScrollbarWidth);
-updateScrollbarWidth(); // Initial call to set the correct width
-
-// Use a ResizeObserver to monitor the table container for size changes
-const resizeObserver = new ResizeObserver(updateScrollbarWidth);
-resizeObserver.observe(tableContainer);
-
-// Add a MutationObserver to watch for changes in table content (e.g., rows added or removed)
-const mutationObserver = new MutationObserver(updateScrollbarWidth);
-mutationObserver.observe(tableContainer, { childList: true, subtree: true });
+ 
 
         // ADD-DELETE-EDIT ACTIONS
         addBookButton.addEventListener('click', () => {
@@ -264,14 +281,22 @@ mutationObserver.observe(tableContainer, { childList: true, subtree: true });
         searchColumn.addEventListener('change', () => {
             filterBooks();
         });
-    
-        selectAllCheckbox.addEventListener('change', () => {
-            const selectAll = selectAllCheckbox.checked;
-            const checkboxes = document.querySelectorAll('.select-book');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAll;
-            });
-        });
+        
+// Set up the event listener for the "Select All" checkbox once
+document.getElementById('selectAll').addEventListener('change', () => {
+    const selectAll = document.getElementById('selectAll').checked;
+
+    currentBooks.forEach((book) => {
+        if (selectAll) {
+            selectedBookIds.add(book.id);
+        } else {
+            selectedBookIds.delete(book.id);
+        }
+    });
+
+    // Re-display books to reflect the updated selection state
+    displayBooks();
+});
 
         window.addEventListener('resize', adjustBooksPerPage);
 }
@@ -325,6 +350,7 @@ let originalBooks = [];
 let currentBooks = [];
 let currentPage = 1;
 let booksPerPage = 1; // Default value
+let selectedBookIds = new Set(); // Store selected book IDs
 
 function adjustBooksPerPage() {
     // Adjust the number of books per page based on window width
@@ -338,6 +364,7 @@ function loadBooks() {
     ipcRenderer.invoke('getBooks').then(books => {
         originalBooks = books.slice();
         currentBooks = originalBooks;
+        filterBooks(); // Apply the current search filters
         displayBooks();
         updatePagination();;
     });
@@ -347,24 +374,29 @@ function displayBooks() {
     const bookList = document.getElementById('bookList');
     bookList.innerHTML = '';
 
-    if (currentBooks.length === null) {
+    if (currentBooks.length === 0) {
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 15;
         emptyMessageCell.textContent = "Please Add a New Book Record";
-        emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
+        emptyMessageCell.classList.add('empty-message-cell');
         emptyMessageRow.appendChild(emptyMessageCell);
         bookList.appendChild(emptyMessageRow);
         return;
     }
 
-    const start = (currentPage - 1) * booksPerPage;
-    const end = start + booksPerPage;
-    const booksToShow = currentBooks.slice(start, end);
+    const booksToShow = getBooksForCurrentPage();
     booksToShow.forEach(book => {
         addBookToTable(book);
     });
 }
+
+function getBooksForCurrentPage() {
+    const start = (currentPage - 1) * booksPerPage;
+    const end = start + booksPerPage;
+    return currentBooks.slice(start, end);
+}
+
 
 // Function to show notifications
 function showNotification(message, type = 'success') {
@@ -400,13 +432,19 @@ function addBookToTable(book, prepend = false) {
     const bookList = document.getElementById('bookList');
     const row = document.createElement('tr');
 
-    // Check if cost_price has a value, add "₱" prefix, format with commas, and round to two decimal places
-    const formattedCostPrice = book.cost_price 
-        ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    const formattedCostPrice = book.cost_price
+        ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+          })}`
         : '';
 
     row.innerHTML = `
-        <td class="column-checkbox"><input type="checkbox" class="select-book" data-id="${book.id}"></td>
+        <td class="column-checkbox">
+            <input type="checkbox" class="select-book" data-id="${book.id}" ${
+        selectedBookIds.has(book.id) ? 'checked' : ''
+    }>
+        </td>
         <td class="column-number">${book.number}</td>
         <td class="column-date_received">${book.date_received}</td>
         <td class="column-class">${book.class}</td>
@@ -421,10 +459,24 @@ function addBookToTable(book, prepend = false) {
         <td class="column-year">${book.year}</td>
         <td class="column-remarks">${book.remarks}</td>
         <td class="column-actions">
-            <button class="edit-btn" data-id="${book.id}"> <i class="fas fa-pencil-alt"></i> </button>
-            <button class="delete-btn" data-id="${book.id}"> <i class="fas fa-trash"></i> </button>
+            <button class="edit-btn" data-id="${book.id}">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button class="delete-btn" data-id="${book.id}">
+                <i class="fas fa-trash"></i>
+            </button>
         </td>
     `;
+
+    row.querySelector('.select-book').addEventListener('change', (e) => {
+        const bookId = book.id;
+        if (e.target.checked) {
+            selectedBookIds.add(bookId);
+        } else {
+            selectedBookIds.delete(bookId);
+        }
+        syncSelectAllCheckbox();
+    });
 
     row.querySelector('.edit-btn').addEventListener('click', () => {
         const record = getBookFromRow(row);
@@ -432,12 +484,12 @@ function addBookToTable(book, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        // Use confirm() for deletion confirmation
         if (confirm('Are you sure you want to delete this book record?')) {
             deleteBookFromTable(book.id);
-            showNotification('A Book have been Deleted!', 'warning')
+            showNotification('A Book has been Deleted!', 'warning');
         }
-        updatePagination();
+        loadBooks();
+        adjustBooksPerPage();
     });
 
     if (prepend) {
@@ -446,10 +498,7 @@ function addBookToTable(book, prepend = false) {
         bookList.appendChild(row);
     }
 
-    // Apply column visibility rules to the new row
     applyColumnVisibility(row);
-
-    updatePagination();
 }
 
 function updateBookInTable(book) {
@@ -489,24 +538,32 @@ function deleteBookFromTable(id) {
 }
 
 function deleteSelectedBooks() {
-    const selectedBooks = document.querySelectorAll('.select-book:checked');
-    const ids = Array.from(selectedBooks).map(book => book.dataset.id);
-    const count = ids.length; // Count the number of selected books
-
-    if (count > 0) {
-        // Display a confirmation dialog showing the number of selected books
-        const confirmation = confirm(`Are you sure you want to delete ${count} selected book record(s)?`);
-        
-        if (confirmation) {
-            ids.forEach(id => {
-                ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
-            });
-            loadBooks();
-            adjustBooksPerPage();
-            showNotification(`${count} book(s) have been deleted!`, 'warning');
-        }
-    } else {
+    if (selectedBookIds.size === 0) {
         alert("No books selected.");
+        return;
+    }
+
+    const count = selectedBookIds.size; // Count the number of selected books
+
+    // Display a confirmation dialog showing the number of selected books
+    const confirmation = confirm(`Are you sure you want to delete ${count} selected book record(s)?`);
+
+    if (confirmation) {
+        // Convert Set to Array for deletion
+        const ids = Array.from(selectedBookIds);
+
+        ids.forEach(id => {
+            ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
+        });
+
+        // Clear the selection after deletion
+        selectedBookIds.clear();
+        
+        // Reload books and update UI
+        loadBooks();
+        adjustBooksPerPage();
+
+        showNotification(`${count} book(s) have been deleted!`, 'warning');
     }
 }
 
@@ -586,22 +643,6 @@ function filterBooks() {
     updatePagination();;
 }
 
-
-document.getElementById('searchColumn').addEventListener('change', () => {
-    const searchColumn = document.getElementById('searchColumn').value;
-    const textInputContainer = document.getElementById('textInputContainer');
-    const dateInputContainer = document.getElementById('dateInputContainer');
-
-    if (searchColumn === 'date_received') {
-        textInputContainer.style.display = 'none';
-        dateInputContainer.style.display = 'block';
-    } else {
-        textInputContainer.style.display = 'block';
-        dateInputContainer.style.display = 'none';
-    }
-    filterBooks();
-});
-
 function sortBooks(column, button) {
     // Determine the current sort order
     const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
@@ -635,63 +676,75 @@ function sortBooks(column, button) {
 }
 
 
+
 function updatePagination() {
-    const paginationContainer = document.getElementById('pagination');
-    paginationContainer.innerHTML = '';
+    const firstPageBtn = document.getElementById('firstPage');
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const lastPageBtn = document.getElementById('lastPage');
+    const pageLocationInput = document.getElementById('pageLocation');
+    const totalPagesSpan = document.getElementById('totalPages');
 
     const totalPages = Math.ceil(currentBooks.length / booksPerPage);
-    if (totalPages <= 1) return;
+    totalPagesSpan.textContent = `of ${totalPages}`;
+    pageLocationInput.value = currentPage;
 
-    const maxPagesToShow = 10;
-    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+    firstPageBtn.disabled = currentPage === 1;
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
+    lastPageBtn.disabled = currentPage === totalPages;
 
-    if (totalPages > maxPagesToShow) {
-        if (currentPage > Math.floor(maxPagesToShow / 2)) {
-            const prevButton = document.createElement('button');
-            prevButton.innerHTML = '&laquo;';
-            prevButton.classList.add('page-btn');
-            prevButton.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage = Math.max(1, currentPage - 10);
-                    updatePagination();;
-                    displayBooks();
-                }
-            });
-            paginationContainer.appendChild(prevButton);
-        }
-
-        if (endPage - startPage + 1 < maxPagesToShow) {
-            startPage = Math.max(1, endPage - maxPagesToShow + 1);
-        }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-        const pageButton = document.createElement('button');
-        pageButton.textContent = i;
-        pageButton.classList.add('page-btn');
-        if (i === currentPage) pageButton.classList.add('active');
-        pageButton.addEventListener('click', () => {
-            currentPage = i;
+    firstPageBtn.onclick = () => {
+        if (currentPage !== 1) {
+            currentPage = 1;
             displayBooks();
-            updatePagination();;
-        });
-        paginationContainer.appendChild(pageButton);
-    }
+            updatePagination();
+        }
+    };
 
-    if (totalPages > maxPagesToShow && endPage < totalPages) {
-        const nextButton = document.createElement('button');
-        nextButton.innerHTML = '&raquo;';
-        nextButton.classList.add('page-btn');
-        nextButton.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage = Math.min(totalPages, currentPage + 10);
-                updatePagination();;
-                displayBooks();
-            }
-        });
-        paginationContainer.appendChild(nextButton);
-    }
+    prevPageBtn.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displayBooks();
+            updatePagination();
+        }
+    };
+
+    nextPageBtn.onclick = () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            displayBooks();
+            updatePagination();
+        }
+    };
+
+    lastPageBtn.onclick = () => {
+        if (currentPage !== totalPages) {
+            currentPage = totalPages;
+            displayBooks();
+            updatePagination();
+        }
+    };
+
+    pageLocationInput.onchange = () => {
+        const pageNumber = parseInt(pageLocationInput.value, 10);
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            currentPage = pageNumber;
+            displayBooks();
+            updatePagination();
+        } else {
+            pageLocationInput.value = currentPage;
+        }
+    };
+
+    syncSelectAllCheckbox();
+}
+
+// Sync the "Select All" checkbox state based on selected rows
+function syncSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const allBooksSelected = currentBooks.every(book => selectedBookIds.has(book.id));
+    selectAllCheckbox.checked = allBooksSelected;
 }
 
 function getBookFromRow(row) {

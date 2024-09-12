@@ -1,548 +1,370 @@
 const { ipcRenderer } = require('electron');
-const handleAddBorrow = require('./addBorrow.js');
-const handleUpdateBorrow = require('./updateBorrow.js');
-const handleDeleteBorrow = require('./deleteBorrow.js');
-const pagination = require('./pagination.js');
-const { debounce, filterBorrowRecords } = require('./filters.js');
 
-// DOM Elements
-let borrowList, searchInput, statusFilter, startDateFilter, endDateFilter;
-let allRecords = [];
-let currentSort = { column: null, direction: 'asc' };
-
-document.addEventListener('DOMContentLoaded', init);
-
+//SIDEBAR !!!
 // Sidebar toggle functionality
 document.getElementById('sidebarCollapse').addEventListener('click', function () {
     const wrapper = document.getElementById('wrapper');
     const sidebar = document.getElementById('sidebar-wrapper');
-    
     wrapper.classList.toggle('collapsed');
     sidebar.classList.toggle('collapsed');
 });
 
-//LOGOUT
+// Logout functionality
 document.getElementById('logout-link').addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent default link behavior
+    event.preventDefault();
 
     ipcRenderer.invoke('logout').then(() => {
-        window.location.href = './login/login.html'; // Redirect to login page after logout
+        window.location.href = './login/login.html';
     }).catch(error => {
         console.error('Error during logout:', error);
         alert('An error occurred. Please try again.');
     });
 });
 
+//ADD!!!
+// Function to add a new row in the table
+function addBorrowToTable(record) {
+    const borrowList = document.getElementById('borrowList');
+    if (!borrowList) {
+        console.error('Table element with id "borrowList" not found!');
+        return;
+    }
 
-function init() {
-    borrowList = document.getElementById("borrowList");
-    searchInput = document.getElementById("searchInput");
-    statusFilter = document.getElementById("statusFilter");
-    startDateFilter = document.getElementById("startDateFilter");
-    endDateFilter = document.getElementById("endDateFilter");
+    const row = document.createElement('tr');
+    row.dataset.id = record.id;
 
-    console.log('Initialized DOM elements:', {
-        borrowList,
-        searchInput,
-        statusFilter,
-        startDateFilter,
-        endDateFilter
+    row.innerHTML = `
+        <td><input type="checkbox" class="select-borrow" data-id="${record.id}" ${selectedRecords.has(record.id) ? 'checked' : ''}></td>
+        <td><span class="borrower-name" data-name="${record.borrowerName}">${record.borrowerName}</span></td>
+        <td>${record.bookTitle}</td>
+        <td>${record.borrowDate}</td>
+        <td>
+            <span class="status-text ${record.borrowStatus}">${record.borrowStatus}</span>
+        </td>
+        <td>
+            <button class="btn btn-info edit-btn" data-id="${record.id}"> <i class="fas fa-pencil-alt"></i> </button>
+            <button class="delete-btn" data-id="${record.id}"> <i class="fas fa-trash"></i> </button>
+        </td>
+    `;
+
+    // Event listener to handle individual checkbox changes
+    row.querySelector('.select-borrow').addEventListener('change', function () {
+        if (this.checked) {
+            selectedRecords.add(record.id);
+        } else {
+            selectedRecords.delete(record.id);
+        }
+        updateSelectAllCheckbox();  // Update "Select All" checkbox based on full selection state
     });
 
-    setupEventListeners();
-    fetchBorrowRecords();
-}
-
-function setupEventListeners() {
-    const addBorrowForm = document.getElementById('addBorrowForm');
-    const updateBorrowForm = document.getElementById('updateBorrowForm');
-    const addBorrowButton = document.getElementById('addBorrow');
-    const deleteSelectedButton = document.getElementById('deleteSelected');
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const prevPageButton = document.getElementById('prevPage');
-    const nextPageButton = document.getElementById('nextPage');
-    const cancelDateFilterButton = document.getElementById('cancelDateFilter');
-    const applyDateFilterButton = document.getElementById('applyDateFilter');
-    const dateFilterButton = document.querySelector('.dropbtn');
-    const dropdownContent = document.querySelector('.dropdown-content');
-
-
-
-    if (dateFilterButton) addEvent(dateFilterButton, 'click', toggleDropdown);
-    if (document) addEvent(document, 'click', closeDropdownOnOutsideClick);
-    if (addBorrowForm) addEvent(addBorrowForm, 'submit', handleAddBorrowSubmit);
-    if (updateBorrowForm) addEvent(updateBorrowForm, 'submit', handleUpdateBorrowSubmit);
-    if (addBorrowButton) addEvent(addBorrowButton, 'click', () => ipcRenderer.send('open-add-borrow-window'));
-    if (deleteSelectedButton) addEvent(deleteSelectedButton, 'click', handleDeleteSelected);
-    if (selectAllCheckbox) addEvent(selectAllCheckbox, 'change', handleSelectAll);
-    if (searchInput) addEvent(searchInput, 'input', debounce(filterAndRenderRecords, 300));
-    if (statusFilter) addEvent(statusFilter, 'change', filterAndRenderRecords);
-    if (prevPageButton) addEvent(prevPageButton, 'click', () => pagination.changePage(-1, renderBorrowRecords));
-    if (nextPageButton) addEvent(nextPageButton, 'click', () => pagination.changePage(1, renderBorrowRecords));
-
-    document.getElementById('statusFilter')?.addEventListener('change', function() {
-        var selectedOption = this.options[this.selectedIndex].text;
-        var statusText = selectedOption === 'All' ? 'Filter by Status' : selectedOption;
-        document.getElementById('statusFilterText').textContent = statusText;
-    });
-
-    addSortEventListeners();
-    
-    ipcRenderer.on('borrow-record-added', (event, record) => updateRecordList(record, 'add'));
-    ipcRenderer.on('borrow-record-updated', (event, record) => updateRecordList(record, 'update'));
-    ipcRenderer.on('updateBorrow-renderer', (event, record) => updateRecordList(record, 'update'));
-    ipcRenderer.on('load-borrower-log', (event, borrowerName) => loadBorrowerLog(borrowerName));
-    ipcRenderer.on('fill-update-form', (event, record) => fillUpdateForm(record));
-    ipcRenderer.on('borrow-record-deleted', (event, id) => handleRecordDeletion(id));
+    borrowList.appendChild(row);
 }
 
 
-document.getElementById('statusFilter').addEventListener('change', function() {
-    var selectedOption = this.options[this.selectedIndex].text;
-    var statusText = selectedOption === 'All' ? 'Filter by Status' : selectedOption;
-    document.getElementById('statusFilterText').textContent = statusText;
+// Event listener for redirecting to borrower log
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('borrower-name')) {
+        const borrowerName = event.target.getAttribute('data-name');
+        window.location.href = `borrowerLog.html?borrowerName=${encodeURIComponent(borrowerName)}`;
+    }
+});
 
-    // Call the function to filter and render records
-    filterAndRenderRecords();
+// Function to clear the table
+function clearBorrowTable() {
+    const borrowList = document.getElementById('borrowList');
+    while (borrowList && borrowList.firstChild) {
+        borrowList.removeChild(borrowList.firstChild);
+    }
+}
+
+//UPDATE!!!
+// Add event listener for opening update window
+document.addEventListener('click', function (event) {
+    if (event.target.closest('.edit-btn')) {
+        const id = event.target.closest('.edit-btn').getAttribute('data-id');
+        ipcRenderer.invoke('getBorrowRecordById', id)
+            .then(record => {
+                if (record) {
+                    ipcRenderer.invoke('open-update-window', record)
+                        .catch(error => {
+                            console.error('Error opening update window:', error);
+                        });
+                } else {
+                    showNotification('Record not found.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching borrow record:', error);
+                showNotification('Error fetching borrow record.', 'error');
+            });
+    }
+});
+
+// DELETE!!!
+document.addEventListener('click', function (event) {
+    if (event.target.closest('.delete-btn')) {
+        const id = event.target.closest('.delete-btn').getAttribute('data-id');
+        if (confirm('Are you sure you want to delete this record?')) {
+            ipcRenderer.invoke('deleteBorrow', id)
+                .then(() => {
+                    showNotification('Borrow record deleted successfully!', 'delete');
+                    loadBorrowRecords();
+                })
+                .catch(error => {
+                    console.error('Error deleting borrow record:', error);
+                    showNotification('Failed to delete borrow record.', 'error');
+                });
+        }
+    }
 });
 
 
+// CRUD
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // DISPLAY
+    loadBorrowRecords(); // Initial load
+
+    document.getElementById('addBorrow').addEventListener('click', () => {
+        ipcRenderer.send('open-add-borrow-window');
+    });
+
+    //ADD
+    // Handle successful addition of a borrow record
+    ipcRenderer.on('borrow-added-success', () => {
+        console.log('Notification: Borrow record added successfully!');
+        showNotification('Borrow record added successfully!', 'success');
+    });
+    
+    ipcRenderer.on('borrow-added-failure', () => {
+        console.log('Notification: Failed to add borrow record.');
+        showNotification('Failed to add borrow record. Please try again.', 'error');
+    });
+    
+
+    // Reload the table when a new borrow record is added
+    ipcRenderer.on('borrow-record-added', (event, newRecord) => {
+        loadBorrowRecords();
+
+    });
+
+    //DELETE
+    ipcRenderer.invoke('deleteBorrow', id)
+    .then(() => {
+        showNotification('Borrow record deleted successfully!', 'delete');
+        loadBorrowRecords();
+    })
+    .catch(error => {
+        console.error('Error deleting borrow record:', error);
+        showNotification('Failed to delete borrow record.', 'error');
+    });
+
+    ipcRenderer.invoke('deleteSelectedBorrows', selectedIds)
+    .then(() => {
+        showNotification('Selected records deleted successfully!', 'delete');
+        loadBorrowRecords();
+    })
+    .catch(error => {
+        console.error('Error deleting selected borrow records:', error);
+        showNotification('Failed to delete selected records.', 'error');
+    });
+
+    //UPDATE
+    // Handle when a borrow record is updated
+    ipcRenderer.on('borrow-record-updated', (event, updatedRecord) => {
+        console.log('Borrow record updated:', updatedRecord);
+        loadBorrowRecords(); // Reload the table to reflect the updated record
+        showNotification('Borrow record updated successfully!', 'success'); // Show success notification
+    });
+
+});
+
+
+
+document.getElementById('searchInput').addEventListener('input', loadBorrowRecords);
+document.getElementById('statusFilter').addEventListener('change', loadBorrowRecords);
+document.getElementById('applyDateRange').addEventListener('click', loadBorrowRecords);
+document.getElementById('clearDateRange').addEventListener('click', () => {
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    loadBorrowRecords();
+});
+
+//SELECT ALL
+document.getElementById('selectAll').addEventListener('change', function () {
+    const isChecked = this.checked;
+
+    filteredRecords.forEach(record => {
+        const checkbox = document.querySelector(`.select-borrow[data-id="${record.id}"]`);
+        if (checkbox) checkbox.checked = isChecked;  // Check/Uncheck boxes on the current page
+        if (isChecked) {
+            selectedRecords.add(record.id);  // Add all records (even across pages)
+        } else {
+            selectedRecords.delete(record.id);  // Remove all records (even across pages)
+        }
+    });
+
+    updateSelectAllCheckbox();  // Update "Select All" based on the full selection state
+});
+
+// Update "Select All" checkbox based on the selection across all pages
+function updateSelectAllCheckbox() {
+    const totalRecords = filteredRecords.length;
+    const allSelected = selectedRecords.size === totalRecords && totalRecords > 0;  // Ensure all records across pages are selected
+    document.getElementById('selectAll').checked = allSelected;
+}
+
+//DELETE ALL
+document.getElementById('deleteSelected').addEventListener('click', function () {
+    if (selectedRecords.size === 0) {
+        alert('No records selected for deletion.', 'error');
+        return;
+    }
+
+    if (confirm('Are you sure you want to delete the selected records?')) {
+        const selectedIds = Array.from(selectedRecords);  // Convert Set to Array for processing
+
+        selectedIds.forEach(id => {
+            ipcRenderer.invoke('deleteBorrow', id)
+                .then(() => {
+                    selectedRecords.delete(id);  // Remove deleted record from selectedRecords
+                    showNotification('Selected records deleted successfully!', 'delete');
+                    loadBorrowRecords();  // Reload records after deletion
+                })
+                .catch(error => {
+                    console.error('Error deleting borrow record:', error);
+                    showNotification('Failed to delete some records.', 'error');
+                });
+        });
+    }
+});
+let selectedRecords = new Set();  // Track selected records across pages
 
 document.addEventListener('DOMContentLoaded', () => {
-    const dateRangeSelect = document.getElementById('dateRangeSelect');
-    const customDateRange = document.getElementById('customDateRange');
-    const applyDateRangeButton = document.getElementById('applyDateRange');
-    const clearDateRangeButton = document.getElementById('clearDateRange');
+    loadBorrowRecords();
+    setupPagination();
 
-    // Show or hide the custom date range inputs based on the dropdown selection
-    dateRangeSelect.addEventListener('change', (event) => {
-        if (event.target.value === 'custom') {
-            customDateRange.style.display = 'block';
-        } else {
-            customDateRange.style.display = 'none';
-        }
+    // Event listeners for search and filter functionality
+    ['searchInput', 'statusFilter'].forEach(id => {
+        document.getElementById(id).addEventListener('input', resetAndLoadRecords);
     });
 
-    // Apply custom date range
-    applyDateRangeButton.addEventListener('click', () => {
+    document.getElementById('applyDateRange').addEventListener('click', resetAndLoadRecords);
+    document.getElementById('clearDateRange').addEventListener('click', () => {
+        ['startDate', 'endDate'].forEach(id => document.getElementById(id).value = '');
+        resetAndLoadRecords();
+    });
+
+    // Handle multi-select functionality across pages
+    document.getElementById('selectAll').addEventListener('change', function () {
+        const isChecked = this.checked;
+        document.querySelectorAll('.select-borrow').forEach(checkbox => {
+            checkbox.checked = isChecked;
+            const recordId = checkbox.dataset.id;
+            isChecked ? selectedRecords.add(recordId) : selectedRecords.delete(recordId);
+        });
+    });
+
+    ipcRenderer.on('borrow-record-added', loadBorrowRecords);
+    ipcRenderer.on('borrow-record-updated', (event, updatedRecord) => {
+        console.log('Borrow record updated:', updatedRecord);
+        loadBorrowRecords();
+        showNotification('Borrow record updated successfully!', 'success');
+    });
+});
+
+// Helper function to reset to the first page and reload records
+function resetAndLoadRecords() {
+    currentPage = 1;
+    loadBorrowRecords();
+}
+
+
+// Function to reload the entire borrow list
+async function loadBorrowRecords() {
+    try {
+        const borrowRecords = await ipcRenderer.invoke('getBorrows');  // Fetch records
+        clearBorrowTable();
+
+        // Get filter values
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const dateRange = document.getElementById('dateRangeSelect').value;
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
-        // Handle the date range filtering logic here
-        console.log(`Applying date range from ${startDate} to ${endDate}`);
-        customDateRange.style.display = 'none';
-        dateRangeSelect.value = ''; // Optionally reset the dropdown
-    });
 
-    // Clear the date range selection
-    clearDateRangeButton.addEventListener('click', () => {
-        document.getElementById('startDate').value = '';
-        document.getElementById('endDate').value = '';
-        dateRangeSelect.value = '';
-        customDateRange.style.display = 'none';
-        // Handle clearing of date range filter here
-        console.log('Cleared date range filter');
-    });
+        // Filter records based on search query, status, and date range
+        filteredRecords = borrowRecords.filter(record => {
+            const matchesSearch = record.borrowerName.toLowerCase().includes(searchQuery) || record.bookTitle.toLowerCase().includes(searchQuery);
+            const matchesStatus = statusFilter === '' || record.borrowStatus === statusFilter;
+            const matchesDateRange = filterByDateRange(record.borrowDate, dateRange, startDate, endDate);
 
-    // Close custom date range if clicking outside of it
-    document.addEventListener('click', (event) => {
-        const isClickInside = customDateRange.contains(event.target) || dateRangeSelect.contains(event.target);
-        if (!isClickInside) {
-            customDateRange.style.display = 'none';
-            dateRangeSelect.value = ''; // Optionally reset the dropdown
+            return matchesSearch && matchesStatus && matchesDateRange;
+        });
+
+        const totalRecords = filteredRecords.length;
+        const totalPages = Math.ceil(totalRecords / recordsPerPage);
+
+        // Update the total pages display
+        document.getElementById('totalPages').textContent = `of ${totalPages}`;
+
+        // If currentPage is greater than totalPages, reset to last page (useful for filters)
+        if (currentPage > totalPages) {
+            currentPage = totalPages > 0 ? totalPages : 1;
         }
-    });
-});
 
+        // Slice the records for the current page
+        const paginatedRecords = filteredRecords.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage);
 
-document.getElementById('dateRangeSelect').addEventListener('change', function() {
-    const customDateRange = document.getElementById('customDateRange');
-    if (this.value === 'custom') {
-        customDateRange.style.display = 'block';
-    } else {
-        customDateRange.style.display = 'none';
-    }
-});
-
-document.querySelector('.date-range-box').addEventListener('click', function() {
-    document.getElementById('dateRangeSelect').click();
-});
-
-
-function filterByDateRange() {
-    const selectedRange = dateRangeSelect.value;
-    let startDate = '';
-    let endDate = '';
-
-    const today = new Date();
-    if (selectedRange === 'last_7_days') {
-        startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
-        endDate = new Date().toISOString().split('T')[0];
-    } else if (selectedRange === 'last_30_days') {
-        startDate = new Date(today.setDate(today.getDate() - 30)).toISOString().split('T')[0];
-        endDate = new Date().toISOString().split('T')[0];
-    } else if (selectedRange === 'this_month') {
-        startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
-    } else if (selectedRange === 'last_month') {
-        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split('T')[0];
-        endDate = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split('T')[0];
-    } else if (selectedRange === 'reset') {
-        // Reset date filters
-        startDate = '';
-        endDate = '';
-    }
-
-    // Filter the records based on the computed startDate and endDate
-    const filteredRecords = allRecords.filter(record => {
-        const recordDate = new Date(record.borrowDate);
-        return (!startDate || recordDate >= new Date(startDate)) &&
-               (!endDate || recordDate <= new Date(endDate));
-    });
-
-    renderBorrowRecords(filteredRecords);
-}
-
-// Event listener for date range selection
-dateRangeSelect.addEventListener('change', filterByDateRange);
-
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Date range selection and display logic
-    const dateRangeSelect = document.getElementById('dateRangeSelect');
-    const customRange = document.getElementById('customDateRange');
-    const clearDateRangeButton = document.getElementById('clearDateRange');
-
-    dateRangeSelect.addEventListener('change', function () {
-        if (this.value === 'custom') {
-            customRange.style.display = 'block';
+        if (paginatedRecords.length === 0) {
+            const emptyRow = document.createElement('tr');
+            const emptyCell = document.createElement('td');
+            emptyCell.colSpan = 7;
+            emptyCell.textContent = 'No records available.';
+            emptyRow.appendChild(emptyCell);
+            document.getElementById('borrowList').appendChild(emptyRow);
         } else {
-            customRange.style.display = 'none';
+            paginatedRecords.forEach(addBorrowToTable);
         }
-    });
 
-});
+        // Update pagination controls based on new data
+        updatePaginationControls(totalPages);
 
-
-
-function toggleDropdown(event) {
-    event.stopPropagation();
-    const dropdownContent = document.querySelector('.dropdown-content');
-    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-}
-
-function closeDropdown() {
-    const dropdownContent = document.querySelector('.dropdown-content');
-    dropdownContent.style.display = 'none';
-}
-
-function closeDropdownOnOutsideClick(event) {
-    const dropdownContent = document.querySelector('.dropdown-content');
-    if (!dropdownContent.contains(event.target) && !document.querySelector('.dropbtn').contains(event.target)) {
-        closeDropdown();
+        // Update "Select All" checkbox based on full selection state
+        updateSelectAllCheckbox();
+    } catch (error) {
+        console.error('Error loading borrow records:', error);
+        showNotification('Failed to load records. Please try again.', 'error');
     }
 }
 
-
-function handleSelectAll(event) {
-    const isChecked = event.target.checked;
+// Helper function to filter by date range
+function filterByDateRange(borrowDate, dateRange, startDate, endDate) {
+    const recordDate = new Date(borrowDate);
     
-    // Set a custom attribute 'checked' in each record to keep track of selection state
-    allRecords.forEach(record => {
-        record.checked = isChecked;
-    });
-
-    // Update the checkbox state in the current page view
-    document.querySelectorAll('.select-record').forEach(checkbox => {
-        checkbox.checked = isChecked;
-    });
-}
-
-
-function handleDeleteSelected() {
-    const selectedIds = allRecords.filter(record => record.checked).map(record => record.id);
-
-    if (selectedIds.length === 0) {
-        alert('No records selected for deletion.');
-        return;
-    }
-
-    const confirmation = confirm('Are you sure you want to delete the selected records?');
-
-    if (confirmation) {
-        selectedIds.forEach(id => deleteBorrowRecordWithoutConfirmation(id));
-        alert('Selected records deleted successfully!');
+    if (dateRange === 'last_7_days') {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return recordDate >= sevenDaysAgo;
+    } else if (dateRange === 'last_30_days') {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return recordDate >= thirtyDaysAgo;
+    } else if (dateRange === 'this_month') {
+        const now = new Date();
+        return recordDate.getMonth() === now.getMonth() && recordDate.getFullYear() === now.getFullYear();
+    } else if (dateRange === 'last_month') {
+        const now = new Date();
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const nextMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        return recordDate >= lastMonth && recordDate < nextMonth;
+    } else if (dateRange === 'custom' && startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        return recordDate >= start && recordDate <= end;
     } else {
-        console.log('Bulk deletion cancelled.');
+        return true; // No date filter applied
     }
 }
 
 
-async function deleteBorrowRecordWithoutConfirmation(id) {
-    try {
-        console.log('Deleting record with ID:', id);
-        await handleDeleteBorrow(id); // This will now also send the deletion event
-    } catch (error) {
-        console.error('Error handling delete borrow:', error);
-    }
-}
-
-
-
-function handleRecordDeletion(id) {
-    allRecords = allRecords.filter(record => record.id !== parseInt(id));
-    filterAndRenderRecords();
-}
-
-function addEvent(element, event, handler) {
-    if (element) element.addEventListener(event, handler);
-}
-
-function addSortEventListeners() {
-    document.querySelectorAll('.sort-btn').forEach(button => {
-        button.addEventListener('click', () => sortTable(button.dataset.column, button));
-    });
-}
-
-async function handleAddBorrowSubmit(event) {
-    event.preventDefault();
-    try {
-        const newRecord = await handleAddBorrow(event);
-        ipcRenderer.send('addBorrow', newRecord);
-        alert('Record added successfully!'); // Alert for successful addition
-        resetForm('addBorrowForm');
-        ipcRenderer.send('close-form-window');
-    } catch (error) {
-        console.error('Error handling add borrow:', error);
-    }
-}
-
-
-async function handleUpdateBorrowSubmit(event) {
-    event.preventDefault();
-
-    const confirmation = confirm('Are you sure you want to update this record?');
-
-    if (confirmation) {
-        try {
-            const updatedRecord = await handleUpdateBorrow(event);
-            ipcRenderer.send('updateBorrow', updatedRecord);
-            alert('Record updated successfully!'); // Alert for successful update
-        } catch (error) {
-            console.error('Error handling update borrow:', error);
-        }
-    } else {
-        console.log('Update cancelled.');
-    }
-}
-
-
-async function fetchBorrowRecords() {
-    try {
-        allRecords = await ipcRenderer.invoke('getBorrows');
-        allRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        filterAndRenderRecords();
-    } catch (error) {
-        console.error('Error fetching borrow records:', error);
-    }
-}
-function renderBorrowRecords(records) {
-    if (!borrowList) {
-        console.error('Borrow list element not found');
-        return;
-    }
-
-    if (records.length === 0) {
-        borrowList.innerHTML = `
-            <tr>
-                <td colspan="7" style="
-                    text-align: center; 
-                    font-style: italic; 
-                    padding: 10px; 
-                    background-color: #f2f2f2;
-                    color: #6c757d;
-                    height: 350px;
-                    font-size: 1.25rem;
-                ">
-                    Table is empty
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    borrowList.innerHTML = records.map(record => `
-        <tr data-id="${record.id}">
-            <td><input type="checkbox" class="select-record" data-id="${record.id}" ${record.checked ? 'checked' : ''}></td>
-            <td><a href="#" class="borrower-name" data-name="${record.borrowerName}">${record.borrowerName}</a></td>
-            <td>${record.bookTitle}</td>
-            <td>${record.borrowDate}</td>
-            <td>${record.borrowStatus}</td>
-            <td>
-                <button class="btn btn-info edit-btn" data-id="${record.id}">  <i class="fas fa-pencil-alt"></i> </button>
-                <button class="delete-btn" data-id="${record.id}"> <i class="fas fa-trash"></i> </button>
-            </td>
-        </tr>
-    `).join('');
-
-    setupRecordEventListeners();
-}
-
-
-function setupRecordEventListeners() {
-    document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const recordId = button.getAttribute('data-id');
-            console.log('Edit button clicked for ID:', recordId);
-            openUpdateWindow(recordId);
-        });
-    });
-
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const recordId = button.getAttribute('data-id');
-            console.log('Delete button clicked for ID:', recordId);
-            deleteBorrowRecord(recordId);
-        });
-    });
-
-    document.querySelectorAll('.borrower-name').forEach(link => {
-        link.addEventListener('click', event => {
-            event.preventDefault();
-            const borrowerName = link.getAttribute('data-name');
-            console.log('Borrower name link clicked:', borrowerName);
-            showBorrowerLog(borrowerName);
-        });
-    });
-}
-
-
-async function deleteBorrowRecord(id) {
-    const confirmation = confirm('Are you sure you want to delete this record?');
-
-    if (confirmation) {
-        try {
-            console.log('Deleting record with ID:', id);
-            await handleDeleteBorrow(id); // This will now also send the deletion event
-            alert('Record deleted successfully!'); // Alert for successful deletion
-        } catch (error) {
-            console.error('Error handling delete borrow:', error);
-        }
-    } else {
-        console.log('Deletion cancelled.');
-    }
-}
-
-
-function openUpdateWindow(recordId) {
-    const record = allRecords.find(r => r.id === parseInt(recordId));
-    ipcRenderer.send('open-update-window', record);
-}
-
-function showBorrowerLog(borrowerName) {
-    const url = `borrowerLog.html?borrowerName=${encodeURIComponent(borrowerName)}`;
-    window.location.href = url;
-}
-
-async function loadBorrowerLog(borrowerName) {
-    try {
-        const log = await ipcRenderer.invoke('getBorrowerLog', borrowerName);
-        displayLog(log);
-    } catch (error) {
-        console.error('Error loading borrower log:', error);
-    }
-}
-
-function displayLog(log) {
-    const container = document.getElementById('borrowerLogContainer');
-    container.innerHTML = log.map(entry => `
-        <div class="log-entry">
-            <p><strong>Book Title:</strong> ${entry.bookTitle}</p>
-            <p><strong>Borrow Date:</strong> ${entry.borrowDate}</p>
-            <p><strong>Status:</strong> ${entry.borrowStatus}</p>
-        </div>
-    `).join('');
-}
-
-function fillUpdateForm(record) {
-    document.getElementById('updateBorrowerId').value = record.id;
-    document.getElementById('updateBorrowerName').value = record.borrowerName;
-    document.getElementById('updateBookTitle').value = record.bookTitle;
-    document.getElementById('updateBorrowDate').value = record.borrowDate;
-    document.getElementById('updateBorrowStatus').value = record.borrowStatus;
-}
-
-function resetForm(formId) {
-    const form = document.getElementById(formId);
-    if (form) form.reset();
-}
-
-function filterAndRenderRecords() {
-    const filteredRecords = filterBorrowRecords(allRecords, searchInput, statusFilter, startDateFilter, endDateFilter);
-    const sortedRecords = sortRecords(filteredRecords, currentSort.column, currentSort.direction);
-    pagination.setCurrentPage(1);
-    pagination.renderBorrowRecords(sortedRecords, renderBorrowRecords);
-}
-
-function sortTable(column, button) {
-    let order = button.dataset.order || 'asc';
-
-    if (order === 'asc') {
-        order = 'desc';
-    } else if (order === 'desc') {
-        order = 'default';
-    } else {
-        order = 'asc';
-    }
-    button.dataset.order = order;
-
-    const currentIcon = button.querySelector('i');
-    document.querySelectorAll('.sort-btn i').forEach(icon => {
-        icon.classList.remove('fa-sort-up', 'fa-sort-down');
-        icon.classList.add('fa-sort');
-    });
-
-    if (order === 'asc') {
-        currentIcon.classList.remove('fa-sort');
-        currentIcon.classList.add('fa-sort-up');
-        currentSort = { column, direction: 'asc' };
-    } else if (order === 'desc') {
-        currentIcon.classList.remove('fa-sort');
-        currentIcon.classList.add('fa-sort-down');
-        currentSort = { column, direction: 'desc' };
-    } else {
-        currentIcon.classList.remove('fa-sort-up', 'fa-sort-down');
-        currentIcon.classList.add('fa-sort');
-        currentSort = { column: null, direction: 'asc' };
-    }
-
-    filterAndRenderRecords();
-}
-
-function sortRecords(records, column, direction) {
-    if (!column) return records;
-
-    const sortedRecords = [...records];
-    sortedRecords.sort((a, b) => {
-        const aText = a[column] ? a[column].toString().trim() : '';
-        const bText = b[column] ? b[column].toString().trim() : '';
-        if (!isNaN(aText) && !isNaN(bText)) {
-            return direction === 'asc' ? aText - bText : bText - aText;
-        } else {
-            return direction === 'asc' ? aText.localeCompare(bText) : bText.localeCompare(aText);
-        }
-    });
-
-    return sortedRecords;
-}
-
-function updateRecordList(record, action) {
-    if (action === 'add') {
-        console.log('Adding new record:', record);
-        allRecords.unshift(record);
-    } else if (action === 'update') {
-        console.log('Updating record:', record);
-        const index = allRecords.findIndex(r => r.id === record.id);
-        if (index !== -1) allRecords[index] = record;
-    }
-    filterAndRenderRecords();
-}

@@ -1,25 +1,28 @@
 const { ipcRenderer } = require('electron');
 
-// Handle form submission for adding a borrow record
-async function handleAddBorrow() {
+async function handleAddBorrow(event) {
+    event.preventDefault();
+
     const borrowerName = document.getElementById('addBorrowerName').value;
     const bookTitle = document.getElementById('addBookTitle').value;
     const borrowDate = document.getElementById('addBorrowDate').value;
     const borrowStatus = document.getElementById('addBorrowStatus').value;
 
     try {
-        const newRecord = await ipcRenderer.invoke('addBorrow', {
+        const newRecord = {
             borrowerName,
             bookTitle,
             borrowDate,
             borrowStatus
-        });
-
-        return newRecord;
+        };
+        await ipcRenderer.invoke('addBorrow', newRecord);
+        ipcRenderer.send('borrow-added-success'); // Send success message
+        window.close(); // Close the add borrow window
+        
     } catch (error) {
         console.error('Error adding borrow record:', error);
-        throw error;
+        ipcRenderer.send('borrow-added-failure'); // Send failure message
     }
 }
 
-module.exports = handleAddBorrow;
+document.getElementById('addBorrowForm').addEventListener('submit', handleAddBorrow);

@@ -1,53 +1,85 @@
-/**
- * Manages pagination for rendering borrow records, including functions for rendering records,
- * changing pages, and updating pagination info and button states.
- */
-
-
-// Pagination variables
 let currentPage = 1;
-const recordsPerPage = 7;
+const recordsPerPage = 3;  // Display 3 records per page
+let filteredRecords = [];  // Store filtered records globally for pagination
 
-// Render borrow records with pagination
-function renderBorrowRecords(records, renderFunction) {
-    const start = (currentPage - 1) * recordsPerPage;
-    const end = start + recordsPerPage;
-    const paginatedRecords = records.slice(start, end);
+// Pagination setup function
+function setupPagination() {
+    document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
+    document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
+    document.getElementById('nextPage').addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+        goToPage(currentPage + 1, totalPages);
+    });
+    document.getElementById('lastPage').addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+        goToPage(totalPages);
+    });
 
-    renderFunction(paginatedRecords);
+    // Event listener for page input field
+    document.getElementById('pageLocation').addEventListener('change', (event) => {
+        const enteredPage = parseInt(event.target.value, 10);
+        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
 
-    // Update pagination info
-    document.getElementById('pageInfo').textContent = `Page ${currentPage}`;
-
-    // Update button states
-    document.getElementById('prevPage').disabled = currentPage === 1;
-    document.getElementById('nextPage').disabled = end >= records.length;
+        if (isNaN(enteredPage) || enteredPage < 1 || enteredPage > totalPages) {
+            showNotification('Invalid page number!', 'error');
+            // Reset to the current page number and adjust width
+            pageLocationInput.value = currentPage;
+            adjustWidth();
+        } else {
+            goToPage(enteredPage, totalPages);
+        }
+    });
 }
 
-// Change the current page
-function changePage(direction, renderFunction) {
-    currentPage += direction;
-    renderBorrowRecords(allRecords, renderFunction);
+// Change page and reload records
+function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsPerPage)) {
+    if (page < 1) {
+        currentPage = 1;  // Stay on first page
+    } else if (page > totalPages) {
+        currentPage = totalPages;  // Stay on last page
+    } else {
+        currentPage = page;  // Set to desired page
+    }
+
+    // Update pagination display
+    updatePageNumber(currentPage);
+    document.getElementById('totalPages').textContent = `of ${totalPages}`;
+
+    // Reload the records for the new page
+    loadBorrowRecords();
 }
 
-// Setters for pagination variables
-function setCurrentPage(page) {
-    currentPage = page;
+// Update pagination control button states
+function updatePaginationControls(totalPages) {
+    document.getElementById('firstPage').disabled = (currentPage === 1);
+    document.getElementById('prevPage').disabled = (currentPage === 1);
+    document.getElementById('nextPage').disabled = (currentPage === totalPages || totalPages === 0);
+    document.getElementById('lastPage').disabled = (currentPage === totalPages || totalPages === 0);
 }
 
-// Getters for pagination variables
-function getCurrentPage() {
-    return currentPage;
+// Get input element
+const pageLocationInput = document.getElementById('pageLocation');
+
+// Function to adjust width based on the number of characters
+function adjustWidth() {
+    const textLength = pageLocationInput.value.length;
+    // Set a base width for 1-digit numbers
+    let width = 40; // Base width
+    // Increase width by increments for each additional digit
+    if (textLength > 1) {
+        width += (textLength - 1) * 20; // Incremental width adjustment
+    }
+    pageLocationInput.style.width = width + 'px';
 }
 
-function getRecordsPerPage() {
-    return recordsPerPage;
+// Function to update the page number and adjust the input width
+function updatePageNumber(newPageNumber) {
+    pageLocationInput.value = newPageNumber;
+    adjustWidth(); // Adjust width whenever page number is updated
 }
 
-module.exports = {
-    renderBorrowRecords,
-    changePage,
-    setCurrentPage,
-    getCurrentPage,
-    getRecordsPerPage
-};
+// Initialize width for the first page number
+adjustWidth();
+
+// Initialize pagination width update based on user input
+pageLocationInput.addEventListener('input', adjustWidth);

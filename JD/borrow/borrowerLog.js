@@ -26,6 +26,12 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
+// Update borrower name in the UI
+function updateBorrowerName(borrowerName) {
+    document.getElementById('borrowerName').textContent = borrowerName;
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const borrowerName = urlParams.get('borrowerName');
@@ -101,7 +107,10 @@ function displayLog() {
         row.innerHTML = `
             <td>${entry.bookTitle}</td>
             <td>${entry.borrowDate}</td>
-            <td>${entry.borrowStatus}</td>
+            
+  <td>
+                <span class="status-text ${entry.borrowStatus}">${entry.borrowStatus}</span>
+            </td>
         `;
         container.appendChild(row);
     });
@@ -109,10 +118,6 @@ function displayLog() {
     updatePaginationControls();
 }
 
-// Update borrower name in the UI
-function updateBorrowerName(borrowerName) {
-    document.getElementById('borrowerName').textContent = `Log for ${borrowerName}`;
-}
 // Apply filters to log data
 function applyFilters() {
     // Get filter values
@@ -191,7 +196,28 @@ function resetDateFilters() {
     applyFilters();
 }
 
+// Debounce function to limit the rate at which a function is executed
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
 
+// Close the custom date range filter when clicking outside of it
+document.addEventListener('click', (event) => {
+    const customDateRange = document.getElementById('customDateRange');
+    const dateRangeSelect = document.getElementById('dateRangeSelect');
+
+    if (!dateRangeSelect.contains(event.target) && !customDateRange.contains(event.target)) {
+        customDateRange.style.display = 'none';
+    }
+});
+
+
+
+// PAGINATION
 // Update pagination controls
 function updatePaginationControls() {
     const totalPages = Math.ceil(filteredLogData.length / rowsPerPage);
@@ -217,22 +243,3 @@ function nextPage() {
         displayLog();
     }
 }
-
-// Debounce function to limit the rate at which a function is executed
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
-
-// Close the custom date range filter when clicking outside of it
-document.addEventListener('click', (event) => {
-    const customDateRange = document.getElementById('customDateRange');
-    const dateRangeSelect = document.getElementById('dateRangeSelect');
-
-    if (!dateRangeSelect.contains(event.target) && !customDateRange.contains(event.target)) {
-        customDateRange.style.display = 'none';
-    }
-});

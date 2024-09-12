@@ -371,38 +371,61 @@ td input[type="checkbox"] {
 }
 
 
-/* Pagination container */
-#pagination {
+/* PAGINATION */
+/* Style for pagination controls container */
+#paginationControls {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    justify-content: center;
+    gap: 10px; /* Space between elements */
+    margin: 20px 0; /* Space around the controls */
 }
 
-.pagination-container {
-    background: white;
+/* Style for each button */
+#paginationControls button {
+    background-color: #30688B; /* Light gray background */
+    border: none; /* Gray border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 8px 12px; /* Padding inside the button */
+    font-size: 16px; /* Font size for the icon */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
 }
 
-/* Page button styling */
-.page-btn {
-    background-color: #ffffff;
-    margin: 0.15rem;
-    border-radius: 0.25rem;
-    border-color: #c2c2c2;
-    border-width: 1.5px;
-    padding: 0.25rem;
-    border: none;
+/* Change background and border color on hover */
+#paginationControls button:hover {
+    opacity: 90%;
 }
 
-.page-btn:hover {
-    background-color: #c8c6c6;
+/* Style for disabled buttons */
+#paginationControls button:disabled {
+    background-color: #d0d0d0; /* Light gray background for disabled state */
+    border-color: #bbb; /* Gray border for disabled state */
+    color: #888; /* Light gray text color */
+    cursor: not-allowed; /* Indicate that the button is disabled */
 }
 
-.page-btn.active {
-    background-color: lightblue;
-    border: 1px solid #007BFF;
+/* Style for the input field */
+#paginationControls input#pageLocation {
+    width: 50px; /* Set width for the input */
+    text-align: center; /* Center text inside the input */
+    padding: 8px; /* Padding inside the input */
+    border: 1px solid #ccc; /* Gray border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size for the input */
+}
+
+/* Style for the total pages span */
+#paginationControls #totalPages {
+    font-size: 16px; /* Font size for the total pages text */
+    color: #333; /* Dark text color */
     font-weight: bold;
-    color: #383838;
+}
+
+/* Style for icons inside buttons */
+#paginationControls button i {
+    font-size: 16px; /* Font size for icons */
+    color: whitesmoke; /* Dark color for icons */
 }
 
 /* Icon button styling */
@@ -457,6 +480,7 @@ td input[type="checkbox"] {
     background-color: #f9f9f9;
     border: 1px solid #dddddd;
     border-radius: 4px;
+    height: 10rem;
 }
 
 /* NOTIFICATION WINDOW FOR UPDATE AND ADDING BOOKS */

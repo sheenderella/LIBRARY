@@ -75,12 +75,14 @@
     <i class="fa fa-arrow-left"></i> </a>
 
     <!-- Page Heading -->
-    <h1>Borrowers Log</h1>
+    
     <h2 id="borrowerName">Loading borrower name...</h2>
+    <h1>Borrowing History</h1>
 
     <!-- Filters Section -->
+     <div class="controls">
     <div id="filters" class="form-group row">
-
+    
         <!-- Search Box -->
         <div class="input-group col">
             <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
@@ -135,20 +137,21 @@
         </div>
     </div>
 </div>
+</div>
     
-    <!-- Borrower Log Table -->
-    <table id="borrowerLogTable" class="table table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Book Title</th>
-                <th>Borrow Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="borrowerLogContainer">
-            <!-- Content will be loaded by JavaScript -->
-        </tbody>
-    </table>
+<!-- Borrower Log Table -->
+<table id="borrowerLogTable">
+    <thead>
+        <tr>
+            <th>Book Title</th>
+            <th>Borrow Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="borrowerLogContainer">
+        <!-- Content will be loaded by JavaScript -->
+    </tbody>
+</table>
 
     <!-- Pagination Controls -->
     <div id="paginationControls" class="pagination-container d-flex align-items-center">

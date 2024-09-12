@@ -249,25 +249,110 @@ body {
 }
 
 /* DELETE & ADD */
+/* Button Container */
+.button-container {
+    display: flex;
+    gap: 10px; /* Spacing between buttons */
+    align-items: center;
+}
+
+/* General Button Style */
+button.btn {
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border-radius: 9px;
+    font-size: 16;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Delete Button */
+#deleteSelected {
+    background-color: #dc3545; /* Red */
+    color: #fff;
+}
+
+#deleteSelected:hover {
+    background-color: #c82333; /* Darker red */
+}
+
+#deleteSelected:active {
+    background-color: #bd2130; /* Even darker red */
+    transform: scale(0.98); /* Slight shrink on click */
+}
+
+/* Add Button */
+#addBorrow {
+    background-color: #28a745; /* Green */
+    color: #fff;
+}
+
+#addBorrow:hover {
+    background-color: #218838; /* Darker green */
+}
+
+#addBorrow:active {
+    background-color: #1e7e34; /* Even darker green */
+    transform: scale(0.98); /* Slight shrink on click */
+}
 
 
 
+
+/* TABLE */
 /* Table Section: Styling for displaying the list of borrow records */
 table {
-    width: 100%;
+    width: 100%; /* Set a fixed width for the table */
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: auto; /* Ensures columns have fixed widths */
 }
 
 thead {
     background-color: #30688B;
     color: #fff;
+    text-align: center;
+    
 }
 
 th, td {
     padding: 10px;
-    border: none; /* Remove vertical lines */
-    text-align: center; /* Center column names */
+    border: none;
+    text-align: center;
+    white-space: normal; /* Allows text to wrap */
+    word-wrap: break-word; /* Breaks long words to fit in the cell */
+    overflow-wrap: break-word; /* Ensures overflowed content wraps */
+    height: auto; /* Allows rows to adjust their height based on content */
+}
+
+/* Set the first and sixth columns to be the smallest */
+th:first-child, td:first-child {
+    width: 80px; /* Width for the first column */
+}
+
+th:nth-child(6), td:nth-child(6) {
+    width: 80px; /* Width for the sixth column */
+}
+
+th:nth-child(5), td:nth-child(5) {
+    width: 80px; /* Width for the sixth column */
+}
+th:nth-child(4), td:nth-child(4) {
+    width: 150px; /* Width for the sixth column */
+}
+
+/* Set widths for the other columns */
+th:not(:first-child):not(:nth-child(6)), td:not(:first-child):not(:nth-child(6)) {
+    width: calc((800px - 160px) / (number_of_other_columns)); /* Adjust based on the number of columns */
+}
+
+tbody tr {
+    height: auto; /* Ensures rows adjust based on content height */
 }
 
 tbody tr:nth-child(odd) {
@@ -278,24 +363,35 @@ tbody tr:nth-child(even) {
     background-color: #eeeeee;
 }
 
-/* Status Column Section: Styling for status labels */
-td.status-returned {
-    background-color: #d4edda;
-    color: #155724;
-    text-align: center;
-    font-weight: bold;
-    border-radius: 5px;
-    padding: 5px 10px;
+
+/* STATUS HIGHLIGHT */
+/* General styling for the table */
+#borrowList {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-td.status-borrowed {
-    background-color: #fff3cd;
-    color: #856404;
-    text-align: center;
-    font-weight: bold;
-    border-radius: 5px;
-    padding: 5px 10px;
+/* Row styling */
+#borrowList tr {
+    height: 30px; /* Adjust the height if needed */
 }
+
+/* Styling for the status text to highlight */
+.status-text {
+    padding: 2px 4px; /* Small padding around the text */
+    border-radius: 4px; /* Rounded corners for better appearance */
+    display: inline-block; /* Ensure the background wraps only the text */
+}
+
+/* Highlighting based on status */
+.status-text.borrowed {
+    background-color: #FBEEAD; /* Light yellow for Borrowed */
+}
+
+.status-text.returned {
+    background-color: #C2FFC8; /* Light green for Returned */
+}
+
 
 /* Icon Section: Styling for edit and delete icons */
 .edit-btn, .delete-btn {
@@ -310,6 +406,8 @@ td.status-borrowed {
     cursor: pointer;
 }
 
+
+/* SORT BUTTON */
 /* Sort Buttons Section: Styling for sort buttons */
 .sort-btn {
     background-color: transparent; /* Remove button background */
@@ -333,29 +431,60 @@ td.status-borrowed {
     margin-left: 5px; /* Space between the text and the icon */
 }
 
-/* Pagination Section: Controls for navigating between pages */
-.pagination-controls {
+
+
+
+/* PAGINATION */
+.pagination-container {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    justify-content: center;
+    width: 100%; /* Full width for centering */
+    margin: 0 auto; /* Center it horizontally */
+    padding-top: 20px;
+
 }
 
-.pagination-controls button {
-    padding: 5px 10px;
-    margin: 0 5px;
-    border: 1px solid #333C42;
+.pagination-container button {
+    padding: 6px 18px; /* Adjust button padding */
     background-color: #30688B;
-    color: white;
-    cursor: pointer;
-    border-radius: 3px;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-.pagination-controls span {
-    padding: 5px 10px;
-    color: #333C42;
-    font-weight: bold;
+.pagination-container button:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
 }
+
+.pagination-container button:hover:not(:disabled) {
+    background-color: #3A79A0;
+}
+
+#pageLocation {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    min-width: 40px; /* Initial width */
+    border-radius: 5px;
+    height: 45px;
+    box-shadow: 0 1px 3px 30688B;
+    transition: width 0.2s ease-in-out; /* Smooth transition for width */
+}
+
+
+
+#totalPages {
+    font-weight: bold;
+    margin-left: 8px;
+    font-size: 14px;
+}
+
+button i {
+    font-size: 16px;
+}
+
 
 
 
@@ -470,3 +599,46 @@ td.status-borrowed {
     display: none; /* Hide the link text when sidebar is collapsed */
 }
 
+
+/* Notification styles */
+#notification {
+    position: fixed;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    background-color: #4CAF50; /* Default to green; can be overridden */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(100%); /* Hide off-screen */
+}
+
+#notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Move into view */
+}
+
+
+/* SEARCH */
+/* Add this to your CSS file */
+.no-results {
+    text-align: center; /* Center the text horizontally */
+    vertical-align: middle; /* Center the text vertically */
+    font-weight: bold; /* Make the text bold */
+    color: #333; /* Change text color if needed */
+}
+
+/* Ensure the rows have equal height */
+tr {
+    height: 60px; /* Adjust as needed to fit your design */
+
+}
+
+/* NAME */
+.borrower-name {
+    cursor: pointer;
+    color: inherit; /* Keeps the same color as surrounding text */
+    text-decoration: none; /* Removes any underline or link appearance */
+}

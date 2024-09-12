@@ -117,6 +117,9 @@ body {
     display: none; /* Hide the link text when sidebar is collapsed */
 }
 
+
+
+
 /* Main content area */
 #page-content-wrapper {
     flex-grow: 1; /* Allow the content to expand to fill available space */
@@ -130,44 +133,39 @@ body {
     margin-left: 80px; /* Reduced margin when sidebar is collapsed */
 }
 
-
-
-
-
-
-/* Headings */
+/* BORROWER NAME */
 h1 {
-    font-size: 2.5rem;
-    color: #343a40;
-    text-align: center;
-    margin-bottom: 20px;
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    color: #666;
+    font-style: italic; /* Make the text italic */
+    margin-bottom: 40px;
+    margin-left: 15px;
+    text-align: left; /* Ensures all child elements are aligned to the left */
 }
 
-h2#borrowerName {
-    font-size: 1.75rem;
-    color: #6c757d;
-    text-align: center;
-    margin-bottom: 30px;
-}
 
-/* Container */
-.container {
-    width: 80%;
-    margin: auto;
-    padding: 20px;
-    background: #fff;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+/* Styling for the Borrower Name */
+#borrowerName {
+    color: #30688B; /* Dark blue */
     margin-top: 20px;
+    font-size: 60px; /* Larger than the default h3 for emphasis */
+    font-weight: bolder;
+    margin-left: 7px;
+    margin-bottom: -5px;
 }
+
+
 
 /* Filters Section */
 #filters {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin: 20px 0;
+    align-items: center; /* Center vertically */
+    margin: 10px 0;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 1px;
 }
 
 /* Search Box */
@@ -178,18 +176,23 @@ h2#borrowerName {
     padding: 10px;
     background-color: #30688B;
     border: 1px solid #333C42;
+    height: 45px;
+    
 }
 
 .search-icon {
     color: #fff;
     font-size: 18px;
     pointer-events: none;
+    width: 80%;
+
 }
 
 .input-group {
     display: flex;
     align-items: center;
     flex-grow: 2; /* Larger flex-grow for the search input */
+
 }
 
 /* Input and Select Elements */
@@ -198,6 +201,7 @@ h2#borrowerName {
     padding: 10px;
     border: 1px solid #333C42;
     font-size: 1rem;
+    height: 45px;
 }
 
 #searchTitle {
@@ -227,6 +231,9 @@ h2#borrowerName {
     box-sizing: border-box;
     width: 100%; /* Ensure it occupies the full container */
     padding: 10px;
+    height: 45px;
+    border-radius: 4px;
+    
 }
 
 .filter-icon {
@@ -264,10 +271,12 @@ h2#borrowerName {
     flex-grow: 1;
     max-width: 200px; /* Adjust this based on your needs */
     position: relative; /* To ensure the custom date range is positioned correctly */
+
 }
 
 .date-range-box {
     display: flex;
+    height: 45px;
     align-items: center;
     background-color: #ffffff;
     color: #333C42;
@@ -335,7 +344,7 @@ h2#borrowerName {
 }
 
 .date-group input {
-    height: 35px;
+    height: 34px;
     border-radius: 4px;
     border: 1px solid #ced4da;
     padding: 5px 10px;
@@ -368,10 +377,13 @@ h2#borrowerName {
 }
 
 
-/* Borrower Log Table */
+
+
+/* TABLE */
 #borrowerLogTable {
-    width: 100%;
+    width: 97%;
     margin-top: 20px;
+    margin-left: 15px;
     border-collapse: collapse;
     font-size: 1rem;
 }
@@ -379,19 +391,44 @@ h2#borrowerName {
 #borrowerLogTable th, 
 #borrowerLogTable td {
     padding: 12px;
-    border: 1px solid #dee2e6;
-    text-align: left;
+    border: none;
+    text-align: center; /* Align text in the center */
+    word-wrap: break-word; /* Enable word wrapping */
+    white-space: normal;   /* Allow text to wrap */
 }
+
+/* Fixed width for 2nd and 3rd columns */
+#borrowerLogTable th:nth-child(2),
+#borrowerLogTable td:nth-child(2) {
+    min-width: 150px; /* Set fixed width for the 2nd column */
+    width: auto;
+}
+
+#borrowerLogTable th:nth-child(3),
+#borrowerLogTable td:nth-child(3) {
+    min-width: 100px; /* Set fixed width for the 3rd column */
+    width: auto;
+}
+
 
 #borrowerLogTable th {
     background-color: #30688B;
     color: white;
-    text-transform: uppercase;
+   
+}
+
+
+#borrowerLogTable tr:nth-child(odd) {
+    background-color: #f9f9f9;
 }
 
 #borrowerLogTable tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #eeeeee;
 }
+
+
+
+
 
 /* Back to Borrow Page Button */
 #backToBorrowPage {
@@ -401,12 +438,16 @@ h2#borrowerName {
     background-color: #6c757d;
     color: white;
     text-decoration: none;
+    border: none;
     font-size: 1rem;
 }
 
 #backToBorrowPage:hover {
-    background-color: #52b4ff;
+    background-color: #30688B;
 }
+
+
+
 
 /* Pagination */
 /* Container for pagination controls */
@@ -461,4 +502,89 @@ h2#borrowerName {
 #totalPages {
     margin-left: var(--label-margin-left, 10px); /* Space between input and label */
     margin-right: var(--label-margin-right, 10px); /* Space between label and next button */
+}
+
+
+/* Status Field Styles */
+.status-text {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+ 
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+}
+
+.status-text.borrowed {
+    background-color: #007bff; /* Blue for borrowed */
+}
+
+.status-text.returned {
+    background-color: #28a745; /* Green for returned */
+}
+
+.status-text.overdue {
+    background-color: #dc3545; /* Red for overdue */
+}
+
+/* Button Styles */
+.btn-info {
+    background-color: #17a2b8; /* Teal for info */
+    border: none;
+    color: #fff;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Red for delete */
+    border: none;
+    color: #fff;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.edit-btn i, .delete-btn i {
+    margin-right: 0.25rem;
+}
+
+
+
+/* STATUS */
+/* General styling for the table */
+#borrowList {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Row styling */
+#borrowList tr {
+    height: 30px; /* Adjust the height if needed */
+}
+
+/* Styling for the status text to highlight */
+/* Styling for the status text to highlight */
+.status-text {
+    padding: 2px 4px; /* Small padding around the text */
+    border-radius: 4px; /* Rounded corners for better appearance */
+    display: inline-block; /* Ensure the background wraps only the text */
+    color: #333C42;
+    font-style: normal; /* Ensure normal font style */
+    font-weight: normal; /* Ensure font weight is normal */
+}
+
+
+/* Highlighting based on status */
+.status-text.borrowed {
+    background-color: #FBEEAD; /* Light yellow for Borrowed */
+    font-style: normal;
+}
+
+.status-text.returned {
+    background-color: #C2FFC8; /* Light green for Returned */
 }
