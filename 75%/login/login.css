@@ -43,6 +43,7 @@ body, html {
   font-size: 18px; /* Smaller font size */
   text-align: center;
   padding-top: 10px;
+  font-weight: bold;
 }
 
 /* Card Body */
@@ -119,6 +120,7 @@ input[type="password"] {
 
 .btn:hover {
   background-color: #1e4f6b;
+  color: white;
 }
 
 #logout-link {

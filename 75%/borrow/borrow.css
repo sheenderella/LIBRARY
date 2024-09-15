@@ -256,25 +256,17 @@ body {
     align-items: center;
 }
 
-/* General Button Style */
-button.btn {
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    border-radius: 9px;
-    font-size: 16;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-}
 
 /* Delete Button */
 #deleteSelected {
     background-color: #dc3545; /* Red */
     color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
+
 }
 
 #deleteSelected:hover {
@@ -290,6 +282,11 @@ button.btn {
 #addBorrow {
     background-color: #28a745; /* Green */
     color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
 }
 
 #addBorrow:hover {
@@ -335,16 +332,21 @@ th:first-child, td:first-child {
     width: 80px; /* Width for the first column */
 }
 
+th:nth-child(2), td:nth-child(2) {
+    min-width: 160px; /* Width for the sixth column */
+}
+
 th:nth-child(6), td:nth-child(6) {
-    width: 80px; /* Width for the sixth column */
+    width: 120px; /* Width for the sixth column */
 }
 
 th:nth-child(5), td:nth-child(5) {
     width: 80px; /* Width for the sixth column */
 }
 th:nth-child(4), td:nth-child(4) {
-    width: 150px; /* Width for the sixth column */
+    width: 140px; /* Width for the sixth column */
 }
+
 
 /* Set widths for the other columns */
 th:not(:first-child):not(:nth-child(6)), td:not(:first-child):not(:nth-child(6)) {
@@ -395,16 +397,19 @@ tbody tr:nth-child(even) {
 
 /* Icon Section: Styling for edit and delete icons */
 .edit-btn, .delete-btn {
-    margin: 0;
-    padding: 5px;
     display: inline-block;
-    color: #333C42;
+    color: #4C4C4C !important;
     font-size: 18px;
-    background: none; /* Remove background for icons */
-    border: none; /* Ensure no border around icons */
+    background: none !important; /* Remove background for icons */
+    border: none !important; /* Ensure no border around icons */
     text-align: center;
     cursor: pointer;
 }
+/* Icon Section: Styling for edit and delete icons */
+.edit-btn:hover , .delete-btn:hover  {
+    color: #333C42 !important;
+}
+
 
 
 /* SORT BUTTON */
@@ -448,6 +453,7 @@ tbody tr:nth-child(even) {
     padding: 6px 18px; /* Adjust button padding */
     background-color: #30688B;
     font-size: 14px;
+    border: none;
     border-radius: 5px;
     transition: background-color 0.3s, box-shadow 0.3s;
 }

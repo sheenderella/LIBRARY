@@ -240,6 +240,8 @@ document.getElementById('deleteSelected').addEventListener('click', function () 
 });
 let selectedRecords = new Set();  // Track selected records across pages
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
     loadBorrowRecords();
     setupPagination();
@@ -278,7 +280,6 @@ function resetAndLoadRecords() {
     currentPage = 1;
     loadBorrowRecords();
 }
-
 
 // Function to reload the entire borrow list
 async function loadBorrowRecords() {
@@ -330,6 +331,21 @@ async function loadBorrowRecords() {
         // Update pagination controls based on new data
         updatePaginationControls(totalPages);
 
+        function updatePaginationControls(totalPages) {
+            // Update buttons for first, previous, next, and last page
+            document.getElementById('firstPage').disabled = (currentPage === 1);
+            document.getElementById('prevPage').disabled = (currentPage === 1);
+            document.getElementById('nextPage').disabled = (currentPage === totalPages || totalPages === 0);
+            document.getElementById('lastPage').disabled = (currentPage === totalPages || totalPages === 0);
+        
+            // Update total pages display
+            document.getElementById('totalPages').textContent = `of ${totalPages}`;
+            
+            // Update the input field for the current page
+            updatePageNumber(currentPage);
+        }
+        
+
         // Update "Select All" checkbox based on full selection state
         updateSelectAllCheckbox();
     } catch (error) {
@@ -337,6 +353,32 @@ async function loadBorrowRecords() {
         showNotification('Failed to load records. Please try again.', 'error');
     }
 }
+
+
+//DATE
+document.getElementById('dateRangeSelect').addEventListener('change', function () {
+    const dateRange = document.getElementById('dateRangeSelect').value;
+    const customDateRange = document.getElementById('customDateRange');
+
+    if (dateRange === 'custom') {
+        customDateRange.style.display = 'block';  // Show custom date inputs
+    } else {
+        customDateRange.style.display = 'none';   // Hide custom date inputs
+        loadBorrowRecords();  // Automatically reload records on non-custom range selection
+    }
+});
+
+
+document.getElementById('applyDateRange').addEventListener('click', function () {
+    loadBorrowRecords();  // Apply date range when the user clicks the Apply button
+});
+
+document.getElementById('clearDateRange').addEventListener('click', function () {
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    loadBorrowRecords();  // Reload records without date filter
+});
+
 
 // Helper function to filter by date range
 function filterByDateRange(borrowDate, dateRange, startDate, endDate) {
@@ -366,5 +408,3 @@ function filterByDateRange(borrowDate, dateRange, startDate, endDate) {
         return true; // No date filter applied
     }
 }
-
-
