@@ -64,8 +64,8 @@
         <!-- Main Content -->
         <main id="page-content-wrapper" class="p-4">
             <div class="container mt-5">
-                <div class="text-center mb-4">
-                   <p class="top-head-h1">Books</p>
+                <div class="header-content">
+                   <p class="top-head-h1">Book Records</p>
                    <p class="top-head-p">List of books in the library.</p>
                 </div>
 
@@ -73,8 +73,9 @@
                     <div class="right-side">
                         <div id="dateRangeContainer" class="date-range-container">
                             <i class="icon fas fa-calendar"></i>
+                            <!-- <span id="dateFilterText">Search by Date</span> -->
                             <select id="dateRangeSelect" class="form-control">
-                                <option value="">Search by Date</option>
+                                <option value="">Clear Date Entry</option>
                                 <option value="last_7_days">Last 7 Days</option>
                                 <option value="last_30_days">Last 30 Days</option>
                                 <option value="this_month">This Month</option>
@@ -91,7 +92,8 @@
                         </div>
                         <div class="dropdown-container">
                             <i class="icon fas fa-filter"></i>
-                            <select id="searchColumn" class="search-form-control">
+                            <!-- <span id="seachFilterText">Search by Fields</span> -->
+                            <select id="searchColumn" class="drop-search-form">
                                 <option value="all">All</option>
                                 <option value="number">Number</option>
                                 <option value="class">Class</option>
@@ -112,8 +114,28 @@
                             <input type="text" id="searchInput" class="search-form-control" placeholder="Search">
                         </div>
                     </div>
-                    <div class="right-side">
-                        <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i>Add</button>
+                                    <!-- Column Visibility Form -->
+                <div id="columnVisibilityForm" class="column-visibility-form">
+                    <form id="columnForm">
+                        <label><input type="checkbox" data-column="number" checked> Number</label>
+                        <label><input type="checkbox" data-column="date_received" checked> Date Received</label>
+                        <label><input type="checkbox" data-column="class" checked> Class</label>
+                        <label><input type="checkbox" data-column="author" checked> Author</label>
+                        <label><input type="checkbox" data-column="edition" checked> Edition</label>
+                        <label><input type="checkbox" data-column="volume" checked> Volume</label>
+                        <label><input type="checkbox" data-column="source_of_fund" checked> Source of Fund</label>
+                        <label><input type="checkbox" data-column="pages" checked> Pages</label>
+                        <label><input type="checkbox" data-column="cost_price" checked> Cost Price</label>
+                        <label><input type="checkbox" data-column="publisher" checked> Publisher</label>
+                        <label><input type="checkbox" data-column="year" checked> Year</label>
+                        <label><input type="checkbox" data-column="remarks" checked> Remarks</label>
+                    </form>
+                        <button type="button" id="showAll" class="btn btn-primary">Show All</button>
+                        <button type="button" id="hideAll" class="btn btn-danger">Hide All</button>
+                </div>
+                    <div class="right-side-buttons">
+                        <button id="toggleColumns" class="btn btn-secondary"><i class="fas fa-eye"></i></button>
+                        <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i></button>
                         <button id="deleteSelected" class="btn btn-danger"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>                             
@@ -129,21 +151,21 @@
                 <table>
                     <thead>
                         <tr>
-                            <th><input type="checkbox" id="selectAll"></th>
-                            <th>Number <button data-column="number" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Date Received <button data-column="date_received" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Class <button data-column="class" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Author <button data-column="author" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Book Title <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Edition <button data-column="edition" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Volume <button data-column="volume" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Source of Fund <button data-column="source_of_fund" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Pages <button data-column="pages" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Cost Price <button data-column="cost_price" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Publisher <button data-column="publisher" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Year <button data-column="year" class="sort-btn"><i class="fa fa-sort"></i></button></th>
-                            <th>Remarks</th>
-                            <th>Actions</th>
+                            <th class="column-checkbox"><input type="checkbox" id="selectAll"></th>
+                            <th class="column-number">Number <button data-column="number" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-date_received">Date Received <button data-column="date_received" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-class">Class <button data-column="class" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-author">Author <button data-column="author" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-title_of_book">Book Title <button data-column="title_of_book" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-edition">Edition <button data-column="edition" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-volume">Volume <button data-column="volume" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-source_of_fund">Source of Fund <button data-column="source_of_fund" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-pages">Pages <button data-column="pages" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-cost_price">Cost Price <button data-column="cost_price" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-publisher">Publisher <button data-column="publisher" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-year">Year <button data-column="year" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-remarks">Remarks</th>
+                            <th class="column-actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="bookList">
@@ -154,24 +176,27 @@
         </div>
         
 
-        <div id="pagination" class="pagination-container"></div>
+                <!-- Pagination Controls -->
+                <div id="paginationControls">
+                    <button id="firstPage">
+                        <i class="fa-solid fa-backward-fast"></i>
+                    </button>
+                    <button id="prevPage">
+                        <i class="fa-solid fa-caret-left"></i>
+                    </button>
+                    <input type="text" id="pageLocation">
+                    <span id="totalPages">of 1</span>
+                    <button id="nextPage">
+                        <i class="fa-solid fa-caret-right"></i>
+                    </button>
+                    <button id="lastPage">
+                        <i class="fa-solid fa-forward-fast"></i>
+                    </button>
+                </div>
     </main>
     </div>
 
-   
     <script src="books.js"></script>
-    
-    <script>
-        document.getElementById('dateRangeSelect').addEventListener('change', function() {
-            const customRange = document.getElementById('customDateRange');
-            if (this.value === 'custom') {
-                customRange.style.display = 'block';
-            } else {
-                customRange.style.display = 'none';
-            }
-        });
-    </script>
-
     <!-- Include Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../login/logout.js"></script>

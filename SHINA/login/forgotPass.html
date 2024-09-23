@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forgot Password - GRUBA LAW LIBRARY</title>
+    <link rel="stylesheet" href="forgotPass.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Forgot Password</h3>
+                
+                <!-- Forgot Password Form -->
+                <form id="forgot-password-form">
+                    <label for="username">Username:</label>
+                    <input id="username" type="text" placeholder="Enter your username" required />
+                    <button class="btn" type="submit">Submit</button>
+                    <div id="response-message"></div>
+                </form>
+
+                <!-- Reset Password Form -->
+                <form id="reset-password-form">
+                    <label for="new-password">New Password:</label>
+                    <input id="new-password" type="password" placeholder="Enter new password" required />
+                    <button class="btn" type="submit">Reset Password</button>
+                    <div id="reset-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="forgotPass.js"></script>
+</body>
+</html>

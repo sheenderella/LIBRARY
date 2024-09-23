@@ -1,166 +1,8 @@
 const { ipcRenderer } = require('electron');
 
-// Sidebar toggle functionality
-document.getElementById('sidebarCollapse').addEventListener('click', function () {
-    const wrapper = document.getElementById('wrapper');
-    const sidebar = document.getElementById('sidebar-wrapper');
-    
-    wrapper.classList.toggle('collapsed');
-    sidebar.classList.toggle('collapsed');
-});
-
-document.getElementById('logout-link').addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent default link behavior
-
-    ipcRenderer.invoke('logout').then(() => {
-        window.location.href = './login/login.html'; // Redirect to login page after logout
-    }).catch(error => {
-        console.error('Error during logout:', error);
-        alert('An error occurred. Please try again.');
-    });
-});
-
 document.addEventListener('DOMContentLoaded', () => {
-    const addBookButton = document.getElementById('addBook');
-    const deleteSelectedButton = document.getElementById('deleteSelected');
-    const selectAllCheckbox = document.getElementById('selectAll');
-
-    const searchColumn = document.getElementById('searchColumn');
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', filterBooks);
-
-    //clear button
-    const clearDateRangeButton = document.getElementById('clearDateRange');
-    clearDateRangeButton.addEventListener('click', () => {
-        // Reset date inputs
-        document.getElementById('startDate').value = '';
-        document.getElementById('endDate').value = '';
-
-        // Hide custom date range container
-        document.getElementById('customDateRange').style.display = 'none';
-        document.getElementById('dateRangeSelect').value = ''; // Optionally reset the dropdown
-
-        // Reset the filter and display default content
-        filterBooks();
-    });
-
-        // Add event listener for date range selection
-        document.getElementById('dateRangeSelect').addEventListener('change', function() {
-            const customRange = document.getElementById('customDateRange');
-            if (this.value === 'custom') {
-                customRange.style.display = 'block';
-                dateRangeContainer.classList.add('custom-range-narrow');
-            } else {
-                customRange.style.display = 'none';
-                dateRangeContainer.classList.remove('custom-range-narrow');
-            }
-            filterBooks(); // Apply filter when selection changes
-        });
-
-        document.addEventListener('click', function(event) {
-            const customRange = document.getElementById('customDateRange');
-            const dateRangeSelect = document.getElementById('dateRangeSelect');
-        
-            if (dateRangeSelect.value === 'custom') {
-                // Check if the click is outside of the customDateRange div
-                if (!customRange.contains(event.target) && !dateRangeSelect.contains(event.target)) {
-                    customRange.style.display = 'none';
-                    dateRangeSelect.value = ''; // Optionally reset the dropdown
-                }
-            }
-        });
-        
-    
-        // Add event listeners for date inputs
-        document.getElementById('startDate').addEventListener('change', filterBooks);
-        document.getElementById('endDate').addEventListener('change', filterBooks);
-
-
-        document.getElementById('dateRangeSelect').addEventListener('change', function() {
-            const customRange = document.getElementById('customDateRange');
-            
-            if (this.value === 'custom') {
-                customRange.style.display = 'block';
-            } else {
-                customRange.style.display = 'none';
-            }
-        });
-        
-
-
-    // MAKE A SCROLL BAR TOP OF THE TABLE
-    const scrollbarTop = document.querySelector('.scrollbar-top');
-    const tableContainer = document.querySelector('.table-container');
-  
-    scrollbarTop.addEventListener('scroll', function() {
-      tableContainer.scrollLeft = scrollbarTop.scrollLeft;
-    });
-  
-    tableContainer.addEventListener('scroll', function() {
-      scrollbarTop.scrollLeft = tableContainer.scrollLeft;
-    });
-  
-    // Create a dummy content to ensure scrollbar appears
-    const dummyContent = document.createElement('div');
-    dummyContent.style.width = tableContainer.scrollWidth + 'px';
-    dummyContent.style.height = '1px';
-    scrollbarTop.appendChild(dummyContent);
-
-    // ADD-DELETE-EDIT ACTIONS
-    addBookButton.addEventListener('click', () => {
-        openAddBookWindow();
-    });
-
-    deleteSelectedButton.addEventListener('click', () => {
-        deleteSelectedBooks();
-        loadBooks();
-        adjustBooksPerPage();
-    });
-
-    searchInput.addEventListener('input', () => {
-        filterBooks();
-    });
-
-    searchColumn.addEventListener('change', () => {
-        filterBooks();
-    });
-
-    selectAllCheckbox.addEventListener('change', () => {
-        const selectAll = selectAllCheckbox.checked;
-        const checkboxes = document.querySelectorAll('.select-book');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAll;
-        });
-    });
-
-// Listen for book record added event
-ipcRenderer.on('book-record-added', (event, record) => {
-    addBookToTable(record, true);
-    showNotification('Book added successfully!', 'success');
-    loadBooks();
-    adjustBooksPerPage();
-});
-
-// Listen for book record updated event
-ipcRenderer.on('book-record-updated', (event, record) => {
-    updateBookInTable(record);
-    showNotification('Book updated successfully!', 'success');
-});
-
-// Optional: Handle any errors
-ipcRenderer.on('error', (event, error) => {
-    console.error('Error:', error);
-    showNotification('An error occurred while processing the request.', 'error');
-});
-
-    ipcRenderer.on('book-record-deleted', (event, id) => {
-        deleteBookFromTable(id);
-        loadBooks();
-        adjustBooksPerPage();
-    });
-
-    window.addEventListener('resize', adjustBooksPerPage);
-    
+    setupEventListeners();
+    setupIpcRenderers();
     // Initial adjustment
     setupSortButtons();
     adjustBooksPerPage();
@@ -169,6 +11,324 @@ ipcRenderer.on('error', (event, error) => {
 
 function openAddBookWindow() {
     ipcRenderer.send('open-add-book-window');
+}
+
+// Function to apply column visibility settings
+function applyColumnVisibility() {
+    var checkboxes = document.querySelectorAll('#columnForm input[type="checkbox"]');
+    
+    checkboxes.forEach(function(checkbox) {
+        var columnClass = 'column-' + checkbox.getAttribute('data-column');
+        var columnHeaders = document.querySelectorAll('#tableContainer table th.' + columnClass);
+        var columnDataCells = document.querySelectorAll('#tableContainer table td.' + columnClass);
+
+        columnHeaders.forEach(function(th) {
+            th.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+        });
+
+        columnDataCells.forEach(function(td) {
+            td.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+        });
+    });
+}
+
+function setupEventListeners() {
+    const addBookButton = document.getElementById('addBook');
+    const deleteSelectedButton = document.getElementById('deleteSelected');
+    const searchColumn = document.getElementById('searchColumn');
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', filterBooks);
+
+    // SEARCH BAR
+    document.getElementById('searchColumn').addEventListener('change', () => {
+        const searchColumn = document.getElementById('searchColumn').value;
+        const textInputContainer = document.getElementById('textInputContainer');
+        const dateInputContainer = document.getElementById('dateInputContainer');
+    
+        if (searchColumn === 'date_received') {
+            textInputContainer.style.display = 'none';
+            dateInputContainer.style.display = 'block';
+        } else {
+            textInputContainer.style.display = 'block';
+            dateInputContainer.style.display = 'none';
+        }
+        filterBooks();
+    });
+
+        // MAKE A SCROLL BAR TOP OF THE TABLE
+        const scrollbarTop = document.querySelector('.scrollbar-top');
+        const tableContainer = document.querySelector('.table-container');
+
+        // Function to update the dummy content width to match the table container's scroll width
+        function updateScrollbarWidth() {
+            const tableScrollWidth = tableContainer.scrollWidth;
+            const dummyContent = scrollbarTop.querySelector('.dummy-content');
+
+            // Set the dummy content width to match the table's full scroll width
+            dummyContent.style.width = `${tableScrollWidth}px`;
+        }
+
+        // Ensure scroll synchronization between the top scrollbar and the table
+        scrollbarTop.addEventListener('scroll', () => {
+            tableContainer.scrollLeft = scrollbarTop.scrollLeft;
+        });
+
+        tableContainer.addEventListener('scroll', () => {
+            scrollbarTop.scrollLeft = tableContainer.scrollLeft;
+        });
+
+        // Initialize the dummy content inside the scrollbar top
+        const dummyContent = document.createElement('div');
+        dummyContent.className = 'dummy-content';
+        dummyContent.style.height = '1px'; // Minimal height to ensure the scrollbar is visible
+        scrollbarTop.appendChild(dummyContent);
+
+        // Update the scrollbar width on load, resize, and when the table content changes
+        window.addEventListener('resize', updateScrollbarWidth);
+        updateScrollbarWidth(); // Initial call to set the correct width
+
+        // Use a ResizeObserver to monitor the table container for size changes
+        const resizeObserver = new ResizeObserver(updateScrollbarWidth);
+        resizeObserver.observe(tableContainer);
+
+        // Add a MutationObserver to watch for changes in table content (e.g., rows added or removed)
+        const mutationObserver = new MutationObserver(updateScrollbarWidth);
+        mutationObserver.observe(tableContainer, { childList: true, subtree: true });
+
+    
+    // Close the form when clicking outside of it
+    document.addEventListener('click', function(event) {
+        var form = document.getElementById('columnVisibilityForm');
+        var toggleButton = document.getElementById('toggleColumns');
+        if (form.style.display === 'block' && !form.contains(event.target) && event.target !== toggleButton) {
+            form.style.display = 'none';  // Hide the form
+        }
+    });
+
+        // Ensure all columns are visible initially
+        document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+            el.style.display = '';  // Show all columns
+        });
+    
+        // Ensure checkboxes are unchecked (columns visible)
+        document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.checked = false;
+        });
+
+    //HIDE/UNHIDE COLUMNS
+    // Initial call to apply column visibility settings
+    applyColumnVisibility();
+
+    // Toggle column visibility form
+    document.getElementById('toggleColumns').addEventListener('click', function() {
+        var form = document.getElementById('columnVisibilityForm');
+        var checkboxes = document.querySelectorAll('#columnForm input[type="checkbox"]');
+
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            // No need to uncheck checkboxes again or show all columns here; handled in DOMContentLoaded
+        } else {
+            form.style.display = 'none';
+        }
+    });
+
+    // Show all columns
+    document.getElementById('showAll').addEventListener('click', function() {
+        document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.checked = false;
+        });
+        document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+            el.style.display = '';  // Show all columns
+        });
+    });
+
+    // Hide all columns except specific ones
+    document.getElementById('hideAll').addEventListener('click', function() {
+        document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.checked = true;
+        });
+        document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+            if (!el.classList.contains('column-title_of_book') &&
+                !el.classList.contains('column-actions') &&
+                !el.classList.contains('column-checkbox')) {
+                el.style.display = 'none';  // Hide columns
+            }
+        });
+    });
+
+    // Handle individual column visibility changes
+    document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var columnClass = 'column-' + this.getAttribute('data-column');
+            var columnHeaders = document.querySelectorAll('#tableContainer table th.' + columnClass);
+            var columnDataCells = document.querySelectorAll('#tableContainer table td.' + columnClass);
+
+            columnHeaders.forEach(function(th) {
+                th.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+            });
+
+            columnDataCells.forEach(function(td) {
+                td.style.display = checkbox.checked ? 'none' : '';  // Hide if checked, show if unchecked
+            });
+        });
+    }); 
+
+    document.getElementById('dateRangeSelect').addEventListener('change', function() {
+        const customRange = document.getElementById('customDateRange');
+        if (this.value === 'custom') {
+            customRange.style.display = 'block';
+        } else {
+            customRange.style.display = 'none';
+        }
+    });
+
+    // Sidebar toggle functionality
+    document.getElementById('sidebarCollapse').addEventListener('click', function () {
+        const wrapper = document.getElementById('wrapper');
+        const sidebar = document.getElementById('sidebar-wrapper');
+        
+        wrapper.classList.toggle('collapsed');
+        sidebar.classList.toggle('collapsed');
+    });
+
+    document.getElementById('logout-link').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default link behavior
+
+        ipcRenderer.invoke('logout').then(() => {
+            window.location.href = './login/login.html'; // Redirect to login page after logout
+        }).catch(error => {
+            console.error('Error during logout:', error);
+            alert('An error occurred. Please try again.');
+        });
+    });
+
+        //clear button
+        const clearDateRangeButton = document.getElementById('clearDateRange');
+        clearDateRangeButton.addEventListener('click', () => {
+            // Reset date inputs
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+    
+            // Hide custom date range container
+            document.getElementById('customDateRange').style.display = 'none';
+            document.getElementById('dateRangeSelect').value = ''; // Optionally reset the dropdown
+    
+            // Reset the filter and display default content
+            filterBooks();
+        });
+    
+            // Add event listener for date range selection
+            document.getElementById('dateRangeSelect').addEventListener('change', function() {
+                const customRange = document.getElementById('customDateRange');
+                if (this.value === 'custom') {
+                    customRange.style.display = 'block';
+                    dateRangeContainer.classList.add('custom-range-narrow');
+                } else {
+                    customRange.style.display = 'none';
+                    dateRangeContainer.classList.remove('custom-range-narrow');
+                }
+                filterBooks(); // Apply filter when selection changes
+            });
+    
+            document.addEventListener('click', function(event) {
+                const customRange = document.getElementById('customDateRange');
+                const dateRangeSelect = document.getElementById('dateRangeSelect');
+            
+                if (dateRangeSelect.value === 'custom') {
+                    // Check if the click is outside of the customDateRange div
+                    if (!customRange.contains(event.target) && !dateRangeSelect.contains(event.target)) {
+                        customRange.style.display = 'none';
+                        dateRangeSelect.value = ''; // Optionally reset the dropdown
+                    }
+                }
+            });
+            
+        
+            // Add event listeners for date inputs
+            document.getElementById('startDate').addEventListener('change', filterBooks);
+            document.getElementById('endDate').addEventListener('change', filterBooks);
+    
+    
+            document.getElementById('dateRangeSelect').addEventListener('change', function() {
+                const customRange = document.getElementById('customDateRange');
+                
+                if (this.value === 'custom') {
+                    customRange.style.display = 'block';
+                } else {
+                    customRange.style.display = 'none';
+                }
+            });
+            
+    
+    
+ 
+
+        // ADD-DELETE-EDIT ACTIONS
+        addBookButton.addEventListener('click', () => {
+            openAddBookWindow();
+        });
+    
+        deleteSelectedButton.addEventListener('click', () => {
+            deleteSelectedBooks();
+            loadBooks();
+            adjustBooksPerPage();
+        });
+    
+        searchInput.addEventListener('input', () => {
+            filterBooks();
+        });
+    
+        searchColumn.addEventListener('change', () => {
+            filterBooks();
+        });
+        
+// Set up the event listener for the "Select All" checkbox once
+document.getElementById('selectAll').addEventListener('change', () => {
+    const selectAll = document.getElementById('selectAll').checked;
+
+    currentBooks.forEach((book) => {
+        if (selectAll) {
+            selectedBookIds.add(book.id);
+        } else {
+            selectedBookIds.delete(book.id);
+        }
+    });
+
+    // Re-display books to reflect the updated selection state
+    displayBooks();
+});
+
+        window.addEventListener('resize', adjustBooksPerPage);
+}
+
+function setupIpcRenderers() {
+    // Listen for book record added event
+    ipcRenderer.on('book-record-added', (event, record) => {
+        addBookToTable(record, true);
+        showNotification('Book added successfully!', 'success');
+        loadBooks();
+        adjustBooksPerPage();
+    });
+
+    // Listen for book record updated event
+    ipcRenderer.on('book-record-updated', (event, record) => {
+        updateBookInTable(record);
+        showNotification('Book updated successfully!', 'success');
+        loadBooks();
+        adjustBooksPerPage();
+    });
+
+    // Optional: Handle any errors
+    ipcRenderer.on('error', (event, error) => {
+        console.error('Error:', error);
+        showNotification('An error occurred while processing the request.', 'error');
+    });
+
+    ipcRenderer.on('book-record-deleted', (event, id) => {
+        deleteBookFromTable(id);
+        loadBooks();
+        adjustBooksPerPage();
+    });
 }
 
 // Event listener setup for sort buttons
@@ -182,23 +342,6 @@ function setupSortButtons() {
     });
 }
 
-function openDeleteNotifWindow(ids) {
-    if (ids.length === 0) {
-        console.error('No IDs provided for deletion.');
-        return;
-    }
-
-    ipcRenderer.once('delete-confirmed', () => {
-        ids.forEach(id => {
-            ipcRenderer.invoke('deleteBook', id);
-        });
-        updatePagination();;
-    });
-
-    ipcRenderer.send('open-delete-notif-window', ids);
-}
-
-
 function openEditBookWindow(record) {
     ipcRenderer.send('open-edit-book-window', record);
 }
@@ -207,6 +350,7 @@ let originalBooks = [];
 let currentBooks = [];
 let currentPage = 1;
 let booksPerPage = 1; // Default value
+let selectedBookIds = new Set(); // Store selected book IDs
 
 function adjustBooksPerPage() {
     // Adjust the number of books per page based on window width
@@ -220,6 +364,7 @@ function loadBooks() {
     ipcRenderer.invoke('getBooks').then(books => {
         originalBooks = books.slice();
         currentBooks = originalBooks;
+        filterBooks(); // Apply the current search filters
         displayBooks();
         updatePagination();;
     });
@@ -229,29 +374,50 @@ function displayBooks() {
     const bookList = document.getElementById('bookList');
     bookList.innerHTML = '';
 
-    if (currentBooks.length === null) {
+    if (currentBooks.length === 0) {
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 15;
         emptyMessageCell.textContent = "Please Add a New Book Record";
-        emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
+        emptyMessageCell.classList.add('empty-message-cell');
         emptyMessageRow.appendChild(emptyMessageCell);
         bookList.appendChild(emptyMessageRow);
         return;
     }
 
-    const start = (currentPage - 1) * booksPerPage;
-    const end = start + booksPerPage;
-    const booksToShow = currentBooks.slice(start, end);
+    const booksToShow = getBooksForCurrentPage();
     booksToShow.forEach(book => {
         addBookToTable(book);
     });
 }
 
+function getBooksForCurrentPage() {
+    const start = (currentPage - 1) * booksPerPage;
+    const end = start + booksPerPage;
+    return currentBooks.slice(start, end);
+}
+
+
 // Function to show notifications
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.classList.add('notification', type);
+
+    // Apply styles based on the type of notification
+    switch (type) {
+        case 'success':
+            notification.classList.add('notification-success'); // Green styling
+            break;
+        case 'error':
+            notification.classList.add('notification-error'); // Red styling
+            break;
+        case 'warning':
+            notification.classList.add('notification-warning'); // Yellow styling
+            break;
+        default:
+            notification.classList.add('notification-success');
+    }
+
     notification.textContent = message;
 
     document.body.appendChild(notification);
@@ -266,32 +432,51 @@ function addBookToTable(book, prepend = false) {
     const bookList = document.getElementById('bookList');
     const row = document.createElement('tr');
 
-    // Check if cost_price has a value, add "₱" prefix, format with commas, and round to two decimal places
-    const formattedCostPrice = book.cost_price 
-        ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    const formattedCostPrice = book.cost_price
+        ? `₱ ${parseFloat(book.cost_price).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+          })}`
         : '';
 
-
     row.innerHTML = `
-        <td><input type="checkbox" class="select-book" data-id="${book.id}"></td>
-        <td>${book.number}</td>
-        <td>${book.date_received}</td>
-        <td>${book.class}</td>
-        <td>${book.author}</td>
-        <td>${book.title_of_book}</td>
-        <td>${book.edition}</td>
-        <td>${book.volume}</td>
-        <td>${book.source_of_fund}</td>
-        <td>${book.pages}</td>
-        <td>${formattedCostPrice}</td>
-        <td>${book.publisher}</td>
-        <td>${book.year}</td>
-        <td>${book.remarks}</td>
-        <td>
-            <button class="edit-btn" data-id="${book.id}"> <i class="fas fa-pencil-alt"></i> </button>
-            <button class="delete-btn" data-id="${book.id}"> <i class="fas fa-trash"></i> </button>
+        <td class="column-checkbox">
+            <input type="checkbox" class="select-book" data-id="${book.id}" ${
+        selectedBookIds.has(book.id) ? 'checked' : ''
+    }>
+        </td>
+        <td class="column-number">${book.number}</td>
+        <td class="column-date_received">${book.date_received}</td>
+        <td class="column-class">${book.class}</td>
+        <td class="column-author">${book.author}</td>
+        <td class="column-title_of_book">${book.title_of_book}</td>
+        <td class="column-edition">${book.edition}</td>
+        <td class="column-volume">${book.volume}</td>
+        <td class="column-source_of_fund">${book.source_of_fund}</td>
+        <td class="column-pages">${book.pages}</td>
+        <td class="column-cost_price">${formattedCostPrice}</td>
+        <td class="column-publisher">${book.publisher}</td>
+        <td class="column-year">${book.year}</td>
+        <td class="column-remarks">${book.remarks}</td>
+        <td class="column-actions">
+            <button class="edit-btn" data-id="${book.id}">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button class="delete-btn" data-id="${book.id}">
+                <i class="fas fa-trash"></i>
+            </button>
         </td>
     `;
+
+    row.querySelector('.select-book').addEventListener('change', (e) => {
+        const bookId = book.id;
+        if (e.target.checked) {
+            selectedBookIds.add(bookId);
+        } else {
+            selectedBookIds.delete(bookId);
+        }
+        syncSelectAllCheckbox();
+    });
 
     row.querySelector('.edit-btn').addEventListener('click', () => {
         const record = getBookFromRow(row);
@@ -299,8 +484,12 @@ function addBookToTable(book, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        openDeleteNotifWindow(book.id); // Open the confirmation popup with the book ID
-        updatePagination();;
+        if (confirm('Are you sure you want to delete this book record?')) {
+            deleteBookFromTable(book.id);
+            showNotification('A Book has been Deleted!', 'warning');
+        }
+        loadBooks();
+        adjustBooksPerPage();
     });
 
     if (prepend) {
@@ -309,9 +498,8 @@ function addBookToTable(book, prepend = false) {
         bookList.appendChild(row);
     }
 
-    updatePagination();;
+    applyColumnVisibility(row);
 }
-
 
 function updateBookInTable(book) {
     const row = document.querySelector(`button[data-id="${book.id}"]`).closest('tr');
@@ -343,19 +531,39 @@ function updateBookInTable(book) {
 
 function deleteBookFromTable(id) {
     const row = document.querySelector(`button[data-id="${id}"]`).closest('tr');
+    ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
     row.remove();
     updatePagination();;
     displayBooks();
 }
 
 function deleteSelectedBooks() {
-    const selectedBooks = document.querySelectorAll('.select-book:checked');
-    const ids = Array.from(selectedBooks).map(book => book.dataset.id);
+    if (selectedBookIds.size === 0) {
+        alert("No books selected.");
+        return;
+    }
 
-    if (ids.length > 0) {
-        openDeleteNotifWindow(ids);
-    } else {
-        alert("No books selected");
+    const count = selectedBookIds.size; // Count the number of selected books
+
+    // Display a confirmation dialog showing the number of selected books
+    const confirmation = confirm(`Are you sure you want to delete ${count} selected book record(s)?`);
+
+    if (confirmation) {
+        // Convert Set to Array for deletion
+        const ids = Array.from(selectedBookIds);
+
+        ids.forEach(id => {
+            ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
+        });
+
+        // Clear the selection after deletion
+        selectedBookIds.clear();
+        
+        // Reload books and update UI
+        loadBooks();
+        adjustBooksPerPage();
+
+        showNotification(`${count} book(s) have been deleted!`, 'warning');
     }
 }
 
@@ -435,105 +643,108 @@ function filterBooks() {
     updatePagination();;
 }
 
-
-document.getElementById('searchColumn').addEventListener('change', () => {
-    const searchColumn = document.getElementById('searchColumn').value;
-    const textInputContainer = document.getElementById('textInputContainer');
-    const dateInputContainer = document.getElementById('dateInputContainer');
-
-    if (searchColumn === 'date_received') {
-        textInputContainer.style.display = 'none';
-        dateInputContainer.style.display = 'block';
-    } else {
-        textInputContainer.style.display = 'block';
-        dateInputContainer.style.display = 'none';
-    }
-    filterBooks();
-});
-
 function sortBooks(column, button) {
-     // Determine the current sort order
-     const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
-     button.dataset.order = order;
- 
-     // Update the sort icon based on the current order
-     button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
- 
-     // Sort the books based on the selected column and order
-     currentBooks.sort((a, b) => {
-         let valueA = a[column];
-         let valueB = b[column];
- 
-         // Handle sorting based on data type
-         if (typeof valueA === 'number' && typeof valueB === 'number') {
-             return order === 'asc' ? valueA - valueB : valueB - valueA;
-         } else {
-             return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-         }
-     });
+    // Determine the current sort order
+    const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
+    button.dataset.order = order;
 
-    currentPage = 1; // Reset to first page after sorting
+    // Update the sort icon based on the current order
+    button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+
+    // Sort the books based on the selected column and order
+    currentBooks.sort((a, b) => {
+        let valueA = a[column];
+        let valueB = b[column];
+
+        // Handle sorting based on data type
+        if (typeof valueA === 'number' && typeof valueB === 'number') {
+            return order === 'asc' ? valueA - valueB : valueB - valueA;
+        } else {
+            // Handle cases where valueA or valueB could be undefined or null
+            if (valueA == null) return 1;
+            if (valueB == null) return -1;
+            return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+        }
+    });
+
+    // Reset to first page after sorting
+    currentPage = 1; 
+
+    // Call functions to update the display and pagination
     displayBooks();
-    updatePagination();;
+    updatePagination();
 }
 
+
+
 function updatePagination() {
-    const paginationContainer = document.getElementById('pagination');
-    paginationContainer.innerHTML = '';
+    const firstPageBtn = document.getElementById('firstPage');
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const lastPageBtn = document.getElementById('lastPage');
+    const pageLocationInput = document.getElementById('pageLocation');
+    const totalPagesSpan = document.getElementById('totalPages');
 
     const totalPages = Math.ceil(currentBooks.length / booksPerPage);
-    if (totalPages <= 1) return;
+    totalPagesSpan.textContent = `of ${totalPages}`;
+    pageLocationInput.value = currentPage;
 
-    const maxPagesToShow = 10;
-    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+    firstPageBtn.disabled = currentPage === 1;
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
+    lastPageBtn.disabled = currentPage === totalPages;
 
-    if (totalPages > maxPagesToShow) {
-        if (currentPage > Math.floor(maxPagesToShow / 2)) {
-            const prevButton = document.createElement('button');
-            prevButton.innerHTML = '&laquo;';
-            prevButton.classList.add('page-btn');
-            prevButton.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage = Math.max(1, currentPage - 10);
-                    updatePagination();;
-                    displayBooks();
-                }
-            });
-            paginationContainer.appendChild(prevButton);
-        }
-
-        if (endPage - startPage + 1 < maxPagesToShow) {
-            startPage = Math.max(1, endPage - maxPagesToShow + 1);
-        }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-        const pageButton = document.createElement('button');
-        pageButton.textContent = i;
-        pageButton.classList.add('page-btn');
-        if (i === currentPage) pageButton.classList.add('active');
-        pageButton.addEventListener('click', () => {
-            currentPage = i;
+    firstPageBtn.onclick = () => {
+        if (currentPage !== 1) {
+            currentPage = 1;
             displayBooks();
-            updatePagination();;
-        });
-        paginationContainer.appendChild(pageButton);
-    }
+            updatePagination();
+        }
+    };
 
-    if (totalPages > maxPagesToShow && endPage < totalPages) {
-        const nextButton = document.createElement('button');
-        nextButton.innerHTML = '&raquo;';
-        nextButton.classList.add('page-btn');
-        nextButton.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage = Math.min(totalPages, currentPage + 10);
-                updatePagination();;
-                displayBooks();
-            }
-        });
-        paginationContainer.appendChild(nextButton);
-    }
+    prevPageBtn.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displayBooks();
+            updatePagination();
+        }
+    };
+
+    nextPageBtn.onclick = () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            displayBooks();
+            updatePagination();
+        }
+    };
+
+    lastPageBtn.onclick = () => {
+        if (currentPage !== totalPages) {
+            currentPage = totalPages;
+            displayBooks();
+            updatePagination();
+        }
+    };
+
+    pageLocationInput.onchange = () => {
+        const pageNumber = parseInt(pageLocationInput.value, 10);
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            currentPage = pageNumber;
+            displayBooks();
+            updatePagination();
+        } else {
+            pageLocationInput.value = currentPage;
+        }
+    };
+
+    syncSelectAllCheckbox();
+}
+
+// Sync the "Select All" checkbox state based on selected rows
+function syncSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const allBooksSelected = currentBooks.every(book => selectedBookIds.has(book.id));
+    selectAllCheckbox.checked = allBooksSelected;
 }
 
 function getBookFromRow(row) {

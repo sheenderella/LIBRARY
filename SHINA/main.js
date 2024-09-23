@@ -140,46 +140,6 @@ function createLoginWindow() {
     });
 }
 
-//BOOKS
-function createAddBookWindow() {
-    addBookWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'addBook.html'),
-        width: 600,
-        height: 600,
-        parent: mainWindow,
-        onClose: () => (addBookWindow = null),
-    });
-}
-
-function createEditBookWindow(record) {
-    editBookWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'editBook.html'),
-        width: 600,
-        height: 600,
-
-        parent: mainWindow,
-        onClose: () => (editBookWindow = null),
-    });
-
-    editBookWindow.webContents.on('did-finish-load', () => {
-        editBookWindow.webContents.send('fill-edit-form', record);
-    });
-}
-
-app.whenReady().then(createLoginWindow);
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
-
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createMainWindow();
-    }
-});
-
 //DELETE WARNING
 function createDeleteNotifWindow() {
     deleteNotifWindow = createWindow({
@@ -487,12 +447,51 @@ ipcMain.handle('save-security-question', async (event, { question, answer, curre
 
 
 ///BOOKS
+function createAddBookWindow() {
+    addBookWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'addBook.html'),
+        width: 600,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (addBookWindow = null),
+    });
+}
+
+function createEditBookWindow(record) {
+    editBookWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'editBook.html'),
+        width: 600,
+        height: 600,
+
+        parent: mainWindow,
+        onClose: () => (editBookWindow = null),
+    });
+
+    editBookWindow.webContents.on('did-finish-load', () => {
+        editBookWindow.webContents.send('fill-edit-form', record);
+    });
+}
+
+app.whenReady().then(createLoginWindow);
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
+});
+
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createMainWindow();
+    }
+});
+
 // Books IPC Handlers
 ipcMain.handle('addBook', async (event, record) => {
     try {
         await executeQuery(
-            'INSERT INTO books (number, date_received, class, author, title_of_book, edition, volume, pages, year, source_of_fund, cost_price, publisher, remarks, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
-            [record.number, record.date_received, record.class, record.author, record.title_of_book, record.edition, record.volume, record.pages, record.year, record.source_of_fund, record.cost_price, record.publisher, record.remarks],
+            'INSERT INTO books (date_received, class, author, title_of_book, edition, volume, pages, year, source_of_fund, cost_price, publisher, remarks, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
+            [record.date_received, record.class, record.author, record.title_of_book, record.edition, record.volume, record.pages, record.year, record.source_of_fund, record.cost_price, record.publisher, record.remarks],
             function () {
                 record.id = this.lastID;
                 record.createdAt = new Date().toISOString();
@@ -569,24 +568,24 @@ ipcMain.on('open-add-book-window', () => {
     }
 });
 
-ipcMain.on('open-delete-notif-window', (event, ids) => {
-    selectedBookIds = ids; // Store the IDs in a variable to be used later
-    if (!deleteNotifWindow) {
-        createDeleteNotifWindow();
-    } else {
-        deleteNotifWindow.focus();
-    }
+// ipcMain.on('open-delete-notif-window', (event, ids) => {
+//     selectedBookIds = ids; // Store the IDs in a variable to be used later
+//     if (!deleteNotifWindow) {
+//         createDeleteNotifWindow();
+//     } else {
+//         deleteNotifWindow.focus();
+//     }
 
-    // Send the book ID to the deleteNotif window after it's ready
-    // Ensure window is ready
-    if (deleteNotifWindow.webContents.isLoading()) {
-        deleteNotifWindow.webContents.on('did-finish-load', () => {
-            deleteNotifWindow.webContents.send('set-book-id', ids);
-        });
-    } else {
-        deleteNotifWindow.webContents.send('set-book-id', ids);
-    }
-});
+//     // Send the book ID to the deleteNotif window after it's ready
+//     // Ensure window is ready
+//     if (deleteNotifWindow.webContents.isLoading()) {
+//         deleteNotifWindow.webContents.on('did-finish-load', () => {
+//             deleteNotifWindow.webContents.send('set-book-id', ids);
+//         });
+//     } else {
+//         deleteNotifWindow.webContents.send('set-book-id', ids);
+//     }
+// });
 
 
 ipcMain.on('open-edit-book-window', (event, record) => {

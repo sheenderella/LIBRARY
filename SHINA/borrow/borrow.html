@@ -79,11 +79,13 @@
                         </div>
                     </div>
 
+
                     <div id="dateRangeContainer" class="date-range-container">
                         <div class="date-range-box">
                             <i class="fa fa-calendar calendar-icon"></i>
                             <span id="dateRangeFilterText">Filter by Date</span>
                             <i class="fa fa-caret-down dropdown-icon"></i>
+                            
                             <select id="dateRangeSelect" class="form-control">
                                 <option value="reset">Reset Date Filter</option>
                                 <option value="last_7_days">Last 7 Days</option>
@@ -93,23 +95,18 @@
                                 <option value="custom">Custom Range</option>
                             </select>
                         </div>
-
-                        <!-- Custom Date Range Inputs -->
-                        <div id="customDateRange" class="custom-date-range">
-                            <div class="date-group">
-                                <label for="startDate">Start Date:</label>
-                                <input type="date" id="startDate" class="form-control">
-                            </div>
-                            <div class="date-group">
-                                <label for="endDate">End Date:</label>
-                                <input type="date" id="endDate" class="form-control">
-                            </div>
-                            <div class="button-group">
-                                <button id="applyDateRange" type="button">Apply</button>
-                                <button id="clearDateRange" type="button">Clear</button>
-                            </div>
+                        
+                        <!-- Add input fields for custom range selection -->
+                        <div id="customDateRange" style="display:none; margin-top: 10px;">
+                            <label for="startDate">Start Date:</label>
+                            <input type="date" id="startDate" class="form-control">
+                            <label for="endDate">End Date:</label>
+                            <input type="date" id="endDate" class="form-control">
+                            <button id="applyDateRange" class="btn btn-primary">Apply</button>
+                            <button id="clearDateRange" class="btn btn-secondary">Clear</button>
                         </div>
                     </div>
+                    
 
                     <div class="button-container">
                         <button id="deleteSelected" class="btn btn-danger"><i class="fas fa-trash"></i> </button>
@@ -161,6 +158,7 @@
     <script src="borrow.js"></script>
     <script src="notification.js"></script>
     <script src="pagination.js"></script>
+    <script src="date.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

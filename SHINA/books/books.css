@@ -7,42 +7,55 @@ body {
 
 /* Heading */
 .top-head-h1 {
-    font-size: 3rem;
-    color: #333;
-    text-align: left;
-    text-align: center;
+    font-size: 60px; /* Larger than the default h3 for emphasis */
     font-weight: bolder;
+    color: #30688B; /* Use the customizable text color */
+    margin-top: -40px; /* Remove default margin */
+    margin-bottom: -5px;
 }
 
 /* Paragraph */
-p {
-    font-size: 1em;
-    color: #555;
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.5rem;
+.top-head-p {
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    color: #666;
+    font-style: italic; /* Make the text italic */
+    margin-left: 5px;
+}
+
+#columnForm {
+    overflow-y: scroll;
+    height: 12rem;
+    margin-bottom: 1rem;
+}
+
+.column-visibility-form {
+    display: none;
+    position: absolute;
+    top: 33.6%;
+    right: 4.9%;
+    background-color: whitesmoke;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 10px;
+    width: 230px;
+    z-index: 1000;
+    padding-left: 1rem;
+}
+
+.column-visibility-form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.column-visibility-form .btn-danger{
+    width: 5.5rem;
 }
 
 /* General Button Styles */
-.button-header {
-    display: flex;
-    justify-content: space-between; /* Space out the content */
-    align-items: center;
-    padding: 10px;
-}
-
-.button-header .right-side {
-    display: flex;
-    align-items: center;
-}
-
-.button-header .right-side {
-    display: flex;
-    align-items: center;
-}
-
 /* Buttons */
 .btn {
+    display: flexbox;
     padding: 8px 12px;
     font-size: 14px;
     border: none;
@@ -58,7 +71,8 @@ p {
 }
 
 .btn-success i{
-    margin: 5px 5px 5px 0;
+    margin: 0 7px 0 7px;
+    font-size: larger;
 }
 
 .btn-danger {
@@ -67,14 +81,17 @@ p {
     width: 3.5rem;
 }
 
+.btn-secondary {
+    width: 3.5rem;
+}
+
 .btn:hover {
     opacity: 0.8;
 }
 
-/* Search and Sort Container */
-.search-sort {
-    display: flex;
-    align-items: center;
+.right-side-buttons {
+    float: right;
+    margin-top: -50px;
 }
 
 /* Date Range Container */
@@ -83,13 +100,17 @@ p {
     align-items: center;
     position: relative;
     margin-right: 20px;
+    float: right;
+    right: 13rem;
 }
 
 .date-range-container .icon {
-    background-color: #127a8a;
+    background-color: #30688B;
     padding: 0.95rem;
     color: whitesmoke;
-    border: 1px solid #127a8a;
+    border: 1px solid #1f1f1f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
 }
 
 #dateRangeSelect {
@@ -97,6 +118,8 @@ p {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
     height: 3rem;
     width: 8rem;
 }
@@ -147,32 +170,45 @@ p {
 
 /* Dropdown Container */
 .dropdown-container {
-    margin-right: 20px;
-}
-#searchColumn {
-    margin-left: 3rem;
-}
-.dropdown-container .icon {
-    position: absolute;
-    left: 30.75rem;
-    background-color: #127a8a;
-    padding: 0.95rem;
-    color: whitesmoke;
-    border: 1px solid #127a8a;
+    float: left;
 }
 
-.search-form-control {
-    padding: 5px;
+.dropdown-container .icon {
+    background-color: #30688B;
+    top: 25px;
+    padding: 0.95rem;
+    color: whitesmoke;
+    border: 1px solid #1f1f1f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    margin-right: -4px;
+}
+
+.drop-search-form {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    width: 150px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    height: 2.98rem;
+    margin-right: 1rem;
+    width: 7rem;
+}
+
+.search-form-control {
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
     height: 3rem;
+    margin-right: 1rem;
 }
 
 .input-container {
     display: flex;
     align-items: center;
+    margin-right: 3.5rem;
 }
 
 .input-container input {
@@ -180,15 +216,19 @@ p {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
     width: 200px;
     height: 3rem;
 }
 
 .input-container .icon {
-    background-color: #127a8a;
+    background-color: #30688B;
     padding: .95rem;
     color: whitesmoke;
-    border: 1px solid #127a8a;
+    border: 1px solid #1f1f1f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
 }
 
 /* Container Styling */
@@ -199,56 +239,24 @@ p {
 }
 
 /* Sticky Scrollbar Styling */
+/* Sticky Scrollbar Styling */
 .scrollbar-top {
     position: sticky;
     top: 0;
-    height: 20px;
+    height: 18px;
     background-color: #f1f1f1;
     overflow-x: auto;
     z-index: 10;
+    width: 100%;
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
-/* Scrollable Content to Match Table Width */
-.scroll-content {
-    width: 100%; /* Adjust width to match your table width */
+/* Dummy content for scrollbar sync */
+.scrollbar-top .dummy-content {
     height: 1px; /* Minimal height to ensure scrollbar appears */
 }
 
 /* Main Table Container */
-.table-container {
-    overflow-x: auto;
-    overflow-y: hidden; /* Ensure only horizontal scrolling */
-}
-
-/* Sticky Table Header */
-thead th {
-    position: sticky;
-    top: 0;
-    background: rgb(0, 127, 166);
-    color: #fff;
-    z-index: 5;
-}
-
-/* Table styling */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-th, td {
-    text-align: center;
-    vertical-align: middle;
-    padding: 10px;
-    border: 1px solid #ddd;
-    width: fit-content;
-}
-
-th {
-    position: relative;
-    padding: 10px 35px 10px 30px;
-}
-
 th input[type="checkbox"] {
     margin: 0;
     accent-color: #1f1f1f;
@@ -259,55 +267,165 @@ td input[type="checkbox"] {
     accent-color: #1f1f1f;
 }
 
-/* Sort button in table headers */
+/* Container for the entire table */
+.table-container {
+    max-width: 100%;
+    overflow-x: auto; /* Ensures responsiveness on smaller screens */
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    position: relative;
+}
+
+/* Styling for the table */
+.table-container table {
+    width: 100%;
+    border-collapse: collapse; /* Removes space between table cells */
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    table-layout: auto; /* Allows cells to adjust width based on content */
+}
+
+/* Styling for table headers */
+/* Styling for table headers */
+/* Styling for table headers */
+.table-container th {
+    background-color: #30688B;
+    color: white;
+    text-align: center; /* Center content horizontally */
+    padding: 15px 10px 15px 10px;
+    position: sticky; /* Keeps the header fixed while scrolling */
+    top: 0;
+    z-index: 10; /* Ensures the header is on top */
+    white-space: nowrap; /* Prevents text wrapping */
+    vertical-align: middle; /* Aligns content vertically in the middle */
+}
+
+/* Container to keep text and button together */
+.th-content {
+    display: inline-block; /* Allows for inline placement */
+    white-space: nowrap; /* Prevents text and button from breaking to a new line */
+}
+
+/* Specific column styles */
+.column-checkbox {
+    width: 40px;
+    text-align: center;
+}
+
+.column-number, .column-title_of_book, .column-author {
+    min-width: 150px; /* Minimum width for key columns */
+}
+
+.column-date_received, .column-class, .column-edition, 
+.column-volume, .column-source_of_fund, .column-pages, 
+.column-cost_price, .column-publisher, .column-year, 
+.column-remarks, .column-actions {
+    min-width: 120px;
+}
+
+/* Table body rows with alternating colors */
+.table-container tbody tr:nth-child(odd) {
+    background-color: whitesmoke; /* Odd rows */
+}
+
+.table-container tbody tr:nth-child(even) {
+    background-color: #ededed; /* Even rows (grey) */
+    transition: background-color 0.3s;
+}
+
+/* Table data cells */
+.table-container td {
+    padding: 10px;
+    text-align: center; /* Centers content horizontally */
+    vertical-align: middle; /* Centers content vertically */
+    word-wrap: break-word; /* Wraps long words within the cell */
+    white-space: normal; /* Allows wrapping within cells */
+    overflow: hidden; /* Ensures content doesn't overflow the cell */
+    text-overflow: ellipsis; /* Adds ellipsis (...) for overflowed text */
+}
+
+/* Sort button styles */
 .sort-btn {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
     border: none;
+    background: none;
+    cursor: pointer;
+    margin-left: 5px; /* Small space between text and button */
+    vertical-align: middle; /* Aligns button vertically in line with text */
+}
+
+/* Sort icon styling */
+.sort-btn i {
+    font-size: 12px;
+    color: #f0f0f0;
+    transition: color 0.2s;
+}
+
+.sort-btn:hover i {
+    color: #dcdcdc;
+}
+
+/* Checkbox in header */
+#selectAll {
     cursor: pointer;
 }
 
-.sort-btn i {
-    color: #ffffff;
-    font-size: 1em;
-    margin-left: 3rem;
-}
 
-/* Pagination container */
-#pagination {
+/* PAGINATION */
+/* Style for pagination controls container */
+#paginationControls {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    justify-content: center;
+    gap: 10px; /* Space between elements */
+    margin: 20px 0; /* Space around the controls */
 }
 
-.pagination-container {
-    background: white;
+/* Style for each button */
+#paginationControls button {
+    background-color: #30688B; /* Light gray background */
+    border: none; /* Gray border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 8px 12px; /* Padding inside the button */
+    font-size: 16px; /* Font size for the icon */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
 }
 
-/* Page button styling */
-.page-btn {
-    background-color: #ffffff;
-    margin: 0.15rem;
-    border-radius: 0.25rem;
-    border-color: #c2c2c2;
-    border-width: 1.5px;
-    padding: 0.25rem;
-    border: none;
+/* Change background and border color on hover */
+#paginationControls button:hover {
+    opacity: 90%;
 }
 
-.page-btn:hover {
-    background-color: #c8c6c6;
+/* Style for disabled buttons */
+#paginationControls button:disabled {
+    background-color: #d0d0d0; /* Light gray background for disabled state */
+    border-color: #bbb; /* Gray border for disabled state */
+    color: #888; /* Light gray text color */
+    cursor: not-allowed; /* Indicate that the button is disabled */
 }
 
-.page-btn.active {
-    background-color: lightblue;
-    border: 1px solid #007BFF;
+/* Style for the input field */
+#paginationControls input#pageLocation {
+    width: 50px; /* Set width for the input */
+    text-align: center; /* Center text inside the input */
+    padding: 8px; /* Padding inside the input */
+    border: 1px solid #ccc; /* Gray border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size for the input */
+}
+
+/* Style for the total pages span */
+#paginationControls #totalPages {
+    font-size: 16px; /* Font size for the total pages text */
+    color: #333; /* Dark text color */
     font-weight: bold;
-    color: #383838;
+}
+
+/* Style for icons inside buttons */
+#paginationControls button i {
+    font-size: 16px; /* Font size for icons */
+    color: whitesmoke; /* Dark color for icons */
 }
 
 /* Icon button styling */
@@ -350,7 +468,7 @@ td input[type="checkbox"] {
 }
 
 .edit-btn:hover {
-    color: #127a8a;
+    color: #30688B;
 }
 
 /* Empty message cell styling */
@@ -362,23 +480,7 @@ td input[type="checkbox"] {
     background-color: #f9f9f9;
     border: 1px solid #dddddd;
     border-radius: 4px;
-}
-
-/* Media queries for responsiveness */
-@media (max-width: 768px) {
-    .button-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .search-sort {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .date-range-container {
-        margin-left: 0; /* Reset margin for small screens */
-    }
+    height: 10rem;
 }
 
 /* NOTIFICATION WINDOW FOR UPDATE AND ADDING BOOKS */
@@ -401,6 +503,11 @@ td input[type="checkbox"] {
 
 .notification.error {
     background-color: #dc3545;
+}
+
+.notification-warning {
+    background-color: #FFC107; /* Yellow */
+    color: #1f1f1f; /* Dark text for contrast */
 }
 
 
@@ -526,7 +633,7 @@ td input[type="checkbox"] {
 
 /* Main content area */
 #page-content-wrapper {
-    width: auto;
+    width: 10rem;
     flex: none;
     flex-grow: 1; /* Allow the content to expand to fill available space */
     padding: 20px; /* Padding around the content */

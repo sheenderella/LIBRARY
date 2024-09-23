@@ -3,7 +3,7 @@ const { ipcRenderer } = require('electron');
 document.getElementById('addBookForm').addEventListener('submit', (event) => {
     event.preventDefault();
     const record = {
-        number: document.getElementById('number').value,
+        // number: document.getElementById('number').value,
         date_received: document.getElementById('date_received').value,
         class: document.getElementById('class').value,
         author: document.getElementById('author').value,
