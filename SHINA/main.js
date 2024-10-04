@@ -133,12 +133,72 @@ ipcMain.handle('getBooksCount', async (event) => {
     });
 });
 
-//LOGIN
+
+// LOGIN (updated)
 function createLoginWindow() {
     loginWindow = createWindow({
         filePath: path.join(__dirname, 'login', 'login.html'),
     });
+
+    ipcMain.on('open-forgot-password-window', () => { 
+        createForgotPasswordWindow();
+    });
 }
+
+//FORGOT PASSWORD
+let forgotPasswordWindow = null; // Declare the variable outside the function to track the window instance
+
+function createForgotPasswordWindow() {
+    if (forgotPasswordWindow === null) { // Only create the window if it doesn't already exist
+        forgotPasswordWindow = new BrowserWindow({
+            width: 450,
+            height: 400,
+            parent: loginWindow, 
+            modal: true, 
+            show: false,
+            resizable: false,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
+        });
+
+        forgotPasswordWindow.loadFile(path.join(__dirname, 'login', 'forgotPass.html'));
+
+        forgotPasswordWindow.once('ready-to-show', () => {
+            forgotPasswordWindow.show();
+        });
+
+        // Ensure the forgot password window is properly handled when it's closed
+        forgotPasswordWindow.on('close', () => {
+            forgotPasswordWindow = null; 
+        });
+
+        // Close the forgot password window when the login window is closed
+        loginWindow.on('close', () => {
+            if (forgotPasswordWindow && !forgotPasswordWindow.isDestroyed()) {
+                forgotPasswordWindow.close();
+            }
+        });
+    }
+}
+
+;
+// Add this handler to get the password hint
+ipcMain.handle('get-password-hint', async (event, username) => {
+    try {
+        const user = await getUserByUsername(username);
+        if (!user) {
+            return { success: false, error: 'Username not found.' };
+        }
+
+        return { success: true, hint: user.hint || '' }; 
+    } catch (error) {
+        console.error('Error getting password hint:', error);
+        return { success: false, error: 'An error occurred.' };
+    }
+});
+
 
 //DELETE WARNING
 function createDeleteNotifWindow() {
@@ -188,28 +248,8 @@ function validatelogin({ username, password }) {
             if (mainWindow) mainWindow.show();
             if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
         } else {
-            createLoginErrorWindow();
             clearLoginFields();
         }
-    });
-}
-function createLoginErrorWindow() {
-    const errorWindow = new BrowserWindow({
-        width: 400,
-        height: 220,
-        parent: loginWindow,
-        modal: true,
-        show: false,
-        resizable: false,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-        },
-    });
-
-    errorWindow.loadFile(path.join(__dirname, 'login', 'loginError.html'));
-    errorWindow.once('ready-to-show', () => {
-        errorWindow.show();
     });
 }
 
@@ -391,6 +431,8 @@ ipcMain.handle('get-current-password', async () => {
 
 
 
+
+
 //SECURITY-SETUP
 let securitySetupWindow;
 
@@ -443,6 +485,9 @@ ipcMain.handle('save-security-question', async (event, { question, answer, curre
         return { success: false, error: 'An error occurred while saving the security question.' };
     }
 });
+
+
+
 
 
 

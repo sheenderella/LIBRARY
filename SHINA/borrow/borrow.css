@@ -484,10 +484,6 @@ tbody tr:nth-child(even) {
     font-size: 14px;
 }
 
-button i {
-    font-size: 16px;
-}
-
 
 
 
@@ -569,6 +565,10 @@ button i {
     color: #fff; /* Text color on hover (optional, you can change this) */
     text-decoration: none; /* Remove underline from text */
  
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
 }
 
 #sidebar-wrapper .nav-link i {
