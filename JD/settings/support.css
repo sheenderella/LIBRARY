@@ -175,7 +175,7 @@ h1 b {
 }
 
 .accordion-header .accordion-button {
-    background-color: #1e4f6b; /*etoo papalitan mong colours*/
+    background-color: #3A79A0; /*etoo papalitan mong colours*/
     color: #fff;
     font-weight: bold;
     font-size: 1.2rem;
@@ -189,7 +189,7 @@ h1 b {
 }
 
 .accordion-button:not(.collapsed) {
-    background-color: #0056b3; /* Darker shade when active */ /*etoo papalitan mong colours*/
+    background-color: #30688B; /* Darker shade when active */ /*etoo papalitan mong colours*/
 }
 
 .accordion-body {
@@ -251,7 +251,7 @@ h1 b {
 }
 
 .accordion-button:hover {
-    background-color: #0056b3;
+    background-color: #2b5d7c;
     color: #fff;
 }
 
@@ -317,11 +317,37 @@ h1 b {
     text-align: left;
     color: #1e4f6b;
 }
-.faq-header {
-    background-image: url('/logo/gruba.jpg'); /* Replace with your image path */
+.faq-background {
+    background-image: url('../logo/gruba.jpg'); /* Replace with your image path */
     background-size: cover; /* Ensure the image covers the area */
     background-position: center; /* Center the image */
-    padding: 20px; /* Adjust padding as needed */
-    color: white; /* Change text color to ensure readability */
+    background-repeat: no-repeat; /* Prevent repeating the image */
+    padding: 20px; /* Add padding if needed */
     border-radius: 5px; /* Optional: Add rounded corners */
+    color: white; /* Change text color for readability */
+    text-align: center; /* Center the text */
+}
+
+.faq-content {
+    background: rgba(0, 0, 0, 0.5); /* Optional: Dark overlay to improve text readability */
+    padding: 20px; /* Add padding around the text */
+    border-radius: 5px; /* Optional: Match rounded corners with the container */
+}
+
+.faq-background h1 {
+    margin-bottom: 20px; /* Space below the heading */
+}
+
+.faq-background .search {
+    display: flex;
+    justify-content: center; /* Center the search bar */
+}
+
+.faq-background .search input {
+    margin-right: 10px; /* Space between input and button */
+    padding: 5px; /* Adjust padding as needed */
+}
+
+.faq-background .search button {
+    padding: 5px; /* Adjust padding as needed */
 }

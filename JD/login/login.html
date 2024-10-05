@@ -12,14 +12,13 @@
     <div class="container">
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title text-center mb-4">Login</h3>
-                <form id="login-form">
+                <img src="../logo/2.png" alt="Your Logo" class="logo"> 
+                <h3 class="card-title text-center mb-4">ADMIN LOGIN</h3>
+
+                <form id="login-form"> 
                     <label for="username">Username:</label>
-                    <input 
-                        id="username"
-                        type="text"
-                        placeholder="Enter your username" 
-                    />
+                    <input id="username" type="text" placeholder="Enter your username" />
+
                     <label for="password">Password:</label>
                     <div class="input-group">
                         <input 
@@ -31,15 +30,15 @@
                             <i class="fas fa-eye"></i>
                         </span>
                     </div>
-                    <button id="login" class="btn">Login</button>
-                    <a href="#" id="logout-link">Logout</a>
-                    <div id="error-message"></div>
-                </form>
+
+                    <a href="#" id="forgot-password-link" style="display:none;">Reset Password</a> 
+                    <button id="login" class="btn">LOGIN</button>
+                    <div id="error-message"></div> 
+                </form> 
             </div>
         </div>
     </div>
 
-    <!-- Custom Alert Modal for Incorrect Password -->
     <div id="alert-modal" class="alert-modal">
         <div class="alert-modal-content">
             <span class="close-button">&times;</span>

@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const db = require('./database.js');
 
-let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow/*, deleteNotifWindow*/;
+let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
 require('./settings/backupRestore.js'); // Add this line to include backup functionalities
@@ -76,7 +76,6 @@ ipcMain.on('open-books-page', () => {
     createBooksPageWindow();
 });
 
-
 // Function to get the total number of borrowed books
 async function getBorrowedBooksCount() {
     const sql = "SELECT COUNT(*) AS count FROM borrow";
@@ -102,8 +101,6 @@ ipcMain.handle('getBorrowedBooksCount', async () => {
     }
 });
 
-
-
 // Function to fetch unique borrowers
 ipcMain.handle('getUniqueBorrowers', async () => {
     try {
@@ -122,7 +119,6 @@ async function getUniqueBorrowersFromDB() {
     return executeSelectQuery(sql);
 }
 
-
 //GRAPH
 // Register IPC handlers
 ipcMain.handle('getBooksCount', async (event) => {
@@ -138,100 +134,82 @@ ipcMain.handle('getBooksCount', async (event) => {
 });
 
 
-//LOGIN
+// LOGIN (updated)
 function createLoginWindow() {
     loginWindow = createWindow({
         filePath: path.join(__dirname, 'login', 'login.html'),
     });
+
+    ipcMain.on('open-forgot-password-window', () => { 
+        createForgotPasswordWindow();
+    });
 }
 
+//FORGOT PASSWORD
+let forgotPasswordWindow = null; // Declare the variable outside the function to track the window instance
 
-//BORROWER
-function createAddBorrowWindow() {
-    if (!addBorrowWindow) {
-        addBorrowWindow = createWindow({
-            filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
-            width: 400,
-            height: 540,
-            parent: mainWindow,
-            onClose: () => (addBorrowWindow = null),
+function createForgotPasswordWindow() {
+    if (forgotPasswordWindow === null) { // Only create the window if it doesn't already exist
+        forgotPasswordWindow = new BrowserWindow({
+            width: 450,
+            height: 400,
+            parent: loginWindow, 
+            modal: true, 
+            show: false,
+            resizable: false,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
         });
-    } else {
-        addBorrowWindow.focus(); // Bring the existing window to the front
+
+        forgotPasswordWindow.loadFile(path.join(__dirname, 'login', 'forgotPass.html'));
+
+        forgotPasswordWindow.once('ready-to-show', () => {
+            forgotPasswordWindow.show();
+        });
+
+        // Ensure the forgot password window is properly handled when it's closed
+        forgotPasswordWindow.on('close', () => {
+            forgotPasswordWindow = null; 
+        });
+
+        // Close the forgot password window when the login window is closed
+        loginWindow.on('close', () => {
+            if (forgotPasswordWindow && !forgotPasswordWindow.isDestroyed()) {
+                forgotPasswordWindow.close();
+            }
+        });
     }
 }
 
+;
+// Add this handler to get the password hint
+ipcMain.handle('get-password-hint', async (event, username) => {
+    try {
+        const user = await getUserByUsername(username);
+        if (!user) {
+            return { success: false, error: 'Username not found.' };
+        }
 
-function createUpdateBorrowWindow(record) {
-    if (!updateBorrowWindow) {
-        updateBorrowWindow = createWindow({
-            filePath: path.join(__dirname, 'borrow', 'updateBorrow.html'),
-            width: 400,
-            height: 560,
-            parent: mainWindow,
-            onClose: () => (updateBorrowWindow = null),
-        });
-
-        updateBorrowWindow.webContents.on('did-finish-load', () => {
-            updateBorrowWindow.webContents.send('fill-update-form', record);
-        });
-    } else {
-        updateBorrowWindow.focus(); // Bring the existing window to the front
-        updateBorrowWindow.webContents.send('fill-update-form', record);
-    }
-}
-
-
-//BOOKS
-function createAddBookWindow() {
-    addBookWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'addBook.html'),
-        width: 600,
-        height: 600,
-        parent: mainWindow,
-        onClose: () => (addBookWindow = null),
-    });
-}
-
-function createEditBookWindow(record) {
-    editBookWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'editBook.html'),
-        width: 600,
-        height: 600,
-
-        parent: mainWindow,
-        onClose: () => (editBookWindow = null),
-    });
-
-    editBookWindow.webContents.on('did-finish-load', () => {
-        editBookWindow.webContents.send('fill-edit-form', record);
-    });
-}
-
-app.whenReady().then(createLoginWindow);
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
+        return { success: true, hint: user.hint || '' }; 
+    } catch (error) {
+        console.error('Error getting password hint:', error);
+        return { success: false, error: 'An error occurred.' };
     }
 });
 
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createMainWindow();
-    }
-});
 
 //DELETE WARNING
-// function createDeleteNotifWindow() {
-//     deleteNotifWindow = createWindow({
-//         filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
-//         width: 400,
-//         height: 300,
-//         parent: mainWindow,
-//         onClose: () => (deleteNotifWindow = null),
-//     });
-// }
+function createDeleteNotifWindow() {
+    deleteNotifWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
+        width: 400,
+        height: 300,
+        parent: mainWindow,
+        onClose: () => (deleteNotifWindow = null),
+    });
+}
 
 
 // Handle IPC calls
@@ -253,61 +231,6 @@ ipcMain.handle('logout', async () => {
     }
 });
 
-//BORROW
-ipcMain.handle('addBorrow', async (event, record) => executeQuery(
-    'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, datetime("now"))',
-    [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus],
-    function () {
-        record.id = this.lastID;
-        if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('borrow-record-added', record);
-        }
-    }
-));
-
-ipcMain.handle('updateBorrow', async (event, record) => {
-    try {
-        await executeQuery(
-            'UPDATE borrow SET borrowerName = ?, bookTitle = ?, borrowDate = ?, borrowStatus = ? WHERE id = ?',
-            [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus, record.id]
-        );
-
-        if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('borrow-record-updated', record);
-        }
-
-        if (updateBorrowWindow && !updateBorrowWindow.isDestroyed()) {
-            updateBorrowWindow.close();
-        }
-    } catch (error) {
-        console.error('Error updating borrow record:', error);
-    }
-});
-
-ipcMain.handle('deleteBorrow', async (event, id) => {
-    await executeQuery(
-        'DELETE FROM borrow WHERE id = ?',
-        [id],
-        function () {
-            if (mainWindow && !mainWindow.isDestroyed()) {
-                mainWindow.webContents.send('borrow-record-deleted', id); // Notify renderer process
-            }
-        }
-    );
-});
-
-ipcMain.handle('getBorrows', async () => executeSelectQuery(
-    'SELECT * FROM borrow ORDER BY createdAt DESC'
-));
-
-ipcMain.handle('getBorrowerLog', async (event, name) => executeSelectQuery(
-    'SELECT * FROM borrow WHERE borrowerName = ?',
-    [name]
-));
-
-ipcMain.on('open-add-borrow-window', createAddBorrowWindow);
-ipcMain.on('open-update-window', (event, record) => createUpdateBorrowWindow(record));
-ipcMain.on('close-form-window', closeAllFormWindows);
 
 //LOGIN
 // After successful login, store the username
@@ -325,28 +248,8 @@ function validatelogin({ username, password }) {
             if (mainWindow) mainWindow.show();
             if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
         } else {
-            createLoginErrorWindow();
             clearLoginFields();
         }
-    });
-}
-function createLoginErrorWindow() {
-    const errorWindow = new BrowserWindow({
-        width: 400,
-        height: 220,
-        parent: loginWindow,
-        modal: true,
-        show: false,
-        resizable: false,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-        },
-    });
-
-    errorWindow.loadFile(path.join(__dirname, 'login', 'loginError.html'));
-    errorWindow.once('ready-to-show', () => {
-        errorWindow.show();
     });
 }
 
@@ -368,25 +271,6 @@ function executeQuery(sql, params, callback) {
         });
     });
 }
-
-function executeSelectQuery(sql, params = []) {
-    return new Promise((resolve, reject) => {
-        db.all(sql, params, (err, rows) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(rows);
-            }
-        });
-    });
-}
-
-function closeAllFormWindows() {
-    [addBorrowWindow, updateBorrowWindow].forEach(window => {
-        if (window && !window.isDestroyed()) window.close();
-    });
-}
-
 
 //CHANGE USERNAME
 let changeUsernameWindow; // Declare the variable at the top
@@ -547,6 +431,8 @@ ipcMain.handle('get-current-password', async () => {
 
 
 
+
+
 //SECURITY-SETUP
 let securitySetupWindow;
 
@@ -602,7 +488,49 @@ ipcMain.handle('save-security-question', async (event, { question, answer, curre
 
 
 
+
+
+
 ///BOOKS
+function createAddBookWindow() {
+    addBookWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'addBook.html'),
+        width: 600,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (addBookWindow = null),
+    });
+}
+
+function createEditBookWindow(record) {
+    editBookWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'editBook.html'),
+        width: 600,
+        height: 600,
+
+        parent: mainWindow,
+        onClose: () => (editBookWindow = null),
+    });
+
+    editBookWindow.webContents.on('did-finish-load', () => {
+        editBookWindow.webContents.send('fill-edit-form', record);
+    });
+}
+
+app.whenReady().then(createLoginWindow);
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
+});
+
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createMainWindow();
+    }
+});
+
 // Books IPC Handlers
 ipcMain.handle('addBook', async (event, record) => {
     try {
@@ -677,6 +605,16 @@ ipcMain.handle('getBooks', async () => {
     }
 });
 
+ipcMain.handle('getProfiles', async () => {
+    try {
+        const profiles = await executeSelectQuery('SELECT * FROM Profiles ORDER BY id DESC');
+        return profiles;
+    } catch (error) {
+        console.error('Error fetching book records:', error);
+        return [];
+    }
+});
+
 ipcMain.on('open-add-book-window', () => {
     if (!addBookWindow) {
         createAddBookWindow();
@@ -713,3 +651,234 @@ ipcMain.on('open-edit-book-window', (event, record) => {
         editBookWindow.webContents.send('fill-edit-form', record);
     }
 });
+
+
+
+//BORROW
+// Database operations (assuming executeSelectQuery and executeQuery are predefined)
+ipcMain.handle('getBorrows', async () => {
+    try {
+        return await executeSelectQuery('SELECT * FROM borrow ORDER BY createdAt DESC');
+    } catch (error) {
+        console.error('Error fetching borrow records:', error);
+        throw new Error('Failed to fetch records');
+    }
+});
+
+function executeSelectQuery(query, params = []) {
+    return new Promise((resolve, reject) => {
+        console.log('Executing query:', query);  // Add this log to see the query execution
+        db.all(query, params, (err, rows) => {
+            if (err) {
+                console.error('Database query failed:', err); // Log the error
+                reject(err);
+            } else {
+                console.log('Query result:', rows); // Log the result
+                resolve(rows);
+            }
+        });
+    });
+}
+
+
+ipcMain.handle('getBorrowerLog', async (event, name) => executeSelectQuery(
+    'SELECT * FROM borrow WHERE borrowerName = ?',
+    [name]
+));
+
+
+ipcMain.on('open-add-borrow-window', createAddBorrowWindow);
+ipcMain.on('close-form-window', closeAllFormWindows);
+
+function closeAllFormWindows() {
+    [addBorrowWindow, updateBorrowWindow].forEach(window => {
+        if (window && !window.isDestroyed()) window.close();
+    });
+}
+
+// Add Borrow Window
+function createAddBorrowWindow() {
+    if (!addBorrowWindow) {
+        addBorrowWindow = createWindow({
+            filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
+            width: 400,
+            height: 540,
+            parent: mainWindow,
+            onClose: () => (addBorrowWindow = null),
+        });
+    } else {
+        addBorrowWindow.focus();
+    }
+}
+
+// Handle add borrow
+ipcMain.handle('addBorrow', async (event, record) => {
+    try {
+        await executeQuery(
+            'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, datetime("now"))',
+            [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus]
+        );
+
+        // Set the ID for the record
+        record.id = this.lastID;
+
+        // Notify the main window about the new record
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('borrow-record-added', record);
+            mainWindow.webContents.send('borrow-added-success'); // Emit success event
+        }
+    } catch (error) {
+        console.error('Error adding borrow record:', error);
+
+        // Notify the main window about the failure
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('borrow-added-failure'); // Emit failure event
+        }
+    }
+});
+
+
+//UPDATE
+// Open update window handler
+ipcMain.handle('open-update-window', (event, record) => {
+    createUpdateBorrowWindow(record); // Pass the record data to the update window
+});
+
+// Function to create the Update Borrow Window
+function createUpdateBorrowWindow(record) {
+    if (!updateBorrowWindow) {
+        updateBorrowWindow = new BrowserWindow({
+            width: 400,
+            height: 560,
+            resizable: false,
+            parent: mainWindow,
+            modal: true,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
+        });
+
+        updateBorrowWindow.loadFile(path.join(__dirname, 'borrow', 'updateBorrow.html'));
+
+        // Log the record to see if it is correct
+        console.log('Record passed to update window:', record);
+
+        // Send the record to the update window once it's fully loaded
+        updateBorrowWindow.webContents.on('did-finish-load', () => {
+            console.log('Sending record to update window:', record);
+            updateBorrowWindow.webContents.send('fill-update-form', record); // Send record data to the renderer process
+        });
+
+        updateBorrowWindow.on('closed', () => {
+            updateBorrowWindow = null;
+        });
+    } else {
+        updateBorrowWindow.focus();
+        updateBorrowWindow.webContents.send('fill-update-form', record); // Send data again if the window is already open
+    }
+}
+
+
+// Fetch a specific borrow record by ID
+function getBorrowRecordById(id) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT * FROM borrow WHERE id = ?', [id], (err, row) => {
+            if (err) {
+                console.error('Error fetching record from database:', err);
+                reject(err);
+            } else if (row) {
+                console.log('Full record fetched from database:', row); // Log the entire row
+                resolve({
+                    id: row.id,
+                    borrowerName: row.borrowerName,
+                    bookTitle: row.bookTitle,
+                    borrowDate: row.borrowDate,
+                    borrowStatus: row.borrowStatus,
+                    createdAt: row.createdAt
+                });
+            } else {
+                console.log('No record found for ID:', id);
+                resolve(null);
+            }
+        });
+    });
+}
+
+ipcMain.handle('getBorrowRecordById', async (event, id) => {
+    return await getBorrowRecordById(id);
+});
+
+
+// Update the borrow record in the database
+ipcMain.handle('updateBorrowRecord', async (event, updatedRecord) => {
+    try {
+        await new Promise((resolve, reject) => {
+            db.run(
+                `UPDATE borrow SET borrowerName = ?, bookTitle = ?, borrowDate = ?, borrowStatus = ? WHERE id = ?`,
+                [updatedRecord.borrowerName, updatedRecord.bookTitle, updatedRecord.borrowDate, updatedRecord.borrowStatus, updatedRecord.id],
+                function (err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                }
+            );
+        });
+        console.log('Record updated successfully:', updatedRecord);
+
+        // Notify the main window that the record was updated
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('borrow-record-updated', updatedRecord);
+        }
+    } catch (error) {
+        console.error('Error updating record:', error);
+        throw error;
+    }
+});
+
+
+
+
+
+//DELETE
+// Handle delete borrow
+ipcMain.handle('deleteBorrow', async (event, id) => {
+    try {
+        await executeQuery(
+            'DELETE FROM borrow WHERE id = ?',
+            [id]
+        );
+
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('borrow-record-deleted', id);
+        }
+    } catch (error) {
+        console.error('Error deleting borrow record:', error);
+    }
+});
+
+ipcMain.handle('deleteSelectedBorrows', async (event, ids) => {
+    try {
+        // Replace this with your actual database deletion logic
+        await deleteFromDatabase(ids); // Function to delete records from the database
+        return true; // Return success to the renderer process
+    } catch (error) {
+        console.error('Error deleting records:', error);
+        throw new Error('Failed to delete records.'); // Return failure
+    }
+});
+
+async function deleteFromDatabase(ids) {
+    const query = `DELETE FROM borrow WHERE id IN (${ids.map(() => '?').join(',')})`;
+    
+    try {
+        // Assuming db.run is the function that executes SQL commands in your setup
+        await db.run(query, ...ids);
+        console.log(`Successfully deleted records with IDs: ${ids}`);
+    } catch (error) {
+        console.error('Error deleting records from database:', error);
+        throw error; // re-throw the error so it can be handled in the main process
+    }
+}

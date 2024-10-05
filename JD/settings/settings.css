@@ -5,7 +5,6 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-
 /* SIDE NAVBAR */
 /* Container to hold the sidebar and main content */
 #wrapper {
@@ -131,25 +130,39 @@ body {
 }
 
 
+
 /* MAIN CONTENT */
+
+
+.text-settings{
+    font-size: 60px; /* Larger than the default h3 for emphasis */
+    font-weight: 500;
+    color: #30688B; /* Use the customizable text color */
+    margin-top: -40px; /* Remove default margin */
+    margin-bottom: -5px;
+}
+
 /* Accordion Styles */
 .accordion-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
+    background-color: #3A79A0;
+    color: #fff !important;
+    border: none !important;
     outline: none;
     font-size: 1.25rem;
     padding: 12px 20px;
     text-align: left;
     width: 100%;
 }
+.accordion-button:hover {
+    background-color: #30688B;
+  }
 
 .accordion-button:focus {
     box-shadow: none;
 }
 
 .accordion-button:not(.collapsed) {
-    background-color: #0056b3;
+    background-color: #3A79A0
 }
 
 .accordion-body {
@@ -157,7 +170,7 @@ body {
 }
 
 .accordion-item {
-    border: 1px solid #007bff;
+    border: 1px solid #3A79A0;
     border-radius: 5px;
     margin-bottom: 10px;
 }
@@ -169,6 +182,7 @@ body {
     padding: 10px 20px;
     margin: 0;
     border: none;
+    color: #333C42 !important;
     border-radius: 0;
     transition: background-color 0.3s ease;
 }
@@ -180,7 +194,7 @@ body {
 #support-btn {
     font-size: 1.25rem;
     padding: 12px 20px;
-    background-color: #17a2b8;
+    background-color: #3A79A0;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -190,6 +204,12 @@ body {
 }
 
 #support-btn:hover {
-    background-color: #138496;
+    background-color: #30688B;
 }
 
+
+
+/* Add space between icon and text */
+button i {
+    margin-right: 10px; /* Adjust the value as needed */
+}

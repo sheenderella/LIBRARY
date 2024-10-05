@@ -1,5 +1,5 @@
 let currentPage = 1;
-const recordsPerPage = 3;  // Display 3 records per page
+const recordsPerPage = 10;  // Display 3 records per page
 let filteredRecords = [];  // Store filtered records globally for pagination
 
 // Pagination setup function
@@ -41,13 +41,14 @@ function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsP
         currentPage = page;  // Set to desired page
     }
 
+    // Reload the records for the new page
+    loadBorrowRecords();
+
     // Update pagination display
     updatePageNumber(currentPage);
     document.getElementById('totalPages').textContent = `of ${totalPages}`;
-
-    // Reload the records for the new page
-    loadBorrowRecords();
 }
+
 
 // Update pagination control button states
 function updatePaginationControls(totalPages) {

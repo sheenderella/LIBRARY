@@ -23,6 +23,8 @@ body {
     margin-left: 5px;
 }
 
+
+
 #columnForm {
     overflow-y: scroll;
     height: 12rem;
@@ -54,7 +56,7 @@ body {
 
 /* General Button Styles */
 /* Buttons */
-.btn {
+/* .btn {
     display: flexbox;
     padding: 8px 12px;
     font-size: 14px;
@@ -63,7 +65,7 @@ body {
     cursor: pointer;
     margin-right: 10px;
     height: 3rem;
-}
+} */
 
 .btn-success {
     background-color: #28a745;
@@ -528,6 +530,7 @@ td input[type="checkbox"] {
     position: fixed; /* Sidebar remains fixed on the screen */
     height: 100%; /* Full height of the sidebar */
     overflow-y: auto; /* Enables scrolling if the content overflows */
+    overflow-x: hidden;
 }
 
 /* Collapsed sidebar styling */

@@ -1,52 +1,84 @@
 const { ipcRenderer } = require('electron');
 
-window.onload = function() { 
-    const username = document.getElementById("username");
-    const password = document.getElementById("password");
-    const btnlogin = document.getElementById("login");
+window.onload = function() {
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const loginButton = document.getElementById("login");
     const togglePassword = document.getElementById("toggle-password");
     const alertModal = document.getElementById("alert-modal");
     const alertMessage = document.getElementById("alert-message");
     const closeButton = document.querySelector(".close-button");
     const errorMessage = document.getElementById("error-message");
+    const forgotPasswordLink = document.getElementById('forgot-password-link'); 
+    const loginForm = document.getElementById('login-form');
+
+    // Initialize failed attempt counter
+    let failedAttempts = 0;
+
+    // Hide the forgot password link initially
+    forgotPasswordLink.style.display = "none";
 
     // Show/Hide password functionality using icon
     togglePassword.onclick = function() {
-        const passwordType = password.type === "password" ? "text" : "password";
-        password.type = passwordType;
+        const passwordType = passwordInput.type === "password" ? "text" : "password";
+        passwordInput.type = passwordType;
         togglePassword.innerHTML = passwordType === "text" ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
     };
 
-    // Close alert modal functionality
+    // Forgot Password
+    forgotPasswordLink.addEventListener('click', (event) => {
+        event.preventDefault(); 
+        ipcRenderer.send('open-forgot-password-window');
+    });
+
+    // Close alert modal
     closeButton.onclick = function() {
         alertModal.style.display = "none";
     };
 
-    btnlogin.onclick = function(event) {
-        event.preventDefault(); // Prevent form from submitting
-        const obj = { username: username.value, password: password.value };
-        ipcRenderer.invoke("login", obj).then(response => {
-            if (response.success) {
-                alertModal.style.display = "none"; // Hide alert if successful
+    // Login button click
+    loginButton.onclick = async function(event) {
+        event.preventDefault(); 
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+
+        try {
+            const response = await ipcRenderer.invoke("login", { username, password });
+
+            // Check if the response is valid
+            if (response && response.success) {
+                alertModal.style.display = "none"; 
+                failedAttempts = 0; // Reset failed attempts on successful login
+                forgotPasswordLink.style.display = "none"; // Hide the forgot password link again
             } else {
                 // Display alert if login fails
-                alertMessage.textContent = 'Incorrect username or password';
+                alertMessage.textContent = (response && response.error) || 'Incorrect username or password';
                 alertModal.style.display = "block";
 
-                // Clear the username and password fields
-                username.value = '';
-                password.value = '';
-                password.type = 'password'; // Ensure password field is hidden
-                togglePassword.innerHTML = '<i class="fas fa-eye"></i>'; // Reset icon to 'eye'
+                // Increment the failed attempts counter
+                failedAttempts++;
+                console.log(`Failed Attempts: ${failedAttempts}`);
+
+                // Show the 'Forgot Password' link after 3 failed attempts
+                if (failedAttempts >= 3) {
+                    console.log('Displaying forgot password link.');
+                    forgotPasswordLink.style.display = "block";
+                }
+
+                // Clear the fields and reset password visibility
+                clearLoginFields();
             }
-        }).catch(error => {
+        } catch (error) {
             console.error('Login Error:', error);
-            
-            // Clear the username and password fields
-            username.value = '';
-            password.value = '';
-            password.type = 'password';
-            togglePassword.innerHTML = '<i class="fas fa-eye"></i>'; // Reset icon to 'eye'
-        });
+            clearLoginFields();
+        }
     };
+
+    // Function to clear login fields and reset password visibility
+    function clearLoginFields() {
+        usernameInput.value = '';
+        passwordInput.value = '';
+        passwordInput.type = 'password'; 
+        togglePassword.innerHTML = '<i class="fas fa-eye"></i>'; 
+    }
 };

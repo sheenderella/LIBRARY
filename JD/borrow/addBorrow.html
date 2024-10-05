@@ -22,7 +22,7 @@
                         <input class="form-control" type="text" id="addBookTitle" placeholder="Book Title" required>
                     </div>
                     <div class="form-group">
-                        <input class="form-control" type="date" id="addBorrowDate" required>
+                        <input class="form-control" type="date" id="addBorrowDate" required max="">
                     </div>
                     <div class="form-group">
                         <select class="form-control" id="addBorrowStatus" required>
@@ -36,5 +36,15 @@
         </div>
     </div>
     <script src="addBorrow.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set max date to today's date
+            const addBorrowDateInput = document.getElementById('addBorrowDate');
+            const today = new Date().toISOString().split('T')[0]; // Get today's date in yyyy-mm-dd format
+            addBorrowDateInput.setAttribute('max', today);
+        });
+    </script>
+    
+    
 </body>
 </html>
