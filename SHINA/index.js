@@ -17,19 +17,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // LOGOUT
-    const logoutLink = document.getElementById('logout-link');
-    if (logoutLink) {
-        logoutLink.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default link behavior
-
-            ipcRenderer.invoke('logout').then(() => {
-                window.location.href = './login/login.html'; // Redirect to login page after logout
-            }).catch(error => {
+// Handle logout event
+const logoutLink = document.getElementById('logout-link');
+if (logoutLink) {
+    logoutLink.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default link behavior
+        
+        // Invoke logout from the centralized login handler
+        ipcRenderer.invoke('logout')
+            .then(() => {
+                // Close current window and load the login window to prevent multiple windows
+                window.location.href = './login/login.html'; 
+            })
+            .catch(error => {
                 console.error('Error during logout:', error);
-                alert('An error occurred. Please try again.');
+                // Use the notification system from login.js if logout fails
+                ipcRenderer.invoke('showNotification', 'An error occurred during logout. Please try again.', 'error');
             });
-        });
-    }
+    });
+}
 
     // ADD Book button functionality
     const addBookButton = document.getElementById('add-book-button');

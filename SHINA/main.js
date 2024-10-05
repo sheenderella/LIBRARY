@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const db = require('./database.js');
+const sqlite3 = require('sqlite3').verbose();
+
 
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
@@ -184,21 +186,6 @@ function createForgotPasswordWindow() {
 }
 
 ;
-// Add this handler to get the password hint
-ipcMain.handle('get-password-hint', async (event, username) => {
-    try {
-        const user = await getUserByUsername(username);
-        if (!user) {
-            return { success: false, error: 'Username not found.' };
-        }
-
-        return { success: true, hint: user.hint || '' }; 
-    } catch (error) {
-        console.error('Error getting password hint:', error);
-        return { success: false, error: 'An error occurred.' };
-    }
-});
-
 
 //DELETE WARNING
 function createDeleteNotifWindow() {
@@ -271,6 +258,58 @@ function executeQuery(sql, params, callback) {
         });
     });
 }
+
+
+// Variable to store the reset password window instance
+let resetPasswordWindow = null;
+
+// Function to create the Reset Password window and pass the username
+function createResetPasswordWindow(username) {
+    if (resetPasswordWindow) {
+        resetPasswordWindow.focus(); // Bring the existing window to the front if it's already open
+        return;
+    }
+
+    resetPasswordWindow = new BrowserWindow({
+        width: 400,
+        height: 500,
+        parent: mainWindow, // Ensure it is a child of the main window
+        resizable: false,
+        modal: true,
+        alwaysOnTop: true,      // Keep the popup on top of other windows
+        movable: true,          // Allow moving the popup around
+        center: true,           // Center the window on the screen
+        show: true, // Ensure the window is visible when created
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    resetPasswordWindow.loadFile(path.join(__dirname, 'login', 'reset.html')); // Load the HTML file for the Reset Password window
+
+    resetPasswordWindow.on('closed', () => {
+        resetPasswordWindow = null; // Handle cleanup when the window is closed
+    });
+
+    // Send the username to the reset.html renderer once the window is ready
+    resetPasswordWindow.once('ready-to-show', () => {
+        resetPasswordWindow.webContents.send('set-username', username);
+    });
+}
+
+// IPC handler to open the reset password window
+ipcMain.handle('open-reset-password-window', (event, username) => {
+    createResetPasswordWindow(username); // Calls the function to create the Reset Password window with the username
+});
+
+ipcMain.on('close-window', (event) => {
+    const window = BrowserWindow.getFocusedWindow();
+    if (window) {
+        window.close();
+    }
+});
+
 
 //CHANGE USERNAME
 let changeUsernameWindow; // Declare the variable at the top
@@ -370,7 +409,7 @@ ipcMain.handle('open-change-password-window', () => {
     createChangePasswordWindow(); // Calls the function to create the Change Password window
 });
 
-// Change Password IPC Handler
+//Change Password IPC Handler
 ipcMain.handle('change-password', async (event, { currentPassword, newPassword, passwordHint }) => {
     try {
         console.log('Received change-password request');
@@ -386,7 +425,6 @@ ipcMain.handle('change-password', async (event, { currentPassword, newPassword, 
             return { success: false, error: 'The new password cannot be the same as the current password.' };
         }
 
-        // Update the password and the hint in the database
         await executeQuery('UPDATE user SET password = ?, hint = ? WHERE id = ?', [newPassword, passwordHint, user.id]);
 
         console.log('Password and hint updated successfully');
@@ -396,6 +434,40 @@ ipcMain.handle('change-password', async (event, { currentPassword, newPassword, 
         return { success: false, error: error.message };
     }
 });
+
+
+// Handle retrieving the password hintipcMain.handle('get-password-hint', async (event, username) => {
+    ipcMain.handle('get-password-hint', async (event, username) => {
+        try {
+            console.log(`Retrieving password hint for username: ${username}`);
+            
+            const result = await new Promise((resolve, reject) => {
+                db.all('SELECT hint FROM user WHERE username = ?', [username], (err, rows) => {
+                    if (err) {
+                        console.error('Error executing query:', err);
+                        reject(err);
+                    } else {
+                        resolve(rows);
+                    }
+                });
+            });
+    
+            console.log('Database query result:', result);
+    
+            if (result.length > 0) {
+                console.log(`Hint found for ${username}: ${result[0].hint}`);
+                return { success: true, hint: result[0].hint };
+            } else {
+                console.log(`No hint found for username: ${username}`);
+                return { success: false, error: 'No hint found for this username.' };
+            }
+        } catch (error) {
+            console.error('Error retrieving password hint:', error);
+            return { success: false, error: 'Failed to retrieve password hint.' };
+        }
+    });
+    
+
 
 async function validateCurrentPassword(password) {
     const sql = "SELECT * FROM user WHERE username = ? AND password = ?";
@@ -428,7 +500,6 @@ ipcMain.handle('get-current-password', async () => {
         throw error;
     }
 });
-
 
 
 
@@ -466,6 +537,7 @@ ipcMain.handle('open-security-setup-window', () => {
     createSecuritySetupWindow(); // Calls the function to create the Security Setup window
 });
 
+
 // IPC handler to save the security question
 ipcMain.handle('save-security-question', async (event, { question, answer, currentPassword }) => {
     try {
@@ -486,9 +558,90 @@ ipcMain.handle('save-security-question', async (event, { question, answer, curre
     }
 });
 
+// Handle retrieving the security question based on the username
+ipcMain.handle('get-security-question', async (event, username) => {
+    try {
+        console.log(`Fetching security question for username: ${username}`);
+        
+        const result = await new Promise((resolve, reject) => {
+            db.all('SELECT security_question FROM user WHERE username = ?', [username], (err, rows) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+
+        console.log('Database query result:', result);
+
+        if (result.length > 0) {
+            console.log(`Security question found for ${username}: ${result[0].security_question}`);
+            return { success: true, question: result[0].security_question };
+        } else {
+            console.log(`No security question found for username: ${username}`);
+            return { success: false, error: 'No security question found for this username.' };
+        }
+    } catch (error) {
+        console.error('Error fetching security question:', error);
+        return { success: false, error: 'An error occurred while fetching the security question.' };
+    }
+});
+
+// Handle verifying the security answer
+ipcMain.handle('verify-security-answer', async (event, { username, answer }) => {
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.get('SELECT security_answer FROM user WHERE username = ?', [username], (err, row) => {
+                if (err) {
+                    reject(err); // Reject the promise if an error occurs
+                } else {
+                    resolve(row); // Resolve with the row (or null if no user is found)
+                }
+            });
+        });
+
+        // If no user is found, return an error
+        if (!result) {
+            return { success: false, error: 'Username not found.' };
+        }
+
+        // Perform a case-insensitive comparison of the answers
+        const storedAnswer = result.security_answer.toLowerCase();
+        const userAnswer = answer.toLowerCase();
+
+        if (storedAnswer === userAnswer) {
+            return { success: true }; // Success if answers match
+        } else {
+            return { success: false, error: 'Incorrect security answer.' }; // Error if answers don't match
+        }
+    } catch (error) {
+        console.error('Error verifying security answer:', error);
+        return { success: false, error: 'An error occurred while verifying the answer.' };
+    }
+});
 
 
+// Handle changing the password
+ipcMain.handle('change', async (event, { username, newPassword }) => {
+    try {
+        await new Promise((resolve, reject) => {
+            db.run('UPDATE user SET password = ? WHERE username = ?', [newPassword, username], (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
 
+        return { success: true };
+    } catch (error) {
+        console.error('Error changing password:', error);
+        return { success: false, error: 'An error occurred while changing the password.' };
+    }
+});
 
 
 ///BOOKS

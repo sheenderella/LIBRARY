@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "electron": "^31.2.1"
+    "electron": "^32.1.2"
   },
   "name": "library",
   "version": "1.0.0",
