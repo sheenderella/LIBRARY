@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>GRUBA LAW LIBRARY</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="addBorrow.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header text-center">
+                <img src="../logo/1.png" alt="Gruba Law Library" class="img-fluid mb-2">
+            </div>
+            <div class="card-body">
+                <h1 class="text-center mb-4"> Add Borrower </h1>
+                <form id="addBorrowForm">
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="addBorrowerName" placeholder="Borrower Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="addBookTitle" placeholder="Book Title" required>
+                    </div>
+                    <div class="form-group">
+                        <small class="form-text text-muted"> Borrow Date: </small>
+                        <input class="form-control" type="date" id="addBorrowDate" required max="">
+                    </div>
+                    <div class="form-group">
+                        <small class="form-text text-muted"> Due Date: </small>
+                        <input class="form-control" type="date" id="addDueDate" placeholder="Due Date" required min="">
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block"> SUBMIT </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="addBorrow.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set max date to today's date for borrow date
+            const addBorrowDateInput = document.getElementById('addBorrowDate');
+            const today = new Date().toISOString().split('T')[0]; // Get today's date in yyyy-mm-dd format
+            addBorrowDateInput.setAttribute('max', today);
+
+            const addDueDateInput = document.getElementById('addDueDate');
+            addBorrowDateInput.addEventListener('change', function() {
+                addDueDateInput.setAttribute('min', addBorrowDateInput.value); // Ensure due date is not before borrow date
+            });
+        });
+    </script>
+</body>
+</html>
