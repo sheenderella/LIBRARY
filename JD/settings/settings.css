@@ -19,6 +19,7 @@ body {
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
     position: fixed; /* Sidebar remains fixed on the screen */
     height: 100%; /* Full height of the sidebar */
+    overflow-x: hidden;
 }
 
 /* Collapsed sidebar styling */

@@ -23,7 +23,16 @@ body {
     margin-left: 5px;
 }
 
+.button-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
+.right-side-buttons {
+    display: inline-block;
+    align-items: flex-end;
+}
 
 #columnForm {
     overflow-y: scroll;
@@ -34,8 +43,8 @@ body {
 .column-visibility-form {
     display: none;
     position: absolute;
-    top: 33.6%;
-    right: 4.9%;
+    top: 35.5%;
+    right: 1.5%;
     background-color: whitesmoke;
     border: 1px solid grey;
     border-radius: 5px;
@@ -53,19 +62,6 @@ body {
 .column-visibility-form .btn-danger{
     width: 5.5rem;
 }
-
-/* General Button Styles */
-/* Buttons */
-/* .btn {
-    display: flexbox;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 10px;
-    height: 3rem;
-} */
 
 .btn-success {
     background-color: #28a745;
@@ -91,19 +87,11 @@ body {
     opacity: 0.8;
 }
 
-.right-side-buttons {
-    float: right;
-    margin-top: -50px;
-}
-
 /* Date Range Container */
 .date-range-container {
-    display: flex;
-    align-items: center;
     position: relative;
-    margin-right: 20px;
-    float: right;
-    right: 13rem;
+    display: flex;
+    margin: 1rem;
 }
 
 .date-range-container .icon {
@@ -113,6 +101,8 @@ body {
     border: 1px solid #1f1f1f;
     border-top-left-radius: 9px;
     border-bottom-left-radius: 9px;
+    position: relative;
+    display: inline-block;
 }
 
 #dateRangeSelect {
@@ -124,6 +114,9 @@ body {
     border-bottom-right-radius: 9px;
     height: 3rem;
     width: 8rem;
+    display: inline-block;
+    margin-left: -.3rem;
+    margin-right: 2rem;
 }
 
 /* CUSTOM DATE FORM */
@@ -131,7 +124,6 @@ body {
     display: none;
     position: absolute;
     top: 100%;
-    left: 0;
     background-color: whitesmoke;
     border: 1px solid grey;
     border-radius: 5px;
@@ -171,57 +163,75 @@ body {
 }
 
 /* Dropdown Container */
-.dropdown-container {
-    float: left;
+.right-side {
+    display: flex;
+    justify-content: flex-start; /* Align all elements to the left */
+    align-items: center; /* Align items vertically in the center */
+}
+
+.custom-dropdown,
+.input-container,
+.date-range-container {
+    position: relative;
+    display: inline-block; /* Ensure each container behaves inline */
+}
+
+.dropdown-icon {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Prevent icon from blocking select dropdown interaction */
+    font-size: medium;
 }
 
 .dropdown-container .icon {
     background-color: #30688B;
-    top: 25px;
     padding: 0.95rem;
     color: whitesmoke;
     border: 1px solid #1f1f1f;
     border-top-left-radius: 9px;
     border-bottom-left-radius: 9px;
-    margin-right: -4px;
 }
 
+/* Hide the default dropdown arrow */
 .drop-search-form {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
     height: 2.98rem;
     margin-right: 1rem;
-    width: 7rem;
+    width: 5rem;
+    padding-left: 8px;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 30px; /* Space for the icon */
+    cursor: pointer;
 }
 
 .search-form-control {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
     height: 3rem;
-    margin-right: 1rem;
 }
 
 .input-container {
     display: flex;
     align-items: center;
-    margin-right: 3.5rem;
 }
 
 .input-container input {
-    padding: 5px;
+    padding-left: 15px;
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
-    width: 200px;
+    width: 15rem;
     height: 3rem;
+    margin-left: -1.05rem;
 }
 
 .input-container .icon {
@@ -229,8 +239,9 @@ body {
     padding: .95rem;
     color: whitesmoke;
     border: 1px solid #1f1f1f;
-    border-top-left-radius: 9px;
-    border-bottom-left-radius: 9px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    margin-left: -2rem;
 }
 
 /* Container Styling */

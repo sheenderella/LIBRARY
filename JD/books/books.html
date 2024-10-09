@@ -77,6 +77,34 @@
 
                 <div class="button-header">
                     <div class="right-side">
+                        <div class="dropdown-container">
+                            <!-- <i class="icon fas fa-filter"></i> -->
+                            <!-- <span id="seachFilterText">Search by Fields</span> -->
+                            <div class="custom-dropdown">
+                                <select id="searchColumn" class="drop-search-form">
+                                    <option value="all">All</option>
+                                    <option value="number">Number</option>
+                                    <option value="class">Class</option>
+                                    <option value="author">Author</option>
+                                    <option value="title_of_book">Book Title</option>
+                                    <option value="edition">Edition</option>
+                                    <option value="volume">Volume</option>
+                                    <option value="source_of_fund">Source of Fund</option>
+                                    <option value="pages">Pages</option>
+                                    <option value="cost_price">Cost Price</option>
+                                    <option value="publisher">Publisher</option>
+                                    <option value="year">Year</option>
+                                    <option value="remarks">Remarks</option>
+                                </select>
+                                <i class="fa fa-caret-down dropdown-icon"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="input-container">
+                            <input type="text" id="searchInput" class="search-form-control" placeholder="Search">
+                            <i class="icon fas fa-search"></i>
+                        </div>
+
                         <div id="dateRangeContainer" class="date-range-container">
                             <i class="icon fas fa-calendar"></i>
                             <!-- <span id="dateFilterText">Search by Date</span> -->
@@ -96,49 +124,27 @@
                                 <button id="clearDateRange" type="button">Clear</button>
                             </div>
                         </div>
-                        <div class="dropdown-container">
-                            <i class="icon fas fa-filter"></i>
-                            <!-- <span id="seachFilterText">Search by Fields</span> -->
-                            <select id="searchColumn" class="drop-search-form">
-                                <option value="all">All</option>
-                                <option value="number">Number</option>
-                                <option value="class">Class</option>
-                                <option value="author">Author</option>
-                                <option value="title_of_book">Book Title</option>
-                                <option value="edition">Edition</option>
-                                <option value="volume">Volume</option>
-                                <option value="source_of_fund">Source of Fund</option>
-                                <option value="pages">Pages</option>
-                                <option value="cost_price">Cost Price</option>
-                                <option value="publisher">Publisher</option>
-                                <option value="year">Year</option>
-                                <option value="remarks">Remarks</option>
-                            </select>
-                        </div>
-                        <div class="input-container">
-                            <i class="icon fas fa-search"></i>
-                            <input type="text" id="searchInput" class="search-form-control" placeholder="Search">
-                        </div>
                     </div>
-                                    <!-- Column Visibility Form -->
-                <div id="columnVisibilityForm" class="column-visibility-form">
-                    <form id="columnForm">
-                        <label><input type="checkbox" data-column="number" checked> Number</label>
-                        <label><input type="checkbox" data-column="date_received" checked> Date Received</label>
-                        <label><input type="checkbox" data-column="class" checked> Class</label>
-                        <label><input type="checkbox" data-column="author" checked> Author</label>
-                        <label><input type="checkbox" data-column="edition" checked> Edition</label>
-                        <label><input type="checkbox" data-column="volume" checked> Volume</label>
-                        <label><input type="checkbox" data-column="source_of_fund" checked> Source of Fund</label>
-                        <label><input type="checkbox" data-column="pages" checked> Pages</label>
-                        <label><input type="checkbox" data-column="cost_price" checked> Cost Price</label>
-                        <label><input type="checkbox" data-column="publisher" checked> Publisher</label>
-                        <label><input type="checkbox" data-column="year" checked> Year</label>
-                        <label><input type="checkbox" data-column="remarks" checked> Remarks</label>
-                    </form>
-                        <button type="button" id="showAll" class="btn btn-primary">Show All</button>
-                        <button type="button" id="hideAll" class="btn btn-danger">Hide All</button>
-                </div>
+                
+                    <!-- Column Visibility Form -->
+                    <div id="columnVisibilityForm" class="column-visibility-form">
+                        <form id="columnForm">
+                            <label><input type="checkbox" data-column="number" checked> Number</label>
+                            <label><input type="checkbox" data-column="date_received" checked> Date Received</label>
+                            <label><input type="checkbox" data-column="class" checked> Class</label>
+                            <label><input type="checkbox" data-column="author" checked> Author</label>
+                            <label><input type="checkbox" data-column="edition" checked> Edition</label>
+                            <label><input type="checkbox" data-column="volume" checked> Volume</label>
+                            <label><input type="checkbox" data-column="source_of_fund" checked> Source of Fund</label>
+                            <label><input type="checkbox" data-column="pages" checked> Pages</label>
+                            <label><input type="checkbox" data-column="cost_price" checked> Cost Price</label>
+                            <label><input type="checkbox" data-column="publisher" checked> Publisher</label>
+                            <label><input type="checkbox" data-column="year" checked> Year</label>
+                            <label><input type="checkbox" data-column="remarks" checked> Remarks</label>
+                        </form>
+                            <button type="button" id="showAll" class="btn btn-primary">Show All</button>
+                            <button type="button" id="hideAll" class="btn btn-danger">Hide All</button>
+                    </div>
                     <div class="right-side-buttons">
                         <button id="toggleColumns" class="btn btn-secondary"><i class="fas fa-eye"></i></button>
                         <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i></button>

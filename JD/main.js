@@ -2,8 +2,7 @@ const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const db = require('./database.js');
 
-let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
-let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
+let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, addProfileWindow, editProfileWindow;
 
 require('./settings/backupRestore.js'); // Add this line to include backup functionalities
 
@@ -37,31 +36,6 @@ function createMainWindow() {
     });
 }
 
-// Create a new function for the Add Book button in index.html
-function createAddBookFromIndexWindow() {
-    addBookWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'addBook.html'),
-        width: 600,
-        height: 600,
-        parent: mainWindow,
-        onClose: () => (addBookWindow = null),
-    });
-
-    // Ensure the window is not reused elsewhere
-    addBookWindow.webContents.on('did-finish-load', () => {
-        // You can send specific data or commands here if necessary
-    });
-}
-
-// Listen for the event from index.js
-ipcMain.on('open-add-book-from-index-window', () => {
-    if (!addBookWindow) {
-        createAddBookFromIndexWindow();
-    } else {
-        addBookWindow.focus();
-    }
-});
-
 // Function to open the books page
 function createBooksPageWindow() {
     if (!mainWindow) {
@@ -71,9 +45,21 @@ function createBooksPageWindow() {
     mainWindow.loadFile(path.join(__dirname, 'books', 'books.html'));
 }
 
+function createProfilesPageWindow() {
+    if (!mainWindow) {
+        createMainWindow(); // Make sure the main window is created if it's not already
+    }
+    // You can adjust the navigation logic to ensure the books page is loaded within the main window
+    mainWindow.loadFile(path.join(__dirname, 'profiles', 'profiles.html'));
+}
+
 // Listen for the event to open the books page
 ipcMain.on('open-books-page', () => {
     createBooksPageWindow();
+});
+
+ipcMain.on('open-profiles-page', () => {
+    createProfilesPageWindow();
 });
 
 // Function to get the total number of borrowed books
@@ -198,19 +184,6 @@ ipcMain.handle('get-password-hint', async (event, username) => {
         return { success: false, error: 'An error occurred.' };
     }
 });
-
-
-//DELETE WARNING
-function createDeleteNotifWindow() {
-    deleteNotifWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
-        width: 400,
-        height: 300,
-        parent: mainWindow,
-        onClose: () => (deleteNotifWindow = null),
-    });
-}
-
 
 // Handle IPC calls
 //LOGIN
@@ -487,11 +460,48 @@ ipcMain.handle('save-security-question', async (event, { question, answer, curre
 });
 
 
+app.whenReady().then(createLoginWindow);
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
+});
+
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createMainWindow();
+    }
+});
 
 
-
-
+// Books IPC Handlers
 ///BOOKS
+// Create a new function for the Add Book button in index.html
+function createAddBookFromIndexWindow() {
+    addBookWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'addBook.html'),
+        width: 600,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (addBookWindow = null),
+    });
+
+    // Ensure the window is not reused elsewhere
+    addBookWindow.webContents.on('did-finish-load', () => {
+        // You can send specific data or commands here if necessary
+    });
+}
+
+// Listen for the event from index.js
+ipcMain.on('open-add-book-from-index-window', () => {
+    if (!addBookWindow) {
+        createAddBookFromIndexWindow();
+    } else {
+        addBookWindow.focus();
+    }
+});
+
 function createAddBookWindow() {
     addBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'addBook.html'),
@@ -501,6 +511,14 @@ function createAddBookWindow() {
         onClose: () => (addBookWindow = null),
     });
 }
+
+ipcMain.on('open-add-book-window', () => {
+    if (!addBookWindow) {
+        createAddBookWindow();
+    } else {
+        addBookWindow.focus();
+    }
+});
 
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
@@ -517,21 +535,16 @@ function createEditBookWindow(record) {
     });
 }
 
-app.whenReady().then(createLoginWindow);
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
+ipcMain.on('open-edit-book-window', (event, record) => {
+    if (!editBookWindow) {
+        createEditBookWindow(record);
+    } else {
+        editBookWindow.focus();
+        editBookWindow.webContents.send('fill-edit-form', record);
     }
 });
 
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createMainWindow();
-    }
-});
-
-// Books IPC Handlers
+//BOOK'S CRUD OPERATION
 ipcMain.handle('addBook', async (event, record) => {
     try {
         await executeQuery(
@@ -594,7 +607,6 @@ ipcMain.handle('deleteBook', async (event, id) => {
     }
 });
 
-
 ipcMain.handle('getBooks', async () => {
     try {
         const books = await executeSelectQuery('SELECT * FROM books ORDER BY createdAt DESC');
@@ -605,56 +617,7 @@ ipcMain.handle('getBooks', async () => {
     }
 });
 
-ipcMain.handle('getProfiles', async () => {
-    try {
-        const profiles = await executeSelectQuery('SELECT * FROM Profiles ORDER BY id DESC');
-        return profiles;
-    } catch (error) {
-        console.error('Error fetching book records:', error);
-        return [];
-    }
-});
-
-ipcMain.on('open-add-book-window', () => {
-    if (!addBookWindow) {
-        createAddBookWindow();
-    } else {
-        addBookWindow.focus();
-    }
-});
-
-// ipcMain.on('open-delete-notif-window', (event, ids) => {
-//     selectedBookIds = ids; // Store the IDs in a variable to be used later
-//     if (!deleteNotifWindow) {
-//         createDeleteNotifWindow();
-//     } else {
-//         deleteNotifWindow.focus();
-//     }
-
-//     // Send the book ID to the deleteNotif window after it's ready
-//     // Ensure window is ready
-//     if (deleteNotifWindow.webContents.isLoading()) {
-//         deleteNotifWindow.webContents.on('did-finish-load', () => {
-//             deleteNotifWindow.webContents.send('set-book-id', ids);
-//         });
-//     } else {
-//         deleteNotifWindow.webContents.send('set-book-id', ids);
-//     }
-// });
-
-
-ipcMain.on('open-edit-book-window', (event, record) => {
-    if (!editBookWindow) {
-        createEditBookWindow(record);
-    } else {
-        editBookWindow.focus();
-        editBookWindow.webContents.send('fill-edit-form', record);
-    }
-});
-
-
-
-//BORROW
+//'BORROW'S CRUD'
 // Database operations (assuming executeSelectQuery and executeQuery are predefined)
 ipcMain.handle('getBorrows', async () => {
     try {
@@ -680,12 +643,10 @@ function executeSelectQuery(query, params = []) {
     });
 }
 
-
 ipcMain.handle('getBorrowerLog', async (event, name) => executeSelectQuery(
     'SELECT * FROM borrow WHERE borrowerName = ?',
     [name]
 ));
-
 
 ipcMain.on('open-add-borrow-window', createAddBorrowWindow);
 ipcMain.on('close-form-window', closeAllFormWindows);
@@ -838,10 +799,6 @@ ipcMain.handle('updateBorrowRecord', async (event, updatedRecord) => {
     }
 });
 
-
-
-
-
 //DELETE
 // Handle delete borrow
 ipcMain.handle('deleteBorrow', async (event, id) => {
@@ -882,3 +839,153 @@ async function deleteFromDatabase(ids) {
         throw error; // re-throw the error so it can be handled in the main process
     }
 }
+
+//PROFILES' CRUD
+ipcMain.handle('getProfiles', async () => {
+    try {
+        const profiles = await executeSelectQuery('SELECT * FROM Profiles ORDER BY id DESC');
+        return profiles;
+    } catch (error) {
+        console.error('Error fetching profile records:', error);
+        return [];
+    }
+});
+
+ipcMain.handle('addProfile', async (event, record) => {
+    try {
+        const result = await executeQuery(
+            `INSERT INTO Profiles (borrower_id, name, phone_number, email) 
+             VALUES (?, ?, ?, ?)`,
+            [record.borrower_id, record.name, record.phone_number, record.email]
+        );
+        
+        record.id = this.lastID;  // Get the last inserted ID
+
+        // Send the added record back to the main window
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-added', record);
+        }
+    } catch (error) {
+        console.error('Error adding profile record:', error);
+    }
+});
+
+ipcMain.handle('updateProfile', async (event, record) => {
+    try {
+        await executeQuery(
+            `UPDATE Profiles 
+             SET borrower_id = ?, name = ?, phone_number = ?, email = ? 
+             WHERE id = ?`,
+            [record.borrower_id, record.name, record.phone_number, record.email, record.id]
+        );
+
+        // Send the updated record back to the main window
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-updated', record);
+        }
+    } catch (error) {
+        console.error('Error updating profile record:', error);
+    }
+});
+
+ipcMain.handle('deleteProfile', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'DELETE FROM Profiles WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error);  // Reject the promise if there's an error
+                    } else {
+                        resolve(results);  // Resolve on success
+                    }
+                }
+            );
+        });
+
+        // Notify the renderer process that the record is deleted
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-deleted', id);
+        }
+    } catch (error) {
+        console.error('Error deleting profile record:', error);
+
+        // Optionally send an error notification to the renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-deletion-error', error.message);
+        }
+    }
+});
+
+///PROFILES
+// Create a new function for the Add Profile button in index.html
+function createAddProfileFromIndexWindow() {
+    addProfileWindow = createWindow({
+        filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
+        width: 600,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (addProfileWindow = null),
+    });
+
+    // Ensure the window is not reused elsewhere
+    addProfileWindow.webContents.on('did-finish-load', () => {
+        // You can send specific data or commands here if necessary
+    });
+}
+
+// Listen for the event from index.js
+ipcMain.on('open-add-profile-from-index-window', () => {
+    if (!addProfileWindow) {
+        createAddProfileFromIndexWindow();
+    } else {
+        addProfileWindow.focus();
+    }
+});
+
+function createAddProfileWindow() {
+    addProfileWindow = createWindow({
+        filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
+        width: 585,
+        height: 485,
+        parent: mainWindow,
+        onClose: () => (addProfileWindow = null),
+    });
+
+    addProfileWindow.webContents.on('did-finish-load', () => {
+        // You can send specific data or commands here if necessary
+    });
+}
+
+function createEditProfileWindow(record) {
+    editProfileWindow = createWindow({
+        filePath: path.join(__dirname, 'profiles', 'editProfile.html'),
+        width: 585,
+        height: 485,
+
+        parent: mainWindow,
+        onClose: () => (editProfileWindow = null),
+    });
+
+    editProfileWindow.webContents.on('did-finish-load', () => {
+        editProfileWindow.webContents.send('fill-edit-form', record);
+    });
+}
+
+ipcMain.on('open-add-profile-window', () => {
+    if (!addProfileWindow) {
+        createAddProfileWindow();
+    } else {
+        addProfileWindow.focus();
+    }
+});
+
+ipcMain.on('open-edit-profile-window', (event, record) => {
+    if (!editProfileWindow) {
+        createEditProfileWindow(record);
+    } else {
+        editProfileWindow.focus();
+        editProfileWindow.webContents.send('fill-edit-form', record);
+    }
+});

@@ -23,19 +23,6 @@ body {
     margin-left: 5px;
 }
 
-/* General Button Styles */
-/* Buttons */
-/* .btn {
-    display: flexbox;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 10px;
-    height: 3rem;
-} */
-
 .btn-success {
     background-color: #28a745;
     color: white;
@@ -60,137 +47,87 @@ body {
     opacity: 0.8;
 }
 
-.right-side-buttons {
-    float: right;
-    margin-top: -50px;
-}
-
-/* Date Range Container */
-.date-range-container {
+.button-header {
     display: flex;
     align-items: center;
-    position: relative;
-    margin-right: 20px;
-    float: right;
-    right: 13rem;
+    justify-content: space-between;
 }
 
-.date-range-container .icon {
-    background-color: #30688B;
-    padding: 0.95rem;
-    color: whitesmoke;
-    border: 1px solid #1f1f1f;
-    border-top-left-radius: 9px;
-    border-bottom-left-radius: 9px;
-}
-
-#dateRangeSelect {
-    padding: 5px;
-    font-size: 14px;
-    border: 1px solid #1f1f1f;
-    border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
-    height: 3rem;
-    width: 8rem;
-}
-
-/* CUSTOM DATE FORM */
-.date-group {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: whitesmoke;
-    border: 1px solid grey;
-    border-radius: 5px;
-    padding: 10px;
-    width: 250px;
-    z-index: 1000;
-}
-
-.date-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
-    font-weight: bold;
-    margin-left: 5px;
-}
-
-.date-group input[type="date"] {
-    display: block;
-    margin-bottom: 10px;
-    width: calc(100% - 20px);
-}
-
-#clearDateRange {
-    background-color: #ffc107;
-    color: 1f1f1f;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 13rem;
-    margin-left: .35rem;
-    
-}
-
-#clearDateRange:hover {
-    opacity: 0.8;
+.right-side-buttons {
+    display: inline-block;
+    align-items: flex-end;
 }
 
 /* Dropdown Container */
-.dropdown-container {
-    float: left;
+.right-side {
+    display: flex;
+    justify-content: flex-start; /* Align all elements to the left */
+    align-items: center; /* Align items vertically in the center */
+}
+
+.custom-dropdown,
+.input-container,
+.date-range-container {
+    position: relative;
+    display: inline-block; /* Ensure each container behaves inline */
+}
+
+.dropdown-icon {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Prevent icon from blocking select dropdown interaction */
+    font-size: medium;
 }
 
 .dropdown-container .icon {
     background-color: #30688B;
-    top: 25px;
     padding: 0.95rem;
     color: whitesmoke;
     border: 1px solid #1f1f1f;
     border-top-left-radius: 9px;
     border-bottom-left-radius: 9px;
-    margin-right: -4px;
 }
 
+/* Hide the default dropdown arrow */
 .drop-search-form {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
     height: 2.98rem;
     margin-right: 1rem;
-    width: 7rem;
+    width: 5rem;
+    padding-left: 8px;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 30px; /* Space for the icon */
+    cursor: pointer;
 }
 
 .search-form-control {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
     height: 3rem;
-    margin-right: 1rem;
 }
 
 .input-container {
     display: flex;
     align-items: center;
-    margin-right: 3.5rem;
 }
 
 .input-container input {
-    padding: 5px;
+    padding-left: 15px;
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
-    width: 200px;
+    width: 15rem;
     height: 3rem;
+    margin-left: -1.05rem;
 }
 
 .input-container .icon {
@@ -198,33 +135,9 @@ body {
     padding: .95rem;
     color: whitesmoke;
     border: 1px solid #1f1f1f;
-    border-top-left-radius: 9px;
-    border-bottom-left-radius: 9px;
-}
-
-/* Container Styling */
-.scroll-container {
-    position: relative;
-    width: 100%;
-    margin-top: 1rem;
-}
-
-/* Sticky Scrollbar Styling */
-/* Sticky Scrollbar Styling */
-.scrollbar-top {
-    position: sticky;
-    top: 0;
-    height: 18px;
-    background-color: #f1f1f1;
-    overflow-x: auto;
-    z-index: 10;
-    width: 100%;
-    box-sizing: border-box; /* Ensure padding doesn't affect width */
-}
-
-/* Dummy content for scrollbar sync */
-.scrollbar-top .dummy-content {
-    height: 1px; /* Minimal height to ensure scrollbar appears */
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    margin-left: -2rem;
 }
 
 /* Main Table Container */
@@ -288,7 +201,7 @@ td input[type="checkbox"] {
     min-width: 150px; /* Minimum width for key columns */
 }
 
-.column-date_received, .column-class, .column-edition, 
+.column-class, .column-edition, 
 .column-volume, .column-source_of_fund, .column-pages, 
 .column-cost_price, .column-publisher, .column-year, 
 .column-remarks, .column-actions {
@@ -440,45 +353,6 @@ td input[type="checkbox"] {
 
 .edit-btn:hover {
     color: #30688B;
-}
-
-/* Empty message cell styling */
-.empty-message-cell {
-    text-align: center;
-    padding: 3.45rem 0;
-    font-size: 1.5rem;
-    color: #555555;
-    background-color: #f9f9f9;
-    border: 1px solid #dddddd;
-    border-radius: 4px;
-    height: 10rem;
-}
-
-/* NOTIFICATION WINDOW FOR UPDATE AND ADDING BOOKS */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    border-radius: 5px;
-    color: white;
-    font-weight: bold;
-    z-index: 1000;
-    opacity: 0.9;
-    transition: opacity 0.5s ease-in-out;
-}
-
-.notification.success {
-    background-color: #28a745;
-}
-
-.notification.error {
-    background-color: #dc3545;
-}
-
-.notification-warning {
-    background-color: #FFC107; /* Yellow */
-    color: #1f1f1f; /* Dark text for contrast */
 }
 
 

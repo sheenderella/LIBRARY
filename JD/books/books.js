@@ -331,17 +331,6 @@ function setupIpcRenderers() {
     });
 }
 
-// Event listener setup for sort buttons
-function setupSortButtons() {
-    const sortButtons = document.querySelectorAll('.sort-btn');
-
-    sortButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            sortBooks(button.dataset.column, button);
-        });
-    });
-}
-
 function openEditBookWindow(record) {
     ipcRenderer.send('open-edit-book-window', record);
 }
@@ -567,6 +556,26 @@ function deleteSelectedBooks() {
     }
 }
 
+function getBookFromRow(row) {
+    const cells = row.querySelectorAll('td');
+    return {
+        id: row.querySelector('.edit-btn').dataset.id,
+        number: cells[1].textContent,
+        date_received: cells[2].textContent,
+        class: cells[3].textContent,
+        author: cells[4].textContent,
+        title_of_book: cells[5].textContent,
+        edition: cells[6].textContent,
+        volume: cells[7].textContent,
+        source_of_fund: cells[8].textContent,
+        pages: cells[9].textContent,
+        cost_price: cells[10].textContent,
+        publisher: cells[11].textContent,
+        year: cells[12].textContent,
+        remarks: cells[13].textContent,
+    };
+}
+
 function filterBooks() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
     const searchColumn = document.getElementById('searchColumn').value;
@@ -643,6 +652,17 @@ function filterBooks() {
     updatePagination();;
 }
 
+// Event listener setup for sort buttons
+function setupSortButtons() {
+    const sortButtons = document.querySelectorAll('.sort-btn');
+
+    sortButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            sortBooks(button.dataset.column, button);
+        });
+    });
+}
+
 function sortBooks(column, button) {
     // Determine the current sort order
     const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
@@ -674,8 +694,6 @@ function sortBooks(column, button) {
     displayBooks();
     updatePagination();
 }
-
-
 
 function updatePagination() {
     const firstPageBtn = document.getElementById('firstPage');
@@ -745,24 +763,4 @@ function syncSelectAllCheckbox() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const allBooksSelected = currentBooks.every(book => selectedBookIds.has(book.id));
     selectAllCheckbox.checked = allBooksSelected;
-}
-
-function getBookFromRow(row) {
-    const cells = row.querySelectorAll('td');
-    return {
-        id: row.querySelector('.edit-btn').dataset.id,
-        number: cells[1].textContent,
-        date_received: cells[2].textContent,
-        class: cells[3].textContent,
-        author: cells[4].textContent,
-        title_of_book: cells[5].textContent,
-        edition: cells[6].textContent,
-        volume: cells[7].textContent,
-        source_of_fund: cells[8].textContent,
-        pages: cells[9].textContent,
-        cost_price: cells[10].textContent,
-        publisher: cells[11].textContent,
-        year: cells[12].textContent,
-        remarks: cells[13].textContent,
-    };
 }
