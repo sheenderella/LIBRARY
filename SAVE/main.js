@@ -845,7 +845,7 @@ function createAddBorrowWindow() {
         addBorrowWindow = createWindow({
             filePath: path.join(__dirname, 'borrow', 'addBorrow.html'),
             width: 400,
-            height: 540,
+            height: 560,
             parent: mainWindow,
             onClose: () => (addBorrowWindow = null),
         });
@@ -853,16 +853,15 @@ function createAddBorrowWindow() {
         addBorrowWindow.focus();
     }
 }
-
 // Handle add borrow
 ipcMain.handle('addBorrow', async (event, record) => {
     try {
         await executeQuery(
-            'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, datetime("now"))',
-            [record.borrowerName, record.bookTitle, record.borrowDate, record.borrowStatus]
+            'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, dueDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, ?, datetime("now"))',
+            [record.borrowerName, record.bookTitle, record.borrowDate, record.dueDate, record.borrowStatus]
         );
 
-        // Set the ID for the record
+        // Get the last inserted ID
         record.id = this.lastID;
 
         // Notify the main window about the new record
@@ -879,7 +878,6 @@ ipcMain.handle('addBorrow', async (event, record) => {
         }
     }
 });
-
 
 //UPDATE
 // Open update window handler
@@ -981,7 +979,35 @@ ipcMain.handle('updateBorrowRecord', async (event, updatedRecord) => {
     }
 });
 
+//RETURNDATE
+// Function to update both the borrow status and return date
+ipcMain.handle('updateBorrowStatus', async (event, { id, status, returnDate }) => {
+    try {
+        await new Promise((resolve, reject) => {
+            const query = `UPDATE borrow SET borrowStatus = ?, returnDate = ? WHERE id = ?`;
+            const params = [status, returnDate, id];
 
+            db.run(query, params, function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+
+        console.log(`Borrow status and return date updated successfully for ID: ${id}`);
+        
+        // Notify the main window about the status update
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('borrow-status-updated', { id, status, returnDate });
+        }
+
+    } catch (error) {
+        console.error('Error updating borrow status and return date:', error);
+        throw error;
+    }
+});
 
 
 
@@ -1025,3 +1051,16 @@ async function deleteFromDatabase(ids) {
         throw error; // re-throw the error so it can be handled in the main process
     }
 }
+
+
+
+//PROFILES
+ipcMain.handle('getProfiles', async () => {
+    try {
+        const profiles = await executeSelectQuery('SELECT * FROM Profiles ORDER BY id DESC');
+        return profiles;
+    } catch (error) {
+        console.error('Error fetching book records:', error);
+        return [];
+    }
+});

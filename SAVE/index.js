@@ -145,41 +145,53 @@ if (logoutLink) {
 // Fetch data for the pie chart
 Promise.all([
     ipcRenderer.invoke('getBooksCount'),
-    ipcRenderer.invoke('getBorrowedBooksCount'),
-    ipcRenderer.invoke('getUniqueBorrowers')
-]).then(([totalBooks, totalBorrowedBooks, uniqueBorrowers]) => {
-    const totalUniqueBorrowers = uniqueBorrowers.length;
+    ipcRenderer.invoke('getBorrowedBooksCount')
+]).then(([totalBooks, totalBorrowedBooks]) => {
+    const availableBooks = totalBooks - totalBorrowedBooks;
+
+    // Calculate percentages
+    const borrowedPercentage = (totalBorrowedBooks / totalBooks) * 100;
+    const availablePercentage = (availableBooks / totalBooks) * 100;
 
     // Create the pie chart
     const ctx = document.getElementById('libraryPieChart').getContext('2d');
     new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Total Books', 'Borrowed Books', 'Unique Borrowers'],
+            labels: ['Borrowed Books', 'Available Books'],
             datasets: [{
                 label: 'Library Statistics',
-                data: [totalBooks, totalBorrowedBooks, totalUniqueBorrowers],
-                backgroundColor: ['#30688B', '#767676', '#F7F7F7'],
+                data: [totalBorrowedBooks, availableBooks], // Use raw counts
+                backgroundColor: ['#30688B', '#F7F7F7'],
                 hoverOffset: 4,
-                borderColor: '#666', // Set border color
-                borderWidth: 1, // Set border width to 1px
-                hoverOffset: 4,
+                borderColor: '#666',
+                borderWidth: 1,
             }]
         },
         options: {
             responsive: true,
             plugins: {
+                title: {
+                    display: true,
+                    text: '', // Set the title
+                    font: {
+                        size: 16, // Adjust font size as needed
+                    }
+                },
                 legend: {
                     position: 'bottom',
                     labels: {
-                        usePointStyle: true, // Use circle shape
-                        pointStyle: 'circle', // Define the shape as a circle
+                        usePointStyle: true,
+                        pointStyle: 'circle',
                     }
                 },
                 tooltip: {
                     callbacks: {
                         label: function(tooltipItem) {
-                            return tooltipItem.label + ': ' + tooltipItem.raw;
+                            const dataset = tooltipItem.dataset;
+                            const total = dataset.data.reduce((acc, val) => acc + val, 0); // Calculate the total of all segments
+                            const percentage = ((tooltipItem.raw / total) * 100).toFixed(2); // Calculate percentage based on the total
+                            return `${tooltipItem.label}: ${percentage}%`;
                         }
                     }
                 }
@@ -189,17 +201,4 @@ Promise.all([
 }).catch((error) => {
     console.error('Error fetching data for pie chart:', error);
 });
-
-async function fetchBooksCount() {
-    try {
-        const count = await ipcRenderer.invoke('getBooksCount');
-        // Use the count value for your pie chart or any other logic
-        console.log(`Number of books: ${count}`);
-    } catch (error) {
-        console.error('Error fetching data for pie chart:', error);
-    }
-}
-
-fetchBooksCount();
-
 });
