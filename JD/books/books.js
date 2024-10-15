@@ -173,6 +173,13 @@ function setupEventListeners() {
         });
     }); 
 
+    // Get today's date in the format YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
+
+    // Set the 'max' attribute for the start and end date inputs
+    document.getElementById('startDate').setAttribute('max', today);
+    document.getElementById('endDate').setAttribute('max', today);
+
     document.getElementById('dateRangeSelect').addEventListener('change', function() {
         const customRange = document.getElementById('customDateRange');
         if (this.value === 'custom') {
@@ -437,6 +444,7 @@ function addBookToTable(book, prepend = false) {
         <td class="column-number">${book.number}</td>
         <td class="column-date_received">${book.date_received}</td>
         <td class="column-class">${book.class}</td>
+        <td class="column-category">${book.category}</td>
         <td class="column-author">${book.author}</td>
         <td class="column-title_of_book">${book.title_of_book}</td>
         <td class="column-edition">${book.edition}</td>
@@ -501,6 +509,7 @@ function updateBookInTable(book) {
         <td>${book.number}</td>
         <td>${book.date_received}</td>
         <td>${book.class}</td>
+        <td>${book.category}</td>
         <td>${book.author}</td>
         <td>${book.title_of_book}</td>
         <td>${book.edition}</td>
@@ -555,7 +564,7 @@ function deleteSelectedBooks() {
         showNotification(`${count} book(s) have been deleted!`, 'warning');
     }
 }
-
+ 
 function getBookFromRow(row) {
     const cells = row.querySelectorAll('td');
     return {
@@ -563,16 +572,17 @@ function getBookFromRow(row) {
         number: cells[1].textContent,
         date_received: cells[2].textContent,
         class: cells[3].textContent,
-        author: cells[4].textContent,
-        title_of_book: cells[5].textContent,
-        edition: cells[6].textContent,
-        volume: cells[7].textContent,
-        source_of_fund: cells[8].textContent,
-        pages: cells[9].textContent,
-        cost_price: cells[10].textContent,
-        publisher: cells[11].textContent,
-        year: cells[12].textContent,
-        remarks: cells[13].textContent,
+        category: cells[4].textContent,
+        author: cells[5].textContent,
+        title_of_book: cells[6].textContent,
+        edition: cells[7].textContent,
+        volume: cells[8].textContent,
+        source_of_fund: cells[9].textContent,
+        pages: cells[10].textContent,
+        cost_price: cells[11].textContent,
+        publisher: cells[12].textContent,
+        year: cells[13].textContent,
+        remarks: cells[14].textContent,
     };
 }
 
@@ -669,7 +679,7 @@ function sortBooks(column, button) {
     button.dataset.order = order;
 
     // Update the sort icon based on the current order
-    button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+    // button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
 
     // Sort the books based on the selected column and order
     currentBooks.sort((a, b) => {

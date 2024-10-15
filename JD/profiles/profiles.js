@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners() {
     document.getElementById('addProfile').addEventListener('click', openAddProfileWindow);
     // Event listener for clicks outside the sort buttons
-    document.addEventListener('click', resetSortButtons);
+    // document.addEventListener('click', resetSortButtons);
     // Attach event listeners to search elements
     document.getElementById('searchInput').addEventListener('input', filterProfiles);
     document.getElementById('searchColumn').addEventListener('change', filterProfiles);
@@ -367,12 +367,12 @@ function sortProfiles(column, button) {
     button.dataset.order = order;
 
     // Update the sort icon based on the current order
-    const icon = button.querySelector('i');
-    if (order === 'asc') {
-        icon.className = 'fas fa-sort-up'; // Ascending
-    } else {
-        icon.className = 'fas fa-sort-down'; // Descending
-    }
+    // const icon = button.querySelector('i');
+    // if (order === 'asc') {
+    //     icon.className = 'fas fa-sort-up'; // Ascending
+    // } else {
+    //     icon.className = 'fas fa-sort-down'; // Descending
+    // }
 
     // Sort the currentProfiles based on the selected column and order
     currentProfiles.sort((a, b) => {
@@ -395,15 +395,15 @@ function sortProfiles(column, button) {
 }
 
 // Function to reset all sort buttons to their default state
-function resetSortButtons() {
-    const sortButtons = document.querySelectorAll('.sort-btn');
-    sortButtons.forEach(button => {
-        const icon = button.querySelector('i');
-        icon.className = 'fas fa-sort'; // Reset to default sort icon
-        button.dataset.order = ''; // Clear the sort order
-        loadProfiles();
-    });
-}
+// function resetSortButtons() {
+//     const sortButtons = document.querySelectorAll('.sort-btn');
+//     sortButtons.forEach(button => {
+//         const icon = button.querySelector('i');
+//         icon.className = 'fas fa-sort'; // Reset to default sort icon
+//         button.dataset.order = ''; // Clear the sort order
+//         loadProfiles();
+//     });
+// }
 
 // Event listener setup for sort buttons
 function setupSortButtons() {
