@@ -16,9 +16,6 @@
         <label for="class">Class:</label>
         <input type="text" id="class" name="class"><br>
 
-        <label for="category">Category:</label>
-        <input type="text" id="category" name="category"><br>
-
         <label for="author">Author:</label>
         <input type="text" id="author" name="author"><br>
 
@@ -53,18 +50,5 @@
     </form>
 
     <script src="addbook.js"></script>
-    <script>
-        // Select the cost price input
-        const costPriceInput = document.getElementById('cost_price');
-
-        // Add an event listener to round the value to two decimal places
-        costPriceInput.addEventListener('blur', function () {
-            // Parse and round the value to two decimal places
-            const value = parseFloat(this.value);
-            if (!isNaN(value)) {
-                this.value = value.toFixed(2);
-            }
-        });
-    </script>
 </body>
 </html>
