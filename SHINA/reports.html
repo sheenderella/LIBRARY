@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - GRUBA LAW LIBRARY</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="reports.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header text-center">
+                <img src="./logo/1.png" alt="Gruba Law Library" class="img-fluid mb-2">
+            </div>
+            <div class="card-body">
+                <!-- Divs for changeable text sizes -->
+                <div id="reports-header">
+                    <h1>Generate Reports</h1>
+                </div>
+
+                <div id="books-header">
+                    <h2 class="text-center">Books</h2>
+                </div>
+
+                <button id="list-books-btn" class="btn btn-success btn-block mb-4">List of Books</button>
+
+                <div id="borrowing-header">
+                    <h2 class="text-center">Borrowing Details</h2>
+                </div>
+
+                <form id="reportFilterForm">
+                    <div class="form-group">
+                        <label for="time-period">Select Time Period:</label>
+                        <select id="time-period" class="form-control">
+                            <option value="all time">All Time</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Select Category:</label>
+                        <select id="category" class="form-control">
+                            <option value="borrowing-history">Borrowing History</option>
+                            <option value="most-borrowed-books">Most Borrowed Books</option>
+                            <option value="books-status">Books Status</option>
+                        </select>
+                    </div>
+
+                    <button id="generate-report-btn" class="btn btn-success btn-block">Generate Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="reports.js"></script>
+</body>
+</html>

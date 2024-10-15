@@ -37,12 +37,22 @@
                         <span class="link-text">Books</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="./borrow/borrow.html">
+                    <a class="nav-link text-white" href="./profiles/profiles.html">
                         <i class="fas fa-user"></i>
-                        <span class="link-text">Borrower</span>
+                        <span class="link-text">Borrower Profiles</span>
                     </a>
                 </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="./borrow/borrow.html">
+                        <i class="fas fa-table"></i>
+                        <span class="link-text">Borrow Logs</span>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link text-white" href="./settings/settings.html">
                         <i class="fas fa-cog"></i>
@@ -71,13 +81,12 @@
             </div>
 
             <div class="custom-flex mb-4">
-       
+    
                 <div class="btn-group-custom">
                     <a href="#" id="add-book-button" class="btn-primary-custom">
                         <i class="fas fa-plus"></i>
                         <span class="btn-add"> ADD BOOK </span>
-                    </a>
-                              
+                    </a> 
 
                     <a href="#" id="total-books-link" class="btn-info-custom total-books-link">
                         <div class="number-icon-container">
@@ -93,14 +102,16 @@
                         </div>
                         <span class="btn-text">BORROWED BOOKS TOTAL</span>
                     </a>
-                    <a href="./borrow/borrow.html" class="btn-info-custom">
+
+                    <a href="#" id="openReportsButton" class="btn-info-custom generate-reports">
                         <div class="number-icon-container">
-                            <i class="fas fa-users"></i> <!-- Borrowers icon -->
-                            <span id="total-borrowers-count">0</span>
+                            <i class="fas fa-file-alt"></i> <!-- Reports icon -->
                         </div>
-                        <span class="btn-text">BORROWERS TOTAL</span>
+                        <span class="btn-text">GENERATE REPORTS</span>
                     </a>
+                    
                 </div>
+
             </div>
             
             <div class="d-flex">

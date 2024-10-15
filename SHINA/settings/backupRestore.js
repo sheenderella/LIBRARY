@@ -1,6 +1,7 @@
 const { ipcMain, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const sqlite3 = require('better-sqlite3'); // Move this to the top
 
 // Update this to the absolute path of your main database file
 const dbPath = path.join(__dirname, '../library.db');
@@ -88,10 +89,17 @@ async function mergeDatabases(importedDbPath, mainDbPath) {
         const tableName = table.name;
 
         if (tableName === 'sqlite_sequence' || tableName === 'sqlite_stat1') {
-            continue;
+            continue; // Skip these internal SQLite tables
         }
 
         const importedRows = importedDb.prepare(`SELECT * FROM ${tableName}`).all();
+
+        if (importedRows.length === 0) {
+            // If there are no rows in the imported table, skip this table
+            console.log(`No rows to merge in table: ${tableName}`);
+            continue;
+        }
+
         const mainRows = mainDb.prepare(`SELECT * FROM ${tableName}`).all();
         const mainRowIds = new Set(mainRows.map(row => row.id));
 

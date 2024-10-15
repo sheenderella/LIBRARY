@@ -11,12 +11,6 @@ window.onload = function() {
 
     let failedAttemptsMap = {};
 
-    // Check if there's a last attempted username in localStorage
-    lastLoginUsername = localStorage.getItem('lastUsername') || '';
-    if (lastLoginUsername) {
-        usernameInput.value = lastLoginUsername; // Optionally pre-fill the username input
-    }
-
     forgotPasswordLink.style.display = "none";
     hintMessage.style.display = "none";
 
@@ -73,8 +67,6 @@ window.onload = function() {
                     
                     // Show the hint message
                     hintMessage.style.display = "block"; // You can also handle this in CSS
-                    
-                    
                 }
 
                 clearLoginFields();

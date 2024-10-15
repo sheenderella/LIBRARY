@@ -460,7 +460,7 @@ function addBookToTable(book, prepend = false) {
         <td class="column-remarks">${book.remarks}</td>
         <td class="column-actions">
             <button class="edit-btn" data-id="${book.id}">
-                <i class="fas fa-pencil-alt"></i>
+                <i class="fas fa-edit"></i>
             </button>
             <button class="delete-btn" data-id="${book.id}">
                 <i class="fas fa-trash"></i>

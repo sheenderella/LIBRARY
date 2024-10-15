@@ -6,7 +6,7 @@ body {
 }
 
 /* SIDE NAVBAR */
-/* Container to hold the sidebar and main content */
+/* Container for the sidebar and main content */
 #wrapper {
     display: flex; /* Flexbox layout for sidebar and content */
     transition: all 0.3s ease-in-out; /* Smooth transition for expanding/collapsing */
@@ -14,11 +14,15 @@ body {
 
 /* Sidebar styling */
 #sidebar-wrapper {
+    position: fixed; /* Keeps the sidebar fixed on the left */
+    z-index: 1000; /* High z-index to ensure it stays on top of main content */
     width: 250px; /* Default width of the sidebar */
     background-color: #30688B; /* Sidebar background color */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
     position: fixed; /* Sidebar remains fixed on the screen */
     height: 100%; /* Full height of the sidebar */
+    overflow-y: auto; /* Enables scrolling if the content overflows */
+    overflow-x: hidden;
 }
 
 /* Collapsed sidebar styling */
@@ -36,6 +40,10 @@ body {
     flex-direction: column; /* Stack items vertically */
     align-items: flex-start; /* Align items to the left */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
 }
 
 /* Sidebar toggle button */
@@ -64,7 +72,6 @@ body {
 }
 
 /* Navigation link styling */
-
 #sidebar-wrapper .nav-link {
     padding: 15px 60px; /* Padding around each link */
     white-space: nowrap; /* Prevent text from wrapping */
@@ -75,29 +82,28 @@ body {
     align-items: center; /* Vertically center align the icon and text */
     justify-content: flex-start; /* Align icon and text to the left */
 }
-
-
+ 
 /* Hover effect for navigation links */
-#sidebar-wrapper .nav-link:hover {
+.nav-link:hover {
     background-color: #1e4f6b; /* Darker background on hover */
     color: #fff; /* Text color on hover (optional, you can change this) */
     text-decoration: none; /* Remove underline from text */
- 
 }
 
-#sidebar-wrapper .nav-link i {
+.nav-link i {
     flex-shrink: 0; /* Prevent icon from shrinking */
     width: 24px; /* Set a fixed width for the icon */
     text-align: center; /* Center align the icon */
     font-size: 20px; /* Icon size */
 }
 
-#sidebar-wrapper .nav-link .link-text {
+.nav-link .link-text {
     flex-grow: 1; /* Allow the text to take up available space */
     display: inline-block; /* Display link text inline */
     margin-left: 15px; /* Space between the icon and text */
     transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
     font-family: Arial, sans-serif;
+
 }
 
 /* Collapsed sidebar link styling */
@@ -114,6 +120,25 @@ body {
 
 #sidebar-wrapper.collapsed .nav-link .link-text {
     display: none; /* Hide the link text when sidebar is collapsed */
+}
+
+#wrapper:not(.collapsed) #page-content-wrapper {
+    width: calc(100% - 250px); /* Adjust based on the sidebar width */
+}
+
+/* Main content area */
+#page-content-wrapper {
+    width: 10rem;
+    flex: none;
+    flex-grow: 1; /* Allow the content to expand to fill available space */
+    padding: 20px; /* Padding around the content */
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
+    margin-left: 250px; /* Default margin to make space for the sidebar */
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
 }
 
 /* Main content area */
