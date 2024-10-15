@@ -444,7 +444,6 @@ function addBookToTable(book, prepend = false) {
         <td class="column-number">${book.number}</td>
         <td class="column-date_received">${book.date_received}</td>
         <td class="column-class">${book.class}</td>
-        <td class="column-category">${book.category}</td>
         <td class="column-author">${book.author}</td>
         <td class="column-title_of_book">${book.title_of_book}</td>
         <td class="column-edition">${book.edition}</td>
@@ -509,7 +508,6 @@ function updateBookInTable(book) {
         <td>${book.number}</td>
         <td>${book.date_received}</td>
         <td>${book.class}</td>
-        <td>${book.category}</td>
         <td>${book.author}</td>
         <td>${book.title_of_book}</td>
         <td>${book.edition}</td>
@@ -572,17 +570,16 @@ function getBookFromRow(row) {
         number: cells[1].textContent,
         date_received: cells[2].textContent,
         class: cells[3].textContent,
-        category: cells[4].textContent,
-        author: cells[5].textContent,
-        title_of_book: cells[6].textContent,
-        edition: cells[7].textContent,
-        volume: cells[8].textContent,
-        source_of_fund: cells[9].textContent,
-        pages: cells[10].textContent,
-        cost_price: cells[11].textContent,
-        publisher: cells[12].textContent,
-        year: cells[13].textContent,
-        remarks: cells[14].textContent,
+        author: cells[4].textContent,
+        title_of_book: cells[5].textContent,
+        edition: cells[6].textContent,
+        volume: cells[7].textContent,
+        source_of_fund: cells[8].textContent,
+        pages: cells[9].textContent,
+        cost_price: cells[10].textContent,
+        publisher: cells[11].textContent,
+        year: cells[12].textContent,
+        remarks: cells[13].textContent,
     };
 }
 

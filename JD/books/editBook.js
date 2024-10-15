@@ -10,7 +10,6 @@ ipcRenderer.on('fill-edit-form', (event, record) => {
     document.getElementById('number').value = record.number;
     document.getElementById('date_received').value = record.date_received;
     document.getElementById('class').value = record.class;
-    document.getElementById('category').value = record.category;
     document.getElementById('author').value = record.author;
     document.getElementById('title_of_book').value = record.title_of_book;
     document.getElementById('edition').value = record.edition;
@@ -30,7 +29,6 @@ document.getElementById('editBookForm').addEventListener('submit', (event) => {
         number: document.getElementById('number').value,
         date_received: document.getElementById('date_received').value,
         class: document.getElementById('class').value,
-        category: document.getElementById('category').value,
         author: document.getElementById('author').value,
         title_of_book: document.getElementById('title_of_book').value,
         edition: document.getElementById('edition').value,

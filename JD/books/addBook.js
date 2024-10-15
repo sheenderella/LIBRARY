@@ -6,7 +6,6 @@ document.getElementById('addBookForm').addEventListener('submit', (event) => {
         // number: document.getElementById('number').value,
         date_received: document.getElementById('date_received').value,
         class: document.getElementById('class').value,
-        category: document.getElementById('category').value,
         author: document.getElementById('author').value,
         title_of_book: document.getElementById('title_of_book').value,
         edition: document.getElementById('edition').value,
@@ -23,8 +22,16 @@ document.getElementById('addBookForm').addEventListener('submit', (event) => {
     });
 });
 
+// Round cost price to two decimal places on blur
+const costPriceInput = document.getElementById('cost_price');
+costPriceInput.addEventListener('blur', function () {
+    const value = parseFloat(this.value);
+    if (!isNaN(value)) {
+        this.value = value.toFixed(2);
+    }
+});
+
+
 // Get today's date in the format YYYY-MM-DD
 const today = new Date().toISOString().split('T')[0];
-
-// Set the 'max' attribute for the start and end date inputs
 document.getElementById('date_received').setAttribute('max', today);
