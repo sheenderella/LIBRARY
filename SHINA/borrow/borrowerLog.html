@@ -97,67 +97,27 @@
             <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
             <input type="text" id="searchTitle" class="form-control" placeholder="Search by book title">
         </div>
-        
-        <!-- Status Filter -->
-        <div class="status-filter-container col">
-            <div class="status-filter-box">
-                <i class="fa fa-filter filter-icon"></i>
-                <span id="statusFilterText">Filter by Status</span>
-                <i class="fa fa-caret-down dropdown-icon"></i>
-                <select id="filterStatus" class="form-control">
-                    <option value="" selected>All</option>
-                    <option value="borrowed">Borrowed</option>
-                    <option value="returned">Returned</option>
-                    <option value="overdue">Overdue</option>
-                    <option value="returned overdue">Returned Overdue</option>
-                </select>
-            </div>
-        </div>
-    
-        <!-- Date Filter Dropdown -->
 
-<!-- Date range select element -->
-<div id="dateRangeContainer" class="date-range-container">
-    <div class="date-range-box">
-        <i class="fa fa-calendar calendar-icon"></i>
-        <span id="dateRangeFilterText">Filter by Date</span>
-        <i class="fa fa-caret-down dropdown-icon"></i>
-        <select id="dateRangeSelect" class="form-control" style="display: none;">
-            <option value="reset">Reset Date Filter</option> <!-- Add this option -->
-            <option value="last_7_days">Last 7 Days</option>
-            <option value="last_30_days">Last 30 Days</option>
-            <option value="this_month">This Month</option>
-            <option value="last_month">Last Month</option>
-            <option value="custom">Custom Range</option>
-        </select>
-    </div>
+<!-- Status Row Table -->
+<table id="statusTable">
+    <thead>
+        <tr id="statusRow">
+            <th>Borrowed</th>
+            <th>Returned</th>
+            <th>Overdue</th>
+            <th>Returned Overdue</th>
+        </tr>
+    </thead>
+</table>
 
-    <!-- Custom Date Range Inputs -->
-    <div id="customDateRange" class="custom-date-range">
-        <div class="date-group">
-            <label for="startDate">Start Date:</label>
-            <input type="date" id="startDate" class="form-control">
-        </div>
-        <div class="date-group">
-            <label for="endDate">End Date:</label>
-            <input type="date" id="endDate" class="form-control">
-        </div>
-        <div class="button-group">
-            <button id="applyDateRange" type="button">Apply</button>
-            <button id="clearDateRange" type="button">Clear</button>
-        </div>
-    </div>
-</div>
-</div>
-    
 <!-- Borrower Log Table -->
 <table id="borrowerLogTable">
     <thead>
-        <tr>
+        <!-- Column Headers -->
+        <tr id="columnHeader">
             <th>Book Title</th>
             <th>Borrow Date</th>
             <th>Due Date</th>
-            <th>Status</th>
             <th>Return Date</th>
         </tr>
     </thead>
@@ -165,6 +125,8 @@
         <!-- Content will be loaded by JavaScript -->
     </tbody>
 </table>
+
+
 
                 <!-- Pagination Controls -->
                 <div id="paginationControls" class="pagination-container d-flex align-items-center">

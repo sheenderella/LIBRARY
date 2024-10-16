@@ -387,9 +387,9 @@ h1 {
 
 
 
-
 /* TABLE */
-#borrowerLogTable {
+/* Status Table */
+#statusTable {
     width: 97%;
     margin-top: 20px;
     margin-left: 15px;
@@ -397,6 +397,45 @@ h1 {
     font-size: 1rem;
 }
 
+#statusRow th {
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    width: 25%; /* Fixed width for each status column */
+}
+
+#statusRow th:nth-child(1) {
+    background-color: blue; /* Borrowed */
+}
+
+#statusRow th:nth-child(2) {
+    background-color: green; /* Returned */
+}
+
+#statusRow th:nth-child(3) {
+    background-color: red; /* Overdue */
+}
+
+#statusRow th:nth-child(4) {
+    background-color: orange; /* Returned Overdue */
+}
+
+/* Borrower Log Table */
+#borrowerLogTable {
+    width: 97%;
+    margin-top: -1px;
+    margin-left: 15px;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+
+/* Header Row */
+#borrowerLogTable th {
+    background-color: #30688B;
+    color: white;
+}
+
+/* Adjusting column and cell styling */
 #borrowerLogTable th, 
 #borrowerLogTable td {
     padding: 12px;
@@ -406,27 +445,19 @@ h1 {
     white-space: normal;   /* Allow text to wrap */
 }
 
-/* Fixed width for 2nd and 3rd columns */
-#borrowerLogTable th:nth-child(2),
-#borrowerLogTable td:nth-child(2) {
-    min-width: 150px; /* Set fixed width for the 2nd column */
+#columnHeader th:nth-child(2),
+#columnHeader td:nth-child(3),
+#columnHeader td:nth-child(4) {
+    min-width: 100px;
     width: auto;
 }
 
-#borrowerLogTable th:nth-child(3),
-#borrowerLogTable td:nth-child(3) {
-    min-width: 100px; /* Set fixed width for the 3rd column */
+#borrowerLogTable td:nth-child(1) {
+    max-width: 400px;
     width: auto;
 }
 
-
-#borrowerLogTable th {
-    background-color: #30688B;
-    color: white;
-   
-}
-
-
+/* Row striping */
 #borrowerLogTable tr:nth-child(odd) {
     background-color: #f9f9f9;
 }
@@ -434,8 +465,6 @@ h1 {
 #borrowerLogTable tr:nth-child(even) {
     background-color: #eeeeee;
 }
-
-
 
 
 

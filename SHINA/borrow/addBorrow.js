@@ -47,13 +47,14 @@ async function fetchBorrowerIDByName(name) {
 // Function to fetch book titles for suggestions from the database
 async function fetchBookTitles() {
     try {
-        const titles = await ipcRenderer.invoke('getBookTitles'); // Fetch book titles via IPC
+        const titles = await ipcRenderer.invoke('getBookTitles'); // Fetch only available book titles via IPC
         return titles;
     } catch (error) {
         console.error('Error fetching book titles:', error);
         return [];
     }
 }
+
 
 // Function to filter borrower ID suggestions based on user input
 function filterIDSuggestions(ids, input) {
@@ -237,11 +238,29 @@ async function handleAddBorrow(event) {
     const dueDate = document.getElementById('addDueDate').value;
     const borrowStatus = 'borrowed'; // Default status
 
-    if (!borrowerID || !borrowerName || !bookTitle || !borrowDate || !dueDate) {
-        alert('Please fill out all required fields.');
+    // Validate required fields
+    if (!borrowerID) {
+        alert('Borrower ID is required.');
+        return;
+    }
+    if (!borrowerName) {
+        alert('Borrower name is required.');
+        return;
+    }
+    if (!bookTitle) {
+        alert('Book title is required.');
+        return;
+    }
+    if (!borrowDate) {
+        alert('Borrow date is required.');
+        return;
+    }
+    if (!dueDate) {
+        alert('Due date is required.');
         return;
     }
 
+    // Prepare the new borrow record
     const newRecord = {
         borrowerID,
         borrowerName,
@@ -252,13 +271,17 @@ async function handleAddBorrow(event) {
     };
 
     try {
+        // Invoke the backend IPC handler to add the new borrow record
         await ipcRenderer.invoke('addBorrow', newRecord);
+
+        // If successful, close the current window
         window.close();
     } catch (error) {
+        // Log the error and notify the user
         console.error('Error adding borrow record:', error);
+        alert('Failed to add the borrow record. Please try again.');
     }
 }
-
 
 // Set max date and sync due date with borrow date
 document.addEventListener('DOMContentLoaded', function () {

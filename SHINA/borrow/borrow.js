@@ -21,6 +21,18 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
+//NOTIFICATION ADDBORROW
+// Listen for success or error messages from the main process
+ipcRenderer.on('borrow-error', (event, data) => {
+    showNotification(data.message, data.type); // Display error notification
+});
+
+ipcRenderer.on('borrow-record-added', (event, data) => {
+    showNotification(data.message, data.type); // Display success notification
+});
+
+
+
 //DISPLAY!!!
 function addBorrowToTable(record) {
     const borrowList = document.getElementById('borrowList');

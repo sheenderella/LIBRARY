@@ -1,3 +1,5 @@
+const { ipcRenderer } = require('electron');
+
 // Sidebar toggle functionality
 document.getElementById('sidebarCollapse').addEventListener('click', function () {
     const wrapper = document.getElementById('wrapper');
@@ -19,17 +21,16 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
-const { ipcRenderer } = require('electron');
-let logData = [];
-let filteredLogData = []; // Store the filtered results
 
+let logData = [];
+let filteredLogData = [];
 
 // Update borrower name in the UI
 function updateBorrowerName(borrowerName) {
     document.getElementById('borrowerName').textContent = borrowerName;
 }
 
-//FILTERS
+// FILTERS
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const borrowerName = urlParams.get('borrowerName');
@@ -40,32 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Set up event listeners for filtering
         document.getElementById('searchTitle').addEventListener('input', debounce(applyFilters, 300));
-        document.getElementById('filterStatus').addEventListener('change', applyFilters);
-
-        const dateRangeSelect = document.getElementById('dateRangeSelect');
-        const applyDateRangeBtn = document.getElementById('applyDateRange');
-        const clearDateRangeBtn = document.getElementById('clearDateRange');
-        const customDateRange = document.getElementById('customDateRange');
-
-        // Show or hide custom date range inputs based on selection
-        dateRangeSelect.addEventListener('change', function() {
-            if (this.value === 'custom') {
-                customDateRange.style.display = 'block';
-            } else {
-                customDateRange.style.display = 'none';
-                applyFilters();
-            }
-        });
-
-        // Apply date range filter
-        applyDateRangeBtn.addEventListener('click', () => {
-            applyFilters();
-        });
-
-        // Clear date range filter
-        clearDateRangeBtn.addEventListener('click', () => {
-            resetDateFilters();
-        });
 
         // Pagination Controls
         document.getElementById('prevPage').addEventListener('click', prevPage);
@@ -78,81 +53,31 @@ document.addEventListener('DOMContentLoaded', () => {
 // DISPLAY
 function displayLog() {
     const container = document.getElementById('borrowerLogContainer');
-    container.innerHTML = '';
+    container.innerHTML = ''; // Clear previous entries
 
     const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
 
-
     const start = (currentPage - 1) * recordsPerPage;
     const end = start + recordsPerPage;
-    const paginatedLog = filteredRecords.slice(start, end);
+    const paginatedLog = filteredLogData.slice(start, end); // Use filteredLogData instead
+
+    if (paginatedLog.length === 0) {
+        container.innerHTML = '<tr><td colspan="4">No records for the selected status.</td></tr>';
+        return;
+    }
 
     paginatedLog.forEach(entry => {
-
         if (entry.dueDate && currentDate > entry.dueDate && entry.borrowStatus === 'borrowed') {
             entry.borrowStatus = 'overdue'; // Set the status to overdue if the current date is past the due date
         }
-
 
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${entry.bookTitle}</td>
             <td>${entry.borrowDate}</td>
-            <td>${entry.dueDate || ''} </td> 
-            <td>
-                <select class="status-dropdown" data-id="${entry.id}" ${entry.borrowStatus === 'returned' || entry.borrowStatus === 'returned overdue' ? 'disabled' : ''}>
-                    <option value="borrowed" ${entry.borrowStatus === 'borrowed' ? 'selected' : ''}>Borrowed</option>
-                    <option value="returned" ${entry.borrowStatus === 'returned' ? 'selected' : ''}>Returned</option>
-                    <option value="returned overdue" class="status-returned-overdue" ${entry.borrowStatus === 'returned overdue' ? 'selected' : ''}>Returned Overdue</option>
-                </select>
-            </td>
-            <td> ${entry.returnDate || ''} </td>
+            <td>${entry.dueDate || ''}</td>
+            <td>${entry.returnDate || ''}</td>
         `;
-        const statusDropdown = row.querySelector('.status-dropdown');
-        updateDropdownStyle(statusDropdown, entry.borrowStatus);
-
-        // Hide the "Returned Overdue" option if the status is not "Overdue"
-        if (entry.borrowStatus !== 'overdue') {
-            const returnedOverdueOption = statusDropdown.querySelector('option[value="returned overdue"]');
-            returnedOverdueOption.style.display = 'none';
-        }
-
-        // Handle the "Overdue" status
-        if (entry.borrowStatus === 'overdue') {
-            const overdueOption = document.createElement('option');
-            overdueOption.value = 'overdue';
-            overdueOption.className = 'status-overdue';
-            overdueOption.textContent = 'Overdue';
-            overdueOption.selected = true;
-            statusDropdown.appendChild(overdueOption);
-
-            statusDropdown.querySelector('option[value="borrowed"]').style.display = 'none';
-            statusDropdown.querySelector('option[value="returned"]').style.display = 'none';
-        }
-        
-        statusDropdown.addEventListener('change', function () {
-            const newStatus = this.value;
-            let newReturnDate = null;
-    
-            if (newStatus === 'returned' || newStatus === 'returned overdue') {
-                newReturnDate = new Date().toISOString().split('T')[0];
-                this.disabled = true; // Disable dropdown when returned or returned overdue is selected
-            }
-    
-            updateDropdownStyle(this, newStatus);
-    
-            ipcRenderer.invoke('updateBorrowStatus', { id: entry.id, status: newStatus, returnDate: newReturnDate })
-                .then(() => {
-                    
-                    console.log('Borrow status and return date updated successfully!');
-                    showNotification('Borrow status updated successfully!', 'success');
-
-                })
-                .catch(error => {
-                    console.error('Error updating borrow status and return date:', error);
-                    showNotification('Failed to update borrow status.', 'error');
-                });
-        });
 
         container.appendChild(row);
     });
@@ -160,33 +85,15 @@ function displayLog() {
     updatePaginationControls(); // Update the pagination controls based on the current page
 }
 
-// STATUS STYLE
-function updateDropdownStyle(dropdown, status) {
-    switch (status) {
-        case 'borrowed':
-            dropdown.style.backgroundColor = '#FBEEAD'; // Light blue for borrowed
-            break;
-        case 'returned':
-            dropdown.style.backgroundColor = '#C2FFC8'; // Light green for returned
-            break;
-        case 'overdue':
-            dropdown.style.backgroundColor = '#f8d7da'; // Light red for overdue
-            break;
-        case 'returned overdue':
-            dropdown.style.backgroundColor = '#f5c6cb'; // Light pink for returned overdue
-            break;
-        default:
-            dropdown.style.backgroundColor = ''; // Default
-    }
-}
-
 // Fetch and display borrower log
 async function fetchBorrowerLog(borrowerName) {
     try {
         const log = await ipcRenderer.invoke('getBorrowerLog', borrowerName);
+        logData = log; // Assign the fetched log to logData
+        filteredLogData = logData; // Initialize filteredLogData with the full log data
         
         // Sort log data by borrowDate in descending order
-        filteredRecords = log.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
+        filteredLogData.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
         
         currentPage = 1; // Reset to the first page
         displayLog(); // Display the log for the current page
@@ -196,104 +103,69 @@ async function fetchBorrowerLog(borrowerName) {
     }
 }
 
-
-
-// Apply filters to log data
+// Apply filters based on search input
 function applyFilters() {
-    // Get filter values
     const searchTitle = document.getElementById('searchTitle').value.toLowerCase();
-    const filterStatus = document.getElementById('filterStatus').value;
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    const dateRangeSelect = document.getElementById('dateRangeSelect').value;
-
-    let startDateFilter = startDate;
-    let endDateFilter = endDate;
-
-    // Handle preset date ranges
-    if (dateRangeSelect === 'last_7_days') {
-        startDateFilter = new Date();
-        startDateFilter.setDate(startDateFilter.getDate() - 7);
-        endDateFilter = new Date();
-    } else if (dateRangeSelect === 'last_30_days') {
-        startDateFilter = new Date();
-        startDateFilter.setDate(startDateFilter.getDate() - 30);
-        endDateFilter = new Date();
-    } else if (dateRangeSelect === 'this_month') {
-        startDateFilter = new Date();
-        startDateFilter.setDate(1);
-        endDateFilter = new Date();
-        endDateFilter.setMonth(endDateFilter.getMonth() + 1);
-        endDateFilter.setDate(0);
-    } else if (dateRangeSelect === 'last_month') {
-        startDateFilter = new Date();
-        startDateFilter.setMonth(startDateFilter.getMonth() - 1);
-        startDateFilter.setDate(1);
-        endDateFilter = new Date();
-        endDateFilter.setDate(0);
-    } else if (dateRangeSelect === 'custom') {
-        customDateRange.style.display = 'block';
-        startDateFilter = startDate;
-        endDateFilter = endDate;
-    } else {
-        // If no date filter is selected, clear date filters
-        startDateFilter = null;
-        endDateFilter = null;
-    }
-
-    // Filter log data based on search title, status, and date range
+    
+    // Filter log data based on search title
     filteredLogData = logData.filter(entry => {
         const title = entry.bookTitle.toLowerCase();
-        const status = entry.borrowStatus;
-        const borrowDate = new Date(entry.borrowDate);
-
-        const isTitleMatch = title.includes(searchTitle);
-        const isStatusMatch = !filterStatus || filterStatus === "all" || status === filterStatus;
-        const isDateMatch = (!startDateFilter || borrowDate >= new Date(startDateFilter)) &&
-                            (!endDateFilter || borrowDate <= new Date(endDateFilter));
-
-        return isTitleMatch && isStatusMatch && isDateMatch;
+        return title.includes(searchTitle);
     });
 
     currentPage = 1; // Reset to first page after applying filters
     displayLog();
 }
 
-// Reset date filters
-function resetDateFilters() {
-    // Clear the start and end date input values
-    document.getElementById('startDate').value = '';
-    document.getElementById('endDate').value = '';
+// Apply status filters based on clicked status
+function applyStatusFilter(status) {
+    filteredLogData = logData.filter(entry => {
+        if (status === 'borrowed' && entry.borrowStatus === 'borrowed') return true;
+        if (status === 'returned' && entry.borrowStatus === 'returned') return true;
+        if (status === 'overdue' && entry.borrowStatus === 'overdue') return true;
+        if (status === 'returnedOverdue' && entry.borrowStatus === 'returnedOverdue') return true;
+        return false;
+    });
 
-    // Reset the "Search by Date" dropdown to its default value (assumed to be '')
-    document.getElementById('dateRangeSelect').value = '';
+    currentPage = 1; // Reset to the first page after applying the status filter
 
-    // Hide the custom date range inputs
-    document.getElementById('customDateRange').style.display = 'none';
+    if (filteredLogData.length === 0) {
+        const container = document.getElementById('borrowerLogContainer');
+        container.innerHTML = '<tr><td colspan="4">No records for the selected status.</td></tr>';
+    } else {
+        displayLog(); // Display filtered log data
+    }
 
-    // Reapply filters with no date restrictions
-    applyFilters();
+    updatePaginationControls(); // Update pagination based on the filtered data
 }
 
-// Debounce function to limit the rate at which a function is executed
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
+// Add event listeners to the status row
+document.getElementById('statusRow').addEventListener('click', function(event) {
+    const clickedStatus = event.target.textContent.toLowerCase();
 
-// Close the custom date range filter when clicking outside of it
-document.addEventListener('click', (event) => {
-    const customDateRange = document.getElementById('customDateRange');
-    const dateRangeSelect = document.getElementById('dateRangeSelect');
-
-    if (!dateRangeSelect.contains(event.target) && !customDateRange.contains(event.target)) {
-        customDateRange.style.display = 'none';
+    switch (clickedStatus) {
+        case 'borrowed':
+            applyStatusFilter('borrowed');
+            break;
+        case 'returned':
+            applyStatusFilter('returned');
+            break;
+        case 'overdue':
+            applyStatusFilter('overdue');
+            break;
+        case 'returned overdue':
+            applyStatusFilter('returnedOverdue');
+            break;
+        default:
+            // If none of the statuses match, do nothing
+            break;
     }
 });
 
+// Update pagination controls
+function updatePaginationControls() {
+    // Implement pagination control updates here if necessary
+}
 
 
 // PAGINATION

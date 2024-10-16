@@ -3,7 +3,6 @@ const path = require('path');
 const db = require('./database.js');
 const sqlite3 = require('sqlite3').verbose();
 
-
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
@@ -167,6 +166,43 @@ async function getUniqueBorrowersFromDB() {
     return executeSelectQuery(sql);
 }
 
+// REPORTS
+let reportsWindow = null; // Initialize the reportsWindow variable
+
+// Open reports window handler
+ipcMain.handle('open-reports-window', (event) => {
+    createReportsWindow(); // Create the reports window
+});
+
+// Function to create the Reports Window
+function createReportsWindow() {
+    if (!reportsWindow) {
+        reportsWindow = new BrowserWindow({
+            width: 400,
+            height: 600,
+            resizable: true,
+            parent: mainWindow,
+            modal: true,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
+        });
+
+        reportsWindow.loadFile(path.join(__dirname, 'reports.html')); // Load the reports HTML file
+
+        // Log when the reports window is opened
+        console.log('Reports window created');
+
+        reportsWindow.on('closed', () => {
+            reportsWindow = null; // Clear reference on close
+        });
+    } else {
+        reportsWindow.focus(); // Focus on the existing window if it's already open
+    }
+}
+
+
 //GRAPH
 // Register IPC handlers
 ipcMain.handle('getBooksCount', async (event) => {
@@ -229,9 +265,7 @@ function createForgotPasswordWindow() {
             }
         });
     }
-}
-
-;
+};
 
 //DELETE WARNING
 function createDeleteNotifWindow() {
@@ -823,7 +857,6 @@ ipcMain.on('open-edit-book-window', (event, record) => {
 });
 
 
-
 //BORROW
 // Database operations (assuming executeSelectQuery and executeQuery are predefined)
 ipcMain.handle('getBorrows', async () => {
@@ -893,7 +926,10 @@ ipcMain.handle('addBorrow', async (event, record) => {
         if (borrowerExists.length === 0) {
             console.error('Borrower does not exist in Profiles table:', record.borrowerID);
             if (mainWindow && !mainWindow.isDestroyed()) {
-                mainWindow.webContents.send('borrow-added-failure', 'Borrower ID does not exist');
+                mainWindow.webContents.send('borrow-error', {
+                    message: 'Borrower ID does not exist',
+                    type: 'error'
+                });
             }
             return; // Exit without adding the borrow record
         }
@@ -907,30 +943,93 @@ ipcMain.handle('addBorrow', async (event, record) => {
         if (bookExists.length === 0) {
             console.error('Book does not exist in books table:', record.bookTitle);
             if (mainWindow && !mainWindow.isDestroyed()) {
-                mainWindow.webContents.send('borrow-added-failure', 'Book does not exist');
+                mainWindow.webContents.send('borrow-error', {
+                    message: 'Book does not exist',
+                    type: 'error'
+                });
             }
             return; // Exit without adding the borrow record
         }
 
-        // Proceed to add the borrow record if the borrower and book exist
+        // Proceed to check if the book is already borrowed or overdue
+        const bookStatus = await executeSelectQuery(
+            'SELECT borrowStatus FROM borrow WHERE bookTitle = ? AND (borrowStatus = "borrowed" OR borrowStatus = "overdue")',
+            [record.bookTitle]
+        );
+
+        if (bookStatus.length > 0) {
+            console.error('Book is already borrowed or overdue:', record.bookTitle);
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('borrow-error', {
+                    message: 'Book is already borrowed',
+                    type: 'error'
+                });
+            }
+            return; // Exit without adding the borrow record
+        }
+
+        // Add the borrow record if book is not borrowed or overdue
         console.log('Inserting record:', record);
         await executeQuery(
             'INSERT INTO borrow (borrowerName, bookTitle, borrowDate, dueDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, ?, datetime("now"))',
             [record.borrowerName, record.bookTitle, record.borrowDate, record.dueDate, record.borrowStatus]
         );
 
-        // Notify the main window about the new record
+        // Notify success
         if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('borrow-record-added', record);
-            mainWindow.webContents.send('borrow-added-success');
+            mainWindow.webContents.send('borrow-record-added', {
+                message: 'Borrow record successfully added',
+                type: 'success',
+                record
+            });
         }
     } catch (error) {
         console.error('Error adding borrow record:', error);
         if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('borrow-added-failure', 'Error adding borrow record');
+            mainWindow.webContents.send('borrow-error', {
+                message: 'Error adding borrow record',
+                type: 'error'
+            });
         }
     }
 });
+
+
+// Handle fetching all book titles for suggestions
+ipcMain.handle('getBookTitles', async () => {
+    try {
+        const bookTitles = await executeSelectQuery(
+            `SELECT title_of_book FROM books 
+            WHERE title_of_book NOT IN 
+            (SELECT bookTitle FROM borrow WHERE borrowStatus = 'borrowed' OR borrowStatus = 'overdue')`
+        );
+        console.log('Fetched available book titles:', bookTitles); // Log fetched book titles for debugging
+        return bookTitles.map(book => book.title_of_book); // Return only the available titles
+    } catch (error) {
+        console.error('Error fetching book titles:', error);
+        throw new Error('Failed to fetch book titles');
+    }
+
+});
+
+
+// Handle searching for books
+ipcMain.handle('searchBooks', async (event, query) => {
+    try {
+        const books = await executeSelectQuery(
+            'SELECT title_of_book FROM books WHERE title_of_book LIKE ? LIMIT 5',
+            [`%${query}%`]
+        );
+        return books;
+    } catch (error) {
+        console.error('Error fetching book suggestions:', error);
+        return [];
+    }
+});
+
+
+
+
 
 
 // Handle fetching all borrower IDs
@@ -985,32 +1084,6 @@ ipcMain.handle('getBorrowerIDByName', async (event, name) => {
     }
 });
 
-// Handle fetching all book titles for suggestions
-ipcMain.handle('getBookTitles', async () => {
-    try {
-        const bookTitles = await executeSelectQuery('SELECT title_of_book FROM books');
-        console.log('Fetched book titles:', bookTitles); // Log fetched book titles for debugging
-        return bookTitles.map(book => book.title_of_book); // Return only the titles
-    } catch (error) {
-        console.error('Error fetching book titles:', error);
-        throw new Error('Failed to fetch book titles');
-    }
-});
-
-
-// Handle searching for books
-ipcMain.handle('searchBooks', async (event, query) => {
-    try {
-        const books = await executeSelectQuery(
-            'SELECT title_of_book FROM books WHERE title_of_book LIKE ? LIMIT 5',
-            [`%${query}%`]
-        );
-        return books;
-    } catch (error) {
-        console.error('Error fetching book suggestions:', error);
-        return [];
-    }
-});
 
 //reports
 ipcMain.handle('generateReport', async (event, { timePeriod, category }) => {
@@ -1235,51 +1308,156 @@ async function deleteFromDatabase(ids) {
 }
 
 
+//PROFILES' CRUD
+let addProfileWindow = null;
+let editProfileWindow = null;
 
-//PROFILES
+
 ipcMain.handle('getProfiles', async () => {
     try {
         const profiles = await executeSelectQuery('SELECT * FROM Profiles ORDER BY id DESC');
         return profiles;
     } catch (error) {
-        console.error('Error fetching book records:', error);
+        console.error('Error fetching profile records:', error);
         return [];
     }
 });
 
+ipcMain.handle('addProfile', async (event, record) => {
+    try {
+        const result = await executeQuery(
+            `INSERT INTO Profiles (borrower_id, name, phone_number, email) 
+             VALUES (?, ?, ?, ?)`,
+            [record.borrower_id, record.name, record.phone_number, record.email]
+        );
+        
+        record.id = this.lastID;  // Get the last inserted ID
 
-let reportsWindow = null; // Initialize the reportsWindow variable
-
-// REPORTS
-// Open reports window handler
-ipcMain.handle('open-reports-window', (event) => {
-    createReportsWindow(); // Create the reports window
+        // Send the added record back to the main window
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-added', record);
+        }
+    } catch (error) {
+        console.error('Error adding profile record:', error);
+    }
 });
 
-// Function to create the Reports Window
-function createReportsWindow() {
-    if (!reportsWindow) {
-        reportsWindow = new BrowserWindow({
-            width: 400,
-            height: 600,
-            resizable: true,
-            parent: mainWindow,
-            modal: true,
-            webPreferences: {
-                nodeIntegration: true,
-                contextIsolation: false,
-            },
-        });
+ipcMain.handle('updateProfile', async (event, record) => {
+    try {
+        await executeQuery(
+            `UPDATE Profiles 
+             SET borrower_id = ?, name = ?, phone_number = ?, email = ? 
+             WHERE id = ?`,
+            [record.borrower_id, record.name, record.phone_number, record.email, record.id]
+        );
 
-        reportsWindow.loadFile(path.join(__dirname, 'reports.html')); // Load the reports HTML file
-
-        // Log when the reports window is opened
-        console.log('Reports window created');
-
-        reportsWindow.on('closed', () => {
-            reportsWindow = null; // Clear reference on close
-        });
-    } else {
-        reportsWindow.focus(); // Focus on the existing window if it's already open
+        // Send the updated record back to the main window
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-updated', record);
+        }
+    } catch (error) {
+        console.error('Error updating profile record:', error);
     }
+});
+
+ipcMain.handle('deleteProfile', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'DELETE FROM Profiles WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error);  // Reject the promise if there's an error
+                    } else {
+                        resolve(results);  // Resolve on success
+                    }
+                }
+            );
+        });
+
+        // Notify the renderer process that the record is deleted
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-deleted', id);
+        }
+    } catch (error) {
+        console.error('Error deleting profile record:', error);
+
+        // Optionally send an error notification to the renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-deletion-error', error.message);
+        }
+    }
+});
+
+///PROFILES
+// Create a new function for the Add Profile button in index.html
+function createAddProfileFromIndexWindow() {
+    addProfileWindow = createWindow({
+        filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
+        width: 600,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (addProfileWindow = null),
+    });
+
+    // Ensure the window is not reused elsewhere
+    addProfileWindow.webContents.on('did-finish-load', () => {
+        // You can send specific data or commands here if necessary
+    });
 }
+
+// Listen for the event from index.js
+ipcMain.on('open-add-profile-from-index-window', () => {
+    if (!addProfileWindow) {
+        createAddProfileFromIndexWindow();
+    } else {
+        addProfileWindow.focus();
+    }
+});
+
+function createAddProfileWindow() {
+    addProfileWindow = createWindow({
+        filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
+        width: 585,
+        height: 485,
+        parent: mainWindow,
+        onClose: () => (addProfileWindow = null),
+    });
+
+    addProfileWindow.webContents.on('did-finish-load', () => {
+        // You can send specific data or commands here if necessary
+    });
+}
+
+function createEditProfileWindow(record) {
+    editProfileWindow = createWindow({
+        filePath: path.join(__dirname, 'profiles', 'editProfile.html'),
+        width: 585,
+        height: 485,
+
+        parent: mainWindow,
+        onClose: () => (editProfileWindow = null),
+    });
+
+    editProfileWindow.webContents.on('did-finish-load', () => {
+        editProfileWindow.webContents.send('fill-edit-form', record);
+    });
+}
+
+ipcMain.on('open-add-profile-window', () => {
+    if (!addProfileWindow) {
+        createAddProfileWindow();
+    } else {
+        addProfileWindow.focus();
+    }
+});
+
+ipcMain.on('open-edit-profile-window', (event, record) => {
+    if (!editProfileWindow) {
+        createEditProfileWindow(record);
+    } else {
+        editProfileWindow.focus();
+        editProfileWindow.webContents.send('fill-edit-form', record);
+    }
+});

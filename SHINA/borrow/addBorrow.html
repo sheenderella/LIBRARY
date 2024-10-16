@@ -17,19 +17,42 @@
                 <form id="addBorrowForm">
                     
                     <div class="form-group">
+                        <small class="form-text text-muted"> Borrower ID: </small>
                         <input class="form-control" type="text" id="addBorrowerID" placeholder="Borrower ID" required>
                         <div id="borrowerSuggestionList" class="suggestion-list"></div> <!-- Div for borrower ID suggestions -->
                     </div>
                     
                     <div class="form-group">
+                        <small class="form-text text-muted"> Borrower Name: </small>
                         <input class="form-control" type="text" id="addBorrowerName" placeholder="Borrower Name" required>
                         <div id="nameSuggestionList" class="suggestion-list"></div> <!-- Div for borrower name suggestions -->
                     </div>
 
                     <div class="form-group">
+                        <small class="form-text text-muted">  Book Title: </small>
                         <input class="form-control" type="text" id="addBookTitle" placeholder="Book Title" required>
                         <div id="bookSuggestionList" class="suggestion-list"></div> <!-- Div for book title suggestions -->
                     </div>
+
+                    <div class="form-group">
+                        <small class="form-text text-muted"> Volume (put n/a if not applicable): </small>
+                        <input class="form-control" type="text" id="addVolume" placeholder="Volume ">
+                        <div id="volumeSuggestionList" class="suggestion-list"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <small class="form-text text-muted"> Edition (put n/a if not applicable): </small>
+                        <input class="form-control" type="text" id="addEdition" placeholder="Edition ">
+                        <div id="editionSuggestionList" class="suggestion-list"></div> 
+                    </div>
+
+                    <div class="form-group">
+                        <small class="form-text text-muted"> Year (put n/a if not applicable): </small>
+                        <input class="form-control" type="text" id="addYear" placeholder="Year">
+                        <div id="yearSuggestionList" class="suggestion-list"></div> <!-- Div for year suggestions -->
+                    </div>
+                    
+                    
 
                     <div class="form-group">
                         <small class="form-text text-muted"> Borrow Date: </small>
@@ -48,5 +71,6 @@
     </div>
     
     <script src="addBorrow.js"></script>
+    <script src="notification.js"></script>
 </body>
 </html>
