@@ -112,8 +112,23 @@ function setupEventListeners() {
     
         // Ensure checkboxes are unchecked (columns visible)
         document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
-            checkbox.checked = false;
+            checkbox.checked = true;
         });
+
+            // Hide all columns except for the default ones
+    // document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+    //     // Uncheck all checkboxes except for the default visible columns
+    //     if (checkbox.getAttribute('data-column') !== 'checkbox' &&
+    //         checkbox.getAttribute('data-column') !== 'number' &&
+    //         checkbox.getAttribute('data-column') !== 'date_received' &&
+    //         checkbox.getAttribute('data-column') !== 'author' &&
+    //         checkbox.getAttribute('data-column') !== 'title_of_book' &&
+    //         checkbox.getAttribute('data-column') !== 'actions') {
+    //         checkbox.checked = true; // Set to unchecked
+    //     } else {
+    //         checkbox.checked = false; // Set to checked for default visible columns
+    //     }
+    // });
 
     //HIDE/UNHIDE COLUMNS
     // Initial call to apply column visibility settings
@@ -148,7 +163,10 @@ function setupEventListeners() {
             checkbox.checked = true;
         });
         document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
-            if (!el.classList.contains('column-title_of_book') &&
+            if (!el.classList.contains('column-date_received') &&
+                !el.classList.contains('column-author') &&
+                !el.classList.contains('column-number') &&
+                !el.classList.contains('column-title_of_book') &&
                 !el.classList.contains('column-actions') &&
                 !el.classList.contains('column-checkbox')) {
                 el.style.display = 'none';  // Hide columns
