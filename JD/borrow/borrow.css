@@ -131,122 +131,6 @@ body {
     color: #333C42;
 }
 
-/* .dropdown-icon {
-    margin-left: auto;
-    font-size: 18px;
-    color: #333C42;
-} */
-
-/* DATE */
-/* Date Range Filter Section: Styles for date range dropdown */
-.date-range-container {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    max-width: 200px; /* Adjust this based on your needs */
-    position: relative; /* To ensure the custom date range is positioned correctly */
-}
-
-.date-range-box {
-    display: flex;
-    align-items: center;
-    background-color: #ffffff;
-    color: #333C42;
-    cursor: pointer;
-    border: 1px solid #333C42;
-    border-radius: 9px;
-    box-sizing: border-box;
-    width: 100%; /* Ensure it occupies the full container */
-    padding: 10px;
-    position: relative;
-}
-
-.calendar-icon {
-    margin-right: 10px;
-    font-size: 18px;
-    color: #333C42;
-}
-
-#dateRangeFilterText {
-    margin-left: 5px;
-    flex-grow: 1;
-    color: #333C42;
-}
-
-.dropdown-icon {
-    margin-left: auto;
-    font-size: 18px;
-    color: #333C42;
-}
-
-#dateRangeSelect {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-/* Custom Date Range Section */
-#customDateRange {
-    display: none;
-    background-color: #f8d7da; /* Light red background */
-    border: 1px solid #ced4da;
-    border-radius: 9px;
-    padding: 10px;
-    position: absolute;
-    top: calc(100% + 5px); /* Slightly below the dropdown */
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
-}
-
-.date-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.date-group label {
-    font-size: 0.9rem;
-    color: #333C42;
-}
-
-.date-group input {
-    height: 35px;
-    border-radius: 4px;
-    border: 1px solid #ced4da;
-    padding: 5px 10px;
-    font-size: 1rem;
-    color: #333C42;
-}
-
-.button-group {
-    display: flex;
-    gap: 10px;
-}
-
-.button-group button {
-    flex-grow: 1;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 1rem;
-    color: #ffffff;
-    cursor: pointer;
-}
-
-.button-group button:first-child {
-    background-color: #007bff; /* Apply button */
-    border: none;
-}
-
-.button-group button:last-child {
-    background-color: #6c757d; /* Clear button */
-    border: none;
-}
 
 /* DELETE & ADD */
 /* Button Container */
@@ -333,23 +217,20 @@ th:first-child, td:first-child {
 }
 
 th:nth-child(2), td:nth-child(2) {
-    min-width: 160px; /* Width for the sixth column */
+    max-width: 180px; 
 }
 
-th:nth-child(6), td:nth-child(6) {
-    width: 120px; /* Width for the sixth column */
+th:nth-child(3), td:nth-child(3) {
+    max-width: 180px; 
 }
 
 th:nth-child(5), td:nth-child(5) {
-    width: 80px; /* Width for the sixth column */
-}
-th:nth-child(4), td:nth-child(4) {
-    width: 140px; /* Width for the sixth column */
+    width: 120px; 
 }
 
 
 /* Set widths for the other columns */
-th:not(:first-child):not(:nth-child(6)), td:not(:first-child):not(:nth-child(6)) {
+th:not(:first-child):not(:nth-child(7)), td:not(:first-child):not(:nth-child(7)) {
     width: calc((800px - 160px) / (number_of_other_columns)); /* Adjust based on the number of columns */
 }
 
@@ -363,35 +244,6 @@ tbody tr:nth-child(odd) {
 
 tbody tr:nth-child(even) {
     background-color: #eeeeee;
-}
-
-
-/* STATUS HIGHLIGHT */
-/* General styling for the table */
-#borrowList {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-/* Row styling */
-#borrowList tr {
-    height: 30px; /* Adjust the height if needed */
-}
-
-/* Styling for the status text to highlight */
-.status-text {
-    padding: 2px 4px; /* Small padding around the text */
-    border-radius: 4px; /* Rounded corners for better appearance */
-    display: inline-block; /* Ensure the background wraps only the text */
-}
-
-/* Highlighting based on status */
-.status-text.borrowed {
-    background-color: #FBEEAD; /* Light yellow for Borrowed */
-}
-
-.status-text.returned {
-    background-color: #C2FFC8; /* Light green for Returned */
 }
 
 
@@ -486,9 +338,8 @@ tbody tr:nth-child(even) {
 
 
 
-
 /* SIDE NAVBAR */
-/* Container to hold the sidebar and main content */
+/* Container for the sidebar and main content */
 #wrapper {
     display: flex; /* Flexbox layout for sidebar and content */
     transition: all 0.3s ease-in-out; /* Smooth transition for expanding/collapsing */
@@ -496,11 +347,14 @@ tbody tr:nth-child(even) {
 
 /* Sidebar styling */
 #sidebar-wrapper {
+    position: fixed; /* Keeps the sidebar fixed on the left */
+    z-index: 1000; /* High z-index to ensure it stays on top of main content */
     width: 250px; /* Default width of the sidebar */
     background-color: #30688B; /* Sidebar background color */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
     position: fixed; /* Sidebar remains fixed on the screen */
     height: 100%; /* Full height of the sidebar */
+    overflow-y: auto; /* Enables scrolling if the content overflows */
     overflow-x: hidden;
 }
 
@@ -519,6 +373,10 @@ tbody tr:nth-child(even) {
     flex-direction: column; /* Stack items vertically */
     align-items: flex-start; /* Align items to the left */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
 }
 
 /* Sidebar toggle button */
@@ -547,7 +405,6 @@ tbody tr:nth-child(even) {
 }
 
 /* Navigation link styling */
-
 #sidebar-wrapper .nav-link {
     padding: 15px 60px; /* Padding around each link */
     white-space: nowrap; /* Prevent text from wrapping */
@@ -558,33 +415,28 @@ tbody tr:nth-child(even) {
     align-items: center; /* Vertically center align the icon and text */
     justify-content: flex-start; /* Align icon and text to the left */
 }
-
-
+ 
 /* Hover effect for navigation links */
-#sidebar-wrapper .nav-link:hover {
+.nav-link:hover {
     background-color: #1e4f6b; /* Darker background on hover */
     color: #fff; /* Text color on hover (optional, you can change this) */
     text-decoration: none; /* Remove underline from text */
- 
 }
 
-#sidebarCollapse {
-    font-family: Arial, sans-serif;
-}
-
-#sidebar-wrapper .nav-link i {
+.nav-link i {
     flex-shrink: 0; /* Prevent icon from shrinking */
     width: 24px; /* Set a fixed width for the icon */
     text-align: center; /* Center align the icon */
     font-size: 20px; /* Icon size */
 }
 
-#sidebar-wrapper .nav-link .link-text {
+.nav-link .link-text {
     flex-grow: 1; /* Allow the text to take up available space */
     display: inline-block; /* Display link text inline */
     margin-left: 15px; /* Space between the icon and text */
     transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
     font-family: Arial, sans-serif;
+
 }
 
 /* Collapsed sidebar link styling */
@@ -602,6 +454,28 @@ tbody tr:nth-child(even) {
 #sidebar-wrapper.collapsed .nav-link .link-text {
     display: none; /* Hide the link text when sidebar is collapsed */
 }
+
+#wrapper:not(.collapsed) #page-content-wrapper {
+    width: calc(100% - 250px); /* Adjust based on the sidebar width */
+}
+
+
+/* Main content area */
+#page-content-wrapper {
+    width: 10rem;
+    flex: none;
+    flex-grow: 1; /* Allow the content to expand to fill available space */
+    padding: 20px; /* Padding around the content */
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
+    margin-left: 250px; /* Default margin to make space for the sidebar */
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
+}
+
+
 
 
 /* Notification styles */

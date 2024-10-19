@@ -496,31 +496,24 @@ td input[type="checkbox"] {
     height: 10rem;
 }
 
-/* NOTIFICATION WINDOW FOR UPDATE AND ADDING BOOKS */
-.notification {
+/* Notification styles */
+#notification {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    border-radius: 5px;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    background-color: #4CAF50; /* Default to green; can be overridden */
     color: white;
-    font-weight: bold;
-    z-index: 1000;
-    opacity: 0.9;
-    transition: opacity 0.5s ease-in-out;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(100%); /* Hide off-screen */
 }
 
-.notification.success {
-    background-color: #28a745;
-}
-
-.notification.error {
-    background-color: #dc3545;
-}
-
-.notification-warning {
-    background-color: #FFC107; /* Yellow */
-    color: #1f1f1f; /* Dark text for contrast */
+#notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Move into view */
 }
 
 

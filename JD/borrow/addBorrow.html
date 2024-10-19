@@ -15,36 +15,38 @@
             <div class="card-body">
                 <h1 class="text-center mb-4"> Add Borrower </h1>
                 <form id="addBorrowForm">
+                    
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="addBorrowerID" placeholder="Borrower ID" required>
+                        <div id="borrowerSuggestionList" class="suggestion-list"></div> <!-- Div for borrower ID suggestions -->
+                    </div>
+                    
                     <div class="form-group">
                         <input class="form-control" type="text" id="addBorrowerName" placeholder="Borrower Name" required>
+                        <div id="nameSuggestionList" class="suggestion-list"></div> <!-- Div for borrower name suggestions -->
                     </div>
+
                     <div class="form-group">
                         <input class="form-control" type="text" id="addBookTitle" placeholder="Book Title" required>
+                        <div id="bookSuggestionList" class="suggestion-list"></div> <!-- Div for book title suggestions -->
                     </div>
+
                     <div class="form-group">
-                        <input class="form-control" type="date" id="addBorrowDate" required max="">
+                        <small class="form-text text-muted"> Borrow Date: </small>
+                        <input class="form-control" type="date" id="addBorrowDate" required>
                     </div>
+                    
                     <div class="form-group">
-                        <select class="form-control" id="addBorrowStatus" required>
-                            <option value="borrowed">Borrowed</option>
-                            <option value="returned">Returned</option>
-                        </select>
+                        <small class="form-text text-muted"> Due Date: </small>
+                        <input class="form-control" type="date" id="addDueDate" placeholder="Due Date" required>
                     </div>
-                    <button type="submit" class="btn btn-success btn-block"> SUBMIT </button>
+
+                    <button type="submit" class="btn btn-success btn-block">SUBMIT</button>
                 </form>
             </div>
         </div>
     </div>
+    
     <script src="addBorrow.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Set max date to today's date
-            const addBorrowDateInput = document.getElementById('addBorrowDate');
-            const today = new Date().toISOString().split('T')[0]; // Get today's date in yyyy-mm-dd format
-            addBorrowDateInput.setAttribute('max', today);
-        });
-    </script>
-    
-    
 </body>
 </html>

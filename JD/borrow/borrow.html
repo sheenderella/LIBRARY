@@ -37,12 +37,14 @@
                         <span class="link-text">Borrower Profiles</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link text-white" href="../borrow/borrow.html">
                         <i class="fas fa-table"></i>
                         <span class="link-text">Borrow Logs</span>
                     </a>
                 </li>
+                
                 <li class="nav-item">
                     <a class="nav-link text-white" href="../settings/settings.html">
                         <i class="fas fa-cog"></i><span class="link-text">Settings</span>
@@ -82,38 +84,12 @@
                                 <option value="" selected>All</option>
                                 <option value="borrowed">Borrowed</option>
                                 <option value="returned">Returned</option>
+                                <option value="overdue">Overdue</option>
+                                <option value="returned overdue">Returned Overdue</option>
                             </select>
                         </div>
                     </div>
 
-
-                    <div id="dateRangeContainer" class="date-range-container">
-                        <div class="date-range-box">
-                            <i class="fa fa-calendar calendar-icon"></i>
-                            <span id="dateRangeFilterText">Filter by Date</span>
-                            <i class="fa fa-caret-down dropdown-icon"></i>
-                            
-                            <select id="dateRangeSelect" class="form-control">
-                                <option value="reset">Reset Date Filter</option>
-                                <option value="last_7_days">Last 7 Days</option>
-                                <option value="last_30_days">Last 30 Days</option>
-                                <option value="this_month">This Month</option>
-                                <option value="last_month">Last Month</option>
-                                <option value="custom">Custom Range</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Add input fields for custom range selection -->
-                        <div id="customDateRange" style="display:none; margin-top: 10px;">
-                            <label for="startDate">Start Date:</label>
-                            <input type="date" id="startDate" class="form-control">
-                            <label for="endDate">End Date:</label>
-                            <input type="date" id="endDate" class="form-control">
-                            <button id="applyDateRange" class="btn btn-primary">Apply</button>
-                            <button id="clearDateRange" class="btn btn-secondary">Clear</button>
-                        </div>
-                    </div>
-                    
 
                     <div class="button-container">
                         <button id="deleteSelected" class="btn btn-danger"><i class="fas fa-trash"></i> </button>
@@ -128,9 +104,8 @@
                     <thead>
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
-                            <th>Borrower Name <button class="sort-btn" data-column="borrowerName"><i class="fa fa-sort"></i></button></th>
-                            <th>Book Title <button class="sort-btn" data-column="bookTitle"><i class="fa fa-sort"></i></button></th>
-                            <th>Date Borrow <button class="sort-btn" data-column="borrowDate"><i class="fa fa-sort"></i></button></th>
+                            <th class="sortable" data-column="borrowerName">Borrower <button class="sort-btn" data-column="borrowerName"><i class="fa fa-sort"></i></button></th>
+                            <th class="sortable" data-column="bookTitle">Book Title <button class="sort-btn" data-column="bookTitle"><i class="fa fa-sort"></i></button></th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -165,7 +140,6 @@
     <script src="borrow.js"></script>
     <script src="notification.js"></script>
     <script src="pagination.js"></script>
-    <script src="date.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
