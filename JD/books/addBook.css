@@ -63,3 +63,25 @@ button:hover {
     padding-left: 0.75rem;
     appearance: none;
 }
+
+.suggestion-box {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: white;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    z-index: 1000;
+}
+
+.suggestion-box li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestion-box li:hover {
+    background-color: #eee;
+}
