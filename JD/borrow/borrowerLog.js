@@ -1,5 +1,3 @@
-
-
 // Sidebar toggle functionality
 document.getElementById('sidebarCollapse').addEventListener('click', function () {
     const wrapper = document.getElementById('wrapper');
@@ -22,7 +20,6 @@ document.getElementById('logout-link').addEventListener('click', function(event)
 });
 
 const { ipcRenderer } = require('electron');
-
 let logData = [];
 let filteredLogData = []; // Store the filtered results
 
@@ -32,7 +29,7 @@ function updateBorrowerName(borrowerName) {
     document.getElementById('borrowerName').textContent = borrowerName;
 }
 
-
+//FILTERS
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const borrowerName = urlParams.get('borrowerName');
@@ -78,6 +75,111 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// DISPLAY
+function displayLog() {
+    const container = document.getElementById('borrowerLogContainer');
+    container.innerHTML = '';
+
+    const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+
+
+    const start = (currentPage - 1) * recordsPerPage;
+    const end = start + recordsPerPage;
+    const paginatedLog = filteredRecords.slice(start, end);
+
+    paginatedLog.forEach(entry => {
+
+        if (entry.dueDate && currentDate > entry.dueDate && entry.borrowStatus === 'borrowed') {
+            entry.borrowStatus = 'overdue'; // Set the status to overdue if the current date is past the due date
+        }
+
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${entry.bookTitle}</td>
+            <td>${entry.borrowDate}</td>
+            <td>${entry.dueDate || ''} </td> 
+            <td>
+                <select class="status-dropdown" data-id="${entry.id}" ${entry.borrowStatus === 'returned' || entry.borrowStatus === 'returned overdue' ? 'disabled' : ''}>
+                    <option value="borrowed" ${entry.borrowStatus === 'borrowed' ? 'selected' : ''}>Borrowed</option>
+                    <option value="returned" ${entry.borrowStatus === 'returned' ? 'selected' : ''}>Returned</option>
+                    <option value="returned overdue" class="status-returned-overdue" ${entry.borrowStatus === 'returned overdue' ? 'selected' : ''}>Returned Overdue</option>
+                </select>
+            </td>
+            <td> ${entry.returnDate || ''} </td>
+        `;
+        const statusDropdown = row.querySelector('.status-dropdown');
+        updateDropdownStyle(statusDropdown, entry.borrowStatus);
+
+        // Hide the "Returned Overdue" option if the status is not "Overdue"
+        if (entry.borrowStatus !== 'overdue') {
+            const returnedOverdueOption = statusDropdown.querySelector('option[value="returned overdue"]');
+            returnedOverdueOption.style.display = 'none';
+        }
+
+        // Handle the "Overdue" status
+        if (entry.borrowStatus === 'overdue') {
+            const overdueOption = document.createElement('option');
+            overdueOption.value = 'overdue';
+            overdueOption.className = 'status-overdue';
+            overdueOption.textContent = 'Overdue';
+            overdueOption.selected = true;
+            statusDropdown.appendChild(overdueOption);
+
+            statusDropdown.querySelector('option[value="borrowed"]').style.display = 'none';
+            statusDropdown.querySelector('option[value="returned"]').style.display = 'none';
+        }
+        
+        statusDropdown.addEventListener('change', function () {
+            const newStatus = this.value;
+            let newReturnDate = null;
+    
+            if (newStatus === 'returned' || newStatus === 'returned overdue') {
+                newReturnDate = new Date().toISOString().split('T')[0];
+                this.disabled = true; // Disable dropdown when returned or returned overdue is selected
+            }
+    
+            updateDropdownStyle(this, newStatus);
+    
+            ipcRenderer.invoke('updateBorrowStatus', { id: entry.id, status: newStatus, returnDate: newReturnDate })
+                .then(() => {
+                    
+                    console.log('Borrow status and return date updated successfully!');
+                    showNotification('Borrow status updated successfully!', 'success');
+
+                })
+                .catch(error => {
+                    console.error('Error updating borrow status and return date:', error);
+                    showNotification('Failed to update borrow status.', 'error');
+                });
+        });
+
+        container.appendChild(row);
+    });
+
+    updatePaginationControls(); // Update the pagination controls based on the current page
+}
+
+// STATUS STYLE
+function updateDropdownStyle(dropdown, status) {
+    switch (status) {
+        case 'borrowed':
+            dropdown.style.backgroundColor = '#FBEEAD'; // Light blue for borrowed
+            break;
+        case 'returned':
+            dropdown.style.backgroundColor = '#C2FFC8'; // Light green for returned
+            break;
+        case 'overdue':
+            dropdown.style.backgroundColor = '#f8d7da'; // Light red for overdue
+            break;
+        case 'returned overdue':
+            dropdown.style.backgroundColor = '#f5c6cb'; // Light pink for returned overdue
+            break;
+        default:
+            dropdown.style.backgroundColor = ''; // Default
+    }
+}
+
 // Fetch and display borrower log
 async function fetchBorrowerLog(borrowerName) {
     try {
@@ -94,30 +196,6 @@ async function fetchBorrowerLog(borrowerName) {
     }
 }
 
-
-// Display paginated log entries
-function displayLog() {
-    const container = document.getElementById('borrowerLogContainer');
-    container.innerHTML = '';
-
-    const start = (currentPage - 1) * recordsPerPage;
-    const end = start + recordsPerPage;
-    const paginatedLog = filteredRecords.slice(start, end);
-
-    paginatedLog.forEach(entry => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${entry.bookTitle}</td>
-            <td>${entry.borrowDate}</td>
-            <td>
-                <span class="status-text ${entry.borrowStatus}">${entry.borrowStatus}</span>
-            </td>
-        `;
-        container.appendChild(row);
-    });
-
-    updatePaginationControls(); // Update the pagination controls based on the current page
-}
 
 
 // Apply filters to log data
@@ -180,7 +258,6 @@ function applyFilters() {
     currentPage = 1; // Reset to first page after applying filters
     displayLog();
 }
-
 
 // Reset date filters
 function resetDateFilters() {
@@ -269,7 +346,6 @@ function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsP
     // Reload the records for the new page
     displayLog();
 }
-
 
 // Update pagination control button states
 function updatePaginationControls() {

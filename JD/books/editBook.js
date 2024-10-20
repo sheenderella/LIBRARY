@@ -19,6 +19,7 @@ ipcRenderer.on('fill-edit-form', (event, record) => {
     document.getElementById('cost_price').value = sanitizeCostPrice(record.cost_price);
     document.getElementById('publisher').value = record.publisher;
     document.getElementById('year').value = record.year; // Added Year field
+    document.getElementById('condition').value = record.condition; // Added Year field
     document.getElementById('remarks').value = record.remarks;
 });
 
@@ -38,6 +39,7 @@ document.getElementById('editBookForm').addEventListener('submit', (event) => {
         cost_price: document.getElementById('cost_price').value,
         publisher: document.getElementById('publisher').value,
         year: document.getElementById('year').value, // Added Year field
+        condition: document.getElementById('condition').value, // Added Condition field
         remarks: document.getElementById('remarks').value,
     };
     ipcRenderer.invoke('updateBook', record).then(() => {

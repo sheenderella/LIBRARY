@@ -17,11 +17,21 @@ form.addEventListener('submit', async (event) => {
 
     try {
         // Send the record to the main process to add it to the database
-        await ipcRenderer.invoke('addProfile', record);
-        // Optionally close the add profile window
-        window.close();
+        const result = await ipcRenderer.invoke('addProfile', record);
+
+        // If profile was added successfully, close the window
+        if (result.success) {
+            window.close();
+        }
 
     } catch (error) {
+        // Log any unexpected errors
         console.error('Error adding profile:', error);
     }
+});
+
+// Listen for error messages from the main process
+ipcRenderer.on('profile-add-error', (event, errorMessage) => {
+    // Show the error dialog in the main process
+    ipcRenderer.invoke('show-error-dialog', "Error", errorMessage);
 });

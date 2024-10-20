@@ -23,15 +23,8 @@
                     <div class="form-group">
                         <input type="text" class="form-control" id="updateBookTitle" placeholder="Book Title" required>
                     </div>
-                    <div class="form-group">
-                        <input type="date" class="form-control" id="updateBorrowDate" required max="">
-                    </div>
-                    <div class="form-group">
-                        <select class="form-control" id="updateBorrowStatus" required>
-                            <option value="borrowed">Borrowed</option>
-                            <option value="returned">Returned</option>
-                        </select>
-                    </div>
+
+                    <!-- Status field removed -->
                     <button type="submit" class="btn btn-success btn-block">Update Borrow</button>
                 </form>
             </div>
@@ -39,15 +32,6 @@
     </div>
     <script src="updateBorrow.js"></script>
     <script src="borrow.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Set max date to today's date
-            const updateBorrowDateInput = document.getElementById('updateBorrowDate');
-            const today = new Date().toISOString().split('T')[0]; // Get today's date in yyyy-mm-dd format
-            updateBorrowDateInput.setAttribute('max', today);
-        });
-    </script>
-    
 
 </body>
 </html>

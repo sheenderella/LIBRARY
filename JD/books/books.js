@@ -112,8 +112,23 @@ function setupEventListeners() {
     
         // Ensure checkboxes are unchecked (columns visible)
         document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
-            checkbox.checked = false;
+            checkbox.checked = true;
         });
+
+            // Hide all columns except for the default ones
+    // document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+    //     // Uncheck all checkboxes except for the default visible columns
+    //     if (checkbox.getAttribute('data-column') !== 'checkbox' &&
+    //         checkbox.getAttribute('data-column') !== 'number' &&
+    //         checkbox.getAttribute('data-column') !== 'date_received' &&
+    //         checkbox.getAttribute('data-column') !== 'author' &&
+    //         checkbox.getAttribute('data-column') !== 'title_of_book' &&
+    //         checkbox.getAttribute('data-column') !== 'actions') {
+    //         checkbox.checked = true; // Set to unchecked
+    //     } else {
+    //         checkbox.checked = false; // Set to checked for default visible columns
+    //     }
+    // });
 
     //HIDE/UNHIDE COLUMNS
     // Initial call to apply column visibility settings
@@ -148,7 +163,10 @@ function setupEventListeners() {
             checkbox.checked = true;
         });
         document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
-            if (!el.classList.contains('column-title_of_book') &&
+            if (!el.classList.contains('column-date_received') &&
+                !el.classList.contains('column-author') &&
+                !el.classList.contains('column-number') &&
+                !el.classList.contains('column-title_of_book') &&
                 !el.classList.contains('column-actions') &&
                 !el.classList.contains('column-checkbox')) {
                 el.style.display = 'none';  // Hide columns
@@ -396,32 +414,33 @@ function getBooksForCurrentPage() {
 
 // Function to show notifications
 function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.classList.add('notification', type);
-
-    // Apply styles based on the type of notification
+    const notification = document.getElementById('notification');
+    
+    // Set the message text
+    notification.textContent = message;
+    
+    // Set background color based on type
     switch (type) {
         case 'success':
-            notification.classList.add('notification-success'); // Green styling
+            notification.style.backgroundColor = '#4CAF50'; // Green for success
             break;
         case 'error':
-            notification.classList.add('notification-error'); // Red styling
+            notification.style.backgroundColor = '#f44336'; // Red for error
             break;
-        case 'warning':
-            notification.classList.add('notification-warning'); // Yellow styling
+        case 'delete':
+            notification.style.backgroundColor = '#FF5722'; // Orange for delete
             break;
         default:
-            notification.classList.add('notification-success');
+            notification.style.backgroundColor = '#2196F3'; // Blue for default
     }
-
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    // Automatically remove the notification after 3 seconds
+    
+    // Add the show class to make it visible
+    notification.classList.add('show');
+    
+    // Remove the show class after 3 seconds (notification will fade out)
     setTimeout(() => {
-        notification.remove();
-    }, 3000);
+        notification.classList.remove('show');
+    }, 3000); // 3 seconds
 }
 
 function addBookToTable(book, prepend = false) {
@@ -453,6 +472,7 @@ function addBookToTable(book, prepend = false) {
         <td class="column-cost_price">${formattedCostPrice}</td>
         <td class="column-publisher">${book.publisher}</td>
         <td class="column-year">${book.year}</td>
+        <td class="column-condition">${book.condition}</td>
         <td class="column-remarks">${book.remarks}</td>
         <td class="column-actions">
             <button class="edit-btn" data-id="${book.id}">
@@ -482,7 +502,7 @@ function addBookToTable(book, prepend = false) {
     row.querySelector('.delete-btn').addEventListener('click', () => {
         if (confirm('Are you sure you want to delete this book record?')) {
             deleteBookFromTable(book.id);
-            showNotification('A Book has been Deleted!', 'warning');
+            showNotification('A Book has been Deleted!', 'delete');
         }
         loadBooks();
         adjustBooksPerPage();
@@ -517,6 +537,7 @@ function updateBookInTable(book) {
         <td>${formattedCostPrice}</td>
         <td>${book.publisher}</td>
         <td>${book.year}</td>
+        <td>${book.condition}</td>
         <td>${book.remarks}</td>
         <td>
             <button class="edit-btn" data-id="${book.id}"> <i class="fas fa-pencil-alt"></i> </button>
@@ -579,7 +600,8 @@ function getBookFromRow(row) {
         cost_price: cells[10].textContent,
         publisher: cells[11].textContent,
         year: cells[12].textContent,
-        remarks: cells[13].textContent,
+        condition: cells[13].textContent,
+        remarks: cells[14].textContent,
     };
 }
 

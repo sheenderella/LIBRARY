@@ -94,6 +94,7 @@
                                     <option value="cost_price">Cost Price</option>
                                     <option value="publisher">Publisher</option>
                                     <option value="year">Year</option>
+                                    <option value="condition">Condition</option>
                                     <option value="remarks">Remarks</option>
                                 </select>
                                 <i class="fa fa-caret-down dropdown-icon"></i>
@@ -129,10 +130,7 @@
                     <!-- Column Visibility Form -->
                     <div id="columnVisibilityForm" class="column-visibility-form">
                         <form id="columnForm">
-                            <label><input type="checkbox" data-column="number" checked> Number</label>
-                            <label><input type="checkbox" data-column="date_received" checked> Date Received</label>
                             <label><input type="checkbox" data-column="class" checked> Class</label>
-                            <label><input type="checkbox" data-column="author" checked> Author</label>
                             <label><input type="checkbox" data-column="edition" checked> Edition</label>
                             <label><input type="checkbox" data-column="volume" checked> Volume</label>
                             <label><input type="checkbox" data-column="source_of_fund" checked> Source of Fund</label>
@@ -140,6 +138,7 @@
                             <label><input type="checkbox" data-column="cost_price" checked> Cost Price</label>
                             <label><input type="checkbox" data-column="publisher" checked> Publisher</label>
                             <label><input type="checkbox" data-column="year" checked> Year</label>
+                            <label><input type="checkbox" data-column="condition" checked> Condition</label>
                             <label><input type="checkbox" data-column="remarks" checked> Remarks</label>
                         </form>
                             <button type="button" id="showAll" class="btn btn-primary">Show All</button>
@@ -150,6 +149,7 @@
                         <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i></button>
                         <button id="deleteSelected" class="btn btn-danger"><i class="fas fa-trash"></i></button>
                     </div>
+                    <div id="notification" class="notification"></div>
                 </div>                             
 
         <div class="scroll-container">
@@ -176,6 +176,7 @@
                             <th class="column-cost_price">Cost Price <button data-column="cost_price" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th class="column-publisher">Publisher <button data-column="publisher" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th class="column-year">Year <button data-column="year" class="sort-btn"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-condition">Condition <button data-column="condition" class="sort-btn"><i class="fa fa-sort"></i></button></th>
                             <th class="column-remarks">Remarks</th>
                             <th class="column-actions">Actions</th>
                         </tr>

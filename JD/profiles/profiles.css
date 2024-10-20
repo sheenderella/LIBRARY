@@ -254,6 +254,27 @@ td input[type="checkbox"] {
     cursor: pointer;
 }
 
+/* Notification styles */
+#notification {
+    position: fixed;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    background-color: #4CAF50; /* Default to green; can be overridden */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(100%); /* Hide off-screen */
+    z-index: 1500;
+}
+
+#notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Move into view */
+}
+
 
 /* PAGINATION */
 /* Style for pagination controls container */

@@ -15,6 +15,7 @@ document.getElementById('addBookForm').addEventListener('submit', (event) => {
         cost_price: document.getElementById('cost_price').value,
         publisher: document.getElementById('publisher').value,
         year: document.getElementById('year').value,  // Added Year field
+        condition: document.getElementById('condition').value, // Added Condition field
         remarks: document.getElementById('remarks').value,
     };
     ipcRenderer.invoke('addBook', record).then(() => {

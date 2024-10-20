@@ -42,3 +42,24 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+/* .conditionContainer {
+    align-items: center;
+    position: relative;
+    display: flex; 
+    margin-bottom: 1rem;
+} */
+
+#condition {
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    height: 2.98rem;
+    width: 32.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    padding-left: 0.75rem;
+    appearance: none;
+}

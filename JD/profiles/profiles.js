@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setUpIpcRenderer();
     setupEventListeners();
     setupSelectAllCheckbox();
-    
     // Call setupSortButtons to initialize sort functionality
     setupSortButtons();
     
@@ -30,11 +29,14 @@ function setUpIpcRenderer() {
         ipcRenderer.on('profile-record-added', (event, profile) => {
             // Dynamically add the new profile to the table
             addProfileToTable(profile, true);
+            showNotification('Profile has been added!', 'success');
+            loadProfiles();
         });
     
     // Listen for the profile-record-updated event and update the profile in the table
         ipcRenderer.on('profile-record-updated', (event, updatedProfile) => {
             updateProfileInTable(updatedProfile);
+            showNotification('Profile has been updated!', 'success');
         });
 
 }
@@ -53,7 +55,6 @@ function setupSelectAllCheckbox() {
 
     selectAllCheckbox.addEventListener('click', (event) => {
         const isChecked = event.target.checked; // Get the state of the "Select All" checkbox
-
         // If "Select All" is checked, add all profile IDs to selectedProfileIds, else remove them
         currentProfiles.forEach(profile => {
             if (isChecked) {
@@ -65,7 +66,7 @@ function setupSelectAllCheckbox() {
 
         // Update checkboxes on the current page to reflect the "Select All" state
         updateCheckboxStates();
-
+        
         // Optionally log the current state for debugging
         console.log('Select All clicked:', isChecked);
         console.log('Selected Profiles:', Array.from(selectedProfileIds));
@@ -92,8 +93,8 @@ function loadProfiles() {
     ipcRenderer.invoke('getProfiles')
         .then(profiles => {
             currentProfiles = profiles; // Store the loaded profiles
-            displayProfiles(); // Call the function to display profiles
-            updatePagination();
+            displayProfiles(currentProfiles); // Call the function to display profiles
+            updatePagination(currentProfiles);
         })
         .catch(error => {
             console.error('Error loading profiles:', error);
@@ -232,18 +233,29 @@ function addProfileToTable(profile, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to delete this profile?')) {
-            // Send the delete request to the main process
-            ipcRenderer.invoke('deleteProfile', profile.id)
-                .then(() => {
-                    console.log(`Profile with ID ${profile.id} deleted`);
-                    loadProfiles(); // Reload profiles after deletion
-                })
-                .catch(error => {
-                    console.error('Error deleting profile:', error);
-                });
-        }
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Deletion';
+        const message = `Are you sure you want to delete this profile?`;
+    
+        // Send a request to show the confirmation dialog
+        ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+            .then((result) => {
+                if (result) { // If the user confirmed deletion
+                    // Send the delete request to the main process
+                    ipcRenderer.invoke('deleteProfile', profile.id)
+                        .then(() => {
+                            console.log(`Profile with ID ${profile.id} deleted`);
+                            showNotification('Profile has been deleted!', 'delete');
+                            loadProfiles(); // Reload profiles after deletion
+                        })
+                        .catch(error => {
+                            console.error('Error deleting profile:', error);
+                            showNotification('Error deleting profile!', 'error');
+                        });
+                }
+            });
     });
+    
 
      // Add event listener to the checkbox for each profile
      const checkbox = row.querySelector('input[type="checkbox"]');
@@ -319,6 +331,8 @@ function updateProfileInTable(profile) {
             <button class="btn btn-danger btn-sm delete-btn" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
         </td>
     `;  
+
+    loadProfiles();
 }
 
 // Function to handle delete selected profiles
@@ -334,11 +348,16 @@ function setupDeleteSelectedButton() {
             return; // Exit if no profiles are selected
         }
 
-        // Confirm deletion action
-        const confirmDeletion = confirm(`Are you sure you want to delete ${idsToDelete.length} profile(s)?`);
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Deletion';
+        const message = `Are you sure you want to delete ${idsToDelete.length} profile(s)?`;
+
+        // Send a request to show the confirmation dialog
+        const confirmDeletion = await ipcRenderer.invoke('show-confirmation-dialog', { title, message });
         if (!confirmDeletion) {
             return; // Exit if the user cancels
         }
+
 
         // Send the delete request for each selected profile
         for (const id of idsToDelete) {
@@ -348,7 +367,9 @@ function setupDeleteSelectedButton() {
         // Optionally, clear the selectedProfileIds Set and update UI
         selectedProfileIds.clear(); // Clear the selected IDs after deletion
         updateCheckboxStates(); // Update checkbox states after deletion
+        showNotification(`${idsToDelete.length} Profile(s) has been deleted!`, 'delete');
     });
+    loadProfiles(); // Reload profiles after deletion
 }
 
 // Function to open the add profile window
@@ -391,7 +412,7 @@ function sortProfiles(column, button) {
     });
 
     // Call function to update the display
-    displayProfiles();
+    displayProfiles(currentProfiles);
 }
 
 // Function to reset all sort buttons to their default state
@@ -417,4 +438,3 @@ function setupSortButtons() {
         });
     });
 }
-

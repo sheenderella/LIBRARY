@@ -95,3 +95,27 @@ h1 {
     color: #000; /* Option text color */
     border-radius: 0px;
 }
+
+
+/* Styles for the suggestion list */
+.suggestion-list {
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    width: 90%;
+    background-color: white;
+    z-index: 1000;
+}
+
+.suggestion {
+    padding: 8px;
+    cursor: pointer;
+    word-wrap: break-word; /* Enable word wrap */
+    word-break: break-word; /* Ensure long words break */
+    white-space: normal; /* Allow text to wrap onto the next line */
+}
+
+.suggestion:hover {
+    background-color: #f0f0f0;
+}
