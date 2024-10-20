@@ -487,6 +487,10 @@ h1 {
 
 
 /* PAGINATION */
+#pageLocation {
+    width: 80px;
+}
+
 .pagination-container {
     display: flex;
     align-items: center;

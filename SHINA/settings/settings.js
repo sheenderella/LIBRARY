@@ -29,6 +29,7 @@ document.getElementById('open-security-setup').addEventListener('click', () => {
 });
 
 
+//BACKUP
 
 document.getElementById('backup-btn').addEventListener('click', async () => {
     const result = await ipcRenderer.invoke('exportDatabase');
@@ -41,6 +42,45 @@ document.getElementById('restore-btn').addEventListener('click', async () => {
     console.log('Restore result:', result);
     alert(result.message || 'An unexpected error occurred.');
 });
+
+
+// Export Books
+document.getElementById('export-btn').addEventListener('click', () => {
+    document.getElementById('exportModal').querySelector('.btn-primary.mb-2').addEventListener('click', async () => {
+        const result = await ipcRenderer.invoke('exportBooksToExcel');
+        console.log('Export Books result:', result);
+        alert(result.message || 'An unexpected error occurred while exporting books.');
+    });
+});
+
+// Export Borrower Profiles
+document.getElementById('export-btn').addEventListener('click', () => {
+    document.getElementById('exportModal').querySelector('.btn-primary:last-child').addEventListener('click', async () => {
+        const result = await ipcRenderer.invoke('exportProfilesToExcel');
+        console.log('Export Profiles result:', result);
+        alert(result.message || 'An unexpected error occurred while exporting borrower profiles.');
+    });
+});
+
+// Import Books
+document.getElementById('import-btn').addEventListener('click', () => {
+    document.getElementById('importModal').querySelector('.btn-secondary.mb-2').addEventListener('click', async () => {
+        const result = await ipcRenderer.invoke('importBooksFromExcel');
+        console.log('Import Books result:', result);
+        alert(result.message || 'An unexpected error occurred while importing books.');
+    });
+});
+
+// Import Borrower Profiles
+document.getElementById('import-btn').addEventListener('click', () => {
+    document.getElementById('importModal').querySelector('.btn-secondary:last-child').addEventListener('click', async () => {
+        const result = await ipcRenderer.invoke('importProfilesFromExcel');
+        console.log('Import Profiles result:', result);
+        alert(result.message || 'An unexpected error occurred while importing borrower profiles.');
+    });
+});
+
+
 
 // Sidebar toggle functionality
 document.getElementById('sidebarCollapse').addEventListener('click', function () {

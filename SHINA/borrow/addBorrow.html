@@ -51,8 +51,8 @@
                         <input class="form-control" type="text" id="addYear" placeholder="Year">
                         <div id="yearSuggestionList" class="suggestion-list"></div> <!-- Div for year suggestions -->
                     </div>
-                    
-                    
+
+                    <button type="button" id="addBookButton" class="btn btn-secondary mb-3">Add Another Book</button>
 
                     <div class="form-group">
                         <small class="form-text text-muted"> Borrow Date: </small>
@@ -64,10 +64,24 @@
                         <input class="form-control" type="date" id="addDueDate" placeholder="Due Date" required>
                     </div>
 
+                    <input type="hidden" id="addBookId" value=""> <!-- Hidden input for book ID -->
+
+
                     <button type="submit" class="btn btn-success btn-block">SUBMIT</button>
                 </form>
             </div>
         </div>
+
+        <div id="error-modal" class="modal">
+            <div class="modal-content">
+              <span id="modal-close" class="close">&times;</span>
+              <h2 id="modal-title"></h2>
+              <p id="modal-message"></p>
+
+            </div>
+          </div>
+        
+          
     </div>
     
     <script src="addBorrow.js"></script>

@@ -44,18 +44,6 @@ async function fetchBorrowerIDByName(name) {
     }
 }
 
-// Function to fetch book titles for suggestions from the database
-async function fetchBookTitles() {
-    try {
-        const titles = await ipcRenderer.invoke('getBookTitles'); // Fetch only available book titles via IPC
-        return titles;
-    } catch (error) {
-        console.error('Error fetching book titles:', error);
-        return [];
-    }
-}
-
-
 // Function to filter borrower ID suggestions based on user input
 function filterIDSuggestions(ids, input) {
     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive matching
@@ -66,12 +54,6 @@ function filterIDSuggestions(ids, input) {
 function filterNameSuggestions(names, input) {
     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive matching
     return names.filter(name => name.toLowerCase().includes(lowerInput)); // Return matching names
-}
-
-// Function to filter book title suggestions based on user input
-function filterSuggestions(titles, input) {
-    const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive matching
-    return titles.filter(title => title.toLowerCase().includes(lowerInput)); // Return matching titles
 }
 
 // Function to display borrower ID suggestions in the UI
@@ -152,69 +134,174 @@ document.getElementById('addBorrowerName').addEventListener('input', async funct
     displayNameSuggestions(suggestions); // Display the filtered suggestions
 });
 
-// Event listener for the book title input field
-document.getElementById('addBookTitle').addEventListener('input', async function () {
-    const input = this.value;
+// Function to fetch book titles for suggestions, including metadata (id, year, volume, edition)
+async function fetchBookTitles() {
+    try {
+        return await ipcRenderer.invoke('getBookTitles'); // Fetch all available book titles with details
+    } catch (error) {
+        console.error('Error fetching book titles:', error);
+        return [];
+    }
+}
 
+// Function to check if a specific book is already borrowed based on its ID
+async function checkIfBookIsBorrowed(bookId) {
+    try {
+        return await ipcRenderer.invoke('checkBookBorrowed', { bookId }); // Use bookId directly
+    } catch (error) {
+        console.error('Error checking if book is borrowed:', error);
+        return false; // Default to false in case of error
+    }
+}
+
+document.getElementById('addBookTitle').addEventListener('input', async function () {
+    const input = this.value.trim();
+    
     if (input.length === 0) {
         document.getElementById('bookSuggestionList').innerHTML = ''; // Clear suggestions if input is empty
         return;
     }
 
     const titles = await fetchBookTitles(); // Fetch all book titles
-    const suggestions = filterSuggestions(titles, input); // Filter based on the user's input
+    const suggestions = await filterSuggestions(titles, input); // Filter based on the user's input
     displaySuggestions(suggestions); // Display the filtered suggestions
 });
 
+// Modify the filterSuggestions function to exclude borrowed books
+async function filterSuggestions(titles, input) {
+    const lowerInput = input.toLowerCase();
 
-// Event listener to handle form submission
-async function handleAddBorrow(event) {
-    event.preventDefault();
+    const filtered = [];
+    for (const title of titles) {
+        if (title.title_of_book.toLowerCase().includes(lowerInput)) {
+            const isBorrowed = await checkIfBookIsBorrowed(title.bookId); // Directly check by bookId
+            if (!isBorrowed) {
+                filtered.push(title); // Only add the book to suggestions if it's not borrowed
+            }
+        }
+    }
 
-    const borrowerName = document.getElementById('addBorrowerName').value; // Borrower name
-    const bookTitle = document.getElementById('addBookTitle').value;
-    const borrowDate = document.getElementById('addBorrowDate').value;
-    const dueDate = document.getElementById('addDueDate').value;
-    const borrowStatus = 'borrowed'; // Default status
+    console.log('Filtered suggestions:', filtered); // Debugging: Check filtered suggestions
+    return filtered;
+}
 
-    try {
+// Function to display book title suggestions
+function displaySuggestions(suggestions) {
+    const suggestionList = document.getElementById('bookSuggestionList');
+    suggestionList.innerHTML = ''; // Clear previous suggestions
+
+    suggestions.forEach((book) => {
+        const option = document.createElement('div');
+        option.classList.add('suggestion');
+        option.textContent = `${book.title_of_book} - Volume: ${book.volume}, Edition: ${book.edition}, Year: ${book.year}`;
+
+        // Click handler for the suggestion
+        option.addEventListener('click', () => {
+            document.getElementById('addBookTitle').value = book.title_of_book;
+            document.getElementById('addBookId').value = book.bookId; // Save the selected book's ID
+            suggestionList.innerHTML = ''; // Clear suggestions
+            autofillDetails(book); // Autofill the rest of the details
+
+            console.log('Selected Book:', {
+                id: book.bookId,
+                title: book.title_of_book,
+                volume: book.volume,
+                edition: book.edition,
+                year: book.year
+            });
+        });
+
+        suggestionList.appendChild(option); // Append suggestion to the list
+    });
+}
+
+// Autofill details for the selected book
+function autofillDetails(detail) {
+    document.getElementById('addVolume').value = detail.volume || 'n/a';
+    document.getElementById('addEdition').value = detail.edition || 'n/a';
+    document.getElementById('addYear').value = detail.year || 'n/a';
+}
+
+// Event listener for form submission
+document.addEventListener('DOMContentLoaded', () => {
+    const addBorrowForm = document.getElementById('addBorrowForm');
+
+    addBorrowForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent default form submission
+
+        // Retrieve form data
+        const borrowerID = document.getElementById('addBorrowerID').value;
+        const borrowerName = document.getElementById('addBorrowerName').value;
+        const borrowDate = document.getElementById('addBorrowDate').value;
+        const dueDate = document.getElementById('addDueDate').value;
+        const bookId = document.getElementById('addBookId').value; // Directly get bookId
+        const borrowStatus = 'borrowed';
+
+        // Validate required fields
+        if (!borrowerID || !borrowerName || !borrowDate || !dueDate || !bookId) {
+            showModal('Error', 'All fields are required.');
+            return;
+        }
+
+        // Check if the book is already borrowed
+        const isAlreadyBorrowed = await checkIfBookIsBorrowed(bookId);
+        if (isAlreadyBorrowed) {
+            showModal('Error', 'This book is already borrowed.');
+            return; // Exit if the book is already borrowed
+        }
+
         const newRecord = {
+            borrowerID,
             borrowerName,
-            bookTitle,
+            bookId, // Use the book ID
             borrowDate,
             dueDate,
             borrowStatus
         };
 
-        // Send the new borrow record to the backend for adding to the database
-        await ipcRenderer.invoke('addBorrow', newRecord);
-        
+        try {
+            await ipcRenderer.invoke('addBorrow', newRecord);
+            window.close(); // Close the window after successful borrow record addition
+        } catch (error) {
+            console.error('Error adding borrow record:', error);
+            showModal('Error', 'Failed to add the borrow record. Please try again.');
+        }
+    });
+});
+
+// Function to check if a specific book is already borrowed
+async function checkIfBookIsBorrowed(book_id) {
+    try {
+        const result = await ipcRenderer.invoke('checkBookBorrowed', book_id); // Use specific bookId here
+        return result; // This should return true if borrowed, false otherwise
     } catch (error) {
-        console.error('Error adding borrow record:', error);
-        ipcRenderer.send('borrow-added-failure', 'Failed to add borrow record'); // Emit failure message
+        console.error('Error checking if book is borrowed:', error);
+        return false; // Default to false in case of error
     }
 }
 
-// Function to display book title suggestions in the UI
-function displaySuggestions(suggestions) {
-    const suggestionList = document.getElementById('bookSuggestionList'); // Target the correct list for book titles
-    suggestionList.innerHTML = ''; // Clear previous suggestions
 
-    suggestions.forEach(title => {
-        const option = document.createElement('div');
-        option.classList.add('suggestion'); // Add class for styling
-        option.textContent = title; // Display the book title as the suggestion
 
-        // When a suggestion is clicked, set it as the input value
-        option.addEventListener('click', () => {
-            document.getElementById('addBookTitle').value = title; // Set title input value
-            suggestionList.innerHTML = ''; // Clear the suggestion list
-        });
 
-        suggestionList.appendChild(option); // Add the suggestion to the suggestion list
+
+
+function showModal(title, message) {
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+
+    // Show the modal (implement your modal display logic)
+    const modal = document.getElementById('error-modal');
+    modal.style.display = 'block';
+
+    // Close modal on click (if you have a close button)
+    const modalClose = document.getElementById('modal-close');
+    modalClose.addEventListener('click', () => {
+        modal.style.display = 'none';
     });
 }
-
 
 // Handle success or failure messages
 ipcRenderer.on('borrow-added-success', () => {
@@ -224,64 +311,6 @@ ipcRenderer.on('borrow-added-success', () => {
 ipcRenderer.on('borrow-added-failure', (event, message) => {
     alert(message || 'Failed to add borrow record'); // Show error message if the borrow record addition fails
 });
-
-// Attach the form submission handler to the form
-document.getElementById('addBorrowForm').addEventListener('submit', handleAddBorrow);
-
-async function handleAddBorrow(event) {
-    event.preventDefault();
-
-    const borrowerID = document.getElementById('addBorrowerID').value;
-    const borrowerName = document.getElementById('addBorrowerName').value;
-    const bookTitle = document.getElementById('addBookTitle').value;
-    const borrowDate = document.getElementById('addBorrowDate').value;
-    const dueDate = document.getElementById('addDueDate').value;
-    const borrowStatus = 'borrowed'; // Default status
-
-    // Validate required fields
-    if (!borrowerID) {
-        alert('Borrower ID is required.');
-        return;
-    }
-    if (!borrowerName) {
-        alert('Borrower name is required.');
-        return;
-    }
-    if (!bookTitle) {
-        alert('Book title is required.');
-        return;
-    }
-    if (!borrowDate) {
-        alert('Borrow date is required.');
-        return;
-    }
-    if (!dueDate) {
-        alert('Due date is required.');
-        return;
-    }
-
-    // Prepare the new borrow record
-    const newRecord = {
-        borrowerID,
-        borrowerName,
-        bookTitle,
-        borrowDate,
-        dueDate,
-        borrowStatus
-    };
-
-    try {
-        // Invoke the backend IPC handler to add the new borrow record
-        await ipcRenderer.invoke('addBorrow', newRecord);
-
-        // If successful, close the current window
-        window.close();
-    } catch (error) {
-        // Log the error and notify the user
-        console.error('Error adding borrow record:', error);
-        alert('Failed to add the borrow record. Please try again.');
-    }
-}
 
 // Set max date and sync due date with borrow date
 document.addEventListener('DOMContentLoaded', function () {

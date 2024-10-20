@@ -291,6 +291,11 @@ tbody tr:nth-child(even) {
 
 
 /* PAGINATION */
+#pageLocation {
+    min-width: 80px;
+}
+
+
 .pagination-container {
     display: flex;
     align-items: center;

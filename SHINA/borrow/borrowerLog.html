@@ -1,28 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
+    <!-- jQuery must be loaded before Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
-    
-    <!-- Bootstrap CSS -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://maxcdn.bootstrapcdn.com https://code.jquery.com; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-abc123'; font-src 'self' https://cdnjs.cloudflare.com;">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-    <!-- FontAwesome CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-    
-    
     <link rel="stylesheet" href="borrowerLog.css">
 
     <title>Borrower's Log</title>
-
 </head>
 
 <body>
     <div id="wrapper" class="d-flex">
-
         <!-- Sidebar -->
         <nav id="sidebar-wrapper" class="text-white">
             <div class="sidebar-header p-3 d-flex flex-column align-items-left">
@@ -51,7 +45,6 @@
                         <span class="link-text">Borrower Profiles</span>
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link text-white" href="../borrow/borrow.html">
                         <i class="fas fa-table"></i>
@@ -75,88 +68,83 @@
 
         <!-- Main Content -->
         <main id="page-content-wrapper" class="flex-grow-1 p-4">
+            <!-- Back to Borrow Page Button -->
+            <a href="borrow.html" id="backToBorrowPage" class="btn btn-secondary">
+                <i class="fa fa-arrow-left"></i>
+            </a>
 
+            <!-- Page Heading -->
+            <h2 id="borrowerName">Loading borrower name...</h2>
+            <h1>Borrowing History</h1>
 
-  <!-- Back to Borrow Page Button -->
-  <a href="borrow.html" id="backToBorrowPage" class="btn btn-secondary">
-    <i class="fa fa-arrow-left"></i> </a>
+            <div id="notification" class="notification"></div>
 
-    <!-- Page Heading -->
-    
-    <h2 id="borrowerName">Loading borrower name...</h2>
-    <h1>Borrowing History</h1>
-
-    <div id="notification" class="notification"></div>
-    
-    <!-- Filters Section -->
-     <div class="controls">
-    <div id="filters" class="form-group row">
-    
-        <!-- Search Box -->
-        <div class="input-group col">
-            <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
-            <input type="text" id="searchTitle" class="form-control" placeholder="Search by book title">
-        </div>
-
-<!-- Status Row Table -->
-<table id="statusTable">
-    <thead>
-        <tr id="statusRow">
-            <th>Borrowed</th>
-            <th>Returned</th>
-            <th>Overdue</th>
-            <th>Returned Overdue</th>
-        </tr>
-    </thead>
-</table>
-
-<!-- Borrower Log Table -->
-<table id="borrowerLogTable">
-    <thead>
-        <!-- Column Headers -->
-        <tr id="columnHeader">
-            <th>Book Title</th>
-            <th>Borrow Date</th>
-            <th>Due Date</th>
-            <th>Return Date</th>
-        </tr>
-    </thead>
-    <tbody id="borrowerLogContainer">
-        <!-- Content will be loaded by JavaScript -->
-    </tbody>
-</table>
-
-
-
-                <!-- Pagination Controls -->
-                <div id="paginationControls" class="pagination-container d-flex align-items-center">
-                    <button id="firstPage" class="btn btn-primary me-2" disabled>
-                        <i class="fa-solid fa-backward-fast"></i>
-                    </button>
-                    <button id="prevPage" class="btn btn-primary me-2" disabled>
-                        <i class="fa-solid fa-caret-left"></i>
-                    </button>
-                    <input type="text" id="pageLocation" class="form-control me-2" style="width: 80px;" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); adjustWidth();">
-                    <span id="totalPages">of 1</span>
-                    <button id="nextPage" class="btn btn-primary ms-2">
-                        <i class="fa-solid fa-caret-right"></i>
-                    </button>
-                    <button id="lastPage" class="btn btn-primary ms-2">
-                        <i class="fa-solid fa-forward-fast"></i>
-                    </button>
+            <!-- Filters Section -->
+            <div class="controls">
+                <div id="filters" class="form-group row">
+                    <!-- Search Box -->
+                    <div class="input-group col">
+                        <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
+                        <input type="text" id="searchTitle" class="form-control" placeholder="Search by book title">
+                    </div>
                 </div>
+            </div>
 
+            <!-- Status Row Table -->
+            <table id="statusTable">
+                <thead>
+                    <tr id="statusRow">
+                        <th>Borrowed</th>
+                        <th>Returned</th>
+                        <th>Overdue</th>
+                        <th>Returned Overdue</th>
+                    </tr>
+                </thead>
+            </table>
 
+            <!-- Borrower Log Table -->
+            <table id="borrowerLogTable">
+                <thead>
+                    <tr id="columnHeader">
+                        <th>Book Title</th>
+                        <th>Borrow Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                    </tr>
+                </thead>
+                <tbody id="borrowerLogContainer">
+                    <!-- Content will be loaded by JavaScript -->
+                </tbody>
+            </table>
+
+            <!-- Pagination Controls -->
+            <div id="paginationControls" class="pagination-container d-flex align-items-center">
+                <button id="firstPage" class="btn btn-primary me-2" disabled>
+                    <i class="fa-solid fa-backward-fast"></i>
+                </button>
+                <button id="prevPage" class="btn btn-primary me-2" disabled>
+                    <i class="fa-solid fa-caret-left"></i>
+                </button>
+
+                <input type="text" id="pageLocation" class="form-control me-2" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); adjustWidth();">
+                <span id="totalPages"> of 1</span>
+                
+                <button id="nextPage" class="btn btn-primary ms-2">
+                    <i class="fa-solid fa-caret-right"></i>
+                </button>
+                <button id="lastPage" class="btn btn-primary ms-2">
+                    <i class="fa-solid fa-forward-fast"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript Files -->
     <script src="borrowerLog.js" defer></script>
-    <script src="notification.js"></script>
+    <script src="notification.js" defer></script>
 
-    <!-- Include Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Popper.js and Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
 </body>
-</body>
+
 </html>

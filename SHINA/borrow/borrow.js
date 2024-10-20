@@ -32,8 +32,6 @@ ipcRenderer.on('borrow-record-added', (event, data) => {
 });
 
 
-
-//DISPLAY!!!
 function addBorrowToTable(record) {
     const borrowList = document.getElementById('borrowList');
     if (!borrowList) {
@@ -49,11 +47,12 @@ function addBorrowToTable(record) {
         record.borrowStatus = 'overdue';
     }
 
+    // Ensure you're using the right field names from the database query
     row.innerHTML = `
         <td><input type="checkbox" class="select-borrow" data-id="${record.id}" ${selectedRecords.has(record.id) ? 'checked' : ''}></td>
-        <td><span class="borrower-name" data-name="${record.borrowerName}">${record.borrowerName}</span></td>
-        <td>${record.bookTitle}</td>
-        
+        <td><span class="borrower-name" data-name="${record.borrower_name || record.borrower_id}">${record.borrower_name || record.borrower_id}</span></td>
+        <td>${record.book_title || record.book_id}</td>
+
         <td>
             <select class="status-dropdown" data-id="${record.id}" ${record.borrowStatus === 'returned' || record.borrowStatus === 'returned overdue' ? 'disabled' : ''}>
                 <option value="borrowed" class="status-borrowed" ${record.borrowStatus === 'borrowed' ? 'selected' : ''}>Borrowed</option>
@@ -299,8 +298,6 @@ document.getElementById('deleteSelected').addEventListener('click', function () 
 let selectedRecords = new Set();  // Track selected records across pages
 
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
     loadBorrowRecords();
     setupPagination();
@@ -380,35 +377,38 @@ function resetAndLoadRecords() {
 let sortColumn = 'createdAt';  // Default sorting by borrower's name
 let sortOrder = 'dsc';            // Default sorting order
 
-
-// Function to reload the entire borrow list
 async function loadBorrowRecords() {
     try {
-        const borrowRecords = await ipcRenderer.invoke('getBorrows');  // Fetch records, already sorted by createdAt
+        const borrowRecords = await ipcRenderer.invoke('getBorrows');  // Fetch records with names and titles
+        console.log('Fetched Borrow Records:', borrowRecords); // Log fetched records
+        
         clearBorrowTable();
 
         // Get filter values
         const searchQuery = document.getElementById('searchInput').value.toLowerCase();
         const statusFilter = document.getElementById('statusFilter').value;
 
-        // Filter records based on search query, status
+        // Filter records based on search query and status
         filteredRecords = borrowRecords.filter(record => {
-            const matchesSearch = record.borrowerName.toLowerCase().includes(searchQuery) || record.bookTitle.toLowerCase().includes(searchQuery);
+            const borrowerName = record.name ? record.name.toLowerCase() : ''; // 'name' instead of 'borrower_name'
+            const bookTitle = record.title_of_book ? record.title_of_book.toLowerCase() : ''; // 'title_of_book' instead of 'book_title'
+            
+            const matchesSearch = borrowerName.includes(searchQuery) || bookTitle.includes(searchQuery);
             const matchesStatus = statusFilter === '' || record.borrowStatus === statusFilter;
+
             return matchesSearch && matchesStatus;
         });
 
+        // Log filtered records
+        console.log('Filtered Records:', filteredRecords); // Log filtered records
+        
         // If there's a sort column and order, apply sorting based on that
         if (sortColumn) {
             filteredRecords.sort((a, b) => {
                 let aVal = a[sortColumn]?.toLowerCase() || '';
                 let bVal = b[sortColumn]?.toLowerCase() || '';
 
-                if (sortOrder === 'desc') {
-                    return aVal > bVal ? 1 : -1;
-                } else {
-                    return aVal < bVal ? 1 : -1;
-                }
+                return sortOrder === 'desc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
             });
         }
 
@@ -426,6 +426,9 @@ async function loadBorrowRecords() {
         // Slice the records for the current page
         const paginatedRecords = filteredRecords.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage);
 
+        // Log paginated records
+        console.log('Paginated Records:', paginatedRecords); // Log paginated records
+        
         if (paginatedRecords.length === 0) {
             const emptyRow = document.createElement('tr');
             const emptyCell = document.createElement('td');
