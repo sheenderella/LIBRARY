@@ -223,7 +223,7 @@ function setupEventListeners() {
             window.location.href = './login/login.html'; // Redirect to login page after logout
         }).catch(error => {
             console.error('Error during logout:', error);
-            alert('An error occurred. Please try again.');
+            showNotification('An error occurred. Please try again.', 'error');
         });
     });
 
@@ -500,13 +500,28 @@ function addBookToTable(book, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to delete this book record?')) {
-            deleteBookFromTable(book.id);
-            showNotification('A Book has been Deleted!', 'delete');
-        }
-        loadBooks();
-        adjustBooksPerPage();
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Deletion';
+        const message = 'Are you sure you want to delete this book record?';
+    
+        // Show the confirmation dialog
+        ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+            .then((confirmation) => {
+                if (confirmation) {
+                    deleteBookFromTable(book.id); // Assuming this is your deletion function
+                    showNotification('A Book has been Deleted!', 'delete');
+                    
+                    // Reload books and adjust pagination after deletion
+                    loadBooks();
+                    adjustBooksPerPage();
+                }
+            })
+            .catch(error => {
+                console.error('Error showing confirmation dialog:', error);
+                showNotification('Error showing confirmation dialog!', 'error');
+            });
     });
+    
 
     if (prepend) {
         bookList.insertBefore(row, bookList.firstChild);
@@ -556,32 +571,41 @@ function deleteBookFromTable(id) {
 
 function deleteSelectedBooks() {
     if (selectedBookIds.size === 0) {
-        alert("No books selected.");
+        showNotification("No books selected", "error");
         return;
     }
 
     const count = selectedBookIds.size; // Count the number of selected books
 
-    // Display a confirmation dialog showing the number of selected books
-    const confirmation = confirm(`Are you sure you want to delete ${count} selected book record(s)?`);
+    // Prepare title and message for the confirmation dialog
+    const title = 'Confirm Deletion';
+    const message = `Are you sure you want to delete ${count} selected book record(s)?`;
 
-    if (confirmation) {
-        // Convert Set to Array for deletion
-        const ids = Array.from(selectedBookIds);
+    // Show the confirmation dialog
+    ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+        .then((confirmation) => {
+            if (confirmation) {
+                // Convert Set to Array for deletion
+                const ids = Array.from(selectedBookIds);
 
-        ids.forEach(id => {
-            ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
+                ids.forEach(id => {
+                    ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
+                });
+
+                // Clear the selection after deletion
+                selectedBookIds.clear();
+                
+                // Reload books and update UI
+                loadBooks();
+                adjustBooksPerPage();
+
+                showNotification(`${count} book(s) have been deleted!`, 'warning');
+            }
+        })
+        .catch(error => {
+            console.error('Error showing confirmation dialog:', error);
+            showNotification('Error showing confirmation dialog!', 'error');
         });
-
-        // Clear the selection after deletion
-        selectedBookIds.clear();
-        
-        // Reload books and update UI
-        loadBooks();
-        adjustBooksPerPage();
-
-        showNotification(`${count} book(s) have been deleted!`, 'warning');
-    }
 }
  
 function getBookFromRow(row) {

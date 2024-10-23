@@ -1152,7 +1152,7 @@ ipcMain.handle('show-confirmation-dialog', async (event, { title, message }) => 
 function createAddProfileWindow() {
     addProfileWindow = new BrowserWindow({
         width: 600,
-        height: 500,
+        height: 490,
         parent: mainWindow,
         modal: true,
         webPreferences: {
@@ -1184,7 +1184,7 @@ function createEditProfileWindow(record) {
     editProfileWindow = createWindow({
         filePath: path.join(__dirname, 'profiles', 'editProfile.html'),
         width: 585,
-        height: 485,
+        height: 405,
 
         parent: mainWindow,
         onClose: () => (editProfileWindow = null),
