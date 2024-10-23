@@ -46,47 +46,57 @@ let profilesPerPage = 10; // Change this to the number of profiles you want per 
 let currentProfiles = [];
 let selectedProfileIds = new Set(); // Store selected profile IDs
 
-// Function to handle "Select All" checkbox 
 function setupSelectAllCheckbox() {
     const selectAllCheckbox = document.getElementById('selectAll');
 
     // Ensure the "Select All" checkbox starts unchecked
     selectAllCheckbox.checked = false;
 
-    selectAllCheckbox.addEventListener('click', (event) => {
+    selectAllCheckbox.addEventListener('change', (event) => {
         const isChecked = event.target.checked; // Get the state of the "Select All" checkbox
-        // If "Select All" is checked, add all profile IDs to selectedProfileIds, else remove them
-        currentProfiles.forEach(profile => {
-            if (isChecked) {
-                selectedProfileIds.add(profile.id); // Add all profile IDs to the selected set
-            } else {
-                selectedProfileIds.delete(profile.id); // Remove all profile IDs from the selected set
-            }
-        });
+        const checkboxes = document.querySelectorAll('#profileList input[type="checkbox"]');
 
-        // Update checkboxes on the current page to reflect the "Select All" state
-        updateCheckboxStates();
-        
+        if (isChecked) {
+            // Select all checkboxes across all pages
+            currentProfiles.forEach(profile => {
+                selectedProfileIds.add(profile.id);
+            });
+            // Select all checkboxes on the current page
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        } else {
+            // Deselect all checkboxes across all pages
+            currentProfiles.forEach(profile => {
+                selectedProfileIds.delete(profile.id);
+            });
+            // Deselect all checkboxes on the current page
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
         // Optionally log the current state for debugging
         console.log('Select All clicked:', isChecked);
         console.log('Selected Profiles:', Array.from(selectedProfileIds));
     });
 }
 
-// Function to update checkbox states based on selectedProfileIds (for current page)
-function updateCheckboxStates() {
-    const checkboxes = document.querySelectorAll('#profileList input[type="checkbox"]');
+// function updateCheckboxStates() {
+//     const checkboxes = document.querySelectorAll('#profileList input[type="checkbox"]');
 
-    checkboxes.forEach(checkbox => {
-        const profileId = checkbox.getAttribute('data-id');
-        checkbox.checked = selectedProfileIds.has(profileId); // Check if this profile ID is in the selected set
-    });
+//     // Update each checkbox based on whether the profile ID is in selectedProfileIds
+//     checkboxes.forEach(checkbox => {
+//         const profileId = checkbox.getAttribute('data-id');
+//         checkbox.checked = selectedProfileIds.has(profileId); // Set checkbox state based on selected IDs
+//     });
 
-    // Sync the "Select All" checkbox based on whether all profiles in selectedProfileIds are checked
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const allChecked = currentProfiles.every(profile => selectedProfileIds.has(profile.id));
-    selectAllCheckbox.checked = allChecked; // Update the state of the "Select All" checkbox
-}
+//     // Sync the "Select All" checkbox based on whether all profiles across all pages are selected
+//     const selectAllCheckbox = document.getElementById('selectAll');
+//     const allProfilesSelected = currentProfiles.every(profile => selectedProfileIds.has(profile.id));
+//     selectAllCheckbox.checked = allProfilesSelected;
+// }
+
 
 // Function to load profiles and display them in the table
 function loadProfiles() {
@@ -120,7 +130,7 @@ function displayProfiles(profiles = currentProfiles) {
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 6; // Adjust the colspan based on the number of columns
-        emptyMessageCell.textContent = "No Records Not Found";
+        emptyMessageCell.textContent = "No Records Found";
         emptyMessageCell.classList.add('empty-message-cell');
         emptyMessageRow.appendChild(emptyMessageCell);
         profileList.appendChild(emptyMessageRow);
@@ -132,6 +142,7 @@ function displayProfiles(profiles = currentProfiles) {
         addProfileToTable(profile);
     });
 }
+
 
 // Update the getProfilesForCurrentPage function to work with a parameter
 function getProfilesForCurrentPage(profiles) {
@@ -201,6 +212,7 @@ function updatePagination(profiles = currentProfiles) {
     };
 }
 
+
 // Function to dynamically add a profile to the table
 function addProfileToTable(profile, prepend = false) {
     const profileList = document.getElementById('profileList');
@@ -257,22 +269,26 @@ function addProfileToTable(profile, prepend = false) {
     });
     
 
-     // Add event listener to the checkbox for each profile
-     const checkbox = row.querySelector('input[type="checkbox"]');
-     checkbox.checked = selectedProfileIds.has(profile.id); // Set checkbox state based on selected IDs
- 
-     checkbox.addEventListener('click', (event) => {
-         event.stopPropagation(); // Prevent click event from bubbling
-         const profileId = profile.id;
- 
-         if (event.target.checked) {
-             selectedProfileIds.add(profileId); // Add profile ID to the selected set
-         } else {
-             selectedProfileIds.delete(profileId); // Remove profile ID from the selected set
-         }
- 
-         console.log('Selected Profiles:', Array.from(selectedProfileIds));
-     });
+        // Add event listener to the checkbox for each profile
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        checkbox.checked = selectedProfileIds.has(profile.id); // Set checkbox state based on selected IDs
+    
+        checkbox.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent click event from bubbling
+            const profileId = profile.id;
+    
+            if (event.target.checked) {
+                selectedProfileIds.add(profileId); // Add profile ID to the selected set
+            } else {
+                selectedProfileIds.delete(profileId); // Remove profile ID from the selected set
+            }
+    
+            // Update the "Select All" checkbox state
+            const allChecked = currentProfiles.every(profile => selectedProfileIds.has(profile.id));
+            document.getElementById('selectAll').checked = allChecked;
+    
+            console.log('Selected Profiles:', Array.from(selectedProfileIds));
+        });
     
 }
 
@@ -344,7 +360,7 @@ function setupDeleteSelectedButton() {
         const idsToDelete = Array.from(selectedProfileIds); // Convert the Set to an Array
 
         if (idsToDelete.length === 0) {
-            alert('No profiles selected for deletion.');
+            showNotification('No profiles selected for deletion.', 'error');
             return; // Exit if no profiles are selected
         }
 
@@ -362,14 +378,14 @@ function setupDeleteSelectedButton() {
         // Send the delete request for each selected profile
         for (const id of idsToDelete) {
             await ipcRenderer.invoke('deleteProfile', id); // Invoke the deleteProfile method in main.js
+            showNotification(`${idsToDelete.length} Profile(s) has been deleted!`, 'delete');
+            loadProfiles(); // Reload profiles after deletion
         }
 
         // Optionally, clear the selectedProfileIds Set and update UI
         selectedProfileIds.clear(); // Clear the selected IDs after deletion
         updateCheckboxStates(); // Update checkbox states after deletion
-        showNotification(`${idsToDelete.length} Profile(s) has been deleted!`, 'delete');
     });
-    loadProfiles(); // Reload profiles after deletion
 }
 
 // Function to open the add profile window
