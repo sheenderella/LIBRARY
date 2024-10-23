@@ -71,6 +71,7 @@ function autofillForm(matchingBook) {
 // Handle form submission
 document.getElementById('addBookForm').addEventListener('submit', (event) => {
     event.preventDefault();
+
     const record = {
         date_received: document.getElementById('date_received').value,
         class: document.getElementById('class').value,
@@ -86,10 +87,23 @@ document.getElementById('addBookForm').addEventListener('submit', (event) => {
         condition: document.getElementById('condition').value,
         remarks: document.getElementById('remarks').value,
     };
-    ipcRenderer.invoke('addBook', record).then(() => {
+
+    const numberOfCopies = parseInt(document.getElementById('copies').value); // Get the number of copies
+
+    // Add the book to the table based on the number of copies
+    const addBookPromises = [];
+    for (let i = 0; i < numberOfCopies; i++) {
+        addBookPromises.push(ipcRenderer.invoke('addBook', record)); // Push promise for each copy
+    }
+
+    Promise.all(addBookPromises).then(() => {
         window.close();
+    }).catch(error => {
+        console.error('Error adding books:', error);
+        showNotification('Error adding books!', 'error'); // Optional notification for error handling
     });
 });
+
 
 // Round cost price to two decimal places on blur
 const costPriceInput = document.getElementById('cost_price');
