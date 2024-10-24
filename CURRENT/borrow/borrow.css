@@ -267,6 +267,25 @@ input[type="checkbox"].select-borrow {
     accent-color: black; /* Change the checkmark and border color to black */
 }
 
+/* Make the checkbox black when checked */
+.custom-checkbox {
+    accent-color: black;
+    cursor: pointer;
+}
+
+/* NAME */
+.borrower-name {
+    cursor: pointer;
+    color: inherit; /* Keeps the same color as surrounding text */
+    text-decoration: none; /* Removes any underline or link appearance */
+}
+
+.book-title {
+    cursor: pointer;
+    color: inherit; /* Keeps the same color as surrounding text */
+    text-decoration: none; /* Removes any underline or link appearance */
+}
+
 
 /* SORT BUTTON */
 /* Sort Buttons Section: Styling for sort buttons */
@@ -523,9 +542,3 @@ tr {
 
 }
 
-/* NAME */
-.borrower-name {
-    cursor: pointer;
-    color: inherit; /* Keeps the same color as surrounding text */
-    text-decoration: none; /* Removes any underline or link appearance */
-}

@@ -23,7 +23,6 @@ document.getElementById('logout-link').addEventListener('click', function(event)
 
 
 let logData = [];
-let filteredLogData = [];
 
 // Update borrower details (name, ID, phone number, and email) in the UI
 function updateBorrowerDetails(borrowerName, borrowerId, phoneNumber, email) {
@@ -125,14 +124,19 @@ function displayLog() {
     });
 
     updatePaginationControls(); // Update pagination controls
-}
-
-function applyStatusFilter(status) {
+}function applyStatusFilter(status) {
+    // Filter the log data based on the clicked status
     filteredLogData = logData.filter(entry => {
         return entry.borrowStatus === status;
     });
 
-    currentPage = 1; // Reset to the first page after applying filter
+    // Reset pagination to the first page
+    currentPage = 1; 
+
+    // Update the page number input to show the reset value (1)
+    updatePageNumber(currentPage);
+
+    // Display the filtered log and update pagination controls
     displayLog();
     updatePaginationControls();
 }
@@ -161,7 +165,6 @@ document.getElementById('statusRow').addEventListener('click', function(event) {
 
 
 
-
 // Update pagination controls
 function updatePaginationControls() {
     // Implement pagination control updates here if necessary
@@ -169,26 +172,26 @@ function updatePaginationControls() {
 
 // PAGINATION
 let currentPage = 1;
-const recordsPerPage = 3;  // Display 3 records per page
-let filteredRecords = [];  // Store filtered records globally for pagination
+const recordsPerPage = 7;  // Display 3 records per page
+let filteredLogData = [];  // Ensure you're using the filtered log data
 
-// Initialize pagination setup
+// Setup pagination event listeners
 function setupPagination() {
     document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
     document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
     document.getElementById('nextPage').addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+        const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
         goToPage(currentPage + 1, totalPages);
     });
     document.getElementById('lastPage').addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+        const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
         goToPage(totalPages);
     });
 
     // Event listener for page input field
     pageLocationInput.addEventListener('change', (event) => {
         const enteredPage = parseInt(event.target.value, 10);
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+        const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
 
         if (isNaN(enteredPage) || enteredPage < 1 || enteredPage > totalPages) {
             showNotification('Invalid page number!', 'error');
@@ -200,8 +203,9 @@ function setupPagination() {
         }
     });
 }
+
 // Change page and reload records
-function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsPerPage)) {
+function goToPage(page, totalPages = Math.ceil(filteredLogData.length / recordsPerPage)) {
     if (page < 1) {
         currentPage = 1; // Stay on the first page
     } else if (page > totalPages) {
@@ -220,7 +224,7 @@ function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsP
 
 // Update pagination control button states
 function updatePaginationControls() {
-    const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+    const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
 
     document.getElementById('firstPage').disabled = (currentPage === 1);
     document.getElementById('prevPage').disabled = (currentPage === 1);

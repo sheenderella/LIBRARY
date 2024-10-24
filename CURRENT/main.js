@@ -817,6 +817,8 @@ ipcMain.handle('getBooks', async () => {
 
 //BORROW
 
+
+
 ipcMain.handle('getBorrows', async () => {
     try {
         const query = `
@@ -1142,6 +1144,19 @@ async function deleteFromDatabase(ids) {
     }
 }
 
+ipcMain.handle('show-confirmation-dialog', async (event, { title, message }) => {
+    const result = await dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Cancel', 'Yes'],
+        defaultId: 1,
+        cancelId: 0,
+        title: title,
+        message: message
+    });
+    
+    // Return true if the user confirms the deletion (clicked 'Yes')
+    return result.response === 1;
+});
 
 //PROFILES' CRUD
 let addProfileWindow = null;
