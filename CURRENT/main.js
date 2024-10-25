@@ -816,8 +816,27 @@ ipcMain.handle('getBooks', async () => {
 
 
 //BORROW
+// Handle the 'fetch-book-details' event
+ipcMain.handle('fetch-book-details', async (event, bookId) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT id, number, date_received, author, title_of_book, edition,
+                   source_of_fund, cost_price, publisher, year, remarks, 
+                   volume, pages, condition, class
+            FROM books
+            WHERE id = ?
+        `;
 
-
+        db.get(query, [bookId], (err, row) => {
+            if (err) {
+                console.error('Database query error:', err);
+                reject(err);
+            } else {
+                resolve(row || null); // Return the book details or null if not found
+            }
+        });
+    });
+});
 
 ipcMain.handle('getBorrows', async () => {
     try {
@@ -833,6 +852,7 @@ ipcMain.handle('getBorrows', async () => {
                 Profiles.name AS borrower_name,
                 Profiles.phone_number,         -- Include phone number
                 Profiles.email,                -- Include email
+                books.id AS book_id,              -- Ensure book ID is fetched
                 books.title_of_book AS book_title
             FROM borrow
             JOIN Profiles ON borrow.borrower_id = Profiles.borrower_id
@@ -867,6 +887,7 @@ function executeSelectQuery(query, params = []) {
         });
     });
 }
+
 ipcMain.handle('getBorrowerLog', async (event, borrowerId) => {
     try {
         const query = `
@@ -885,6 +906,7 @@ ipcMain.handle('getBorrowerLog', async (event, borrowerId) => {
         throw new Error('Failed to fetch borrower log');
     }
 });
+
 
 //ADD
 ipcMain.on('open-add-borrow-window', createAddBorrowWindow);

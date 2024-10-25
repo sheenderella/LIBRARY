@@ -31,6 +31,38 @@ ipcRenderer.on('borrow-record-added', (event, data) => {
     showNotification(data.message, data.type); // Display success notification
 });
 
+// Event listener for redirecting to borrower log
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('borrower-name')) {
+        const borrowerName = event.target.getAttribute('data-name');
+        const borrowerId = event.target.getAttribute('data-id');
+        const phoneNumber = event.target.getAttribute('data-phone'); // Get phone number
+        const email = event.target.getAttribute('data-email'); // Get email
+
+        // Redirect to borrowerLog.html with all necessary data
+        window.location.href = `borrowerLog.html?borrowerName=${encodeURIComponent(borrowerName)}&borrowerId=${encodeURIComponent(borrowerId)}&phoneNumber=${encodeURIComponent(phoneNumber)}&email=${encodeURIComponent(email)}`;
+    }
+
+    // For Book Title
+    if (event.target.classList.contains('book-title')) {
+        const bookTitle = event.target.getAttribute('data-title');
+        const bookId = event.target.getAttribute('data-book-id');
+
+        // Log values for troubleshooting
+        console.log("Retrieved Book ID:", bookId);
+        console.log("Retrieved Book Title:", bookTitle);
+
+        // Check if bookId and bookTitle exist
+        if (bookId && bookTitle) {
+            // Redirect to bookhistory.html with book title and book ID
+            window.location.href = `bookhistory.html?bookTitle=${encodeURIComponent(bookTitle)}&bookId=${encodeURIComponent(bookId)}`;
+        } else {
+            console.error("Failed to retrieve book information: Missing book ID or title.");
+        }
+    }
+});
+
+
 function addBorrowToTable(record) {
     const borrowList = document.getElementById('borrowList');
     if (!borrowList) {
@@ -56,9 +88,11 @@ function addBorrowToTable(record) {
             ${record.borrower_name || record.borrower_id}
         </span></td>
         
-        <td><span class="book-title" data-title="${record.book_title || ''}" data-id="${record.book_id || ''}">
-            ${record.book_title || record.book_id}
-        </span></td>
+        <td>
+            <span class="book-title" data-book-id="${record.book_id || ''}" data-title="${record.book_title || ''}">
+                ${record.book_title || record.book_id}
+            </span>
+        </td>
 
         <td>
             <select class="status-dropdown" data-id="${record.id}" ${record.borrowStatus === 'returned' || record.borrowStatus === 'returned overdue' ? 'disabled' : ''}>
@@ -164,29 +198,6 @@ function updateDropdownStyle(dropdown, status) {
     }
 }
 
-// Event listener for redirecting to borrower log
-document.addEventListener('click', function (event) {
-    if (event.target.classList.contains('borrower-name')) {
-        const borrowerName = event.target.getAttribute('data-name');
-        const borrowerId = event.target.getAttribute('data-id');
-        const phoneNumber = event.target.getAttribute('data-phone'); // Get phone number
-        const email = event.target.getAttribute('data-email'); // Get email
-
-        // Redirect to borrowerLog.html with all necessary data
-        window.location.href = `borrowerLog.html?borrowerName=${encodeURIComponent(borrowerName)}&borrowerId=${encodeURIComponent(borrowerId)}&phoneNumber=${encodeURIComponent(phoneNumber)}&email=${encodeURIComponent(email)}`;
-    }
-
-    // Event listener for redirecting to book history
-    if (event.target.classList.contains('book-title')) {
-        const bookTitle = event.target.getAttribute('data-title');
-        const bookId = event.target.getAttribute('data-id');
-
-        // Redirect to bookhistory.html with book title and book ID
-        window.location.href = `bookhistory.html?bookTitle=${encodeURIComponent(bookTitle)}&bookId=${encodeURIComponent(bookId)}`;
-    }
-
-
-});
 
 
 // DELETE!!!
