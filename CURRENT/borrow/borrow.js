@@ -400,7 +400,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
     // Event listener for sorting
     document.querySelectorAll('.sort-btn').forEach(button => {
         button.addEventListener('click', () => {
@@ -433,9 +432,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
 });
-
-
-
 
 async function loadBorrowRecords() {
     try {
@@ -549,15 +545,23 @@ function resetAndLoadRecords() {
 
 // Function to update pagination button states
 function updatePaginationControls() {
-    document.getElementById('firstPage').disabled = currentPage === 1;
-    document.getElementById('prevPage').disabled = currentPage === 1;
-    document.getElementById('nextPage').disabled = currentPage === totalPages;
-    document.getElementById('lastPage').disabled = currentPage === totalPages;
-    document.getElementById('pageLocation').value = currentPage;
+    if (totalPages === 0) {
+        // If no records are available, set input to 0
+        document.getElementById('pageLocation').value = 0;
+        document.getElementById('firstPage').disabled = true;
+        document.getElementById('prevPage').disabled = true;
+        document.getElementById('nextPage').disabled = true;
+        document.getElementById('lastPage').disabled = true;
+    } else {
+        // Otherwise, update the controls based on the current page
+        document.getElementById('firstPage').disabled = currentPage === 1;
+        document.getElementById('prevPage').disabled = currentPage === 1;
+        document.getElementById('nextPage').disabled = currentPage === totalPages;
+        document.getElementById('lastPage').disabled = currentPage === totalPages;
+        document.getElementById('pageLocation').value = currentPage;
+    }
     console.log(`Pagination Updated: Current Page - ${currentPage}, Total Pages - ${totalPages}`);
 }
-
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const pageInput = document.getElementById('pageLocation');

@@ -82,21 +82,6 @@ function setupSelectAllCheckbox() {
     });
 }
 
-// function updateCheckboxStates() {
-//     const checkboxes = document.querySelectorAll('#profileList input[type="checkbox"]');
-
-//     // Update each checkbox based on whether the profile ID is in selectedProfileIds
-//     checkboxes.forEach(checkbox => {
-//         const profileId = checkbox.getAttribute('data-id');
-//         checkbox.checked = selectedProfileIds.has(profileId); // Set checkbox state based on selected IDs
-//     });
-
-//     // Sync the "Select All" checkbox based on whether all profiles across all pages are selected
-//     const selectAllCheckbox = document.getElementById('selectAll');
-//     const allProfilesSelected = currentProfiles.every(profile => selectedProfileIds.has(profile.id));
-//     selectAllCheckbox.checked = allProfilesSelected;
-// }
-
 
 // Function to load profiles and display them in the table
 function loadProfiles() {
@@ -160,16 +145,22 @@ function updatePagination(profiles = currentProfiles) {
     const totalPagesSpan = document.getElementById('totalPages');
 
     const totalPages = Math.ceil(profiles.length / profilesPerPage);
-    totalPagesSpan.textContent = `of ${totalPages}`;
-    pageLocationInput.value = currentPage;
 
-    firstPageBtn.disabled = currentPage === 1;
-    prevPageBtn.disabled = currentPage === 1;
-    nextPageBtn.disabled = currentPage === totalPages;
-    lastPageBtn.disabled = currentPage === totalPages;
+    if (profiles.length === 0) {
+        totalPagesSpan.textContent = `of 0`;
+        pageLocationInput.value = 0;
+    } else {
+        totalPagesSpan.textContent = `of ${totalPages}`;
+        pageLocationInput.value = currentPage;
+    }
+
+    firstPageBtn.disabled = currentPage === 1 || profiles.length === 0;
+    prevPageBtn.disabled = currentPage === 1 || profiles.length === 0;
+    nextPageBtn.disabled = currentPage === totalPages || profiles.length === 0;
+    lastPageBtn.disabled = currentPage === totalPages || profiles.length === 0;
 
     firstPageBtn.onclick = () => {
-        if (currentPage !== 1) {
+        if (currentPage !== 1 && profiles.length > 0) {
             currentPage = 1;
             displayProfiles(profiles);
             updatePagination(profiles);
@@ -177,7 +168,7 @@ function updatePagination(profiles = currentProfiles) {
     };
 
     prevPageBtn.onclick = () => {
-        if (currentPage > 1) {
+        if (currentPage > 1 && profiles.length > 0) {
             currentPage--;
             displayProfiles(profiles);
             updatePagination(profiles);
@@ -185,7 +176,7 @@ function updatePagination(profiles = currentProfiles) {
     };
 
     nextPageBtn.onclick = () => {
-        if (currentPage < totalPages) {
+        if (currentPage < totalPages && profiles.length > 0) {
             currentPage++;
             displayProfiles(profiles);
             updatePagination(profiles);
@@ -193,7 +184,7 @@ function updatePagination(profiles = currentProfiles) {
     };
 
     lastPageBtn.onclick = () => {
-        if (currentPage !== totalPages) {
+        if (currentPage !== totalPages && profiles.length > 0) {
             currentPage = totalPages;
             displayProfiles(profiles);
             updatePagination(profiles);
@@ -207,7 +198,7 @@ function updatePagination(profiles = currentProfiles) {
             displayProfiles(profiles);
             updatePagination(profiles);
         } else {
-            pageLocationInput.value = currentPage;
+            pageLocationInput.value = profiles.length === 0 ? 0 : currentPage;
         }
     };
 }
@@ -311,27 +302,6 @@ function filterProfiles() {
     updatePagination(filteredProfiles);
 }
 
-// // Function to display filtered profiles in the table
-// function displayFilteredProfiles(profiles) {
-//     const profileList = document.getElementById('profileList');
-//     profileList.innerHTML = ''; // Clear existing table rows
-
-//     if (profiles.length === 0) {
-//         const emptyMessageRow = document.createElement('tr');
-//         const emptyMessageCell = document.createElement('td');
-//         emptyMessageCell.colSpan = 6; // Adjust based on the number of columns
-//         emptyMessageCell.textContent = "No records found.";
-//         emptyMessageCell.classList.add('empty-message-cell');
-//         emptyMessageRow.appendChild(emptyMessageCell);
-//         profileList.appendChild(emptyMessageRow);
-//         return;
-//     }
-
-//     profiles.forEach(profile => {
-//         addProfileToTable(profile);
-//     });
-// }
-
 // Function to update a profile in the table
 function updateProfileInTable(profile) {
     const row = document.querySelector(`button[data-id="${profile.id}"]`).closest('tr');
@@ -403,14 +373,6 @@ function sortProfiles(column, button) {
     const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
     button.dataset.order = order;
 
-    // Update the sort icon based on the current order
-    // const icon = button.querySelector('i');
-    // if (order === 'asc') {
-    //     icon.className = 'fas fa-sort-up'; // Ascending
-    // } else {
-    //     icon.className = 'fas fa-sort-down'; // Descending
-    // }
-
     // Sort the currentProfiles based on the selected column and order
     currentProfiles.sort((a, b) => {
         let valueA = a[column];
@@ -430,17 +392,6 @@ function sortProfiles(column, button) {
     // Call function to update the display
     displayProfiles(currentProfiles);
 }
-
-// Function to reset all sort buttons to their default state
-// function resetSortButtons() {
-//     const sortButtons = document.querySelectorAll('.sort-btn');
-//     sortButtons.forEach(button => {
-//         const icon = button.querySelector('i');
-//         icon.className = 'fas fa-sort'; // Reset to default sort icon
-//         button.dataset.order = ''; // Clear the sort order
-//         loadProfiles();
-//     });
-// }
 
 // Event listener setup for sort buttons
 function setupSortButtons() {
