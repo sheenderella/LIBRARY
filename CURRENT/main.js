@@ -910,6 +910,7 @@ function createAddBorrowWindow() {
         addBorrowWindow.focus();
     }
 }
+
 ipcMain.handle('addBorrow', async (event, record) => {
     try {
         // Validate borrower ID
@@ -1030,8 +1031,6 @@ ipcMain.handle('getBookDetails', async (event, title) => {
     }
 });
 
-
-
 // Handle fetching all borrower IDs
 ipcMain.handle('getBorrowerIDs', async () => {
     try {
@@ -1146,17 +1145,17 @@ async function deleteFromDatabase(ids) {
 
 ipcMain.handle('show-confirmation-dialog', async (event, { title, message }) => {
     const result = await dialog.showMessageBox({
-        type: 'warning',
-        buttons: ['Cancel', 'Yes'],
-        defaultId: 1,
-        cancelId: 0,
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        defaultId: 1,  // 'No' as default
         title: title,
         message: message
     });
-    
-    // Return true if the user confirms the deletion (clicked 'Yes')
-    return result.response === 1;
+
+    // Return true if user selected 'Yes' (button index 0)
+    return result.response === 0;
 });
+
 
 //PROFILES' CRUD
 let addProfileWindow = null;

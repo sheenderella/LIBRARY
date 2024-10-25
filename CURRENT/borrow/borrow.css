@@ -314,55 +314,62 @@ input[type="checkbox"].select-borrow {
 
 
 /* PAGINATION */
-#pageLocation {
-    min-width: 80px;
-}
-
-
-.pagination-container {
+/* Style for pagination controls container */
+#paginationControls {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%; /* Full width for centering */
-    margin: 0 auto; /* Center it horizontally */
-    padding-top: 20px;
-
+    gap: 6px; /* Space between elements */
+    margin: 20px 0; /* Space around the controls */
 }
 
-.pagination-container button {
-    padding: 6px 18px; /* Adjust button padding */
-    background-color: #30688B;
-    font-size: 14px;
-    border: none;
-    border-radius: 5px;
-    transition: background-color 0.3s, box-shadow 0.3s;
+/* Style for each button */
+#paginationControls button {
+    background-color: #30688B; /* Light gray background */
+    border: none; /* Gray border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 8px 12px; /* Padding inside the button */
+    font-size: 16px; /* Font size for the icon */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
 }
 
-.pagination-container button:disabled {
-    background-color: #b0b0b0;
-    cursor: not-allowed;
+/* Change background and border color on hover */
+#paginationControls button:hover {
+    opacity: 90%;
 }
 
-.pagination-container button:hover:not(:disabled) {
-    background-color: #3A79A0;
+/* Style for disabled buttons */
+#paginationControls button:disabled {
+    background-color: #d0d0d0; /* Light gray background for disabled state */
+    border-color: #bbb; /* Gray border for disabled state */
+    color: #888; /* Light gray text color */
+    cursor: not-allowed; /* Indicate that the button is disabled */
 }
 
-#pageLocation {
-    text-align: center;
+/* Style for the input field */
+#paginationControls input#pageLocation {
+    width: 50px; /* Set width for the input */
+    text-align: center; /* Center text inside the input */
+    padding: 8px; /* Padding inside the input */
+    border: 1px solid #ccc; /* Gray border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size for the input */
+}
+
+/* Style for the total pages span */
+#paginationControls #totalPages {
+    font-size: 16px; /* Font size for the total pages text */
+    color: #333; /* Dark text color */
     font-weight: bold;
-    font-size: 14px;
-    min-width: 40px; /* Initial width */
-    border-radius: 5px;
-    height: 45px;
-    box-shadow: 0 1px 3px 30688B;
-    transition: width 0.2s ease-in-out; /* Smooth transition for width */
 }
 
-#totalPages {
-    font-weight: bold;
-    margin-left: 8px;
-    font-size: 14px;
+/* Style for icons inside buttons */
+#paginationControls button i {
+    font-size: 16px; /* Font size for icons */
+    color: whitesmoke; /* Dark color for icons */
 }
+
 
 
 

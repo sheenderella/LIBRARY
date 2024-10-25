@@ -172,7 +172,7 @@ function updatePaginationControls() {
 
 // PAGINATION
 let currentPage = 1;
-const recordsPerPage = 7;  // Display 3 records per page
+const recordsPerPage = 2;  // Display 3 records per page
 let filteredLogData = [];  // Ensure you're using the filtered log data
 
 // Setup pagination event listeners

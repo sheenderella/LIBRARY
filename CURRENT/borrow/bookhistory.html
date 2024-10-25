@@ -18,6 +18,7 @@
     <div id="wrapper" class="d-flex">
         <!-- Sidebar -->
         <nav id="sidebar-wrapper" class="text-white">
+
             <div class="sidebar-header p-3 d-flex flex-column align-items-left">
                 <button class="btn btn-outline-light btn-sm mb-3" id="sidebarCollapse" aria-label="Toggle Sidebar">
                     <i class="fas fa-bars"></i>
@@ -66,17 +67,17 @@
         </nav>
 
         <!-- Main Content -->
+        <div id="notification" class="notification"></div>
+
         <main id="page-content-wrapper" class="flex-grow-1 p-4">
             <!-- Back to Borrow Page Button -->
             <a href="borrow.html" id="backToBorrowPage" class="btn btn-secondary">
                 <i class="fa fa-arrow-left"></i>
             </a>
 
-          
             <h2 id="bookTitle">Loading book title...</h2>
 
-            <div id="notification" class="notification"></div>
-
+        
             <!-- Filters Section -->
             <div class="controls">
                 <div id="filters" class="form-group row">
@@ -87,6 +88,57 @@
                     </div>
                 </div>
             </div>
+            <!-- Status Row Table -->
+            <table id="statusTable">
+                <thead>
+                    <tr id="statusRow">
+                        <th>Borrowed</th>
+                        <th>Returned</th>
+                        <th>Overdue</th>
+                        <th>Returned Overdue</th>
+                    </tr>
+                </thead>
+            </table>
+
+
+            <!-- Borrower Log Table -->
+            <table id="bookHistoryTable">
+                <thead>
+                    <tr id="columnHeader">
+                        <th>Borrower Name</th>
+                        <th>Borrow Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                    </tr>
+                </thead>
+                
+                <tbody id="borrowerLogContainer">
+                    <!-- Content will be loaded by JavaScript -->
+                </tbody>
+            </table>
+
+            <!-- Pagination Controls -->
+            <div id="paginationControls" class="pagination-container d-flex align-items-center">
+                <button id="firstPage" class="btn btn-primary me-2" disabled>
+                    <i class="fa-solid fa-backward-fast"></i>
+                </button>
+                <button id="prevPage" class="btn btn-primary me-2" disabled>
+                    <i class="fa-solid fa-caret-left"></i>
+                </button>
+
+                <input type="text" id="pageLocation" class="form-control me-2" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); adjustWidth();">
+                <span id="totalPages"> of 1</span>
+                
+                <button id="nextPage" class="btn btn-primary ms-2">
+                    <i class="fa-solid fa-caret-right"></i>
+                </button>
+                <button id="lastPage" class="btn btn-primary ms-2">
+                    <i class="fa-solid fa-forward-fast"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
 
 
             </div>
