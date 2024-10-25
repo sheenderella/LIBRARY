@@ -35,7 +35,7 @@ ipcRenderer.on('borrow-record-added', (event, data) => {
 document.addEventListener('click', function (event) {
     if (event.target.classList.contains('borrower-name')) {
         const borrowerName = event.target.getAttribute('data-name');
-        const borrowerId = event.target.getAttribute('data-id');
+        const borrowerId = event.target.getAttribute('data-borrower-id');
         const phoneNumber = event.target.getAttribute('data-phone'); // Get phone number
         const email = event.target.getAttribute('data-email'); // Get email
 
@@ -43,23 +43,26 @@ document.addEventListener('click', function (event) {
         window.location.href = `borrowerLog.html?borrowerName=${encodeURIComponent(borrowerName)}&borrowerId=${encodeURIComponent(borrowerId)}&phoneNumber=${encodeURIComponent(phoneNumber)}&email=${encodeURIComponent(email)}`;
     }
 
-    // For Book Title
-    if (event.target.classList.contains('book-title')) {
-        const bookTitle = event.target.getAttribute('data-title');
-        const bookId = event.target.getAttribute('data-book-id');
+  // For Book Title
+if (event.target.classList.contains('book-title')) {
+    const bookTitle = event.target.getAttribute('data-title');
+    const bookId = event.target.getAttribute('data-book-id');
+    const recordId = event.target.getAttribute('data-id'); // Retrieve the record ID
 
-        // Log values for troubleshooting
-        console.log("Retrieved Book ID:", bookId);
-        console.log("Retrieved Book Title:", bookTitle);
+    // Log values for troubleshooting
+    console.log("Retrieved Book ID:", bookId);
+    console.log("Retrieved Book Title:", bookTitle);
+    console.log("Retrieved Record ID:", recordId);
 
-        // Check if bookId and bookTitle exist
-        if (bookId && bookTitle) {
-            // Redirect to bookhistory.html with book title and book ID
-            window.location.href = `bookhistory.html?bookTitle=${encodeURIComponent(bookTitle)}&bookId=${encodeURIComponent(bookId)}`;
-        } else {
-            console.error("Failed to retrieve book information: Missing book ID or title.");
-        }
+    // Check if bookId, bookTitle, and recordId exist
+    if (bookId && bookTitle && recordId) {
+        // Redirect to bookhistory.html with book title, book ID, and record ID
+        window.location.href = `bookhistory.html?bookTitle=${encodeURIComponent(bookTitle)}&bookId=${encodeURIComponent(bookId)}&recordId=${encodeURIComponent(recordId)}`;
+    } else {
+        console.error("Failed to retrieve book information: Missing book ID, title, or record ID.");
     }
+}
+
 });
 
 
@@ -84,12 +87,12 @@ function addBorrowToTable(record) {
     // Ensure you're using the right field names from the database query
     row.innerHTML = `
         <td><input type="checkbox" class="select-borrow" data-id="${record.id}" ${selectedRecords.has(record.id) ? 'checked' : ''}></td>
-        <td><span class="borrower-name" data-name="${record.borrower_name || ''}" data-id="${record.borrower_id || ''}" data-phone="${record.phone_number || ''}" data-email="${record.email || ''}">
+        <td><span class="borrower-name" data-name="${record.borrower_name || ''}" data-borrower-id="${record.borrower_id || ''}" data-phone="${record.phone_number || ''}" data-email="${record.email || ''}">
             ${record.borrower_name || record.borrower_id}
         </span></td>
         
         <td>
-            <span class="book-title" data-book-id="${record.book_id || ''}" data-title="${record.book_title || ''}">
+            <span class="book-title" data-id="${record.id}" data-book-id="${record.book_id || ''}" data-title="${record.book_title || ''}">
                 ${record.book_title || record.book_id}
             </span>
         </td>

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
     <link rel="stylesheet" href="bookhistory.css">
 
-    <title>Book History</title>
+    <title>GRUBA LAW LIBRARY</title>
 </head>
 
 <body>
@@ -97,23 +97,22 @@
                     <!-- Search Box -->
                     <div class="input-group col">
                         <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
-                        <input type="text" id="searchTitle" class="form-control" placeholder="Search by book title">
+                        <input type="text" id="searchTitle" class="form-control" placeholder="Search by name">
                     </div>
                 </div>
             </div>
 
-            <!-- Status Row Table -->
             <table id="statusTable">
                 <thead>
                     <tr id="statusRow">
-                        <th>Borrowed</th>
-                        <th>Returned</th>
-                        <th>Overdue</th>
-                        <th>Returned Overdue</th>
+                        <th data-status="borrowed">Borrowed</th>
+                        <th data-status="returned">Returned</th>
+                        <th data-status="overdue">Overdue</th>
+                        <th data-status="returned overdue">Returned Overdue</th>
                     </tr>
                 </thead>
             </table>
-
+            
 
             <!-- Borrower Log Table -->
             <table id="bookHistoryTable">
@@ -162,6 +161,7 @@
 
     <!-- Custom JS -->
     <script src="bookhistory.js"></script>
+    <script src="notification.js" defer></script>
 </body>
 
 </html>

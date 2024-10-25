@@ -907,6 +907,36 @@ ipcMain.handle('getBorrowerLog', async (event, borrowerId) => {
     }
 });
 
+ipcMain.handle('getBookBorrowRecords', async (event, bookId) => {
+    try {
+        const query = `
+            SELECT 
+                borrow.id AS borrow_id,
+                borrow.borrowStatus,
+                borrow.borrowDate,
+                borrow.returnDate,
+                borrow.dueDate,
+                Profiles.name AS borrower_name,
+                books.title_of_book AS book_title
+            FROM borrow
+            JOIN Profiles ON borrow.borrower_id = Profiles.borrower_id
+            JOIN books ON borrow.book_id = books.id
+            WHERE borrow.book_id = ?
+            ORDER BY borrow.borrowDate ASC
+        `;
+        
+        console.log('Executing query to fetch borrow records for book:', query);  // Log query execution
+
+        const bookBorrowRecords = await executeSelectQuery(query, [bookId]);
+
+        console.log('Fetched Borrow Records for Book ID:', bookId, bookBorrowRecords);  // Log fetched records
+        
+        return bookBorrowRecords;
+    } catch (error) {
+        console.error('Error fetching borrow records by book ID:', error);
+        throw new Error('Failed to fetch borrow records by book ID');
+    }
+});
 
 //ADD
 ipcMain.on('open-add-borrow-window', createAddBorrowWindow);

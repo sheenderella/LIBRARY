@@ -20,6 +20,8 @@ document.getElementById('logout-link').addEventListener('click', function(event)
         alert('An error occurred. Please try again.');
     });
 });
+
+
 let logData = [];
 let filteredLogData = [];
 let currentPage = 1;
@@ -186,11 +188,3 @@ document.getElementById('statusRow').addEventListener('click', (event) => {
     if (clickedStatus) applyStatusFilter(clickedStatus);
 });
 
-// Notification function
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-}
