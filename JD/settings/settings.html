@@ -49,6 +49,7 @@
                         <span class="link-text">Borrower Profiles</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link text-white" href="../borrow/borrow.html">
                         <i class="fas fa-table"></i>
@@ -98,24 +99,67 @@
                     </div>
                 </div>
 
-                <!-- Database Management Collapse -->
-                <div class="accordion mb-4" id="databaseManagementAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                <i class="fas fa-database"></i> Database Management
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#databaseManagementAccordion">
-                            <div class="accordion-body p-0">
-                                <div class="d-flex flex-column align-items-start">
-                                    <button class="btn btn-outline-warning w-100 text-start" id="backup-btn"><i class="fas fa-download"></i> Backup Database</button>
-                                    <button class="btn btn-outline-danger w-100 text-start" id="restore-btn"><i class="fas fa-upload"></i> Restore Database</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<!-- Database Management Collapse -->
+<div class="accordion mb-4" id="databaseManagementAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                <i class="fas fa-database"></i> Database Management
+            </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#databaseManagementAccordion">
+            <div class="accordion-body p-0">
+                <div class="d-flex flex-column align-items-start">
+                    <button class="btn btn-outline-warning w-100 text-start" id="backup-btn"><i class="fas fa-download"></i> Backup Database</button>
+                    <button class="btn btn-outline-danger w-100 text-start" id="restore-btn"><i class="fas fa-upload"></i> Restore Database</button>
+                    
+                    <!-- New Export/Import Section -->
+                    <button class="btn btn-outline-primary w-100 text-start" id="export-btn" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="fas fa-file-export"></i> Export to Excel</button>
+                    <button class="btn btn-outline-secondary w-100 text-start" id="import-btn" data-bs-toggle="modal" data-bs-target="#importModal"><i class="fas fa-file-import"></i> Import from Excel</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportModalLabel">Export to Excel</h5>
+<!-- Close Button with Font Awesome -->
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+    <i class="fas fa-times"></i> <!-- X Icon -->
+</button>
+            </div>
+            <div class="modal-body">
+                <h6>Select Data to Export:</h6>
+                <button class="btn btn-primary w-100 mb-2" onclick="exportData('books')">Export Books</button>
+                <button class="btn btn-primary w-100" onclick="exportData('borrowers')">Export Borrower Profiles</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importModalLabel">Import from Excel</h5>
+<!-- Close Button with Font Awesome -->
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+    <i class="fas fa-times"></i> <!-- X Icon -->
+</button>
+            </div>
+            <div class="modal-body">
+                <h6>Select Data to Import:</h6>
+                <button class="btn btn-secondary w-100 mb-2" onclick="importData('books')">Import Books</button>
+                <button class="btn btn-secondary w-100" onclick="importData('borrowers')">Import Borrower Profiles</button>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Support & FAQs -->
                 <div class="text-start mb-4">

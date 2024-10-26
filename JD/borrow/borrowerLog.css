@@ -5,8 +5,6 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-
-
 /* SIDE NAVBAR */
 /* Container for the sidebar and main content */
 #wrapper {
@@ -142,6 +140,24 @@ body {
     margin-left: 80px; /* Reduced margin when sidebar is collapsed */
 }
 
+
+
+/* Back to Borrow Page Button */
+#backToBorrowPage {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border: none;
+    font-size: 1rem;
+}
+
+#backToBorrowPage:hover {
+    background-color: #30688B;
+}
+
 /* BORROWER NAME */
 h1 {
     text-align: left;
@@ -221,175 +237,11 @@ h1 {
     
 }
 
-/* Status Filter */
-.status-filter-container {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    max-width: 200px; /* Adjusted width */
-}
-
-.status-filter-box {
-    display: flex;
-    align-items: center;
-    background-color: #ffffff;
-    color: #333C42;
-    cursor: pointer;
-    border: 1px solid #333C42;
-    position: relative;
-    box-sizing: border-box;
-    width: 100%; /* Ensure it occupies the full container */
-    padding: 10px;
-    height: 45px;
-    border-radius: 4px;
-    
-}
-
-.filter-icon {
-    margin-right: 10px;
-    font-size: 18px;
-    color: #333C42;
-}
-
-.dropdown-icon {
-    margin-left: auto;
-    font-size: 18px;
-    color: #333C42;
-}
-
-#statusFilterText {
-    margin-left: 5px;
-    flex-grow: 1;
-    color: #333C42;
-}
-
-#filterStatus {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-/* Date Range Filter Section: Styles for date range dropdown */
-.date-range-container {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    max-width: 200px; /* Adjust this based on your needs */
-    position: relative; /* To ensure the custom date range is positioned correctly */
-
-}
-
-.date-range-box {
-    display: flex;
-    height: 45px;
-    align-items: center;
-    background-color: #ffffff;
-    color: #333C42;
-    cursor: pointer;
-    border: 1px solid #333C42;
-    box-sizing: border-box;
-    width: 100%; /* Ensure it occupies the full container */
-    padding: 10px;
-    position: relative;
-    border-radius: 4px;
-}
-
-.calendar-icon {
-    margin-right: 10px;
-    font-size: 18px;
-    color: #333C42;
-}
-
-#dateRangeFilterText {
-    margin-left: 5px;
-    flex-grow: 1;
-    color: #333C42;
-}
-
-.dropdown-icon {
-    margin-left: auto;
-    font-size: 18px;
-    color: #333C42;
-}
-
-#dateRangeSelect {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-/* Custom Date Range Section */
-#customDateRange {
-    display: none;
-    background-color: #f8d7da; /* Light red background */
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 10px;
-    position: absolute;
-    top: calc(100% + 5px); /* Slightly below the dropdown */
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
-}
-
-.date-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.date-group label {
-    font-size: 0.9rem;
-    color: #333C42;
-}
-
-.date-group input {
-    height: 34px;
-    border-radius: 4px;
-    border: 1px solid #ced4da;
-    padding: 5px 10px;
-    font-size: 1rem;
-    color: #333C42;
-}
-
-.button-group {
-    display: flex;
-    gap: 10px;
-}
-
-.button-group button {
-    flex-grow: 1;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 1rem;
-    color: #ffffff;
-    cursor: pointer;
-}
-
-.button-group button:first-child {
-    background-color: #007bff; /* Apply button */
-    border: none;
-}
-
-.button-group button:last-child {
-    background-color: #6c757d; /* Clear button */
-    border: none;
-}
-
-
 
 
 /* TABLE */
-#borrowerLogTable {
+/* Status Table */
+#statusTable {
     width: 97%;
     margin-top: 20px;
     margin-left: 15px;
@@ -397,6 +249,53 @@ h1 {
     font-size: 1rem;
 }
 
+#statusRow th {
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    width: 25%; /* Fixed width for each status column */
+}
+
+#statusRow th:nth-child(1) {
+    background-color: blue; /* Borrowed */
+}
+
+#statusRow th:nth-child(2) {
+    background-color: green; /* Returned */
+}
+
+#statusRow th:nth-child(3) {
+    background-color: red; /* Overdue */
+}
+
+#statusRow th:nth-child(4) {
+    background-color: orange; /* Returned Overdue */
+}
+
+/* Style for the active (selected) status */
+.active {
+    border: 3px solid yellow; /* Add a yellow border when selected */
+    color: white; /* Change text color */
+    font-size: 1.1rem; /* Slightly increase font size */
+}
+
+
+/* Borrower Log Table */
+#borrowerLogTable {
+    width: 97%;
+    margin-top: -1px;
+    margin-left: 15px;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+
+/* Header Row */
+#borrowerLogTable th {
+    background-color: #30688B;
+    color: white;
+}
+
+/* Adjusting column and cell styling */
 #borrowerLogTable th, 
 #borrowerLogTable td {
     padding: 12px;
@@ -406,27 +305,19 @@ h1 {
     white-space: normal;   /* Allow text to wrap */
 }
 
-/* Fixed width for 2nd and 3rd columns */
-#borrowerLogTable th:nth-child(2),
-#borrowerLogTable td:nth-child(2) {
-    min-width: 150px; /* Set fixed width for the 2nd column */
+#columnHeader th:nth-child(2),
+#columnHeader td:nth-child(3),
+#columnHeader td:nth-child(4) {
+    min-width: 100px;
     width: auto;
 }
 
-#borrowerLogTable th:nth-child(3),
-#borrowerLogTable td:nth-child(3) {
-    min-width: 100px; /* Set fixed width for the 3rd column */
+#borrowerLogTable td:nth-child(1) {
+    max-width: 400px;
     width: auto;
 }
 
-
-#borrowerLogTable th {
-    background-color: #30688B;
-    color: white;
-   
-}
-
-
+/* Row striping */
 #borrowerLogTable tr:nth-child(odd) {
     background-color: #f9f9f9;
 }
@@ -437,27 +328,11 @@ h1 {
 
 
 
-
-
-/* Back to Borrow Page Button */
-#backToBorrowPage {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #6c757d;
-    color: white;
-    text-decoration: none;
-    border: none;
-    font-size: 1rem;
-}
-
-#backToBorrowPage:hover {
-    background-color: #30688B;
-}
-
-
-
 /* PAGINATION */
+#pageLocation {
+    width: 80px;
+}
+
 .pagination-container {
     display: flex;
     align-items: center;
@@ -509,32 +384,6 @@ button i {
 }
 
 
-
-
-/* Button Styles */
-.btn-info {
-    background-color: #17a2b8; /* Teal for info */
-    border: none;
-    color: #fff;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-}
-
-.delete-btn {
-    background-color: #dc3545; /* Red for delete */
-    border: none;
-    color: #fff;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-}
-
-.edit-btn i, .delete-btn i {
-    margin-right: 0.25rem;
-}
 
 
 

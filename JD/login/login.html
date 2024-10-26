@@ -31,18 +31,15 @@
                         </span>
                     </div>
 
-                    <a href="#" id="forgot-password-link" style="display:none;">Reset Password</a> 
+                    <!-- Notification element for error messages -->
+                    <div id="notification" class="notification"></div> <!-- Removed inline style -->
+
+                    <p id="hint-message" style="display: none; color: blue;"></p>
+                    <a href="#" id="forgot-password-link" style="display:none;">Reset Password</a>
+
                     <button id="login" class="btn">LOGIN</button>
-                    <div id="error-message"></div> 
                 </form> 
             </div>
-        </div>
-    </div>
-
-    <div id="alert-modal" class="alert-modal">
-        <div class="alert-modal-content">
-            <span class="close-button">&times;</span>
-            <p id="alert-message">Incorrect username or password</p>
         </div>
     </div>
 

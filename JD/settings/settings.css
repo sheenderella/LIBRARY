@@ -6,7 +6,7 @@ body {
 }
 
 /* SIDE NAVBAR */
-/* Container to hold the sidebar and main content */
+/* Container for the sidebar and main content */
 #wrapper {
     display: flex; /* Flexbox layout for sidebar and content */
     transition: all 0.3s ease-in-out; /* Smooth transition for expanding/collapsing */
@@ -14,11 +14,14 @@ body {
 
 /* Sidebar styling */
 #sidebar-wrapper {
+    position: fixed; /* Keeps the sidebar fixed on the left */
+    z-index: 1000; /* High z-index to ensure it stays on top of main content */
     width: 250px; /* Default width of the sidebar */
     background-color: #30688B; /* Sidebar background color */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
     position: fixed; /* Sidebar remains fixed on the screen */
     height: 100%; /* Full height of the sidebar */
+    overflow-y: auto; /* Enables scrolling if the content overflows */
     overflow-x: hidden;
 }
 
@@ -37,6 +40,10 @@ body {
     flex-direction: column; /* Stack items vertically */
     align-items: flex-start; /* Align items to the left */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
 }
 
 /* Sidebar toggle button */
@@ -65,7 +72,6 @@ body {
 }
 
 /* Navigation link styling */
-
 #sidebar-wrapper .nav-link {
     padding: 15px 60px; /* Padding around each link */
     white-space: nowrap; /* Prevent text from wrapping */
@@ -76,29 +82,28 @@ body {
     align-items: center; /* Vertically center align the icon and text */
     justify-content: flex-start; /* Align icon and text to the left */
 }
-
-
+ 
 /* Hover effect for navigation links */
-#sidebar-wrapper .nav-link:hover {
+.nav-link:hover {
     background-color: #1e4f6b; /* Darker background on hover */
     color: #fff; /* Text color on hover (optional, you can change this) */
     text-decoration: none; /* Remove underline from text */
- 
 }
 
-#sidebar-wrapper .nav-link i {
+.nav-link i {
     flex-shrink: 0; /* Prevent icon from shrinking */
     width: 24px; /* Set a fixed width for the icon */
     text-align: center; /* Center align the icon */
     font-size: 20px; /* Icon size */
 }
 
-#sidebar-wrapper .nav-link .link-text {
+.nav-link .link-text {
     flex-grow: 1; /* Allow the text to take up available space */
     display: inline-block; /* Display link text inline */
     margin-left: 15px; /* Space between the icon and text */
     transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
     font-family: Arial, sans-serif;
+
 }
 
 /* Collapsed sidebar link styling */
@@ -115,6 +120,25 @@ body {
 
 #sidebar-wrapper.collapsed .nav-link .link-text {
     display: none; /* Hide the link text when sidebar is collapsed */
+}
+
+#wrapper:not(.collapsed) #page-content-wrapper {
+    width: calc(100% - 250px); /* Adjust based on the sidebar width */
+}
+
+/* Main content area */
+#page-content-wrapper {
+    width: 10rem;
+    flex: none;
+    flex-grow: 1; /* Allow the content to expand to fill available space */
+    padding: 20px; /* Padding around the content */
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
+    margin-left: 250px; /* Default margin to make space for the sidebar */
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
 }
 
 /* Main content area */
@@ -213,4 +237,53 @@ body {
 /* Add space between icon and text */
 button i {
     margin-right: 10px; /* Adjust the value as needed */
+}
+
+/* MODAL */
+.modal-content {
+    border-radius: 8px; /* Rounded corners for the modal */
+}
+
+.modal-header {
+    background-color: #30688B; /* Custom background color */
+    color: #fff; /* Text color */
+}
+
+.modal-title {
+    font-size: 18px; /* Size of the modal title */
+}
+
+.modal-body {
+    font-family: Arial, sans-serif; /* Change font */
+    padding: 20px; /* Adjust padding */
+}
+
+h6 {
+    margin-bottom: 15px; /* Space below heading */
+}
+
+.btn {
+    border-radius: 5px; /* Rounded button corners */
+    padding: 10px; /* Adjust button padding */
+}
+
+.btn-primary, .btn-secondary {
+    background-color: #30688B; /* Custom color for both buttons */
+    border: 0 !important; /* Remove border */
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    background-color: #3A79A0 !important; /* Hover effect */
+}
+
+.btn-close {
+    border: none;
+    background: transparent; /* Transparent background */
+    color: #000; /* Color of the 'X' */
+    font-size: 20px; /* Size of the 'X' */
+    cursor: pointer; /* Pointer cursor */
+    position: absolute; /* Positioning */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    padding: 0; /* Remove padding */
 }

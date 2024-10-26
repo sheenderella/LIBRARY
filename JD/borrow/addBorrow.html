@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <title>GRUBA LAW LIBRARY</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="addBorrow.css">
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
 </head>
 <body>
     <div class="container mt-5">
@@ -13,40 +16,85 @@
                 <img src="../logo/1.png" alt="Gruba Law Library" class="img-fluid mb-2">
             </div>
             <div class="card-body">
-                <h1 class="text-center mb-4"> Add Borrower </h1>
+                <!-- Flex container for Back button and title -->
+                <div class="d-flex align-items-center mb-4">
+                    <h1 class="text-center mb-0" id="textHead">Add Borrower</h1>
+                </div>
+                
                 <form id="addBorrowForm">
-                    
-                    <div class="form-group">
-                        <input class="form-control" type="text" id="addBorrowerID" placeholder="Borrower ID" required>
-                        <div id="borrowerSuggestionList" class="suggestion-list"></div> <!-- Div for borrower ID suggestions -->
+                    <!-- Step 1: Borrower Info -->
+                    <div id="step-1" class="form-step">
+                        <div class="form-group">
+                            <small class="form-text text-muted">Borrower ID:</small>
+                            <input class="form-control" type="text" id="addBorrowerID" placeholder="Borrower ID" required>
+                            <div id="borrowerSuggestionList" class="suggestion-list"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <small class="form-text text-muted">Borrower Name:</small>
+                            <input class="form-control" type="text" id="addBorrowerName" placeholder="Borrower Name" required>
+                            <div id="nameSuggestionList" class="suggestion-list"></div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" onclick="nextStep(2)" id="nextButton1">Next</button>
                     </div>
                     
-                    <div class="form-group">
-                        <input class="form-control" type="text" id="addBorrowerName" placeholder="Borrower Name" required>
-                        <div id="nameSuggestionList" class="suggestion-list"></div> <!-- Div for borrower name suggestions -->
-                    </div>
-
-                    <div class="form-group">
-                        <input class="form-control" type="text" id="addBookTitle" placeholder="Book Title" required>
-                        <div id="bookSuggestionList" class="suggestion-list"></div> <!-- Div for book title suggestions -->
-                    </div>
-
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Borrow Date: </small>
-                        <input class="form-control" type="date" id="addBorrowDate" required>
+                    <!-- Step 2: Book Data -->
+                    <div id="step-2" class="form-step" style="display: none;">
+                        <div id="bookList">
+                            <input type="hidden" id="addBookId" value="">
+                            <div class="form-group">
+                                <small class="form-text text-muted">Book Title:</small>
+                                <input class="form-control" type="text" id="addBookTitle" placeholder="Book Title" required>
+                                <div id="bookSuggestionList" class="suggestion-list"></div>
+                            </div>
+                            <div class="form-group">
+                                <small class="form-text text-muted">Volume (put n/a if not applicable):</small>
+                                <input class="form-control" type="text" id="addVolume" placeholder="Volume">
+                            </div>
+                            <div class="form-group">
+                                <small class="form-text text-muted">Edition (put n/a if not applicable):</small>
+                                <input class="form-control" type="text" id="addEdition" placeholder="Edition">
+                            </div>
+                            <div class="form-group">
+                                <small class="form-text text-muted">Year (put n/a if not applicable):</small>
+                                <input class="form-control" type="text" id="addYear" placeholder="Year">
+                            </div>
+                        </div>
+                        <button type="button" id="addBookButton" class="btn btn-secondary mb-3">Add Book</button>
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(1)" id="backButton1"><i class="fa fa-arrow-left"></i></button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep(3)" id="nextButton2">Next</button>
                     </div>
                     
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Due Date: </small>
-                        <input class="form-control" type="date" id="addDueDate" placeholder="Due Date" required>
-                    </div>
+                    <!-- Step 3: Borrow and Due Dates -->
+                    <div id="step-3" class="form-step" style="display: none;">
+                        <div class="form-group">
+                            <small class="form-text text-muted">Borrow Date:</small>
+                            <input class="form-control" type="date" id="addBorrowDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <small class="form-text text-muted">Due Date:</small>
+                            <input class="form-control" type="date" id="addDueDate" required>
+                        </div>
 
-                    <button type="submit" class="btn btn-success btn-block">SUBMIT</button>
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(2)" id="backButton2"><i class="fa fa-arrow-left"></i></button>
+                        <button type="submit" class="btn btn-success btn-block">SUBMIT</button>
+                    </div>
                 </form>
+            </div>
+        </div>
+
+        <div id="error-modal" class="modal">
+            <div class="modal-content">
+              <span id="modal-close" class="close">&times;</span>
+              <h2 id="modal-title"></h2>
+              <p id="modal-message"></p>
             </div>
         </div>
     </div>
     
     <script src="addBorrow.js"></script>
+    <script src="notification.js"></script>
 </body>
 </html>

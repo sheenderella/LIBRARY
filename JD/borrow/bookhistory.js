@@ -1,0 +1,286 @@
+const { ipcRenderer } = require('electron');
+
+// Sidebar toggle functionality
+document.getElementById('sidebarCollapse').addEventListener('click', function () {
+    const wrapper = document.getElementById('wrapper');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    
+    wrapper.classList.toggle('collapsed');
+    sidebar.classList.toggle('collapsed');
+});
+
+// LOGOUT
+document.getElementById('logout-link').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default link behavior
+
+    ipcRenderer.invoke('logout').then(() => {
+        window.location.href = './login/login.html'; // Redirect to login page after logout
+    }).catch(error => {
+        console.error('Error during logout:', error);
+        alert('An error occurred. Please try again.');
+    });
+});
+
+
+//BOOK DETAILS DISPLAY
+// Function to get query parameters from the URL
+function getQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        bookTitle: params.get('bookTitle'),
+        bookId: params.get('bookId')
+    };
+}
+// Function to update the HTML elements with the book details
+async function displayBookDetails() {
+    const { bookTitle, bookId } = getQueryParams();
+
+    // Set the book title and ID in the HTML
+    document.getElementById('bookTitle').innerText = bookTitle || 'No title available';
+    document.getElementById('bookDetails').innerText = `Book ID: ${bookId || 'No ID available'}`;
+
+    // Fetch additional details for the book using the bookId
+    if (bookId) {
+        try {
+            const bookDetails = await ipcRenderer.invoke('fetch-book-details', bookId);
+            if (bookDetails) {
+                document.getElementById('bookNumber').innerText = `Number: ${bookDetails.number || 'N/A'}`;
+                document.getElementById('dateReceived').innerText = `Date Received: ${bookDetails.date_received || 'N/A'}`;
+                document.getElementById('author').innerText = `Author: ${bookDetails.author || 'N/A'}`;
+                document.getElementById('edition').innerText = `Edition: ${bookDetails.edition || 'N/A'}`;
+                document.getElementById('sourceOfFund').innerText = `Source of Fund: ${bookDetails.source_of_fund || 'N/A'}`;
+                document.getElementById('costPrice').innerText = `Cost Price: ${bookDetails.cost_price || 'N/A'}`;
+                document.getElementById('publisher').innerText = `Publisher: ${bookDetails.publisher || 'N/A'}`;
+                document.getElementById('year').innerText = `Year: ${bookDetails.year || 'N/A'}`;
+                document.getElementById('remarks').innerText = `Remarks: ${bookDetails.remarks || 'N/A'}`;
+                document.getElementById('volume').innerText = `Volume: ${bookDetails.volume || 'N/A'}`;
+                document.getElementById('pages').innerText = `Pages: ${bookDetails.pages || 'N/A'}`;
+                document.getElementById('condition').innerText = `Condition: ${bookDetails.condition || 'N/A'}`;
+                document.getElementById('class').innerText = `Class: ${bookDetails.class || 'N/A'}`;
+            } else {
+                console.error('Book details not found');
+            }
+        } catch (error) {
+            console.error('Error fetching book details:', error);
+        }
+    }
+}
+
+// Call the function to display book details on page load
+window.onload = displayBookDetails;
+
+//DISPLAY TABLE
+
+
+
+
+
+
+
+
+function displayLog() {
+    const container = document.getElementById('borrowerLogContainer');
+    container.innerHTML = ''; // Clear previous entries
+
+    const start = (currentPage - 1) * recordsPerPage;
+    const end = start + recordsPerPage;
+    const paginatedLog = filteredLogData.slice(start, end); // Use filteredLogData instead
+
+    if (paginatedLog.length === 0) {
+        container.innerHTML = '<tr><td colspan="4">No records for the selected status.</td></tr>';
+        return;
+    }
+
+    // Loop through each entry in the filtered log data
+    paginatedLog.forEach(entry => {
+        const bookTitle = entry.book_title || 'Unknown Title'; // Fallback for missing titles
+        
+        // Construct row
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${bookTitle}</td>
+            <td>${entry.borrowDate}</td>
+            <td>${entry.dueDate || ''}</td>
+            <td>${entry.returnDate || ''}</td>
+        `;
+
+        container.appendChild(row);
+    });
+
+    updatePaginationControls(); // Update pagination controls
+}
+
+
+async function fetchBorrowerLog(borrowerId) {
+    try {
+        const log = await ipcRenderer.invoke('getBorrowerLog', borrowerId);
+        console.log('Fetched log data:', log);
+
+        logData = log;  // Storing fetched log data
+        filteredLogData = logData;  // Initialize filtered data
+
+        filteredLogData = logData.filter(entry => {
+            const title = entry.book_title.toLowerCase();
+            return title.includes(searchTitle);
+        });
+
+        currentPage = 1; // Reset to first page
+        displayLog();
+        updatePaginationControls();
+    } catch (error) {
+        console.error('Error fetching borrower log:', error);
+    }
+}
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply 'borrowed' status filter by default when the page loads
+    applyStatusFilter('borrowed');
+});
+
+
+function applyStatusFilter(status) {
+    // Filter the log data based on the clicked status
+    filteredLogData = logData.filter(entry => {
+        return entry.borrowStatus === status;
+    });
+
+    // Reset pagination to the first page
+    currentPage = 1; 
+
+    // Update the page number input to show the reset value (1)
+    updatePageNumber(currentPage);
+
+    // Display the filtered log and update pagination controls
+    displayLog();
+    updatePaginationControls();
+}
+
+// Add event listeners to the status row
+document.getElementById('statusRow').addEventListener('click', function(event) {
+    const clickedStatus = event.target.textContent.toLowerCase();
+
+    switch (clickedStatus) {
+        case 'borrowed':
+            applyStatusFilter('borrowed');
+            break;
+        case 'returned':
+            applyStatusFilter('returned');
+            break;
+        case 'overdue':
+            applyStatusFilter('overdue');
+            break;
+        case 'returned overdue':
+            applyStatusFilter('returned overdue');
+            break;
+        default:
+            break;
+    }
+});
+
+
+
+
+// PAGINATION
+
+// Update pagination controls
+function updatePaginationControls() {
+    // Implement pagination control updates here if necessary
+}
+
+let currentPage = 1;
+const recordsPerPage = 2;  // Display 3 records per page
+let filteredLogData = [];  // Ensure you're using the filtered log data
+
+// Setup pagination event listeners
+function setupPagination() {
+    document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
+    document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
+    document.getElementById('nextPage').addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
+        goToPage(currentPage + 1, totalPages);
+    });
+    document.getElementById('lastPage').addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
+        goToPage(totalPages);
+    });
+
+    // Event listener for page input field
+    pageLocationInput.addEventListener('change', (event) => {
+        const enteredPage = parseInt(event.target.value, 10);
+        const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
+
+        if (isNaN(enteredPage) || enteredPage < 1 || enteredPage > totalPages) {
+            showNotification('Invalid page number!', 'error');
+            // Reset to the current page number and adjust width
+            pageLocationInput.value = currentPage;
+            adjustWidth();
+        } else {
+            goToPage(enteredPage, totalPages);
+        }
+    });
+}
+
+// Change page and reload records
+function goToPage(page, totalPages = Math.ceil(filteredLogData.length / recordsPerPage)) {
+    if (page < 1) {
+        currentPage = 1; // Stay on the first page
+    } else if (page > totalPages) {
+        currentPage = totalPages; // Stay on the last page
+    } else {
+        currentPage = page; // Set to the desired page
+    }
+
+    // Update pagination display
+    updatePageNumber(currentPage);
+    document.getElementById('totalPages').textContent = `of ${totalPages}`;
+
+    // Reload the records for the new page
+    displayLog();
+}
+
+// Update pagination control button states
+function updatePaginationControls() {
+    const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
+
+    document.getElementById('firstPage').disabled = (currentPage === 1);
+    document.getElementById('prevPage').disabled = (currentPage === 1);
+    document.getElementById('nextPage').disabled = (currentPage === totalPages || totalPages === 0);
+    document.getElementById('lastPage').disabled = (currentPage === totalPages || totalPages === 0);
+
+    // Update total page count display
+    document.getElementById('totalPages').textContent = `of ${totalPages}`;
+}
+
+// Get the input element
+const pageLocationInput = document.getElementById('pageLocation');
+
+// Function to adjust width based on the number of characters
+function adjustWidth() {
+    const textLength = pageLocationInput.value.length;
+    // Set a base width for 1-digit numbers
+    let width = 40; // Base width
+    // Increase width by increments for each additional digit
+    if (textLength > 1) {
+        width += (textLength - 1) * 20; // Incremental width adjustment
+    }
+    pageLocationInput.style.width = width + 'px';
+}
+
+// Function to update the page number and adjust the input width
+function updatePageNumber(newPageNumber) {
+    pageLocationInput.value = newPageNumber;
+    adjustWidth(); // Adjust width whenever page number is updated
+}
+
+// Initialize width for the first page number
+adjustWidth();
+
+// Initialize pagination width update based on user input
+pageLocationInput.addEventListener('input', adjustWidth);
+
+
+// Set up pagination controls when the page loads
+setupPagination();

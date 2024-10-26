@@ -1,3 +1,5 @@
+const { ipcRenderer } = require('electron');
+
 // Sidebar toggle functionality
 document.getElementById('sidebarCollapse').addEventListener('click', function () {
     const wrapper = document.getElementById('wrapper');
@@ -18,374 +20,177 @@ document.getElementById('logout-link').addEventListener('click', function(event)
         alert('An error occurred. Please try again.');
     });
 });
-
-const { ipcRenderer } = require('electron');
 let logData = [];
-let filteredLogData = []; // Store the filtered results
+let filteredLogData = [];
+let currentPage = 1;
+const recordsPerPage = 1; // Display 7 records per page
 
-
-// Update borrower name in the UI
-function updateBorrowerName(borrowerName) {
-    document.getElementById('borrowerName').textContent = borrowerName;
-}
-
-//FILTERS
 document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const borrowerName = urlParams.get('borrowerName');
-
-    if (borrowerName) {
-        updateBorrowerName(borrowerName);
-        fetchBorrowerLog(borrowerName);
-
-        // Set up event listeners for filtering
-        document.getElementById('searchTitle').addEventListener('input', debounce(applyFilters, 300));
-        document.getElementById('filterStatus').addEventListener('change', applyFilters);
-
-        const dateRangeSelect = document.getElementById('dateRangeSelect');
-        const applyDateRangeBtn = document.getElementById('applyDateRange');
-        const clearDateRangeBtn = document.getElementById('clearDateRange');
-        const customDateRange = document.getElementById('customDateRange');
-
-        // Show or hide custom date range inputs based on selection
-        dateRangeSelect.addEventListener('change', function() {
-            if (this.value === 'custom') {
-                customDateRange.style.display = 'block';
-            } else {
-                customDateRange.style.display = 'none';
-                applyFilters();
-            }
-        });
-
-        // Apply date range filter
-        applyDateRangeBtn.addEventListener('click', () => {
-            applyFilters();
-        });
-
-        // Clear date range filter
-        clearDateRangeBtn.addEventListener('click', () => {
-            resetDateFilters();
-        });
-
-        // Pagination Controls
-        document.getElementById('prevPage').addEventListener('click', prevPage);
-        document.getElementById('nextPage').addEventListener('click', nextPage);
-    } else {
-        console.error('No borrower name specified in the URL.');
-    }
+    initializeBorrowerDetails();
+    initializeSearchEvent();
+    initializePaginationControls();
 });
 
-// DISPLAY
-function displayLog() {
-    const container = document.getElementById('borrowerLogContainer');
-    container.innerHTML = '';
+function initializeBorrowerDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const borrowerName = urlParams.get('borrowerName');
+    const borrowerId = urlParams.get('borrowerId');
+    const phoneNumber = urlParams.get('phoneNumber');
+    const email = urlParams.get('email');
 
-    const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
-
-
-    const start = (currentPage - 1) * recordsPerPage;
-    const end = start + recordsPerPage;
-    const paginatedLog = filteredRecords.slice(start, end);
-
-    paginatedLog.forEach(entry => {
-
-        if (entry.dueDate && currentDate > entry.dueDate && entry.borrowStatus === 'borrowed') {
-            entry.borrowStatus = 'overdue'; // Set the status to overdue if the current date is past the due date
-        }
-
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${entry.bookTitle}</td>
-            <td>${entry.borrowDate}</td>
-            <td>${entry.dueDate || ''} </td> 
-            <td>
-                <select class="status-dropdown" data-id="${entry.id}" ${entry.borrowStatus === 'returned' || entry.borrowStatus === 'returned overdue' ? 'disabled' : ''}>
-                    <option value="borrowed" ${entry.borrowStatus === 'borrowed' ? 'selected' : ''}>Borrowed</option>
-                    <option value="returned" ${entry.borrowStatus === 'returned' ? 'selected' : ''}>Returned</option>
-                    <option value="returned overdue" class="status-returned-overdue" ${entry.borrowStatus === 'returned overdue' ? 'selected' : ''}>Returned Overdue</option>
-                </select>
-            </td>
-            <td> ${entry.returnDate || ''} </td>
-        `;
-        const statusDropdown = row.querySelector('.status-dropdown');
-        updateDropdownStyle(statusDropdown, entry.borrowStatus);
-
-        // Hide the "Returned Overdue" option if the status is not "Overdue"
-        if (entry.borrowStatus !== 'overdue') {
-            const returnedOverdueOption = statusDropdown.querySelector('option[value="returned overdue"]');
-            returnedOverdueOption.style.display = 'none';
-        }
-
-        // Handle the "Overdue" status
-        if (entry.borrowStatus === 'overdue') {
-            const overdueOption = document.createElement('option');
-            overdueOption.value = 'overdue';
-            overdueOption.className = 'status-overdue';
-            overdueOption.textContent = 'Overdue';
-            overdueOption.selected = true;
-            statusDropdown.appendChild(overdueOption);
-
-            statusDropdown.querySelector('option[value="borrowed"]').style.display = 'none';
-            statusDropdown.querySelector('option[value="returned"]').style.display = 'none';
-        }
-        
-        statusDropdown.addEventListener('change', function () {
-            const newStatus = this.value;
-            let newReturnDate = null;
-    
-            if (newStatus === 'returned' || newStatus === 'returned overdue') {
-                newReturnDate = new Date().toISOString().split('T')[0];
-                this.disabled = true; // Disable dropdown when returned or returned overdue is selected
-            }
-    
-            updateDropdownStyle(this, newStatus);
-    
-            ipcRenderer.invoke('updateBorrowStatus', { id: entry.id, status: newStatus, returnDate: newReturnDate })
-                .then(() => {
-                    
-                    console.log('Borrow status and return date updated successfully!');
-                    showNotification('Borrow status updated successfully!', 'success');
-
-                })
-                .catch(error => {
-                    console.error('Error updating borrow status and return date:', error);
-                    showNotification('Failed to update borrow status.', 'error');
-                });
-        });
-
-        container.appendChild(row);
-    });
-
-    updatePaginationControls(); // Update the pagination controls based on the current page
-}
-
-// STATUS STYLE
-function updateDropdownStyle(dropdown, status) {
-    switch (status) {
-        case 'borrowed':
-            dropdown.style.backgroundColor = '#FBEEAD'; // Light blue for borrowed
-            break;
-        case 'returned':
-            dropdown.style.backgroundColor = '#C2FFC8'; // Light green for returned
-            break;
-        case 'overdue':
-            dropdown.style.backgroundColor = '#f8d7da'; // Light red for overdue
-            break;
-        case 'returned overdue':
-            dropdown.style.backgroundColor = '#f5c6cb'; // Light pink for returned overdue
-            break;
-        default:
-            dropdown.style.backgroundColor = ''; // Default
+    if (borrowerName && borrowerId && phoneNumber && email) {
+        document.getElementById('borrowerName').textContent = borrowerName;
+        document.getElementById('borrowerContactDetails').innerHTML = `ID: ${borrowerId}<br>Email: ${email}<br>Phone: ${phoneNumber}`;
+        fetchBorrowerLog(borrowerId).then(() => applyStatusFilter('borrowed')).catch(error => console.error('Error fetching borrower log:', error));
+    } else {
+        document.getElementById('borrowerContactDetails').textContent = 'No borrower details found.';
     }
 }
 
-// Fetch and display borrower log
-async function fetchBorrowerLog(borrowerName) {
+async function fetchBorrowerLog(borrowerId) {
     try {
-        const log = await ipcRenderer.invoke('getBorrowerLog', borrowerName);
-        
-        // Sort log data by borrowDate in descending order
-        filteredRecords = log.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
-        
-        currentPage = 1; // Reset to the first page
-        displayLog(); // Display the log for the current page
-        updatePaginationControls(); // Update pagination controls
+        logData = await ipcRenderer.invoke('getBorrowerLog', borrowerId);
+        filteredLogData = logData;
+        displayLog();
     } catch (error) {
         console.error('Error fetching borrower log:', error);
     }
 }
 
+function initializeSearchEvent() {
+    document.getElementById('searchTitle').addEventListener('input', () => {
+        const activeStatus = document.querySelector('#statusRow .active').dataset.status;
+        applyStatusFilter(activeStatus);
+    });
+}
+function applyStatusFilter(status) {
+    highlightActiveStatus(status);
+    const searchTerm = document.getElementById('searchTitle').value.toLowerCase();
 
+    // Filter by status and search term
+    filteredLogData = logData.filter(entry => entry.borrowStatus === status && entry.book_title.toLowerCase().includes(searchTerm));
 
-// Apply filters to log data
-function applyFilters() {
-    // Get filter values
-    const searchTitle = document.getElementById('searchTitle').value.toLowerCase();
-    const filterStatus = document.getElementById('filterStatus').value;
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    const dateRangeSelect = document.getElementById('dateRangeSelect').value;
-
-    let startDateFilter = startDate;
-    let endDateFilter = endDate;
-
-    // Handle preset date ranges
-    if (dateRangeSelect === 'last_7_days') {
-        startDateFilter = new Date();
-        startDateFilter.setDate(startDateFilter.getDate() - 7);
-        endDateFilter = new Date();
-    } else if (dateRangeSelect === 'last_30_days') {
-        startDateFilter = new Date();
-        startDateFilter.setDate(startDateFilter.getDate() - 30);
-        endDateFilter = new Date();
-    } else if (dateRangeSelect === 'this_month') {
-        startDateFilter = new Date();
-        startDateFilter.setDate(1);
-        endDateFilter = new Date();
-        endDateFilter.setMonth(endDateFilter.getMonth() + 1);
-        endDateFilter.setDate(0);
-    } else if (dateRangeSelect === 'last_month') {
-        startDateFilter = new Date();
-        startDateFilter.setMonth(startDateFilter.getMonth() - 1);
-        startDateFilter.setDate(1);
-        endDateFilter = new Date();
-        endDateFilter.setDate(0);
-    } else if (dateRangeSelect === 'custom') {
-        customDateRange.style.display = 'block';
-        startDateFilter = startDate;
-        endDateFilter = endDate;
+    // If no records are found, set page to 0; otherwise, reset to 1
+    if (filteredLogData.length === 0) {
+        currentPage = 0;
+        updatePageNumber(0);
     } else {
-        // If no date filter is selected, clear date filters
-        startDateFilter = null;
-        endDateFilter = null;
+        currentPage = 1;
+        updatePageNumber(1);
     }
 
-    // Filter log data based on search title, status, and date range
-    filteredLogData = logData.filter(entry => {
-        const title = entry.bookTitle.toLowerCase();
-        const status = entry.borrowStatus;
-        const borrowDate = new Date(entry.borrowDate);
+    // Display the filtered log and update pagination
+    displayLog();
+    updatePaginationControls();
+}
 
-        const isTitleMatch = title.includes(searchTitle);
-        const isStatusMatch = !filterStatus || filterStatus === "all" || status === filterStatus;
-        const isDateMatch = (!startDateFilter || borrowDate >= new Date(startDateFilter)) &&
-                            (!endDateFilter || borrowDate <= new Date(endDateFilter));
 
-        return isTitleMatch && isStatusMatch && isDateMatch;
+function highlightActiveStatus(status) {
+    document.querySelectorAll('#statusRow th').forEach(el => el.classList.remove('active'));
+    document.querySelector(`#statusRow th[data-status="${status}"]`).classList.add('active');
+}
+
+function displayLog() {
+    const container = document.getElementById('borrowerLogContainer');
+    container.innerHTML = ''; // Clear previous entries
+
+    const start = (currentPage - 1) * recordsPerPage;
+    const end = start + recordsPerPage;
+    const paginatedLog = filteredLogData.slice(start, end);
+
+    if (paginatedLog.length === 0) {
+        container.innerHTML = '<tr><td colspan="4">No records for the selected status and search.</td></tr>';
+        return;
+    }
+
+    paginatedLog.forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${entry.book_title || 'Unknown Title'}</td>
+            <td>${entry.borrowDate}</td>
+            <td>${entry.dueDate || ''}</td>
+            <td>${entry.returnDate || ''}</td>
+        `;
+        container.appendChild(row);
     });
 
-    currentPage = 1; // Reset to first page after applying filters
-    displayLog();
+    updatePaginationControls();
 }
 
-// Reset date filters
-function resetDateFilters() {
-    // Clear the start and end date input values
-    document.getElementById('startDate').value = '';
-    document.getElementById('endDate').value = '';
-
-    // Reset the "Search by Date" dropdown to its default value (assumed to be '')
-    document.getElementById('dateRangeSelect').value = '';
-
-    // Hide the custom date range inputs
-    document.getElementById('customDateRange').style.display = 'none';
-
-    // Reapply filters with no date restrictions
-    applyFilters();
-}
-
-// Debounce function to limit the rate at which a function is executed
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
-
-// Close the custom date range filter when clicking outside of it
-document.addEventListener('click', (event) => {
-    const customDateRange = document.getElementById('customDateRange');
-    const dateRangeSelect = document.getElementById('dateRangeSelect');
-
-    if (!dateRangeSelect.contains(event.target) && !customDateRange.contains(event.target)) {
-        customDateRange.style.display = 'none';
-    }
-});
-
-
-
-// PAGINATION
-let currentPage = 1;
-const recordsPerPage = 3;  // Display 3 records per page
-let filteredRecords = [];  // Store filtered records globally for pagination
-
-// Initialize pagination setup
-function setupPagination() {
+// Pagination Controls and Events
+function initializePaginationControls() {
     document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
     document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
-    document.getElementById('nextPage').addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-        goToPage(currentPage + 1, totalPages);
-    });
-    document.getElementById('lastPage').addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-        goToPage(totalPages);
-    });
+    document.getElementById('nextPage').addEventListener('click', () => goToPage(currentPage + 1));
+    document.getElementById('lastPage').addEventListener('click', () => goToPage(Math.ceil(filteredLogData.length / recordsPerPage)));
 
-    // Event listener for page input field
-    pageLocationInput.addEventListener('change', (event) => {
-        const enteredPage = parseInt(event.target.value, 10);
-        const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-
-        if (isNaN(enteredPage) || enteredPage < 1 || enteredPage > totalPages) {
-            showNotification('Invalid page number!', 'error');
-            // Reset to the current page number and adjust width
-            pageLocationInput.value = currentPage;
-            adjustWidth();
-        } else {
-            goToPage(enteredPage, totalPages);
-        }
-    });
+    const pageInput = document.getElementById('pageLocation');
+    pageInput.addEventListener('input', adjustInputWidth);
+    pageInput.addEventListener('change', validatePageInput);
+    adjustInputWidth();
 }
-// Change page and reload records
-function goToPage(page, totalPages = Math.ceil(filteredRecords.length / recordsPerPage)) {
-    if (page < 1) {
-        currentPage = 1; // Stay on the first page
-    } else if (page > totalPages) {
-        currentPage = totalPages; // Stay on the last page
-    } else {
-        currentPage = page; // Set to the desired page
+
+function goToPage(page) {
+    const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
+    if (isNaN(page) || page < 1 || page > totalPages) {
+        showNotification(`Invalid page number! Please enter a number between 1 and ${totalPages}.`, 'error');
+        updatePageNumber(currentPage);
+        return;
     }
-
-    // Update pagination display
+    currentPage = page;
     updatePageNumber(currentPage);
-    document.getElementById('totalPages').textContent = `of ${totalPages}`;
-
-    // Reload the records for the new page
     displayLog();
 }
 
-// Update pagination control button states
-function updatePaginationControls() {
-    const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
-
-    document.getElementById('firstPage').disabled = (currentPage === 1);
-    document.getElementById('prevPage').disabled = (currentPage === 1);
-    document.getElementById('nextPage').disabled = (currentPage === totalPages || totalPages === 0);
-    document.getElementById('lastPage').disabled = (currentPage === totalPages || totalPages === 0);
-
-    // Update total page count display
-    document.getElementById('totalPages').textContent = `of ${totalPages}`;
-}
-
-// Get input element
-const pageLocationInput = document.getElementById('pageLocation');
-
-// Function to adjust width based on the number of characters
-function adjustWidth() {
-    const textLength = pageLocationInput.value.length;
-    // Set a base width for 1-digit numbers
-    let width = 40; // Base width
-    // Increase width by increments for each additional digit
-    if (textLength > 1) {
-        width += (textLength - 1) * 20; // Incremental width adjustment
-    }
-    pageLocationInput.style.width = width + 'px';
-}
-
-// Function to update the page number and adjust the input width
 function updatePageNumber(newPageNumber) {
-    pageLocationInput.value = newPageNumber;
-    adjustWidth(); // Adjust width whenever page number is updated
+    const pageInput = document.getElementById('pageLocation');
+    pageInput.value = newPageNumber;
+    adjustInputWidth();
 }
 
-// Initialize width for the first page number
-adjustWidth();
+function adjustInputWidth() {
+    const pageInput = document.getElementById('pageLocation');
+    const width = Math.max(40, pageInput.value.length * 12);
+    pageInput.style.width = `${width}px`;
+}
 
-// Initialize pagination width update based on user input
-pageLocationInput.addEventListener('input', adjustWidth);
+function validatePageInput() {
+    const pageInput = document.getElementById('pageLocation');
+    const pageNumber = parseInt(pageInput.value, 10);
+    if (!isNaN(pageNumber)) goToPage(pageNumber);
+    else pageInput.value = currentPage;
+}
+function updatePaginationControls() {
+    const totalPages = Math.ceil(filteredLogData.length / recordsPerPage);
+    
+    // If there are no records, set currentPage to 0 and disable all buttons
+    if (currentPage === 0 || totalPages === 0) {
+        document.getElementById('firstPage').disabled = true;
+        document.getElementById('prevPage').disabled = true;
+        document.getElementById('nextPage').disabled = true;
+        document.getElementById('lastPage').disabled = true;
+        document.getElementById('totalPages').textContent = `of 0`;
+    } else {
+        // Enable or disable buttons based on the current page and total pages
+        document.getElementById('firstPage').disabled = (currentPage === 1);
+        document.getElementById('prevPage').disabled = (currentPage === 1);
+        document.getElementById('nextPage').disabled = (currentPage === totalPages);
+        document.getElementById('lastPage').disabled = (currentPage === totalPages);
+        document.getElementById('totalPages').textContent = `of ${totalPages}`;
+    }
+}
 
-// Set up pagination controls when the page loads
-setupPagination();
+// Event listener for status row
+document.getElementById('statusRow').addEventListener('click', (event) => {
+    const clickedStatus = event.target.getAttribute('data-status');
+    if (clickedStatus) applyStatusFilter(clickedStatus);
+});
+
+// Notification function
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
