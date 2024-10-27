@@ -257,6 +257,7 @@ tbody tr:nth-child(even) {
     text-align: center;
     cursor: pointer;
 }
+
 /* Icon Section: Styling for edit and delete icons */
 .delete-btn:hover  {
     color: #333C42 !important;
@@ -393,7 +394,7 @@ input[type="checkbox"].select-borrow {
     overflow-x: hidden;
 }
 
-/* Collapsed sidebar styling */
+/* Collapsed sidebar styling */ 
 #sidebar-wrapper.collapsed {
     width: 80px; /* Width when the sidebar is collapsed */
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
@@ -518,7 +519,6 @@ input[type="checkbox"].select-borrow {
     position: fixed;
     top: 20px; /* Adjust as needed */
     right: 20px; /* Adjust as needed */
-    background-color: #4CAF50; /* Default to green; can be overridden */
     color: white;
     padding: 15px;
     border-radius: 5px;

@@ -717,6 +717,18 @@ ipcMain.on('open-add-book-window', () => {
     }
 });
 
+function createAddBookWindow() {
+    addBookWindow = createWindow({
+        filePath: path.join(__dirname, 'books', 'addBook.html'),
+        width: 600,
+        height: 600,
+        parent: mainWindow,
+        onClose: () => (addBookWindow = null),
+    });
+}
+
+
+
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'editBook.html'),
@@ -1027,6 +1039,8 @@ ipcMain.handle('addBorrow', async (event, record) => {
         });
     }
 });
+
+
 
 
 // Handle fetching all book titles for suggestions, returning unique combinations of title, volume, edition, etc.

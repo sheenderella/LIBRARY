@@ -284,10 +284,6 @@ function setupEventListeners() {
                 }
             });
             
-    
-    
- 
-
         // ADD-DELETE-EDIT ACTIONS
         addBookButton.addEventListener('click', () => {
             openAddBookWindow();
