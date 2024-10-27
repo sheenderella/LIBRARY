@@ -673,11 +673,9 @@ function filterBooks() {
             } else if (dateRangeSelect === 'custom') {
                 if (startDate && endDate) {
                     matches = bookDate >= startDate && bookDate <= endDate;
-                } 
-                else if(startDate==null || endDate==null) {
+                } else if (startDate == null || endDate == null) {
                     matches = true;
-                }
-                else {
+                } else {
                     matches = false;
                 }
             }
@@ -696,14 +694,19 @@ function filterBooks() {
         emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
         emptyMessageRow.appendChild(emptyMessageCell);
         bookList.appendChild(emptyMessageRow);
+        
+        // Update pagination for zero books
+        currentPage = 1; // Reset current page
+        updatePagination(); // Call updatePagination to show "0 of 0"
         return;
     }
 
     // Reset to first page after filtering
     currentPage = 1;
     displayBooks();
-    updatePagination();;
+    updatePagination();
 }
+
 
 // Event listener setup for sort buttons
 function setupSortButtons() {
@@ -747,7 +750,6 @@ function sortBooks(column, button) {
     displayBooks();
     updatePagination();
 }
-
 function updatePagination() {
     const firstPageBtn = document.getElementById('firstPage');
     const prevPageBtn = document.getElementById('prevPage');
@@ -757,13 +759,15 @@ function updatePagination() {
     const totalPagesSpan = document.getElementById('totalPages');
 
     const totalPages = Math.ceil(currentBooks.length / booksPerPage);
-    totalPagesSpan.textContent = `of ${totalPages}`;
-    pageLocationInput.value = currentPage;
+    
+    // Update the display to show "0 of 0" if no books are found
+    totalPagesSpan.textContent = `of ${totalPages > 0 ? totalPages : 0}`;
+    pageLocationInput.value = currentBooks.length > 0 ? currentPage : 0;
 
     firstPageBtn.disabled = currentPage === 1;
     prevPageBtn.disabled = currentPage === 1;
-    nextPageBtn.disabled = currentPage === totalPages;
-    lastPageBtn.disabled = currentPage === totalPages;
+    nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+    lastPageBtn.disabled = currentPage === totalPages || totalPages === 0;
 
     firstPageBtn.onclick = () => {
         if (currentPage !== 1) {

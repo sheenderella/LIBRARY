@@ -17,19 +17,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // LOGOUT
-    const logoutLink = document.getElementById('logout-link');
-    if (logoutLink) {
-        logoutLink.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default link behavior
-
-            ipcRenderer.invoke('logout').then(() => {
-                window.location.href = './login/login.html'; // Redirect to login page after logout
-            }).catch(error => {
+// Handle logout event
+const logoutLink = document.getElementById('logout-link');
+if (logoutLink) {
+    logoutLink.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default link behavior
+        
+        // Invoke logout from the centralized login handler
+        ipcRenderer.invoke('logout')
+            .then(() => {
+                // Close current window and load the login window to prevent multiple windows
+                window.location.href = './login/login.html'; 
+            })
+            .catch(error => {
                 console.error('Error during logout:', error);
-                alert('An error occurred. Please try again.');
+                // Use the notification system from login.js if logout fails
+                ipcRenderer.invoke('showNotification', 'An error occurred during logout. Please try again.', 'error');
             });
-        });
-    }
+    });
+}
 
     // ADD Book button functionality
     const addBookButton = document.getElementById('add-book-button');
@@ -39,6 +45,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+
+
+
+    
+// REPORTS
+// Open reports window when the button is clicked
+const openReportsButton = document.getElementById('openReportsButton');
+if (openReportsButton) {
+    openReportsButton.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent the default link behavior
+        ipcRenderer.invoke('open-reports-window'); // Invoke the IPC call to open the reports window
+    });
+}
 
     // Listen for book addition and update the table and dashboard accordingly
     ipcRenderer.on('book-record-added', (event, newBook) => {
@@ -135,45 +154,68 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+
+
+
+
 // PIECHART
-// Fetch data for the pie chart
+// Fetch data for the pie chart (all statuses)
 Promise.all([
-    ipcRenderer.invoke('getBooksCount'),
-    ipcRenderer.invoke('getBorrowedBooksCount'),
-    ipcRenderer.invoke('getUniqueBorrowers')
-]).then(([totalBooks, totalBorrowedBooks, uniqueBorrowers]) => {
-    const totalUniqueBorrowers = uniqueBorrowers.length;
+    ipcRenderer.invoke('getBooksCountByStatus'), // Fetch counts by status
+    ipcRenderer.invoke('getBooksCount')          // Fetch total books count
+]).then(([counts, totalBooks]) => {
+    // Calculate total for borrowed and available books
+    const borrowedBooks = counts.borrowed + counts.overdue; // Books that are still out
+    const availableBooks = totalBooks - borrowedBooks;       // Books that have been returned
+
+    // Calculate percentages
+    const borrowedPercentage = (borrowedBooks / totalBooks) * 100;
+    const availablePercentage = (availableBooks / totalBooks) * 100;
+
+    // Log for debugging
+    console.log('Total Books:', totalBooks);
+    console.log('Borrowed Books:', borrowedBooks);
+    console.log('Available Books:', availableBooks);
 
     // Create the pie chart
     const ctx = document.getElementById('libraryPieChart').getContext('2d');
     new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Total Books', 'Borrowed Books', 'Unique Borrowers'],
+            labels: ['Borrowed Books', 'Available Books'],
             datasets: [{
                 label: 'Library Statistics',
-                data: [totalBooks, totalBorrowedBooks, totalUniqueBorrowers],
-                backgroundColor: ['#30688B', '#767676', '#F7F7F7'],
+                data: [borrowedBooks, availableBooks], // Show borrowed and available counts
+                backgroundColor: ['#30688B', '#F7F7F7'], // Borrowed (dark) and Available (light)
                 hoverOffset: 4,
-                borderColor: '#666', // Set border color
-                borderWidth: 1, // Set border width to 1px
-                hoverOffset: 4,
+                borderColor: '#666',
+                borderWidth: 1,
             }]
         },
         options: {
             responsive: true,
             plugins: {
+                title: {
+                    display: true,
+                    text: 'Library Book Statuses', // Set the title
+                    font: {
+                        size: 16,
+                    }
+                },
                 legend: {
                     position: 'bottom',
                     labels: {
-                        usePointStyle: true, // Use circle shape
-                        pointStyle: 'circle', // Define the shape as a circle
+                        usePointStyle: true,
+                        pointStyle: 'circle',
                     }
                 },
                 tooltip: {
                     callbacks: {
                         label: function(tooltipItem) {
-                            return tooltipItem.label + ': ' + tooltipItem.raw;
+                            const dataset = tooltipItem.dataset;
+                            const total = dataset.data.reduce((acc, val) => acc + val, 0);
+                            const percentage = ((tooltipItem.raw / total) * 100).toFixed(2);
+                            return `${tooltipItem.label}: ${percentage}%`;
                         }
                     }
                 }
@@ -184,16 +226,5 @@ Promise.all([
     console.error('Error fetching data for pie chart:', error);
 });
 
-async function fetchBooksCount() {
-    try {
-        const count = await ipcRenderer.invoke('getBooksCount');
-        // Use the count value for your pie chart or any other logic
-        console.log(`Number of books: ${count}`);
-    } catch (error) {
-        console.error('Error fetching data for pie chart:', error);
-    }
-}
-
-fetchBooksCount();
 
 });
