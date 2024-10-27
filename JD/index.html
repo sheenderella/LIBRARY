@@ -72,6 +72,32 @@
         <main id="page-content-wrapper" class="flex-grow-1 p-4">
             <div class="header-container">
                 <h1 class="h3">Dashboard</h1>
+
+<!-- Notification Button -->
+<button id="notificationButton" class="notification-btn">
+    <i class="fa fa-bell"></i> <!-- Font Awesome bell icon for notifications -->
+    <span class="notification-count" id="notificationCount">3</span> <!-- Dynamic notification count -->
+</button>
+
+<!-- Notification Sidebar -->
+<div id="notificationSidebar" class="notification-sidebar">
+    
+    <!-- Close Button -->
+    <button id="closeSidebarButton" class="close-sidebar-btn">
+        <i class="fa-solid fa-arrow-right"></i>
+    </button>
+
+    <!-- Notification Title -->
+    <h2 class="notification-title">Notifications</h2>
+
+    <ul class="notification-list" id="notificationList">
+        <!-- Notifications will be dynamically added here -->
+    </ul>
+</div>
+
+
+
+
                 <div class="search-container">
                     <div class="search-box">
                         <i class="fa fa-search search-icon"></i> <!-- Font Awesome search icon -->

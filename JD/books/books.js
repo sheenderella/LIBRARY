@@ -55,45 +55,45 @@ function setupEventListeners() {
         filterBooks();
     });
 
-        // MAKE A SCROLL BAR TOP OF THE TABLE
-        const scrollbarTop = document.querySelector('.scrollbar-top');
-        const tableContainer = document.querySelector('.table-container');
+        // // MAKE A SCROLL BAR TOP OF THE TABLE
+        // const scrollbarTop = document.querySelector('.scrollbar-top');
+        // const tableContainer = document.querySelector('.table-container');
 
-        // Function to update the dummy content width to match the table container's scroll width
-        function updateScrollbarWidth() {
-            const tableScrollWidth = tableContainer.scrollWidth;
-            const dummyContent = scrollbarTop.querySelector('.dummy-content');
+        // // Function to update the dummy content width to match the table container's scroll width
+        // function updateScrollbarWidth() {
+        //     const tableScrollWidth = tableContainer.scrollWidth;
+        //     const dummyContent = scrollbarTop.querySelector('.dummy-content');
 
-            // Set the dummy content width to match the table's full scroll width
-            dummyContent.style.width = `${tableScrollWidth}px`;
-        }
+        //     // Set the dummy content width to match the table's full scroll width
+        //     dummyContent.style.width = `${tableScrollWidth}px`;
+        // }
 
-        // Ensure scroll synchronization between the top scrollbar and the table
-        scrollbarTop.addEventListener('scroll', () => {
-            tableContainer.scrollLeft = scrollbarTop.scrollLeft;
-        });
+        // // Ensure scroll synchronization between the top scrollbar and the table
+        // scrollbarTop.addEventListener('scroll', () => {
+        //     tableContainer.scrollLeft = scrollbarTop.scrollLeft;
+        // });
 
-        tableContainer.addEventListener('scroll', () => {
-            scrollbarTop.scrollLeft = tableContainer.scrollLeft;
-        });
+        // tableContainer.addEventListener('scroll', () => {
+        //     scrollbarTop.scrollLeft = tableContainer.scrollLeft;
+        // });
 
-        // Initialize the dummy content inside the scrollbar top
-        const dummyContent = document.createElement('div');
-        dummyContent.className = 'dummy-content';
-        dummyContent.style.height = '1px'; // Minimal height to ensure the scrollbar is visible
-        scrollbarTop.appendChild(dummyContent);
+        // // Initialize the dummy content inside the scrollbar top
+        // const dummyContent = document.createElement('div');
+        // dummyContent.className = 'dummy-content';
+        // dummyContent.style.height = '1px'; // Minimal height to ensure the scrollbar is visible
+        // scrollbarTop.appendChild(dummyContent);
 
-        // Update the scrollbar width on load, resize, and when the table content changes
-        window.addEventListener('resize', updateScrollbarWidth);
-        updateScrollbarWidth(); // Initial call to set the correct width
+        // // Update the scrollbar width on load, resize, and when the table content changes
+        // window.addEventListener('resize', updateScrollbarWidth);
+        // updateScrollbarWidth(); // Initial call to set the correct width
 
-        // Use a ResizeObserver to monitor the table container for size changes
-        const resizeObserver = new ResizeObserver(updateScrollbarWidth);
-        resizeObserver.observe(tableContainer);
+        // // Use a ResizeObserver to monitor the table container for size changes
+        // const resizeObserver = new ResizeObserver(updateScrollbarWidth);
+        // resizeObserver.observe(tableContainer);
 
-        // Add a MutationObserver to watch for changes in table content (e.g., rows added or removed)
-        const mutationObserver = new MutationObserver(updateScrollbarWidth);
-        mutationObserver.observe(tableContainer, { childList: true, subtree: true });
+        // // Add a MutationObserver to watch for changes in table content (e.g., rows added or removed)
+        // const mutationObserver = new MutationObserver(updateScrollbarWidth);
+        // mutationObserver.observe(tableContainer, { childList: true, subtree: true });
 
     
     // Close the form when clicking outside of it
@@ -284,10 +284,6 @@ function setupEventListeners() {
                 }
             });
             
-    
-    
- 
-
         // ADD-DELETE-EDIT ACTIONS
         addBookButton.addEventListener('click', () => {
             openAddBookWindow();

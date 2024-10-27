@@ -20,6 +20,8 @@ document.getElementById('logout-link').addEventListener('click', function(event)
         alert('An error occurred. Please try again.');
     });
 });
+
+
 let logData = [];
 let filteredLogData = [];
 let currentPage = 1;
@@ -40,7 +42,7 @@ function initializeBorrowerDetails() {
 
     if (borrowerName && borrowerId && phoneNumber && email) {
         document.getElementById('borrowerName').textContent = borrowerName;
-        document.getElementById('borrowerContactDetails').innerHTML = `ID: ${borrowerId}<br>Email: ${email}<br>Phone: ${phoneNumber}`;
+        document.getElementById('borrowerContactDetails').innerHTML = `ID Number: ${borrowerId}<br>Email: ${email}<br>Phone: ${phoneNumber}`;
         fetchBorrowerLog(borrowerId).then(() => applyStatusFilter('borrowed')).catch(error => console.error('Error fetching borrower log:', error));
     } else {
         document.getElementById('borrowerContactDetails').textContent = 'No borrower details found.';
@@ -186,11 +188,3 @@ document.getElementById('statusRow').addEventListener('click', (event) => {
     if (clickedStatus) applyStatusFilter(clickedStatus);
 });
 
-// Notification function
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-}

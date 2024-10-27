@@ -218,8 +218,8 @@ function addProfileToTable(profile, prepend = false) {
         <td>${profile.phone_number || 'N/A'}</td>
         <td>${profile.email || 'N/A'}</td>
         <td>
-            <button class="btn btn-warning btn-sm edit-btn" data-id="${profile.id}"> <i class="fas fa-edit"></i> </button>
-            <button class="btn btn-danger btn-sm delete-btn" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
+            <button class="edit-btn" data-id="${profile.id}"> <i class="fas fa-edit"></i> </button>
+            <button class="delete-btn" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
         </td>
     `;
 

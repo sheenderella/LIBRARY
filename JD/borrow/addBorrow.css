@@ -8,37 +8,7 @@ body, html {
     align-items: flex-start; /* Align the container at the top */
     background-color: #ffffff;
     font-family: Arial, sans-serif;
-    /* overflow: hidden; */
-}
 
-#backButton1 {
-    position: relative;
-    float: inline-start;
-    bottom: 23.7rem;
-    /* right: 19.5rem; */
-}
-
-#backButton2 {
-    position: relative;
-    float: inline-start;
-    bottom: 13.8rem;
-    /* right: 19.5rem; */
-}
-
-#nextButton1 {
-    float: inline-end;
-    position: relative;
-    bottom: 13.7rem;
-}
-
-#nextButton2 {
-    float: inline-end;
-    position: relative;
-    bottom: 23.6rem;
-}
-
-#textHead {
-    margin-left: 5rem;
 }
 
 .container {
