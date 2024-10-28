@@ -459,6 +459,8 @@ h1.h3 {
     border-top-right-radius: 14px;
 }
 
+
+
 /* Table Body Rows */
 .books-table tbody td {
     padding: 5px;
@@ -482,8 +484,9 @@ h1.h3 {
     background-color: #ffffff; /* White for even rows */
 }
 
-
-
+th:nth-child(2), td:nth-child(2) {
+    max-width: 400px; 
+}
 
 /* PIE CHART */
 .chart-container {

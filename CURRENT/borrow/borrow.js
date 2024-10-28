@@ -183,7 +183,6 @@ function openConditionWindow(bookId, borrowId, originalStatus) {
     ipcRenderer.send('open-condition-window', { bookId, borrowId, originalStatus });
 }
 
-
 // Reset dropdown if condition not provided
 ipcRenderer.on('reset-status', (event, { borrowId, originalStatus }) => {
     const dropdown = document.querySelector(`.status-dropdown[data-id="${borrowId}"]`);

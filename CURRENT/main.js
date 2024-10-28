@@ -827,6 +827,9 @@ ipcMain.handle('getBooks', async () => {
 });
 
 
+
+
+
 //BORROW
 ipcMain.handle('getBookId', async (event, bookTitle, bookVolume, bookEdition) => {
     return new Promise((resolve, reject) => {
@@ -1304,6 +1307,7 @@ ipcMain.on('open-condition-window', (event, { bookId, borrowId, originalStatus }
     }
 });
 
+
 //PROFILES' CRUD
 let addProfileWindow = null;
 let editProfileWindow = null;
@@ -1385,11 +1389,6 @@ ipcMain.handle('deleteProfile', async (event, id) => {
         }
     }
 });
-
-
-
-
-
 
 ///PROFILES
 // Listen for the event from index.js
