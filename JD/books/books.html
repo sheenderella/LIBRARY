@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
     
-    <title>LIBRARY BOOKS</title>
+    <title>GRUBA LAW LIBRARY</title>
     
     <link rel="stylesheet" type="text/css" href="books.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -13,10 +13,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
     
 </head>
+
 <body>
-
-
-
     <div id="wrapper" class="d-flex">
         <!-- Sidebar -->
         <nav id="sidebar-wrapper" class="text-white">
@@ -147,17 +145,18 @@
                     
                     <div class="right-side-buttons">
                         <button id="toggleColumns" class="btn btn-secondary"><i class="fas fa-eye"></i></button>
-                        <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i></button>
+                        
                         <button id="deleteSelected" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                        <button id="addBook" class="btn btn-success"><i class="fas fa-plus"></i></button>
                     </div>
                     <div id="notification" class="notification"></div>
                 </div>                             
 
         <div class="scroll-container">
             <!-- Sticky Scrollbar Container -->
-            <!-- <div class="scrollbar-top" id="scrollbarTop">
+            <div class="scrollbar-top" id="scrollbarTop">
                 <div class="scroll-content"></div>
-            </div> -->
+            </div>
         
             <!-- Main Scrollable Table Container -->
             <div class="table-container" id="tableContainer">

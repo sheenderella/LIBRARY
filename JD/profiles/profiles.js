@@ -1,5 +1,15 @@
 const { ipcRenderer } = require('electron');
 
+//SIDEBAR !!!
+// Sidebar toggle functionality
+document.getElementById('sidebarCollapse').addEventListener('click', function () {
+    const wrapper = document.getElementById('wrapper');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    wrapper.classList.toggle('collapsed');
+    sidebar.classList.toggle('collapsed');
+});
+
+
 // Event listener to load profiles when the DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     setUpIpcRenderer();

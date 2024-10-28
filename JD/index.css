@@ -160,16 +160,16 @@ h1.h3 {
     color: #30688B; /* Use the customizable text color */
     margin: 0; /* Remove default margin */
 }
+
+
 /* Notification Button Container */
 .notification-container {
     position: relative;
     display: inline-block;
-    margin-left: 120px;
 }
 
 /* Notification Button */
 .notification-btn {
-    margin-left: 20px;
     display: flex;
     background: none;
     border: none;
@@ -177,7 +177,6 @@ h1.h3 {
     position: relative;
     font-size: 1.2em;
     cursor: pointer;
-    margin-left: 120px;
     color: #333;
 }
 
@@ -259,45 +258,6 @@ h1.h3 {
     border-bottom: 1px solid #ddd; /* Optional: divider line below title */
 }
 
-
-
-/* SEARCH */
-/* Search Section: Flex item for search input, with a larger flex-grow */
-.search-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    background-color: #30688B;
-    border: 1px solid #333C42;
-    border-top-left-radius: 9px;
-    border-bottom-left-radius: 9px;
-    height: 40px;
-}
-
-.search-icon {
-    color: #fff;
-    font-size: 18px;
-    pointer-events: none;
-}
-
-.search-container {
-    margin-left: 10px;
-    display: flex;
-    align-items: right;
-    flex-grow: 2; /* Larger flex-grow for the search input */
-    height: 40px;
-}
-
-.search-input {
-    flex-grow: 1;
-    padding-left: 10px;
-    border: none;
-    height: 40px;
-    border: 1px solid #333C42;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
-}
 
 
 /* BUTTONS */
@@ -499,6 +459,8 @@ h1.h3 {
     border-top-right-radius: 14px;
 }
 
+
+
 /* Table Body Rows */
 .books-table tbody td {
     padding: 5px;
@@ -522,8 +484,9 @@ h1.h3 {
     background-color: #ffffff; /* White for even rows */
 }
 
-
-
+th:nth-child(2), td:nth-child(2) {
+    max-width: 400px; 
+}
 
 /* PIE CHART */
 .chart-container {
