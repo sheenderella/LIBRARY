@@ -151,30 +151,48 @@ checkbox.addEventListener('change', function () {
         statusDropdown.querySelector('option[value="returned"]').style.display = 'none';
     }
 
+
     statusDropdown.addEventListener('change', function () {
         const newStatus = this.value;
         let newReturnDate = null;
-    
+        // Store the original status
+        const originalStatus = record.borrowStatus;
+
+        // Get the bookId and borrowId from the record
+        const bookId = record.book_id;
+        const borrowId = record.id;
+
         if (newStatus === 'returned' || newStatus === 'returned overdue') {
             newReturnDate = new Date().toISOString().split('T')[0];
-            this.disabled = true; // Disable dropdown when returned or returned overdue is selected
-            openConditionWindow(); // Open condition.html in a pop-up window
+            this.disabled = true; // Disable dropdown for returned status
+            openConditionWindow(bookId, borrowId, originalStatus); // Pass originalStatus to reset if needed
         }
     
         updateDropdownStyle(this, newStatus);
-        
+    
         // Send the updated status to the backend or main process to update the database
         updateBorrowStatus(record.id, newStatus, newReturnDate);
     });
-
+    
 
     borrowList.appendChild(row);
 }
 
-function openConditionWindow() {
-    ipcRenderer.send('open-condition-window');
+// Function to open the condition window
+function openConditionWindow(bookId, borrowId, originalStatus) {
+    ipcRenderer.send('open-condition-window', { bookId, borrowId, originalStatus });
 }
 
+
+// Reset dropdown if condition not provided
+ipcRenderer.on('reset-status', (event, { borrowId, originalStatus }) => {
+    const dropdown = document.querySelector(`.status-dropdown[data-id="${borrowId}"]`);
+    if (dropdown) {
+        dropdown.value = originalStatus; // Restore to borrowed or overdue
+        dropdown.disabled = false;
+        updateDropdownStyle(dropdown, originalStatus);
+    }
+});
 
 function updateBorrowStatus(id, newStatus, returnDate) {
     const updatedStatus = {

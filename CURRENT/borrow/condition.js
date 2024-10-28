@@ -1,34 +1,18 @@
 const { ipcRenderer } = require('electron');
+document.addEventListener('DOMContentLoaded', () => {
+    ipcRenderer.on('set-book-id', (event, { bookId, borrowId }) => {
+        console.log(`Received bookId in condition window: ${bookId}, borrowId: ${borrowId}`);
+        
+        const bookConditionInput = document.getElementById('bookCondition');
+        const conditionForm = document.getElementById('conditionForm');
 
-let bookId; // Variable to store the received book ID
+        conditionForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const bookCondition = bookConditionInput.value;
 
-// Receive the bookId when the window opens
-ipcRenderer.on('set-book-id', (event, receivedId) => {
-    bookId = receivedId;
-    console.log(`Received book ID: ${bookId}`); // Log received book ID
-});
+            // Send the bookId and condition to main process
+            ipcRenderer.send('submit-book-condition', { bookId, bookCondition });
+        });
+    });
 
-// Ensure bookId is set before allowing form submission
-document.getElementById('conditionForm').addEventListener('submit', (event) => {
-    event.preventDefault();
-    
-    if (!bookId) {
-        console.error('Error: Book ID not set');
-        alert('Unable to submit without a valid book ID.');
-        return;
-    }
-    
-    const conditionInput = document.getElementById('bookCondition').value.trim();
-
-    if (conditionInput !== "") {
-        ipcRenderer.send('save-book-condition', { bookId, conditionInput });
-        ipcRenderer.send('condition-satisfied');
-    } else {
-        alert('Please enter the book condition.');
-    }
-});
-
-ipcRenderer.on('condition-save-success', () => {
-    console.log('Condition successfully saved.');
-    window.close();
 });

@@ -1243,43 +1243,67 @@ ipcMain.handle('show-confirmation-dialog', async (event, { title, message }) => 
 });
 
 
-
-
-// Open condition window and send bookId
-ipcMain.on('open-condition-window', (event, { bookId }) => {
+ipcMain.on('open-condition-window', (event, { bookId, borrowId, originalStatus }) => {
     const conditionWindow = new BrowserWindow({
         width: 450,
         height: 400,
-        parent: mainWindow,
-        modal: true,
         minimizable: false,
         maximizable: false,
-        closable: false, // Initially set to non-closable
+        alwaysOnTop: true,
+        modal: true,
+        parent: mainWindow,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'), // If needed for ipcRenderer
-            contextIsolation: true,
-            enableRemoteModule: false,
+            nodeIntegration: true,
+            contextIsolation: false,
         },
     });
 
+    // Track if condition was submitted
+    let conditionSubmitted = false;
+
     conditionWindow.loadFile(path.join(__dirname, 'borrow', 'condition.html'));
 
-    // Send bookId to the condition window when it's ready
     conditionWindow.webContents.on('did-finish-load', () => {
-        conditionWindow.webContents.send('set-book-id', bookId);
+        conditionWindow.webContents.send('set-book-id', { bookId, borrowId });
+        conditionWindow.focus();
     });
 
-    conditionWindow.on('closed', () => {
-        if (mainWindow) mainWindow.focus();
-    });
-});
+    const handleConditionSubmission = (event, { bookId, bookCondition }) => {
+        if (!conditionSubmitted) {
+            conditionSubmitted = true;
+            updateBookCondition(bookId, bookCondition);
 
-// Listen for the condition satisfaction event
-ipcMain.on('condition-satisfied', () => {
-    if (conditionWindow) {
-        conditionWindow.setClosable(true); // Allow closure when conditions are satisfied
+            // Close the condition window after submission
+            conditionWindow.close();
+        }
+    };
+
+    // Listen for the book condition submission event
+    ipcMain.on('submit-book-condition', handleConditionSubmission);
+
+    conditionWindow.on('close', () => {
+        if (!conditionSubmitted) {
+            mainWindow.webContents.send('reset-status', { borrowId, originalStatus });
+        }
+        // Remove the listener when the window is closed
+        ipcMain.removeListener('submit-book-condition', handleConditionSubmission);
+    });
+
+    function updateBookCondition(bookId, bookCondition) {
+        db.run(
+            'UPDATE books SET condition = ? WHERE id = ?',
+            [bookCondition, bookId],
+            function (error) {
+                if (error) {
+                    console.error(`Error updating book condition: ${error.message}`);
+                } else {
+                    console.log(`Book ID ${bookId} condition updated to "${bookCondition}".`);
+                }
+            }
+        );
     }
 });
+
 //PROFILES' CRUD
 let addProfileWindow = null;
 let editProfileWindow = null;

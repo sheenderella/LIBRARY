@@ -10,7 +10,6 @@ document.getElementById('sidebarCollapse').addEventListener('click', function ()
 });
 
 
-
 // Event listener to load profiles when the DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     setUpIpcRenderer();
