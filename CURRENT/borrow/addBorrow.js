@@ -134,12 +134,10 @@ document.getElementById('addBorrowerName').addEventListener('input', async funct
     displayNameSuggestions(suggestions); // Display the filtered suggestions
 });
 
-
-//BOOK 
-// Function to fetch book titles for suggestions
+// Function to fetch book titles for suggestions, including metadata (id, year, volume, edition)
 async function fetchBookTitles() {
     try {
-        return await ipcRenderer.invoke('getBookTitles');
+        return await ipcRenderer.invoke('getBookTitles'); // Fetch all available book titles with details
     } catch (error) {
         console.error('Error fetching book titles:', error);
         return [];
@@ -149,10 +147,10 @@ async function fetchBookTitles() {
 // Function to check if a specific book is already borrowed based on its ID
 async function checkIfBookIsBorrowed(bookId) {
     try {
-        return await ipcRenderer.invoke('checkBookBorrowed', { bookId });
+        return await ipcRenderer.invoke('checkBookBorrowed', { bookId }); // Use bookId directly
     } catch (error) {
         console.error('Error checking if book is borrowed:', error);
-        return false;
+        return false; // Default to false in case of error
     }
 }
 
@@ -169,39 +167,25 @@ document.getElementById('addBookTitle').addEventListener('input', async function
     displaySuggestions(suggestions); // Display the filtered suggestions
 });
 
-
-/// Function to fetch all currently selected book IDs (including dynamically added ones)
-function getSelectedBookIds() {
-    const selectedIds = [];
-    document.querySelectorAll('.book-item input[type="hidden"]').forEach((input) => {
-        const bookId = input.value;
-        if (bookId) {
-            selectedIds.push(bookId); // Collect the IDs of selected books
-        }
-    });
-    return selectedIds;
-}
-
-// Modify the filterSuggestions function to exclude borrowed and already selected books
+// Modify the filterSuggestions function to exclude borrowed books
 async function filterSuggestions(titles, input) {
     const lowerInput = input.toLowerCase();
-    const selectedIds = getSelectedBookIds(); // Get all currently selected book IDs
 
     const filtered = [];
     for (const title of titles) {
-        // Check if the title matches the input and if the book is not already selected
-        if (title.title_of_book.toLowerCase().includes(lowerInput) && !selectedIds.includes(title.bookId)) {
-            const isBorrowed = await checkIfBookIsBorrowed(title.bookId);
+        if (title.title_of_book.toLowerCase().includes(lowerInput)) {
+            const isBorrowed = await checkIfBookIsBorrowed(title.bookId); // Directly check by bookId
             if (!isBorrowed) {
-                filtered.push(title); // Only add the book to suggestions if it's not borrowed or selected
+                filtered.push(title); // Only add the book to suggestions if it's not borrowed
             }
         }
     }
 
-    console.log('Filtered suggestions:', filtered); // Ensure this logs the filtered titles correctly
+    console.log('Filtered suggestions:', filtered); // Debugging: Check filtered suggestions
     return filtered;
 }
 
+// Function to display book title suggestions
 function displaySuggestions(suggestions) {
     const suggestionList = document.getElementById('bookSuggestionList');
     suggestionList.innerHTML = ''; // Clear previous suggestions
@@ -211,177 +195,12 @@ function displaySuggestions(suggestions) {
         option.classList.add('suggestion');
         option.textContent = `${book.title_of_book} - Volume: ${book.volume}, Edition: ${book.edition}, Year: ${book.year}`;
 
+        // Click handler for the suggestion
         option.addEventListener('click', () => {
             document.getElementById('addBookTitle').value = book.title_of_book;
             document.getElementById('addBookId').value = book.bookId; // Save the selected book's ID
             suggestionList.innerHTML = ''; // Clear suggestions
             autofillDetails(book); // Autofill the rest of the details
-        });
-
-        suggestionList.appendChild(option); // Append suggestion to the list
-    });
-}
-
-// Autofill details for the selected book
-function autofillDetails(detail) {
-    document.getElementById('addVolume').value = detail.volume || 'n/a';
-    document.getElementById('addEdition').value = detail.edition || 'n/a';
-    document.getElementById('addYear').value = detail.year || 'n/a';
-}
-
-// Disable the 'Add Another Book' button if there's already a book selected
-document.getElementById('addBorrowForm').addEventListener('submit', async function (event) {
-    event.preventDefault();
-
-    const borrowerID = document.getElementById('addBorrowerID').value;
-    const borrowerName = document.getElementById('addBorrowerName').value;
-    const borrowDate = document.getElementById('addBorrowDate').value;
-    const dueDate = document.getElementById('addDueDate').value;
-
-    if (!borrowerID || !borrowerName || !borrowDate || !dueDate) {
-        showModal('Error', 'All borrower details are required.');
-        return;
-    }
-
-    // Check if there's already a book added
-    const bookItems = document.querySelectorAll('.book-item');
-    if (bookItems.length === 0) {
-        showModal('Error', 'Please add at least one book.');
-        return;
-    }
-
-    const bookItem = bookItems[0]; // Only allow the first book
-    const bookTitle = bookItem.querySelector('input[placeholder="Book Title"]').value;
-    const volume = bookItem.querySelector('input[placeholder="Volume"]').value || 'n/a';
-    const edition = bookItem.querySelector('input[placeholder="Edition"]').value || 'n/a';
-    const year = bookItem.querySelector('input[placeholder="Year"]').value || 'n/a';
-    const bookId = bookItem.querySelector('input[type="hidden"]').value;
-
-    if (!bookId) {
-        showModal('Error', 'Please select a valid book.');
-        return;
-    }
-
-    // Check if the book is already borrowed
-    const isAlreadyBorrowed = await checkIfBookIsBorrowed(bookId);
-    if (isAlreadyBorrowed) {
-        showModal('Error', `The book "${bookTitle}" is already borrowed.`);
-        return;
-    }
-
-    // Prepare the borrow record
-    const borrowRecord = {
-        borrowerID,
-        borrowerName,
-        borrowDate,
-        dueDate,
-        books: [{
-            bookId,
-            title: bookTitle,
-            volume,
-            edition,
-            year
-        }],
-        borrowStatus: 'borrowed'
-    };
-
-    try {
-        await ipcRenderer.invoke('addBorrow', borrowRecord);
-        window.close(); // Close the window after successful submission
-    } catch (error) {
-        console.error('Error adding borrow record:', error);
-        showModal('Error', 'Failed to add the borrow record. Please try again.');
-    }
-});
-
-// Function to check if a specific book is already borrowed
-async function checkIfBookIsBorrowed(book_id) {
-    try {
-        const result = await ipcRenderer.invoke('checkBookBorrowed', book_id); // Use specific bookId here
-        return result; // This should return true if borrowed, false otherwise
-    } catch (error) {
-        console.error('Error checking if book is borrowed:', error);
-        return false; // Default to false in case of error
-    }
-}
-
-
-// Add book logic with dynamic suggestion filtering
-document.getElementById('addBookButton').addEventListener('click', function () {
-    const bookList = document.getElementById('bookList');
-    
-    // Disable the button after adding a book, until a book is removed
-    document.getElementById('addBookButton').disabled = true;
-
-    const newBookItem = document.createElement('div');
-    newBookItem.classList.add('book-item');
-
-    newBookItem.innerHTML = `
-    <small class="form-text text-muted"> New Book: </small>
-
-        <div class="form-group">
-            <small class="form-text text-muted">Book Title:</small>
-            <input class="form-control book-title" type="text" placeholder="Book Title" required>
-            <div class="suggestion-list"></div>
-        </div>
-        <div class="form-group">
-            <small class="form-text text-muted">Volume (put n/a if not applicable):</small>
-            <input class="form-control" type="text" placeholder="Volume">
-        </div>
-        <div class="form-group">
-            <small class="form-text text-muted">Edition (put n/a if not applicable):</small>
-            <input class="form-control" type="text" placeholder="Edition">
-        </div>
-        <div class="form-group">
-            <small class="form-text text-muted">Year (put n/a if not applicable):</small>
-            <input class="form-control" type="text" placeholder="Year">
-        </div>
-        <input type="hidden" value="">
-        <button type="button" class="btn btn-danger remove-book-btn">Remove</button>
-    `;
-
-    bookList.appendChild(newBookItem);
-
-    const removeButton = newBookItem.querySelector('.remove-book-btn');
-    removeButton.addEventListener('click', function () {
-        bookList.removeChild(newBookItem);
-        // Re-enable the button if no books are left
-        if (bookList.querySelectorAll('.book-item').length === 0) {
-            document.getElementById('addBookButton').disabled = false;
-        }
-    });
-
-    const bookTitleInput = newBookItem.querySelector('.book-title');
-    bookTitleInput.addEventListener('input', async function () {
-        const input = this.value.trim();
-        const suggestionList = newBookItem.querySelector('.suggestion-list');
-
-        if (input.length === 0) {
-            suggestionList.innerHTML = '';
-            return;
-        }
-
-        const titles = await fetchBookTitles();
-        const suggestions = await filterSuggestions(titles, input);
-        displayDynamicSuggestions(suggestions, bookTitleInput, suggestionList);
-    });
-});
-
-// Function to display book title suggestions for dynamically added fields
-function displayDynamicSuggestions(suggestions, inputElement, suggestionList) {
-    suggestionList.innerHTML = ''; // Clear previous suggestions
-
-    suggestions.forEach((book) => {
-        const option = document.createElement('div');
-        option.classList.add('suggestion');
-        option.textContent = `${book.title_of_book} - Volume: ${book.volume}, Edition: ${book.edition}, Year: ${book.year}`;
-
-        // Click handler for the suggestion
-        option.addEventListener('click', () => {
-            inputElement.value = book.title_of_book;
-            inputElement.closest('.book-item').querySelector('input[type="hidden"]').value = book.bookId; // Save the selected book's ID
-            suggestionList.innerHTML = ''; // Clear suggestions
-            autofillDynamicDetails(book, inputElement); // Autofill the rest of the details
 
             console.log('Selected Book:', {
                 id: book.bookId,
@@ -396,13 +215,139 @@ function displayDynamicSuggestions(suggestions, inputElement, suggestionList) {
     });
 }
 
-// Autofill details for dynamically added book fields
-function autofillDynamicDetails(detail, inputElement) {
-    const bookItem = inputElement.closest('.book-item');
-    bookItem.querySelector('input[placeholder="Volume"]').value = detail.volume || 'n/a';
-    bookItem.querySelector('input[placeholder="Edition"]').value = detail.edition || 'n/a';
-    bookItem.querySelector('input[placeholder="Year"]').value = detail.year || 'n/a';
+// Autofill details for the selected book
+function autofillDetails(detail) {
+    document.getElementById('addVolume').value = detail.volume || 'n/a';
+    document.getElementById('addEdition').value = detail.edition || 'n/a';
+    document.getElementById('addYear').value = detail.year || 'n/a';
 }
+
+let currentStep = 1;
+
+function showStep(step) {
+    document.querySelectorAll('.form-step').forEach((stepElement, index) => {
+        stepElement.style.display = (index + 1 === step) ? 'block' : 'none';
+    });
+}
+
+function nextStep() {
+    if (currentStep < 3) {
+        currentStep++;
+        showStep(currentStep);
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+    }
+}
+
+let borrowedBooks = []; // Array to hold borrowed books
+
+document.getElementById('addBookButton').addEventListener('click', function () {
+    const bookTitleInput = document.getElementById('addBookTitle');
+    const volumeInput = document.getElementById('addVolume');
+    const editionInput = document.getElementById('addEdition');
+    const bookIdInput = document.getElementById('addBookId');
+    
+    const bookTitle = bookTitleInput.value.trim();
+    const volume = volumeInput.value.trim() || 'n/a'; // Default to 'n/a' if empty
+    const edition = editionInput.value.trim() || 'n/a'; // Default to 'n/a' if empty
+    const bookId = bookIdInput.value.trim();
+
+    // Validate the book title and ID before adding
+    if (bookTitle && bookId) {
+        borrowedBooks.push({ title: bookTitle, volume, edition, id: bookId }); // Add to the borrowed books array
+        updateBorrowedBooksList(); // Update the displayed list
+        bookTitleInput.value = ''; // Clear the input
+        volumeInput.value = ''; // Clear the volume input
+        editionInput.value = ''; // Clear the edition input
+        bookIdInput.value = ''; // Clear the book ID input (if necessary)
+    }
+});
+
+// Function to update the list of borrowed books
+function updateBorrowedBooksList() {
+    const list = document.getElementById('borrowedBooksList');
+    list.innerHTML = ''; // Clear the existing list
+
+    borrowedBooks.forEach((book, index) => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+        listItem.textContent = `${book.title} | Volume: ${book.volume} | Edition: ${book.edition}`;
+
+        const removeButton = document.createElement('button');
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        removeButton.textContent = 'X';
+        removeButton.onclick = () => {
+            borrowedBooks.splice(index, 1); // Remove the book from the array
+            updateBorrowedBooksList(); // Update the displayed list
+        };
+
+        listItem.appendChild(removeButton);
+        list.appendChild(listItem);
+    });
+};
+
+// Event listener for form submission
+document.addEventListener('DOMContentLoaded', () => {
+// Update form submission to include all borrowed books
+document.getElementById('addBorrowForm').addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent default form submission
+
+    // Retrieve form data
+    const borrowerID = document.getElementById('addBorrowerID').value;
+    const borrowerName = document.getElementById('addBorrowerName').value;
+    const borrowDate = document.getElementById('addBorrowDate').value;
+    const dueDate = document.getElementById('addDueDate').value;
+
+    // Validate required fields
+    if (!borrowerID || !borrowerName || !borrowDate || !dueDate || borrowedBooks.length === 0) {
+        showModal('Error', 'All fields are required and at least one book must be added.');
+        return;
+    }
+
+    // Loop through borrowedBooks array and create records for each
+    for (const book of borrowedBooks) {
+        const newRecord = {
+            borrowerID,
+            borrowerName,
+            bookId: book.id, // Use the current book ID
+            borrowDate,
+            dueDate,
+            volume: book.volume,
+            edition: book.edition,
+            borrowStatus: 'borrowed'
+        };
+
+        try {
+            await ipcRenderer.invoke('addBorrow', newRecord);
+        } catch (error) {
+            console.error('Error adding borrow record:', error);
+            showModal('Error', 'Failed to add the borrow record. Please try again.');
+        }
+    }
+
+    window.close(); // Close the window after successful borrow record addition
+});
+});
+
+// Function to check if a specific book is already borrowed
+async function checkIfBookIsBorrowed(book_id) {
+    try {
+        const result = await ipcRenderer.invoke('checkBookBorrowed', book_id); // Use specific bookId here
+        return result; // This should return true if borrowed, false otherwise
+    } catch (error) {
+        console.error('Error checking if book is borrowed:', error);
+        return false; // Default to false in case of error
+    }
+}
+
+
+
+
 
 
 function showModal(title, message) {

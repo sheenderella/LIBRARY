@@ -1,10 +1,10 @@
 const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron');
 const path = require('path');
 const db = require('./database.js');
-const sqlite3 = require('sqlite3').verbose();
-const PDFDocument = require('pdfkit');
+const sqlite3 = require('sqlite3').verbose();;
 const fs = require('fs');
-const officegen = require('officegen');
+const ExcelJS = require('exceljs'); 
+
 
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
@@ -828,6 +828,26 @@ ipcMain.handle('getBooks', async () => {
 
 
 //BORROW
+ipcMain.handle('getBookId', async (event, bookTitle, bookVolume, bookEdition) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT id FROM books 
+            WHERE title_of_book = ? 
+            AND (volume = ? OR volume IS NULL) 
+            AND (edition = ? OR edition IS NULL)
+        `; // Ensure proper SQL syntax with logical AND for grouping
+
+        db.get(sql, [bookTitle, bookVolume || null, bookEdition || null], (err, row) => {
+            if (err) {
+                console.error('Database error:', err); // Log the error
+                return reject(err); // Reject with error
+            }
+            resolve(row ? row.id : null); // Return the book ID or null if not found
+        });
+    });
+});
+
+
 // Handle the 'fetch-book-details' event
 ipcMain.handle('fetch-book-details', async (event, bookId) => {
     return new Promise((resolve, reject) => {
@@ -1223,6 +1243,43 @@ ipcMain.handle('show-confirmation-dialog', async (event, { title, message }) => 
 });
 
 
+
+
+// Open condition window and send bookId
+ipcMain.on('open-condition-window', (event, { bookId }) => {
+    const conditionWindow = new BrowserWindow({
+        width: 450,
+        height: 400,
+        parent: mainWindow,
+        modal: true,
+        minimizable: false,
+        maximizable: false,
+        closable: false, // Initially set to non-closable
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'), // If needed for ipcRenderer
+            contextIsolation: true,
+            enableRemoteModule: false,
+        },
+    });
+
+    conditionWindow.loadFile(path.join(__dirname, 'borrow', 'condition.html'));
+
+    // Send bookId to the condition window when it's ready
+    conditionWindow.webContents.on('did-finish-load', () => {
+        conditionWindow.webContents.send('set-book-id', bookId);
+    });
+
+    conditionWindow.on('closed', () => {
+        if (mainWindow) mainWindow.focus();
+    });
+});
+
+// Listen for the condition satisfaction event
+ipcMain.on('condition-satisfied', () => {
+    if (conditionWindow) {
+        conditionWindow.setClosable(true); // Allow closure when conditions are satisfied
+    }
+});
 //PROFILES' CRUD
 let addProfileWindow = null;
 let editProfileWindow = null;
@@ -1305,6 +1362,11 @@ ipcMain.handle('deleteProfile', async (event, id) => {
     }
 });
 
+
+
+
+
+
 ///PROFILES
 // Listen for the event from index.js
 // Function to create the Add Profile window
@@ -1376,7 +1438,7 @@ ipcMain.on('open-edit-profile-window', (event, record) => {
 
 //SETTINGS
 //BACKUP & RESTORE EXCEL FILES
-const ExcelJS = require('exceljs'); 
+
 
 // Export Profiles to Excel (excluding Profile ID)
 ipcMain.handle('exportProfilesToExcel', async () => {

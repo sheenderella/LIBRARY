@@ -158,10 +158,11 @@ checkbox.addEventListener('change', function () {
         if (newStatus === 'returned' || newStatus === 'returned overdue') {
             newReturnDate = new Date().toISOString().split('T')[0];
             this.disabled = true; // Disable dropdown when returned or returned overdue is selected
+            openConditionWindow(); // Open condition.html in a pop-up window
         }
     
         updateDropdownStyle(this, newStatus);
-    
+        
         // Send the updated status to the backend or main process to update the database
         updateBorrowStatus(record.id, newStatus, newReturnDate);
     });
@@ -169,6 +170,11 @@ checkbox.addEventListener('change', function () {
 
     borrowList.appendChild(row);
 }
+
+function openConditionWindow() {
+    ipcRenderer.send('open-condition-window');
+}
+
 
 function updateBorrowStatus(id, newStatus, returnDate) {
     const updatedStatus = {

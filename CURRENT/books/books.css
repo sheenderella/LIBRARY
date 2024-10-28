@@ -64,7 +64,7 @@ body {
 }
 
 .btn-success {
-    background-color: #28a745; /* Green */
+    background-color: #28a745!important; /* Green */
     color: #fff;
     height: 45px;
     width: 45px;
@@ -74,17 +74,17 @@ body {
 }
 
 .btn-success:hover {
-    background-color: #218838; /* Darker green */
+    background-color: #218838!important; /* Darker green */
 }
 
 .btn-success:active {
-    background-color: #1e7e34; /* Even darker green */
+    background-color: #1e7e34!important; /* Even darker green */
     transform: scale(0.98); /* Slight shrink on click */
 }
 
 
 .btn-danger {
-    background-color: #dc3545; /* Red */
+    background-color: #dc3545!important; /* Red */
     color: #fff;
     height: 45px;
     width: 45px;
@@ -94,11 +94,11 @@ body {
 }
 
 .btn-danger :hover {
-    background-color: #c82333; /* Darker red */
+    background-color: #c82333!important; /* Darker red */
 }
 
 .btn-danger :active {
-    background-color: #bd2130; /* Even darker red */
+    background-color: #bd2130!important; /* Even darker red */
     transform: scale(0.98); /* Slight shrink on click */
 }
 
