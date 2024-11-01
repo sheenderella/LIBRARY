@@ -1,88 +1,108 @@
+/* General Styling */
 body {
     font-family: Arial, sans-serif;
-    margin: 0.5rem;
+    margin: 0;
     padding: 0;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: flex-start; /* Align to the top */
+    height: 100vh; /* Full height of the viewport */
+    background-color: #f4f4f4; /* Keeping a light background for better contrast */
 }
 
-form {
-    background-color: #fff;
-    padding: 1rem 2.25rem 1rem 1rem;
+/* Card Styling */
+.card {
+    width: 100%; /* Full width */
+    max-width: 600px; /* Limit max width */
+    background-color: #fff; /* Card background */
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 600px;
-    margin-bottom: 0.5rem;
+    margin-top: 20px; /* Add some margin at the top */
+    position: relative; /* Position relative for contained elements */
 }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-input {
-    width: 100%;
+/* Card Header Styling */
+.card-header {
+    background-color: #30688B;
+    color: #fff;
     padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
-button:hover {
-    background-color: #0056b3;
-}
-
-/* .conditionContainer {
+    display: flex;
+    justify-content: center;
     align-items: center;
-    position: relative;
-    display: flex; 
-    margin-bottom: 1rem;
-} */
-
-#condition {
-    font-size: 14px;
-    border: 1px solid #1f1f1f;
-    border-radius: 1px;
-    height: 2.98rem;
-    width: 32.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-bottom: 1rem;
-    padding-left: 0.75rem;
-    appearance: none;
 }
 
+.card-header img {
+    max-height: 50px; /* Ensure image fits within the header */
+    max-width: 100%; /* Ensure the image does not exceed the width of the card */
+    height: auto; /* Maintain aspect ratio */
+    width: auto; /* Maintain aspect ratio */
+}
+
+/* Card Body and Form Styling */
+.card-body {
+    padding: 20px; /* Padding around the form */
+}
+
+/* Headings */
+h1 {
+    color: #343a40;
+    font-size: 20px; /* Slightly smaller font size for smaller windows */
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+
+input, select {
+    width: 100%; /* Full width */
+    padding: 10px; /* Inner padding */
+    border: 1px solid #ccc; /* Border styling */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 14px; /* Consistent font size */
+}
+
+button {
+    padding: 10px;
+    background-color: #007bff; /* Button color */
+    color: white; /* Text color */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Button font size */
+}
+
+button:hover {
+    background-color: #0056b3; /* Darken button on hover */
+}
+
+/* Dropdown Styling */
+#condition {
+    height: auto; /* Adjust height automatically */
+    cursor: pointer; /* Pointer cursor */
+}
+
+/* Suggestion Box Styling */
 .suggestion-box {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    max-height: 150px;
-    overflow-y: auto;
-    background-color: white;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    position: absolute;
-    z-index: 1000;
+    border: 1px solid #ccc; /* Border styling */
+    border-radius: 4px; /* Rounded corners */
+    max-height: 150px; /* Max height */
+    overflow-y: auto; /* Scroll if needed */
+    background-color: white; /* Background color */
+    list-style: none; /* No list styling */
+    padding: 0; /* No padding */
+    margin: 0; /* No margin */
+    position: absolute; /* Positioning */
+    z-index: 1000; /* Stack above other elements */
 }
 
 .suggestion-box li {
-    padding: 10px;
-    cursor: pointer;
+    padding: 10px; /* Inner padding */
+    cursor: pointer; /* Pointer cursor */
 }
 
 .suggestion-box li:hover {
-    background-color: #eee;
+    background-color: #eee; /* Highlight suggestion on hover */
 }
+
+
+
