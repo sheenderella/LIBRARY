@@ -1,5 +1,4 @@
-// notification.js
-
+// Function to show notifications
 function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     

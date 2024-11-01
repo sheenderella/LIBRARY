@@ -222,51 +222,116 @@ function autofillDetails(detail) {
     document.getElementById('addYear').value = detail.year || 'n/a';
 }
 
+let currentStep = 1;
+
+function showStep(step) {
+    document.querySelectorAll('.form-step').forEach((stepElement, index) => {
+        stepElement.style.display = (index + 1 === step) ? 'block' : 'none';
+    });
+}
+
+function nextStep() {
+    if (currentStep < 3) {
+        currentStep++;
+        showStep(currentStep);
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+    }
+}
+
+let borrowedBooks = []; // Array to hold borrowed books
+
+document.getElementById('addBookButton').addEventListener('click', function () {
+    const bookTitleInput = document.getElementById('addBookTitle');
+    const volumeInput = document.getElementById('addVolume');
+    const editionInput = document.getElementById('addEdition');
+    const bookIdInput = document.getElementById('addBookId');
+    
+    const bookTitle = bookTitleInput.value.trim();
+    const volume = volumeInput.value.trim() || 'n/a'; // Default to 'n/a' if empty
+    const edition = editionInput.value.trim() || 'n/a'; // Default to 'n/a' if empty
+    const bookId = bookIdInput.value.trim();
+
+    // Validate the book title and ID before adding
+    if (bookTitle && bookId) {
+        borrowedBooks.push({ title: bookTitle, volume, edition, id: bookId }); // Add to the borrowed books array
+        updateBorrowedBooksList(); // Update the displayed list
+        bookTitleInput.value = ''; // Clear the input
+        volumeInput.value = ''; // Clear the volume input
+        editionInput.value = ''; // Clear the edition input
+        bookIdInput.value = ''; // Clear the book ID input (if necessary)
+    }
+});
+
+// Function to update the list of borrowed books
+function updateBorrowedBooksList() {
+    const list = document.getElementById('borrowedBooksList');
+    list.innerHTML = ''; // Clear the existing list
+
+    borrowedBooks.forEach((book, index) => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+        listItem.textContent = `${book.title} | Volume: ${book.volume} | Edition: ${book.edition}`;
+
+        const removeButton = document.createElement('button');
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        removeButton.textContent = 'X';
+        removeButton.onclick = () => {
+            borrowedBooks.splice(index, 1); // Remove the book from the array
+            updateBorrowedBooksList(); // Update the displayed list
+        };
+
+        listItem.appendChild(removeButton);
+        list.appendChild(listItem);
+    });
+};
+
 // Event listener for form submission
 document.addEventListener('DOMContentLoaded', () => {
-    const addBorrowForm = document.getElementById('addBorrowForm');
+// Update form submission to include all borrowed books
+document.getElementById('addBorrowForm').addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent default form submission
 
-    addBorrowForm.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Prevent default form submission
+    // Retrieve form data
+    const borrowerID = document.getElementById('addBorrowerID').value;
+    const borrowerName = document.getElementById('addBorrowerName').value;
+    const borrowDate = document.getElementById('addBorrowDate').value;
+    const dueDate = document.getElementById('addDueDate').value;
 
-        // Retrieve form data
-        const borrowerID = document.getElementById('addBorrowerID').value;
-        const borrowerName = document.getElementById('addBorrowerName').value;
-        const borrowDate = document.getElementById('addBorrowDate').value;
-        const dueDate = document.getElementById('addDueDate').value;
-        const bookId = document.getElementById('addBookId').value; // Directly get bookId
-        const borrowStatus = 'borrowed';
+    // Validate required fields
+    if (!borrowerID || !borrowerName || !borrowDate || !dueDate || borrowedBooks.length === 0) {
+        showModal('Error', 'All fields are required and at least one book must be added.');
+        return;
+    }
 
-        // Validate required fields
-        if (!borrowerID || !borrowerName || !borrowDate || !dueDate || !bookId) {
-            showModal('Error', 'All fields are required.');
-            return;
-        }
-
-        // Check if the book is already borrowed
-        const isAlreadyBorrowed = await checkIfBookIsBorrowed(bookId);
-        if (isAlreadyBorrowed) {
-            showModal('Error', 'This book is already borrowed.');
-            return; // Exit if the book is already borrowed
-        }
-
+    // Loop through borrowedBooks array and create records for each
+    for (const book of borrowedBooks) {
         const newRecord = {
             borrowerID,
             borrowerName,
-            bookId, // Use the book ID
+            bookId: book.id, // Use the current book ID
             borrowDate,
             dueDate,
-            borrowStatus
+            volume: book.volume,
+            edition: book.edition,
+            borrowStatus: 'borrowed'
         };
 
         try {
             await ipcRenderer.invoke('addBorrow', newRecord);
-            window.close(); // Close the window after successful borrow record addition
         } catch (error) {
             console.error('Error adding borrow record:', error);
             showModal('Error', 'Failed to add the borrow record. Please try again.');
         }
-    });
+    }
+
+    window.close(); // Close the window after successful borrow record addition
+});
 });
 
 // Function to check if a specific book is already borrowed

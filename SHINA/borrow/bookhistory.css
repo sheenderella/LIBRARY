@@ -5,6 +5,8 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
+
+
 /* SIDE NAVBAR */
 /* Container for the sidebar and main content */
 #wrapper {
@@ -158,6 +160,7 @@ body {
     background-color: #30688B;
 }
 
+
 /* BORROWER NAME */
 h1 {
     text-align: left;
@@ -170,9 +173,17 @@ h1 {
     text-align: left; /* Ensures all child elements are aligned to the left */
 }
 
-
+/* General Styling for Book Details */
+#bookDetails, #bookNumber, #dateReceived, #author, #edition, #sourceOfFund, #costPrice,
+#publisher, #year, #remarks, #volume, #pages, #condition, #class {
+    color: #333C42; /* Grey color for contrast */
+    font-size: 14px; 
+    font-family: 'Arial', sans-serif;
+    margin-left: 15px; /* Aligns with borrowerName and h1 */
+    margin-bottom: 0px;
+}
 /* Styling for the Borrower Name */
-#borrowerName {
+#bookTitle {
     color: #30688B; /* Dark blue */
     margin-top: 20px;
     font-size: 60px; /* Larger than the default h3 for emphasis */
@@ -181,14 +192,10 @@ h1 {
     margin-bottom: -5px;
 }
 
-/* Styling for Borrower Contact Details */
-#borrowerContactDetails {
-    color: #333C42; /* Grey color for contrast */
-    font-size: 14px; 
-    font-family: 'Arial', sans-serif;
-    margin-left: 15px; /* Aligns with borrowerName and h1 */
-    margin-bottom: 0px;
-}
+
+
+
+
 
 
 
@@ -306,9 +313,8 @@ h1 {
     font-weight: bold; /* Optionally bold the text */
 }
 
-
 /* Borrower Log Table */
-#borrowerLogTable {
+#bookHistoryTable {
     width: 97%;
     margin-top: -1px;
     margin-left: 15px;
@@ -317,14 +323,14 @@ h1 {
 }
 
 /* Header Row */
-#borrowerLogTable th {
+#bookHistoryTable th {
     background-color: #30688B;
     color: white;
 }
 
 /* Adjusting column and cell styling */
-#borrowerLogTable th, 
-#borrowerLogTable td {
+#bookHistoryTable th, 
+#bookHistoryTable td {
     padding: 12px;
     border: none;
     text-align: center; /* Align text in the center */
@@ -339,19 +345,70 @@ h1 {
     width: auto;
 }
 
-#borrowerLogTable td:nth-child(1) {
+#bookHistoryTable td:nth-child(1) {
     max-width: 400px;
     width: auto;
 }
 
 /* Row striping */
-#borrowerLogTable tr:nth-child(odd) {
+#bookHistoryTable tr:nth-child(odd) {
     background-color: #f9f9f9;
 }
 
-#borrowerLogTable tr:nth-child(even) {
+#bookHistoryTable tr:nth-child(even) {
     background-color: #eeeeee;
 }
+
+
+
+/* BOOK */
+/* Book Table */
+#bookTable {
+    width: 100%;
+    border-collapse: collapse; /* Merge borders */
+    font-size: 1rem; /* Font size */
+}
+
+/* Header Row */
+#bookTable th {
+    background-color: #30688B; /* Header background color */
+    color: white; /* Header text color */
+    position: sticky; /* Keep header sticky */
+    top: 0; /* Position it at the top of the scrollable area */
+    z-index: 10; /* Ensure header is above other rows */
+    padding: 12px; /* Padding for header */
+}
+
+/* Adjusting column and cell styling */
+#bookTable th, 
+#bookTable td {
+    border: 1px solid #ddd; /* Border for cells */
+    text-align: center; /* Center text alignment */
+    word-wrap: break-word; /* Enable word wrapping */
+    white-space: normal;   /* Allow text to wrap */
+}
+
+#columnHeader th:nth-child(2),
+#columnHeader td:nth-child(3),
+#columnHeader td:nth-child(4) {
+    min-width: 100px; /* Minimum width for specific columns */
+}
+
+#bookTable td:nth-child(1) {
+    max-width: 400px; /* Maximum width for the ID column */
+}
+
+/* Row striping for better readability */
+#bookTable tr:nth-child(odd) {
+    background-color: #f9f9f9; /* Odd row color */
+}
+
+#bookTable tr:nth-child(even) {
+    background-color: #eeeeee; /* Even row color */
+}
+
+
+
 
 
 
@@ -405,7 +462,6 @@ h1 {
     margin-left: 8px;
     font-size: 14px;
 }
-
 
 
 

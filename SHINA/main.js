@@ -1,7 +1,10 @@
 const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron');
 const path = require('path');
 const db = require('./database.js');
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3').verbose();;
+const fs = require('fs');
+const ExcelJS = require('exceljs'); 
+
 
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
@@ -166,41 +169,6 @@ async function getUniqueBorrowersFromDB() {
     return executeSelectQuery(sql);
 }
 
-// REPORTS
-let reportsWindow = null; // Initialize the reportsWindow variable
-
-// Open reports window handler
-ipcMain.handle('open-reports-window', (event) => {
-    createReportsWindow(); // Create the reports window
-});
-
-// Function to create the Reports Window
-function createReportsWindow() {
-    if (!reportsWindow) {
-        reportsWindow = new BrowserWindow({
-            width: 400,
-            height: 600,
-            resizable: true,
-            parent: mainWindow,
-            modal: true,
-            webPreferences: {
-                nodeIntegration: true,
-                contextIsolation: false,
-            },
-        });
-
-        reportsWindow.loadFile(path.join(__dirname, 'reports.html')); // Load the reports HTML file
-
-        // Log when the reports window is opened
-        console.log('Reports window created');
-
-        reportsWindow.on('closed', () => {
-            reportsWindow = null; // Clear reference on close
-        });
-    } else {
-        reportsWindow.focus(); // Focus on the existing window if it's already open
-    }
-}
 
 
 //GRAPH
@@ -300,6 +268,21 @@ ipcMain.handle('logout', async () => {
 
 
 //LOGIN
+app.whenReady().then(createLoginWindow);
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
+});
+
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createMainWindow();
+    }
+});
+
+
 // After successful login, store the username
 function validatelogin({ username, password }) {
     const sql = "SELECT * FROM user WHERE username=? AND password=?";
@@ -724,7 +707,16 @@ ipcMain.handle('change', async (event, { username, newPassword }) => {
 });
 
 
+
 ///BOOKS
+ipcMain.on('open-add-book-window', () => {
+    if (!addBookWindow) {
+        createAddBookWindow();
+    } else {
+        addBookWindow.focus();
+    }
+});
+
 function createAddBookWindow() {
     addBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'addBook.html'),
@@ -734,6 +726,8 @@ function createAddBookWindow() {
         onClose: () => (addBookWindow = null),
     });
 }
+
+
 
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
@@ -750,26 +744,21 @@ function createEditBookWindow(record) {
     });
 }
 
-app.whenReady().then(createLoginWindow);
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
+ipcMain.on('open-edit-book-window', (event, record) => {
+    if (!editBookWindow) {
+        createEditBookWindow(record);
+    } else {
+        editBookWindow.focus();
+        editBookWindow.webContents.send('fill-edit-form', record);
     }
 });
 
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createMainWindow();
-    }
-});
-
-// Books IPC Handlers
+//BOOK'S CRUD OPERATION
 ipcMain.handle('addBook', async (event, record) => {
     try {
         await executeQuery(
-            'INSERT INTO books (date_received, class, author, title_of_book, edition, volume, pages, year, source_of_fund, cost_price, publisher, remarks, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
-            [record.date_received, record.class, record.author, record.title_of_book, record.edition, record.volume, record.pages, record.year, record.source_of_fund, record.cost_price, record.publisher, record.remarks],
+            'INSERT INTO books (date_received, class, author, title_of_book, edition, volume, pages, year, source_of_fund, cost_price, publisher, condition, remarks, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
+            [record.date_received, record.class, record.author, record.title_of_book, record.edition, record.volume, record.pages, record.year, record.source_of_fund, record.cost_price, record.publisher, record.condition, record.remarks],
             function () {
                 record.id = this.lastID;
                 record.createdAt = new Date().toISOString();
@@ -786,8 +775,8 @@ ipcMain.handle('addBook', async (event, record) => {
 ipcMain.handle('updateBook', async (event, record) => {
     try {
         await executeQuery(
-            'UPDATE books SET number = ?, date_received = ?, class = ?, author = ?, title_of_book = ?, edition = ?, volume = ?, pages = ?, year = ?, source_of_fund = ?, cost_price = ?, publisher = ?, remarks = ? WHERE id = ?',
-            [record.number, record.date_received, record.class, record.author, record.title_of_book, record.edition, record.volume, record.pages, record.year, record.source_of_fund, record.cost_price, record.publisher, record.remarks, record.id]
+            'UPDATE books SET number = ?, date_received = ?, class = ?, author = ?, title_of_book = ?, edition = ?, volume = ?, pages = ?, year = ?, source_of_fund = ?, cost_price = ?, publisher = ?, condition = ?, remarks = ? WHERE id = ?',
+            [record.number, record.date_received, record.class, record.author, record.title_of_book, record.edition, record.volume, record.pages, record.year, record.source_of_fund, record.cost_price, record.publisher, record.condition, record.remarks, record.id]
         );
 
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -827,7 +816,6 @@ ipcMain.handle('deleteBook', async (event, id) => {
     }
 });
 
-
 ipcMain.handle('getBooks', async () => {
     try {
         const books = await executeSelectQuery('SELECT * FROM books ORDER BY createdAt DESC');
@@ -838,29 +826,53 @@ ipcMain.handle('getBooks', async () => {
     }
 });
 
-ipcMain.on('open-add-book-window', () => {
-    if (!addBookWindow) {
-        createAddBookWindow();
-    } else {
-        addBookWindow.focus();
-    }
-});
 
 
-ipcMain.on('open-edit-book-window', (event, record) => {
-    if (!editBookWindow) {
-        createEditBookWindow(record);
-    } else {
-        editBookWindow.focus();
-        editBookWindow.webContents.send('fill-edit-form', record);
-    }
-});
 
 
 //BORROW
+ipcMain.handle('getBookId', async (event, bookTitle, bookVolume, bookEdition) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT id FROM books 
+            WHERE title_of_book = ? 
+            AND (volume = ? OR volume IS NULL) 
+            AND (edition = ? OR edition IS NULL)
+        `; // Ensure proper SQL syntax with logical AND for grouping
 
-//DISPLAY
-// Database operations (assuming executeSelectQuery and executeQuery are predefined)
+        db.get(sql, [bookTitle, bookVolume || null, bookEdition || null], (err, row) => {
+            if (err) {
+                console.error('Database error:', err); // Log the error
+                return reject(err); // Reject with error
+            }
+            resolve(row ? row.id : null); // Return the book ID or null if not found
+        });
+    });
+});
+
+
+// Handle the 'fetch-book-details' event
+ipcMain.handle('fetch-book-details', async (event, bookId) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT id, number, date_received, author, title_of_book, edition,
+                   source_of_fund, cost_price, publisher, year, remarks, 
+                   volume, pages, condition, class
+            FROM books
+            WHERE id = ?
+        `;
+
+        db.get(query, [bookId], (err, row) => {
+            if (err) {
+                console.error('Database query error:', err);
+                reject(err);
+            } else {
+                resolve(row || null); // Return the book details or null if not found
+            }
+        });
+    });
+});
+
 ipcMain.handle('getBorrows', async () => {
     try {
         const query = `
@@ -871,7 +883,11 @@ ipcMain.handle('getBorrows', async () => {
                 borrow.createdAt,
                 borrow.returnDate,
                 borrow.dueDate,
+                Profiles.borrower_id,
                 Profiles.name AS borrower_name,
+                Profiles.phone_number,         -- Include phone number
+                Profiles.email,                -- Include email
+                books.id AS book_id,              -- Ensure book ID is fetched
                 books.title_of_book AS book_title
             FROM borrow
             JOIN Profiles ON borrow.borrower_id = Profiles.borrower_id
@@ -891,6 +907,7 @@ ipcMain.handle('getBorrows', async () => {
     }
 });
 
+
 function executeSelectQuery(query, params = []) {
     return new Promise((resolve, reject) => {
         console.log('Executing query:', query);  // Add this log to see the query execution
@@ -906,14 +923,55 @@ function executeSelectQuery(query, params = []) {
     });
 }
 
-ipcMain.handle('getBorrowerLog', async (event, name) => executeSelectQuery(
-    `SELECT borrow.*, Profiles.name AS borrower_name, books.title_of_book AS book_title
-     FROM borrow
-     JOIN Profiles ON borrow.borrower_id = Profiles.borrower_id
-    JOIN books ON borrow.book_id = books.id
-     WHERE Profiles.name = ?`,
-    [name]
-));
+ipcMain.handle('getBorrowerLog', async (event, borrowerId) => {
+    try {
+        const query = `
+            SELECT borrow.*, Profiles.name AS borrower_name, books.title_of_book AS book_title
+            FROM borrow
+            JOIN Profiles ON borrow.borrower_id = Profiles.borrower_id
+            JOIN books ON borrow.book_id = books.id
+            WHERE borrow.borrower_id = ?
+        `;
+        const borrowRecords = await executeSelectQuery(query, [borrowerId]);
+        
+        console.log('Fetched Borrow Records for Borrower ID:', borrowerId, borrowRecords);
+        return borrowRecords;
+    } catch (error) {
+        console.error('Error fetching borrower log:', error);
+        throw new Error('Failed to fetch borrower log');
+    }
+});
+
+ipcMain.handle('getBookBorrowRecords', async (event, bookId) => {
+    try {
+        const query = `
+            SELECT 
+                borrow.id AS borrow_id,
+                borrow.borrowStatus,
+                borrow.borrowDate,
+                borrow.returnDate,
+                borrow.dueDate,
+                Profiles.name AS borrower_name,
+                books.title_of_book AS book_title
+            FROM borrow
+            JOIN Profiles ON borrow.borrower_id = Profiles.borrower_id
+            JOIN books ON borrow.book_id = books.id
+            WHERE borrow.book_id = ?
+            ORDER BY borrow.borrowDate ASC
+        `;
+        
+        console.log('Executing query to fetch borrow records for book:', query);  // Log query execution
+
+        const bookBorrowRecords = await executeSelectQuery(query, [bookId]);
+
+        console.log('Fetched Borrow Records for Book ID:', bookId, bookBorrowRecords);  // Log fetched records
+        
+        return bookBorrowRecords;
+    } catch (error) {
+        console.error('Error fetching borrow records by book ID:', error);
+        throw new Error('Failed to fetch borrow records by book ID');
+    }
+});
 
 //ADD
 ipcMain.on('open-add-borrow-window', createAddBorrowWindow);
@@ -939,6 +997,7 @@ function createAddBorrowWindow() {
         addBorrowWindow.focus();
     }
 }
+
 ipcMain.handle('addBorrow', async (event, record) => {
     try {
         // Validate borrower ID
@@ -1005,6 +1064,8 @@ ipcMain.handle('addBorrow', async (event, record) => {
 });
 
 
+
+
 // Handle fetching all book titles for suggestions, returning unique combinations of title, volume, edition, etc.
 ipcMain.handle('getBookTitles', async () => {
     try {
@@ -1059,8 +1120,6 @@ ipcMain.handle('getBookDetails', async (event, title) => {
     }
 });
 
-
-
 // Handle fetching all borrower IDs
 ipcMain.handle('getBorrowerIDs', async () => {
     try {
@@ -1114,183 +1173,20 @@ ipcMain.handle('getBorrowerIDByName', async (event, name) => {
 });
 
 
-//reports
-ipcMain.handle('generateReport', async (event, { timePeriod, category }) => {
-    try {
-        let query = '';
+ipcMain.on('update-borrow-status', (event, updatedStatus) => {
+    const { id, status, returnDate } = updatedStatus;
 
-        // Generate SQL query based on category
-        switch (category) {
-            case 'borrowing-history':
-                query = 'SELECT * FROM borrow';
-                break;
-            case 'most-borrowed-books':
-                query = `SELECT bookTitle, COUNT(*) AS borrowCount FROM borrow 
-                         GROUP BY bookTitle ORDER BY borrowCount DESC`;
-                break;
-            case 'books-status':
-                query = 'SELECT title_of_book, status FROM books'; // Assuming books table has a 'status' column
-                break;
-            default:
-                throw new Error('Invalid category selected');
+    // Update the borrow status in the database
+    const query = `UPDATE borrow SET "borrowStatus" = ?, "returnDate" = COALESCE(?, "returnDate") WHERE id = ?`;
+    db.run(query, [status, returnDate, id], function (err) {
+        if (err) {
+            console.error('Failed to update borrow status:', err.message);
+            event.reply('borrow-status-updated', { success: false, message: 'Failed to update status' });
+            return;
         }
-
-        // Filter by time period
-        if (timePeriod !== 'all time') {
-            let timeFilter = '';
-            switch (timePeriod) {
-                case 'weekly':
-                    timeFilter = "WHERE borrowDate >= date('now', '-7 days')";
-                    break;
-                case 'monthly':
-                    timeFilter = "WHERE borrowDate >= date('now', '-1 month')";
-                    break;
-                case 'yearly':
-                    timeFilter = "WHERE borrowDate >= date('now', '-1 year')";
-                    break;
-            }
-            query += ` ${timeFilter}`;
-        }
-
-        // Execute the query and return the results
-        const reportData = await executeSelectQuery(query);
-        return reportData;
-
-    } catch (error) {
-        console.error('Error generating report:', error);
-        throw new Error('Failed to generate report');
-    }
-});
-
-
-
-//UPDATE
-// Open update window handler
-ipcMain.handle('open-update-window', (event, record) => {
-    createUpdateBorrowWindow(record); // Pass the record data to the update window
-});
-
-// Function to create the Update Borrow Window
-function createUpdateBorrowWindow(record) {
-    if (!updateBorrowWindow) {
-        updateBorrowWindow = new BrowserWindow({
-            width: 400,
-            height: 440,
-            resizable: false,
-            parent: mainWindow,
-            modal: true,
-            webPreferences: {
-                nodeIntegration: true,
-                contextIsolation: false,
-            },
-        });
-
-        updateBorrowWindow.loadFile(path.join(__dirname, 'borrow', 'updateBorrow.html'));
-
-        // Log the record to see if it is correct
-        console.log('Record passed to update window:', record);
-
-        // Send the record to the update window once it's fully loaded
-        updateBorrowWindow.webContents.on('did-finish-load', () => {
-            console.log('Sending record to update window:', record);
-            updateBorrowWindow.webContents.send('fill-update-form', record); // Send record data to the renderer process
-        });
-
-        updateBorrowWindow.on('closed', () => {
-            updateBorrowWindow = null;
-        });
-    } else {
-        updateBorrowWindow.focus();
-        updateBorrowWindow.webContents.send('fill-update-form', record); // Send data again if the window is already open
-    }
-}
-
-
-// Fetch a specific borrow record by ID
-function getBorrowRecordById(id) {
-    return new Promise((resolve, reject) => {
-        db.get('SELECT * FROM borrow WHERE id = ?', [id], (err, row) => {
-            if (err) {
-                console.error('Error fetching record from database:', err);
-                reject(err);
-            } else if (row) {
-                console.log('Full record fetched from database:', row); // Log the entire row
-                resolve({
-                    id: row.id,
-                    borrowerName: row.borrowerName,
-                    bookTitle: row.bookTitle,
-                    borrowStatus: row.borrowStatus,
-                    createdAt: row.createdAt
-                });
-            } else {
-                console.log('No record found for ID:', id);
-                resolve(null);
-            }
-        });
+        console.log('Borrow status updated successfully');
+        event.reply('borrow-status-updated', { success: true, message: 'Status updated' });
     });
-}
-
-ipcMain.handle('getBorrowRecordById', async (event, id) => {
-    return await getBorrowRecordById(id);
-});
-
-
-// Update the borrow record in the database
-ipcMain.handle('updateBorrowRecord', async (event, updatedRecord) => {
-    try {
-        await new Promise((resolve, reject) => {
-            db.run(
-                `UPDATE borrow SET borrowerName = ?, bookTitle = ?, borrowStatus = ? WHERE id = ?`,
-                [updatedRecord.borrowerName, updatedRecord.bookTitle, updatedRecord.borrowStatus, updatedRecord.id],
-                function (err) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                }
-            );
-        });
-        console.log('Record updated successfully:', updatedRecord);
-
-        // Notify the main window that the record was updated
-        if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('borrow-record-updated', updatedRecord);
-        }
-    } catch (error) {
-        console.error('Error updating record:', error);
-        throw error;
-    }
-});
-
-//RETURNDATE
-// Function to update both the borrow status and return date
-ipcMain.handle('updateBorrowStatus', async (event, { id, status, returnDate }) => {
-    try {
-        await new Promise((resolve, reject) => {
-            const query = `UPDATE borrow SET borrowStatus = ?, returnDate = ? WHERE id = ?`;
-            const params = [status, returnDate, id];
-
-            db.run(query, params, function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
-
-        console.log(`Borrow status and return date updated successfully for ID: ${id}`);
-        
-        // Notify the main window about the status update
-        if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('borrow-status-updated', { id, status, returnDate });
-        }
-
-    } catch (error) {
-        console.error('Error updating borrow status and return date:', error);
-        throw error;
-    }
 });
 
 
@@ -1336,6 +1232,81 @@ async function deleteFromDatabase(ids) {
     }
 }
 
+ipcMain.handle('show-confirmation-dialog', async (event, { title, message }) => {
+    const result = await dialog.showMessageBox({
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        defaultId: 1,  // 'No' as default
+        title: title,
+        message: message
+    });
+
+    // Return true if user selected 'Yes' (button index 0)
+    return result.response === 0;
+});
+
+
+ipcMain.on('open-condition-window', (event, { bookId, borrowId, originalStatus }) => {
+    const conditionWindow = new BrowserWindow({
+        width: 450,
+        height: 400,
+        minimizable: false,
+        maximizable: false,
+        alwaysOnTop: true,
+        modal: true,
+        parent: mainWindow,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    // Track if condition was submitted
+    let conditionSubmitted = false;
+
+    conditionWindow.loadFile(path.join(__dirname, 'borrow', 'condition.html'));
+
+    conditionWindow.webContents.on('did-finish-load', () => {
+        conditionWindow.webContents.send('set-book-id', { bookId, borrowId });
+        conditionWindow.focus();
+    });
+
+    const handleConditionSubmission = (event, { bookId, bookCondition }) => {
+        if (!conditionSubmitted) {
+            conditionSubmitted = true;
+            updateBookCondition(bookId, bookCondition);
+
+            // Close the condition window after submission
+            conditionWindow.close();
+        }
+    };
+
+    // Listen for the book condition submission event
+    ipcMain.on('submit-book-condition', handleConditionSubmission);
+
+    conditionWindow.on('close', () => {
+        if (!conditionSubmitted) {
+            mainWindow.webContents.send('reset-status', { borrowId, originalStatus });
+        }
+        // Remove the listener when the window is closed
+        ipcMain.removeListener('submit-book-condition', handleConditionSubmission);
+    });
+
+    function updateBookCondition(bookId, bookCondition) {
+        db.run(
+            'UPDATE books SET condition = ? WHERE id = ?',
+            [bookCondition, bookId],
+            function (error) {
+                if (error) {
+                    console.error(`Error updating book condition: ${error.message}`);
+                } else {
+                    console.log(`Book ID ${bookId} condition updated to "${bookCondition}".`);
+                }
+            }
+        );
+    }
+});
+
 
 //PROFILES' CRUD
 let addProfileWindow = null;
@@ -1352,23 +1323,46 @@ ipcMain.handle('getProfiles', async () => {
     }
 });
 
+// Handle the 'addProfile' logic
 ipcMain.handle('addProfile', async (event, record) => {
     try {
+        // Check if the borrower_id already exists
+        const existingProfile = await executeSelectQuery(
+            'SELECT * FROM Profiles WHERE borrower_id = ?',
+            [record.borrower_id]
+        );
+
+        if (existingProfile.length > 0) {
+            // Borrower ID is already taken, throw an error
+            throw new Error('Borrower ID already exists');
+        }
+
+        // If no duplicate borrower_id, proceed with the insertion
         const result = await executeQuery(
             `INSERT INTO Profiles (borrower_id, name, phone_number, email) 
              VALUES (?, ?, ?, ?)`,
             [record.borrower_id, record.name, record.phone_number, record.email]
         );
-        
-        record.id = this.lastID;  // Get the last inserted ID
 
+        record.id = this.lastID; // Get the last inserted ID
         // Send the added record back to the main window
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('profile-record-added', record);
         }
+        
+        // Return success to the renderer process
+        return { success: true, record };
+
     } catch (error) {
-        console.error('Error adding profile record:', error);
+        // Send the error message back to the renderer process
+        event.sender.send('profile-add-error', error.message);
+        return { success: false, error: error.message };
     }
+});
+
+// Handle the 'show-error-dialog' request from the renderer process
+ipcMain.handle('show-error-dialog', (event, title, content) => {
+    dialog.showErrorBox(title, content);
 });
 
 ipcMain.handle('updateProfile', async (event, record) => {
@@ -1420,50 +1414,44 @@ ipcMain.handle('deleteProfile', async (event, id) => {
 });
 
 ///PROFILES
-// Create a new function for the Add Profile button in index.html
-function createAddProfileFromIndexWindow() {
-    addProfileWindow = createWindow({
-        filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
+// Listen for the event from index.js
+// Function to create the Add Profile window
+function createAddProfileWindow() {
+    addProfileWindow = new BrowserWindow({
         width: 600,
-        height: 600,
+        height: 490,
         parent: mainWindow,
-        onClose: () => (addProfileWindow = null),
+        modal: true,
+        webPreferences: {
+            // No need for preload if you are not using it
+            nodeIntegration: true, // This allows you to access Node.js in your renderer process
+            contextIsolation: false // Allows direct access to ipcRenderer from the renderer process
+        },
     });
 
-    // Ensure the window is not reused elsewhere
-    addProfileWindow.webContents.on('did-finish-load', () => {
-        // You can send specific data or commands here if necessary
+    addProfileWindow.loadFile(path.join(__dirname, 'profiles', 'addProfile.html'));
+
+    addProfileWindow.on('closed', () => {
+        addProfileWindow = null;
+        if (mainWindow) mainWindow.focus();
     });
 }
 
-// Listen for the event from index.js
+// Listen for the event to open the Add Profile window from the index page
 ipcMain.on('open-add-profile-from-index-window', () => {
+    // If addProfileWindow doesn't exist, create it
     if (!addProfileWindow) {
-        createAddProfileFromIndexWindow();
+        createAddProfileWindow();
     } else {
         addProfileWindow.focus();
     }
 });
 
-function createAddProfileWindow() {
-    addProfileWindow = createWindow({
-        filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
-        width: 585,
-        height: 485,
-        parent: mainWindow,
-        onClose: () => (addProfileWindow = null),
-    });
-
-    addProfileWindow.webContents.on('did-finish-load', () => {
-        // You can send specific data or commands here if necessary
-    });
-}
-
 function createEditProfileWindow(record) {
     editProfileWindow = createWindow({
         filePath: path.join(__dirname, 'profiles', 'editProfile.html'),
         width: 585,
-        height: 485,
+        height: 405,
 
         parent: mainWindow,
         onClose: () => (editProfileWindow = null),
@@ -1492,8 +1480,8 @@ ipcMain.on('open-edit-profile-window', (event, record) => {
 });
 
 
-//BACKUP/RESTORE EXCEL FILES
-const ExcelJS = require('exceljs'); // For handling Excel files
+//SETTINGS
+//BACKUP & RESTORE EXCEL FILES
 
 
 // Export Profiles to Excel (excluding Profile ID)
@@ -1550,7 +1538,7 @@ ipcMain.handle('exportProfilesToExcel', async () => {
     }
 });
 
-// Import Profiles from Excel (with validation and merge functionality)
+// Import Profiles from Excel 
 ipcMain.handle('importProfilesFromExcel', async () => {
     try {
         const { filePaths } = await dialog.showOpenDialog({
@@ -1642,77 +1630,8 @@ ipcMain.handle('importProfilesFromExcel', async () => {
     }
 });
 
-
-// Import Books from Excel (with merge functionality)
-ipcMain.handle('importBooksFromExcel', async () => {
-    try {
-        const { filePaths } = await dialog.showOpenDialog({
-            title: 'Select Excel File',
-            filters: [{ name: 'Excel Files', extensions: ['xlsx'] }],
-            properties: ['openFile']
-        });
-
-        if (filePaths.length === 0) return { message: 'Import canceled.' };
-
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.readFile(filePaths[0]);
-
-        const worksheet = workbook.getWorksheet('Books');
-        worksheet.eachRow(async (row, rowNumber) => {
-            if (rowNumber > 1) { // Skip header row
-                const book = {
-                    id: row.getCell(1).value,
-                    title_of_book: row.getCell(2).value,
-                    author: row.getCell(3).value,
-                    year: row.getCell(4).value,
-                    number: row.getCell(5).value,
-                    date_received: row.getCell(6).value,
-                    class: row.getCell(7).value,
-                    source_of_fund: row.getCell(8).value,
-                    cost_price: row.getCell(9).value,
-                    publisher: row.getCell(10).value,
-                    remarks: row.getCell(11).value,
-                    volume: row.getCell(12).value,
-                    pages: row.getCell(13).value,
-                    condition: row.getCell(14).value
-                };
-
-                const existingBook = await executeSelectQuery('SELECT * FROM books WHERE id = ?', [book.id]);
-
-                if (existingBook.length > 0) {
-                    // If the book exists, update the record
-                    await executeQuery(
-                        `UPDATE books SET 
-                            title_of_book = ?, author = ?, year = ?, number = ?, date_received = ?, class = ?, source_of_fund = ?, 
-                            cost_price = ?, publisher = ?, remarks = ?, volume = ?, pages = ?, condition = ? 
-                         WHERE id = ?`,
-                        [
-                            book.title_of_book, book.author, book.year, book.number, book.date_received, book.class,
-                            book.source_of_fund, book.cost_price, book.publisher, book.remarks, book.volume, book.pages,
-                            book.condition, book.id
-                        ]
-                    );
-                } else {
-                    // If the book doesn't exist, insert a new record
-                    await executeQuery(
-                        'INSERT INTO books (id, title_of_book, author, year, number, date_received, class, source_of_fund, cost_price, publisher, remarks, volume, pages, condition) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        [
-                            book.id, book.title_of_book, book.author, book.year, book.number, book.date_received, book.class,
-                            book.source_of_fund, book.cost_price, book.publisher, book.remarks, book.volume, book.pages, book.condition
-                        ]
-                    );
-                }
-            }
-        });
-
-        return { message: 'Books imported and merged successfully!' };
-    } catch (error) {
-        console.error('Error importing books:', error);
-        return { message: 'Error importing books.' };
-    }
-});
-
-
+//GENERATE REPORTS
+// + REPORTS
 // Export Books to Excel
 ipcMain.handle('exportBooksToExcel', async () => {
     try {
@@ -1720,19 +1639,31 @@ ipcMain.handle('exportBooksToExcel', async () => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Books');
 
-        // Dynamically add column headers based on the database schema
-        if (books.length > 0) {
-            const columns = Object.keys(books[0]).map((key) => ({
-                header: key,
-                key: key
-            }));
-            worksheet.columns = columns;
+        // Define readable column names
+        const columns = [
+            { header: 'ID', key: 'id', hidden: true },
+            { header: 'Book Number', key: 'number' },
+            { header: 'Date Received', key: 'date_received' },
+            { header: 'Class', key: 'class' },
+            { header: 'Author', key: 'author' },
+            { header: 'Title of Book', key: 'title_of_book' },
+            { header: 'Edition', key: 'edition' },
+            { header: 'Source of Fund', key: 'source_of_fund' },
+            { header: 'Cost Price', key: 'cost_price' },
+            { header: 'Publisher', key: 'publisher' },
+            { header: 'Year', key: 'year' },
+            { header: 'Remarks', key: 'remarks' },
+            { header: 'Volume', key: 'volume' },
+            { header: 'Pages', key: 'pages' },
+            { header: 'Condition', key: 'condition' },
+            { header: 'Created At', key: 'createdAt', hidden: true } // Hide the createdAt column
+        ];
+        worksheet.columns = columns;
 
-            // Add rows from books data (as-is from database)
-            books.forEach(book => {
-                worksheet.addRow(book);
-            });
-        }
+        // Add rows from books data
+        books.forEach(book => {
+            worksheet.addRow(book);
+        });
 
         const { filePath } = await dialog.showSaveDialog({
             title: 'Save Excel File',
@@ -1752,3 +1683,377 @@ ipcMain.handle('exportBooksToExcel', async () => {
     }
 });
 
+// Import Books 
+ipcMain.handle('importBooksFromExcel', async () => {
+    try {
+        const { filePaths } = await dialog.showOpenDialog({
+            title: 'Select Excel File',
+            filters: [{ name: 'Excel Files', extensions: ['xlsx'] }],
+            properties: ['openFile']
+        });
+
+        if (filePaths.length === 0) return { message: 'Import canceled.' };
+
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(filePaths[0]);
+
+        const worksheet = workbook.getWorksheet('Books'); // Adjusted to match your export worksheet name
+        let importedCount = 0; // Track the number of successfully imported books
+
+        // Loop through each row, validating and merging data
+        for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) { // Start from the second row
+            const row = worksheet.getRow(rowNumber);
+            const title_of_book = row.getCell(6).value; // Assuming this is the "Title of Book" column
+
+            // Validate for missing title
+            if (!title_of_book) {
+                console.warn(`Row ${rowNumber} has incomplete data: Title of Book is required.`);
+                continue; // Skip rows without the title of book
+            }
+
+            const book = {
+                id: row.getCell(1).value,                // Excel Column: "ID"
+                number: row.getCell(2).value,            // Excel Column: "Book Number"
+                date_received: row.getCell(3).value,     // Excel Column: "Date Received"
+                class: row.getCell(4).value,             // Excel Column: "Class"
+                author: row.getCell(5).value,            // Excel Column: "Author"
+                title_of_book: title_of_book,             // Required Title
+                edition: row.getCell(7).value,           // Excel Column: "Edition"
+                source_of_fund: row.getCell(8).value,    // Excel Column: "Source of Fund"
+                cost_price: row.getCell(9).value,        // Excel Column: "Cost Price"
+                publisher: row.getCell(10).value,        // Excel Column: "Publisher"
+                year: row.getCell(11).value,             // Excel Column: "Year"
+                remarks: row.getCell(12).value,          // Excel Column: "Remarks"
+                volume: row.getCell(13).value,           // Excel Column: "Volume"
+                pages: row.getCell(14).value,            // Excel Column: "Pages"
+                createdAt: row.getCell(15).value,        // Excel Column: "Created At"
+                condition: row.getCell(16).value         // Excel Column: "Condition"
+            };
+
+            // Check if the Book ID already exists
+            if (book.id) {
+                const existingBook = await executeSelectQuery('SELECT * FROM books WHERE id = ?', [book.id]);
+
+                if (existingBook.length > 0) {
+                    // If Book ID exists, merge the book (update the existing record)
+                    await executeQuery(
+                        `UPDATE books SET 
+                            number = ?, date_received = ?, class = ?, author = ?, title_of_book = ?, edition = ?, source_of_fund = ?, cost_price = ?, publisher = ?, year = ?, remarks = ?, volume = ?, pages = ?, createdAt = ?, condition = ? 
+                         WHERE id = ?`,
+                        [
+                            book.number, book.date_received, book.class, book.author, 
+                            book.title_of_book, book.edition, book.source_of_fund, 
+                            book.cost_price, book.publisher, book.year, 
+                            book.remarks, book.volume, book.pages, 
+                            book.createdAt, book.condition, book.id
+                        ]
+                    );
+                } else {
+                    // If the ID is provided but doesn't exist in the database, insert the record with that ID
+                    await executeQuery(
+                        `INSERT INTO books (id, number, date_received, class, author, title_of_book, edition, source_of_fund, cost_price, publisher, year, remarks, volume, pages, createdAt, condition) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            book.id, book.number, book.date_received, book.class, book.author, 
+                            book.title_of_book, book.edition, book.source_of_fund, 
+                            book.cost_price, book.publisher, book.year, 
+                            book.remarks, book.volume, book.pages, 
+                            book.createdAt, book.condition
+                        ]
+                    );
+                }
+            } else {
+                // If no ID is provided, insert a new record and let the database auto-increment the ID
+                await executeInsertQuery(
+                    `INSERT INTO books (number, date_received, class, author, title_of_book, edition, source_of_fund, cost_price, publisher, year, remarks, volume, pages, createdAt, condition) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        book.number, book.date_received, book.class, book.author, 
+                        book.title_of_book, book.edition, book.source_of_fund, 
+                        book.cost_price, book.publisher, book.year, 
+                        book.remarks, book.volume, book.pages, 
+                        book.createdAt, book.condition
+                    ]
+                );
+            }
+
+            importedCount++; // Increment the count of successfully imported books
+        }
+
+        // Show success message if some books were imported
+        if (importedCount > 0) {
+            await dialog.showMessageBox({
+                type: 'info',
+                title: 'Import Successful',
+                message: `${importedCount} Books imported and merged successfully!`,
+                buttons: ['OK']
+            });
+        }
+
+    } catch (error) {
+        console.error('Error importing books:', error);
+        return { message: 'Error importing books.' };
+    }
+});
+
+// GENERATE REPORTS
+let reportsWindow = null; // Initialize the reportsWindow variable
+
+// Open reports window handler
+ipcMain.handle('open-reports-window', (event) => {
+    createReportsWindow(); // Create the reports window
+});
+
+// Function to create the Reports Window
+function createReportsWindow() {
+    if (!reportsWindow) {
+        reportsWindow = new BrowserWindow({
+            width: 400,
+            height: 600,
+            resizable: false,
+            parent: mainWindow,
+            modal: true,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
+        });      
+
+        reportsWindow.loadFile(path.join(__dirname, 'reports.html')); // Load the reports HTML file
+
+        // Log when the reports window is opened
+        console.log('Reports window created');
+
+        reportsWindow.on('closed', () => {
+            reportsWindow = null; // Clear reference on close
+        });
+    } else {
+        reportsWindow.focus(); // Focus on the existing window if it's already open
+    }
+}
+
+// Books Availability
+ipcMain.handle('checkBooksAvailability', async () => {
+    try {
+        // Query to get book information and its status, including the book ID
+        const booksAvailability = await executeSelectQuery(`
+            SELECT 
+                b.id,  -- Add book ID
+                b.title_of_book, 
+                b.year, 
+                b.edition, 
+                b.volume,
+                CASE 
+                    WHEN br.borrowStatus = 'borrowed' THEN 'Not Available'
+                    ELSE 'Available'
+                END AS book_status
+            FROM books b
+            LEFT JOIN borrow br ON b.id = br.book_id
+            GROUP BY b.id, b.title_of_book, b.year, b.edition, b.volume
+        `);
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Books Availability');
+
+        // Define readable column names, adding a hidden 'Book ID' column
+        const columns = [
+            { header: 'Book ID', key: 'id', hidden: true },  // Hidden Book ID column
+            { header: 'Title of Book', key: 'title_of_book' },
+            { header: 'Year', key: 'year' },
+            { header: 'Edition', key: 'edition' },
+            { header: 'Volume', key: 'volume' },
+            { header: 'Book Status', key: 'book_status' }
+        ];
+        worksheet.columns = columns;
+
+        // Add rows from books status data
+        booksAvailability.forEach(book => {
+            worksheet.addRow(book);
+        });
+
+        // Apply conditional formatting: Green for 'Available' books (for entire row)
+        worksheet.eachRow((row, rowNumber) => {
+            const bookStatusCell = row.getCell('book_status');
+            if (bookStatusCell.value === 'Available') {
+                row.eachCell({ includeEmpty: true }, (cell) => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FF00FF00' }, // Green color for available books
+                    };
+                });
+            }
+        });
+
+        // Apply dropdown (data validation) for the "Book Status" column
+        worksheet.getColumn('book_status').eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+            if (rowNumber > 1) { // Skip header row
+                cell.dataValidation = {
+                    type: 'list',
+                    allowBlank: true,
+                    formula1: '"Available,Not Available"', // Dropdown options
+                    showDropDown: true
+                };
+            }
+        });
+
+        // Apply auto-filter to the worksheet
+        worksheet.autoFilter = {
+            from: 'A1',
+            to: 'F1' // Adjust if the range changes
+        };
+
+        // Calculate availability statistics
+        const totalBooks = booksAvailability.length;
+        const availableBooks = booksAvailability.filter(book => book.book_status === 'Available').length;
+        const notAvailableBooks = totalBooks - availableBooks;
+        const availablePercentage = ((availableBooks / totalBooks) * 100).toFixed(2);
+        const notAvailablePercentage = (100 - availablePercentage).toFixed(2);
+
+        // Add summary to a new sheet
+        const summarySheet = workbook.addWorksheet('Summary');
+        summarySheet.addRow(['Status', 'Count', 'Percentage']);
+        summarySheet.addRow(['Available', availableBooks, `${availablePercentage}%`]);
+        summarySheet.addRow(['Not Available', notAvailableBooks, `${notAvailablePercentage}%`]);
+
+        const { filePath } = await dialog.showSaveDialog({
+            title: 'Save Excel File',
+            defaultPath: 'books_status.xlsx',
+            filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+        });
+
+        if (filePath) {
+            await workbook.xlsx.writeFile(filePath);
+            return { message: 'Books status exported successfully with summary!' };
+        }
+
+        return { message: 'Export canceled.' };
+    } catch (error) {
+        console.error('Error exporting books status:', error);
+        return { message: 'Error exporting books status.' };
+    }
+});
+
+// Borrowing Details - Handle generating reports based on time period and category
+// Define function to get SQL time condition based on borrowDate and selected time period
+function getTimePeriodCondition(timePeriod) {
+    let condition = '1 = 1';  // Default condition to match all records ("all time")
+
+    switch (timePeriod) {
+        case 'weekly':
+            condition = "br.borrowDate >= DATE('now', '-7 days')";
+            break;
+        case 'monthly':
+            condition = "br.borrowDate >= DATE('now', '-1 month')";
+            break;
+        case 'yearly':
+            condition = "br.borrowDate >= DATE('now', '-1 year')";
+            break;
+        case 'all time':
+        default:
+            condition = '1 = 1';  // No time limit, return all records
+            break;
+    }
+
+    return condition;
+}
+
+ipcMain.handle('generateReport', async (event, timePeriod, category) => {
+    try {
+        console.log(`Generating report for time period: ${timePeriod}, category: ${category}`);
+        let query;
+        let reportData = [];
+
+        if (category === 'borrowing-history') {
+            query = `
+                SELECT 
+                    br.borrower_id,       -- Borrower ID
+                    p.name AS borrower_name, -- Borrower Name
+                    b.title_of_book AS book_title, -- Book Title
+                    br.borrowDate,        -- Borrow Date
+                    br.borrowStatus,      -- Borrow Status
+                    br.returnDate,        -- Return Date
+                    br.dueDate            -- Due Date
+                FROM borrow br
+                JOIN Profiles p ON br.borrower_id = p.borrower_id
+                JOIN books b ON br.book_id = b.id
+                WHERE ${getTimePeriodCondition(timePeriod)}  -- Apply time period condition based on borrowDate
+                ORDER BY br.borrowDate DESC  -- Sort by borrowDate in descending order
+            `;
+        } else if (category === 'most-borrowed-books') {
+            query = `
+                SELECT 
+                    b.id AS book_id,                     -- Book ID
+                    b.title_of_book AS book_title,       -- Book Title
+                    b.year AS year,                     -- Year
+                    b.edition AS edition,               -- Edition
+                    b.volume AS volume,                 -- Volume
+                    COUNT(br.book_id) AS borrow_count   -- Number of times borrowed
+                FROM borrow br
+                JOIN books b ON br.book_id = b.id
+                WHERE ${getTimePeriodCondition(timePeriod)}  -- Apply time period condition
+                GROUP BY b.id, b.title_of_book, b.year, b.edition, b.volume  -- Group by all book fields
+                ORDER BY borrow_count DESC  -- Order by borrow count in descending order
+            `;
+        }
+
+        console.log('SQL Query:', query);
+        reportData = await executeSelectQuery(query);
+        console.log('Report Data:', reportData);
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet(category === 'borrowing-history' ? 'Borrowing History' : 'Most Borrowed Books');
+
+        // Define columns for the Excel worksheet
+        let columns = [];
+
+        if (category === 'borrowing-history') {
+            columns = [
+                { header: 'Borrower Name', key: 'borrower_name' },
+                { header: 'Book Title', key: 'book_title' },
+                { header: 'Borrow Date', key: 'borrowDate' },
+                { header: 'Borrow Status', key: 'borrowStatus' },
+                { header: 'Return Date', key: 'returnDate' },
+                { header: 'Due Date', key: 'dueDate' }
+            ];
+        } else if (category === 'most-borrowed-books') {
+            columns = [
+                { header: 'Book ID', key: 'book_id' },         // New column for Book ID
+                { header: 'Book Title', key: 'book_title' },
+                { header: 'Year', key: 'year' },               // New column for Year
+                { header: 'Edition', key: 'edition' },         // New column for Edition
+                { header: 'Volume', key: 'volume' },           // New column for Volume
+                { header: 'Times Borrowed', key: 'borrow_count' }
+            ];
+        }
+
+        worksheet.columns = columns;
+
+        // Add rows to the worksheet from the report data
+        reportData.forEach(row => worksheet.addRow(row));
+
+        // Add auto-filter to the first row
+        worksheet.autoFilter = {
+            from: 'A1',
+            to: `${String.fromCharCode(64 + worksheet.columns.length)}1`  // Dynamically set the last column for autofilter
+        };
+
+        // Show a save dialog to save the Excel file
+        const { filePath } = await dialog.showSaveDialog({
+            title: 'Save Report as Excel',
+            defaultPath: `${category}_report.xlsx`,
+            filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+        });
+
+        if (filePath) {
+            await workbook.xlsx.writeFile(filePath);
+            console.log('File saved:', filePath);
+            return { message: `${category === 'borrowing-history' ? 'Borrowing history' : 'Most borrowed books'} report exported successfully!` };
+        }
+
+        return { message: 'Export canceled.' };
+    } catch (error) {
+        console.error('Error generating report:', error);
+        return { message: 'Error generating report.' };
+    }
+});

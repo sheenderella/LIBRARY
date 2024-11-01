@@ -238,3 +238,52 @@ body {
 button i {
     margin-right: 10px; /* Adjust the value as needed */
 }
+
+/* MODAL */
+.modal-content {
+    border-radius: 8px; /* Rounded corners for the modal */
+}
+
+.modal-header {
+    background-color: #30688B; /* Custom background color */
+    color: #fff; /* Text color */
+}
+
+.modal-title {
+    font-size: 18px; /* Size of the modal title */
+}
+
+.modal-body {
+    font-family: Arial, sans-serif; /* Change font */
+    padding: 20px; /* Adjust padding */
+}
+
+h6 {
+    margin-bottom: 15px; /* Space below heading */
+}
+
+.btn {
+    border-radius: 5px; /* Rounded button corners */
+    padding: 10px; /* Adjust button padding */
+}
+
+.btn-primary, .btn-secondary {
+    background-color: #30688B; /* Custom color for both buttons */
+    border: 0 !important; /* Remove border */
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    background-color: #3A79A0 !important; /* Hover effect */
+}
+
+.btn-close {
+    border: none;
+    background: transparent; /* Transparent background */
+    color: #000; /* Color of the 'X' */
+    font-size: 20px; /* Size of the 'X' */
+    cursor: pointer; /* Pointer cursor */
+    position: absolute; /* Positioning */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    padding: 0; /* Remove padding */
+}

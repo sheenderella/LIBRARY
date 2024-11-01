@@ -1,64 +1,53 @@
-// reports.js
-
 const { ipcRenderer } = require('electron');
 
-// Get references to the DOM elements
-const listBooksBtn = document.getElementById('list-books-btn');
-const generateReportBtn = document.getElementById('generate-report-btn');
-const timePeriodSelect = document.getElementById('time-period');
-const categorySelect = document.getElementById('category');
-
-// Handle "List of Books" button click
-listBooksBtn.addEventListener('click', () => {
-    ipcRenderer.invoke('getBookTitles')
-        .then((bookTitles) => {
-            if (bookTitles.length > 0) {
-                alert('Books:\n' + bookTitles.join('\n'));
-            } else {
-                alert('No books found.');
-            }
-        })
-        .catch((error) => {
-            console.error('Error fetching book titles:', error);
-            alert('Failed to fetch book titles.');
-        });
-});
-
-// Handle "Generate Report" button click
-generateReportBtn.addEventListener('click', () => {
-    const timePeriod = timePeriodSelect.value;
-    const category = categorySelect.value;
-
-    ipcRenderer.invoke('generateReport', { timePeriod, category })
-        .then((reportData) => {
-            displayReport(reportData);
-        })
-        .catch((error) => {
-            console.error('Error generating report:', error);
-            alert('Failed to generate report.');
-        });
-});
-
-// Function to display the report data in a modal or new window (you can customize this part)
-function displayReport(reportData) {
-    let reportContent = '';
-
-    if (Array.isArray(reportData) && reportData.length > 0) {
-        reportContent = reportData.map(record => JSON.stringify(record)).join('\n');
-    } else {
-        reportContent = 'No data available for the selected criteria.';
+// Event listener for the 'List of Books' button
+document.getElementById('list-books-btn').addEventListener('click', async () => {
+    try {
+        // Trigger the Excel export via ipcRenderer
+        const result = await ipcRenderer.invoke('exportBooksToExcel');
+        
+        // Notify the user of the result
+        alert(result.message);
+    } catch (error) {
+        console.error('Error generating book list:', error);
+        alert('An error occurred while generating the book list.');
     }
-
-    // Show the report in an alert (you can improve this by displaying it in a modal or new section in the page)
-    alert('Report Data:\n' + reportContent);
-}
-
-// Listen for success/failure events for reports
-ipcRenderer.on('report-generated-success', (event, message) => {
-    console.log(message); // Log success message
 });
 
-ipcRenderer.on('report-generated-failure', (event, message) => {
-    console.error(message); // Log failure message
-    alert(message); // Optionally, notify the user
+
+//BOOKS AVAILABILITY
+// Event listener for the 'Books Availability' button
+document.getElementById('books-availability-btn').addEventListener('click', async () => {
+    try {
+        // Trigger the Excel export for books availability
+        const result = await ipcRenderer.invoke('checkBooksAvailability');
+        
+        // Notify the user of the result
+        alert(result.message);
+    } catch (error) {
+        console.error('Error generating books availability:', error);
+        alert('An error occurred while generating the books availability report.');
+    }
+});
+
+//
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const reportFilterForm = document.getElementById('reportFilterForm');
+
+    reportFilterForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const timePeriod = document.getElementById('time-period').value;
+        const category = document.getElementById('category').value;
+
+        ipcRenderer.invoke('generateReport', timePeriod, category)
+            .then(response => {
+                alert(response.message);
+            })
+            .catch(error => {
+                console.error('Error generating report:', error);
+            });
+    });
 });

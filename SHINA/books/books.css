@@ -23,6 +23,17 @@ body {
     margin-left: 5px;
 }
 
+.button-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.right-side-buttons {
+    display: inline-block;
+    align-items: flex-end;
+}
+
 #columnForm {
     overflow-y: scroll;
     height: 12rem;
@@ -32,8 +43,8 @@ body {
 .column-visibility-form {
     display: none;
     position: absolute;
-    top: 33.6%;
-    right: 4.9%;
+    top: 35.5%;
+    right: 1.5%;
     background-color: whitesmoke;
     border: 1px solid grey;
     border-radius: 5px;
@@ -52,56 +63,72 @@ body {
     width: 5.5rem;
 }
 
-/* General Button Styles */
-/* Buttons */
-/* .btn {
-    display: flexbox;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 10px;
-    height: 3rem;
-} */
-
 .btn-success {
-    background-color: #28a745;
-    color: white;
+    background-color: #28a745!important; /* Green */
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
 }
 
-.btn-success i{
-    margin: 0 7px 0 7px;
-    font-size: larger;
+.btn-success:hover {
+    background-color: #218838!important; /* Darker green */
 }
+
+.btn-success:active {
+    background-color: #1e7e34!important; /* Even darker green */
+    transform: scale(0.98); /* Slight shrink on click */
+}
+
 
 .btn-danger {
-    background-color: #dc3545;
-    color: white;
-    width: 3.5rem;
+    background-color: #dc3545!important; /* Red */
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
 }
+
+.btn-danger :hover {
+    background-color: #c82333!important; /* Darker red */
+}
+
+.btn-danger :active {
+    background-color: #bd2130!important; /* Even darker red */
+    transform: scale(0.98); /* Slight shrink on click */
+}
+
 
 .btn-secondary {
-    width: 3.5rem;
+    background-color: #7d7d7d !important; /* Set the background color to gray */
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
 }
 
-.btn:hover {
-    opacity: 0.8;
+.btn-secondary:hover {
+    background-color: #666666  !important; /* Darker gray on hover *//
 }
 
-.right-side-buttons {
-    float: right;
-    margin-top: -50px;
+.btn-secondary:active {
+    background-color: #505050  !important; /* Darker gray when active */
+    transform: scale(0.98); /* Slight shrink on click */
 }
+
+
 
 /* Date Range Container */
 .date-range-container {
-    display: flex;
-    align-items: center;
     position: relative;
-    margin-right: 20px;
-    float: right;
-    right: 13rem;
+    display: flex;
+    margin: 1rem;
 }
 
 .date-range-container .icon {
@@ -111,6 +138,8 @@ body {
     border: 1px solid #1f1f1f;
     border-top-left-radius: 9px;
     border-bottom-left-radius: 9px;
+    position: relative;
+    display: inline-block;
 }
 
 #dateRangeSelect {
@@ -122,6 +151,9 @@ body {
     border-bottom-right-radius: 9px;
     height: 3rem;
     width: 8rem;
+    display: inline-block;
+    margin-left: -.3rem;
+    margin-right: 2rem;
 }
 
 /* CUSTOM DATE FORM */
@@ -129,7 +161,6 @@ body {
     display: none;
     position: absolute;
     top: 100%;
-    left: 0;
     background-color: whitesmoke;
     border: 1px solid grey;
     border-radius: 5px;
@@ -169,57 +200,75 @@ body {
 }
 
 /* Dropdown Container */
-.dropdown-container {
-    float: left;
+.right-side {
+    display: flex;
+    justify-content: flex-start; /* Align all elements to the left */
+    align-items: center; /* Align items vertically in the center */
+}
+
+.custom-dropdown,
+.input-container,
+.date-range-container {
+    position: relative;
+    display: inline-block; /* Ensure each container behaves inline */
+}
+
+.dropdown-icon {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Prevent icon from blocking select dropdown interaction */
+    font-size: medium;
 }
 
 .dropdown-container .icon {
     background-color: #30688B;
-    top: 25px;
     padding: 0.95rem;
     color: whitesmoke;
     border: 1px solid #1f1f1f;
     border-top-left-radius: 9px;
     border-bottom-left-radius: 9px;
-    margin-right: -4px;
 }
 
+/* Hide the default dropdown arrow */
 .drop-search-form {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
     height: 2.98rem;
     margin-right: 1rem;
-    width: 7rem;
+    width: 5rem;
+    padding-left: 8px;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 30px; /* Space for the icon */
+    cursor: pointer;
 }
 
 .search-form-control {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
     height: 3rem;
-    margin-right: 1rem;
 }
 
 .input-container {
     display: flex;
     align-items: center;
-    margin-right: 3.5rem;
 }
 
 .input-container input {
-    padding: 5px;
+    padding-left: 15px;
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    border-top-right-radius: 9px;
-    border-bottom-right-radius: 9px;
-    width: 200px;
+    width: 15rem;
     height: 3rem;
+    margin-left: -1.05rem;
 }
 
 .input-container .icon {
@@ -227,8 +276,9 @@ body {
     padding: .95rem;
     color: whitesmoke;
     border: 1px solid #1f1f1f;
-    border-top-left-radius: 9px;
-    border-bottom-left-radius: 9px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    margin-left: -2rem;
 }
 
 /* Container Styling */
@@ -238,7 +288,7 @@ body {
     margin-top: 1rem;
 }
 
-/* Sticky Scrollbar Styling */
+
 /* Sticky Scrollbar Styling */
 .scrollbar-top {
     position: sticky;
@@ -286,8 +336,7 @@ td input[type="checkbox"] {
     table-layout: auto; /* Allows cells to adjust width based on content */
 }
 
-/* Styling for table headers */
-/* Styling for table headers */
+
 /* Styling for table headers */
 .table-container th {
     background-color: #30688B;
@@ -371,6 +420,80 @@ td input[type="checkbox"] {
 }
 
 
+
+/* Icon button styling */
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    padding: 1em;
+}
+
+/* Icon Section: Styling for edit and delete icons */
+.delete-btn,.edit-btn {
+    display: inline-block;
+    color: #4C4C4C !important;
+    font-size: 18px;
+    background: none !important; /* Remove background for icons */
+    border: none !important; /* Ensure no border around icons */
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Icon Section: Styling for edit and delete icons */
+.delete-btn:hover ,.edit-btn:hover  {
+    color: #333C42 !important;
+}
+
+
+/* Empty message cell styling */
+.empty-message-cell {
+    text-align: center;
+    padding: 3.45rem 0;
+    font-size: 1.5rem;
+    color: #555555;
+    background-color: #f9f9f9;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    height: 10rem;
+}
+
+
+
+
+
+/* NOTIFICATION */
+/* Notification styles */
+#notification {
+    position: fixed;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    background-color: #4CAF50; /* Default to green; can be overridden */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(100%); /* Hide off-screen */
+}
+
+#notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Move into view */
+}
+
+
+
+
+
+
+
+
 /* PAGINATION */
 /* Style for pagination controls container */
 #paginationControls {
@@ -428,87 +551,7 @@ td input[type="checkbox"] {
     color: whitesmoke; /* Dark color for icons */
 }
 
-/* Icon button styling */
-.icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-    padding: 1em;
-}
 
-/* Edit button styling */
-.edit-btn {
-    color: #17a2b8;
-    font-size: large;
-    border: none;
-    background-color: transparent;
-    box-shadow: none;
-}
-
-/* Delete button styling */
-.delete-btn {
-    color: #da1313;
-    font-size: large;
-    border: none;
-    background-color: transparent;
-    box-shadow: none;
-}
-
-/* Hover effects for icon buttons */
-.icon-btn:hover {
-    opacity: 0.7;
-}
-
-.delete-btn:hover {
-    color: #a30e0e;
-}
-
-.edit-btn:hover {
-    color: #30688B;
-}
-
-/* Empty message cell styling */
-.empty-message-cell {
-    text-align: center;
-    padding: 3.45rem 0;
-    font-size: 1.5rem;
-    color: #555555;
-    background-color: #f9f9f9;
-    border: 1px solid #dddddd;
-    border-radius: 4px;
-    height: 10rem;
-}
-
-/* NOTIFICATION WINDOW FOR UPDATE AND ADDING BOOKS */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    border-radius: 5px;
-    color: white;
-    font-weight: bold;
-    z-index: 1000;
-    opacity: 0.9;
-    transition: opacity 0.5s ease-in-out;
-}
-
-.notification.success {
-    background-color: #28a745;
-}
-
-.notification.error {
-    background-color: #dc3545;
-}
-
-.notification-warning {
-    background-color: #FFC107; /* Yellow */
-    color: #1f1f1f; /* Dark text for contrast */
-}
 
 
 /* SIDE NAVBAR */

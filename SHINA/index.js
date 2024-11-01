@@ -45,6 +45,10 @@ if (logoutLink) {
         });
     }
     
+
+
+
+    
 // REPORTS
 // Open reports window when the button is clicked
 const openReportsButton = document.getElementById('openReportsButton');
@@ -150,6 +154,10 @@ if (openReportsButton) {
     });
 
 
+
+
+
+
 // PIECHART
 // Fetch data for the pie chart (all statuses)
 Promise.all([
@@ -219,4 +227,76 @@ Promise.all([
 });
 
 
+});
+// NOTIF
+// Fetch and display overdue notifications
+async function checkForOverdueNotifications() {
+    try {
+        const borrowRecords = await ipcRenderer.invoke('getBorrows');
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Filter overdue records where the status is not "Returned", "Returned Overdue", or "Borrowed"
+        const overdueRecords = borrowRecords.filter(record => 
+            record.dueDate < today && !['returned', 'returned overdue', 'borrowed'].includes(record.borrowStatus)
+        );
+
+        // Update notification count and list
+        updateNotificationSidebar(overdueRecords);
+    } catch (error) {
+        console.error('Error fetching overdue notifications:', error);
+    }
+}
+
+// Update the notification count and list dynamically
+function updateNotificationSidebar(overdueRecords) {
+    const notificationCount = document.getElementById('notificationCount');
+    const notificationList = document.getElementById('notificationList');
+    
+    // Update notification count
+    notificationCount.textContent = overdueRecords.length;
+    
+    // Clear existing notifications
+    notificationList.innerHTML = '';
+
+    // Check if there are overdue records
+    if (overdueRecords.length === 0) {
+        // Display a message if there are no notifications
+        const noNotificationItem = document.createElement('li');
+        noNotificationItem.classList.add('notification-item');
+        noNotificationItem.innerHTML = '<p>No notifications yet.</p>';
+        notificationList.appendChild(noNotificationItem);
+    } else {
+        // Display each overdue notification
+        overdueRecords.forEach(record => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('notification-item');
+            listItem.innerHTML = `
+                <p>${record.borrower_name} has still not returned the book "${record.book_title}" (Due: ${record.dueDate}).</p>
+            `;
+
+            // Redirect to borrow.html on click
+            listItem.addEventListener('click', () => {
+                window.location.href = 'borrow/borrow.html';
+            });
+
+            notificationList.appendChild(listItem);
+        });
+    }
+}
+
+// Toggle sidebar visibility on notification button click
+document.getElementById('notificationButton').addEventListener('click', () => {
+    const sidebar = document.getElementById('notificationSidebar');
+    sidebar.classList.toggle('open');
+});
+
+// Close sidebar on close button click
+document.getElementById('closeSidebarButton').addEventListener('click', () => {
+    const sidebar = document.getElementById('notificationSidebar');
+    sidebar.classList.remove('open');
+});
+
+// Load overdue notifications on app start
+window.addEventListener('DOMContentLoaded', () => {
+    checkForOverdueNotifications();
 });

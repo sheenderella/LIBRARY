@@ -23,29 +23,62 @@ body {
     margin-left: 5px;
 }
 
+
 .btn-success {
-    background-color: #28a745;
-    color: white;
+    background-color: #28a745 !important; /* Green */
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
 }
 
-.btn-success i{
-    margin: 0 7px 0 7px;
-    font-size: larger;
+.btn-success:hover {
+    background-color: #218838!important; /* Darker green */
 }
+
+.btn-success:active {
+    background-color: #1e7e34!important; /* Even darker green */
+    transform: scale(0.98); /* Slight shrink on click */
+}
+
 
 .btn-danger {
-    background-color: #dc3545;
-    color: white;
-    width: 3.5rem;
+    background-color: #dc3545; /* Red */
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
 }
 
-.btn-secondary {
-    width: 3.5rem;
+.btn-danger :hover {
+    background-color: #c82333 !important; /* Darker red */
 }
 
-.btn:hover {
-    opacity: 0.8;
+.btn-danger :active {
+    background-color: #bd2130 !important; /* Even darker red */
+    transform: scale(0.98)  !important; /* Slight shrink on click */
 }
+
+/* Icon Section: Styling for edit and delete icons */
+.delete-btn,.edit-btn {
+    display: inline-block;
+    color: #4C4C4C !important;
+    font-size: 18px;
+    background: none !important; /* Remove background for icons */
+    border: none !important; /* Ensure no border around icons */
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Icon Section: Styling for edit and delete icons */
+.delete-btn:hover ,.edit-btn:hover  {
+    color: #333C42 !important;
+}
+
 
 .button-header {
     display: flex;
@@ -254,6 +287,27 @@ td input[type="checkbox"] {
     cursor: pointer;
 }
 
+/* Notification styles */
+#notification {
+    position: fixed;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    background-color: #4CAF50; /* Default to green; can be overridden */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(100%); /* Hide off-screen */
+    z-index: 1500;
+}
+
+#notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Move into view */
+}
+
 
 /* PAGINATION */
 /* Style for pagination controls container */
@@ -322,37 +376,6 @@ td input[type="checkbox"] {
     justify-content: center;
     font-size: 1.2em;
     padding: 1em;
-}
-
-/* Edit button styling */
-.edit-btn {
-    color: #17a2b8;
-    font-size: large;
-    border: none;
-    background-color: transparent;
-    box-shadow: none;
-}
-
-/* Delete button styling */
-.delete-btn {
-    color: #da1313;
-    font-size: large;
-    border: none;
-    background-color: transparent;
-    box-shadow: none;
-}
-
-/* Hover effects for icon buttons */
-.icon-btn:hover {
-    opacity: 0.7;
-}
-
-.delete-btn:hover {
-    color: #a30e0e;
-}
-
-.edit-btn:hover {
-    color: #30688B;
 }
 
 

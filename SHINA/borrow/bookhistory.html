@@ -2,19 +2,14 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
     
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-    <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-    
-    <link rel="stylesheet" href="borrowerLog.css">
+    <link rel="stylesheet" href="bookhistory.css">
 
     <title>GRUBA LAW LIBRARY</title>
 </head>
@@ -23,6 +18,7 @@
     <div id="wrapper" class="d-flex">
         <!-- Sidebar -->
         <nav id="sidebar-wrapper" class="text-white">
+
             <div class="sidebar-header p-3 d-flex flex-column align-items-left">
                 <button class="btn btn-outline-light btn-sm mb-3" id="sidebarCollapse" aria-label="Toggle Sidebar">
                     <i class="fas fa-bars"></i>
@@ -71,19 +67,31 @@
         </nav>
 
         <!-- Main Content -->
+        <div id="notification" class="notification"></div>
+
         <main id="page-content-wrapper" class="flex-grow-1 p-4">
             <!-- Back to Borrow Page Button -->
             <a href="borrow.html" id="backToBorrowPage" class="btn btn-secondary">
                 <i class="fa fa-arrow-left"></i>
             </a>
 
-        <!-- Page Heading -->
-        <h2 id="borrowerName">Loading borrower name...</h2>
-        <p id="borrowerContactDetails">Loading contact details...</p> <!-- This is where ID, email, and phone number will appear -->
+            <h2 id="bookTitle">Loading book title...</h2>
+            <p id="bookDetails">Book ID</p>
+            <p id="bookNumber"></p>
+            <p id="dateReceived"></p>
+            <p id="author"></p>
+            <p id="edition"></p>
+            <p id="sourceOfFund"></p>
+            <p id="costPrice"></p>
+            <p id="publisher"></p>
+            <p id="year"></p>
+            <p id="remarks"></p>
+            <p id="volume"></p>
+            <p id="pages"></p>
+            <p id="condition"></p>
+            <p id="class"></p>
 
-            <h1>Borrowing History</h1>
-
-            <div id="notification" class="notification"></div>
+            <h1>Book Borrowing History</h1>
 
             <!-- Filters Section -->
             <div class="controls">
@@ -91,12 +99,11 @@
                     <!-- Search Box -->
                     <div class="input-group col">
                         <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
-                        <input type="text" id="searchTitle" class="form-control" placeholder="Search by book title">
+                        <input type="text" id="searchTitle" class="form-control" placeholder="Search by name">
                     </div>
                 </div>
             </div>
 
-            <!-- Status Row Table -->
             <table id="statusTable">
                 <thead>
                     <tr id="statusRow">
@@ -107,18 +114,19 @@
                     </tr>
                 </thead>
             </table>
-
+            
 
             <!-- Borrower Log Table -->
-            <table id="borrowerLogTable">
+            <table id="bookHistoryTable">
                 <thead>
                     <tr id="columnHeader">
-                        <th>Book Title</th>
+                        <th>Borrower Name</th>
                         <th>Borrow Date</th>
                         <th>Due Date</th>
                         <th>Return Date</th>
                     </tr>
                 </thead>
+                
                 <tbody id="borrowerLogContainer">
                     <!-- Content will be loaded by JavaScript -->
                 </tbody>
@@ -145,19 +153,17 @@
             </div>
         </main>
     </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- JavaScript Files -->
-    <script src="borrowerLog.js" defer></script>
-    <script src="notification.js" defer></script>
-
-
-    <!-- Include Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
+    <!-- Custom JS -->
+    <script src="bookhistory.js"></script>
+    <script src="notification.js" defer></script>
 </body>
 
 </html>

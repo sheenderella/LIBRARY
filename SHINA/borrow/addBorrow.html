@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>GRUBA LAW LIBRARY</title>
+    <title>Log Borrower</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="addBorrow.css">
 </head>
@@ -12,78 +12,83 @@
             <div class="card-header text-center">
                 <img src="../logo/1.png" alt="Gruba Law Library" class="img-fluid mb-2">
             </div>
+            
             <div class="card-body">
-                <h1 class="text-center mb-4"> Add Borrower </h1>
+                <h1 class="text-center mb-4">Add Borrower</h1>
                 <form id="addBorrowForm">
                     
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Borrower ID: </small>
-                        <input class="form-control" type="text" id="addBorrowerID" placeholder="Borrower ID" required>
-                        <div id="borrowerSuggestionList" class="suggestion-list"></div> <!-- Div for borrower ID suggestions -->
-                    </div>
-                    
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Borrower Name: </small>
-                        <input class="form-control" type="text" id="addBorrowerName" placeholder="Borrower Name" required>
-                        <div id="nameSuggestionList" class="suggestion-list"></div> <!-- Div for borrower name suggestions -->
-                    </div>
-
-                    <div class="form-group">
-                        <small class="form-text text-muted">  Book Title: </small>
-                        <input class="form-control" type="text" id="addBookTitle" placeholder="Book Title" required>
-                        <div id="bookSuggestionList" class="suggestion-list"></div> <!-- Div for book title suggestions -->
-                    </div>
-
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Volume (put n/a if not applicable): </small>
-                        <input class="form-control" type="text" id="addVolume" placeholder="Volume ">
-                        <div id="volumeSuggestionList" class="suggestion-list"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Edition (put n/a if not applicable): </small>
-                        <input class="form-control" type="text" id="addEdition" placeholder="Edition ">
-                        <div id="editionSuggestionList" class="suggestion-list"></div> 
+                    <!-- Step 1 -->
+                    <div class="form-step" id="step1">
+                        <div class="form-group">
+                            <small class="form-text text-muted">Borrower ID:</small>
+                            <input class="form-control" type="text" id="addBorrowerID" placeholder="Borrower ID" required>
+                            <div id="borrowerSuggestionList" class="suggestion-list"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <small class="form-text text-muted">Borrower Name:</small>
+                            <input class="form-control" type="text" id="addBorrowerName" placeholder="Borrower Name" required>
+                            <div id="nameSuggestionList" class="suggestion-list"></div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary btn-block" onclick="nextStep()">Next</button>
                     </div>
 
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Year (put n/a if not applicable): </small>
-                        <input class="form-control" type="text" id="addYear" placeholder="Year">
-                        <div id="yearSuggestionList" class="suggestion-list"></div> <!-- Div for year suggestions -->
+                    <!-- Step 2 -->
+                    <div class="form-step" id="step2" style="display: none;">
+                        <div class="form-group">
+                            <small class="form-text text-muted">Book Title:</small>
+                            <input class="form-control" type="text" id="addBookTitle" placeholder="Book Title">
+                            <div id="bookSuggestionList" class="suggestion-list"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <small class="form-text text-muted">Volume (put n/a if not applicable):</small>
+                            <input class="form-control" type="text" id="addVolume" placeholder="Volume">
+                        </div>
+
+                        <div class="form-group">
+                            <small class="form-text text-muted">Edition (put n/a if not applicable):</small>
+                            <input class="form-control" type="text" id="addEdition" placeholder="Edition">
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-block" id="addBookButton">Add Book</button>
+
+                        <h5 class="mt-4">Books to Borrow:</h5>
+                        <ul id="borrowedBooksList" class="list-group mb-3"></ul>
+
+                        <button type="button" class="btn btn-secondary btn-block" onclick="prevStep()">Back</button>
+                        <button type="button" class="btn btn-primary btn-block" onclick="nextStep()">Next</button>
                     </div>
 
-                    <button type="button" id="addBookButton" class="btn btn-secondary mb-3">Add Another Book</button>
 
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Borrow Date: </small>
-                        <input class="form-control" type="date" id="addBorrowDate" required>
+                    <!-- Step 3 -->
+                    <div class="form-step" id="step3" style="display: none;">
+                        <div class="form-group">
+                            <small class="form-text text-muted">Borrow Date:</small>
+                            <input class="form-control" type="date" id="addBorrowDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <small class="form-text text-muted">Due Date:</small>
+                            <input class="form-control" type="date" id="addDueDate" required>
+                        </div>
+
+                        <input type="hidden" id="addBookId" value="">
+                        <button type="button" class="btn btn-secondary btn-block" onclick="prevStep()">Back</button>
+                        <button type="submit" class="btn btn-success btn-block">Submit</button>
                     </div>
-                    
-                    <div class="form-group">
-                        <small class="form-text text-muted"> Due Date: </small>
-                        <input class="form-control" type="date" id="addDueDate" placeholder="Due Date" required>
-                    </div>
-
-                    <input type="hidden" id="addBookId" value=""> <!-- Hidden input for book ID -->
-
-
-                    <button type="submit" class="btn btn-success btn-block">SUBMIT</button>
                 </form>
             </div>
         </div>
-
         <div id="error-modal" class="modal">
             <div class="modal-content">
-              <span id="modal-close" class="close">&times;</span>
-              <h2 id="modal-title"></h2>
-              <p id="modal-message"></p>
-
+                <span id="modal-close" class="close">&times;</span>
+                <h2 id="modal-title"></h2>
+                <p id="modal-message"></p>
             </div>
-          </div>
-        
-          
+        </div>
     </div>
-    
     <script src="addBorrow.js"></script>
     <script src="notification.js"></script>
 </body>

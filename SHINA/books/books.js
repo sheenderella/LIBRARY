@@ -112,8 +112,23 @@ function setupEventListeners() {
     
         // Ensure checkboxes are unchecked (columns visible)
         document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
-            checkbox.checked = false;
+            checkbox.checked = true;
         });
+
+            // Hide all columns except for the default ones
+    // document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+    //     // Uncheck all checkboxes except for the default visible columns
+    //     if (checkbox.getAttribute('data-column') !== 'checkbox' &&
+    //         checkbox.getAttribute('data-column') !== 'number' &&
+    //         checkbox.getAttribute('data-column') !== 'date_received' &&
+    //         checkbox.getAttribute('data-column') !== 'author' &&
+    //         checkbox.getAttribute('data-column') !== 'title_of_book' &&
+    //         checkbox.getAttribute('data-column') !== 'actions') {
+    //         checkbox.checked = true; // Set to unchecked
+    //     } else {
+    //         checkbox.checked = false; // Set to checked for default visible columns
+    //     }
+    // });
 
     //HIDE/UNHIDE COLUMNS
     // Initial call to apply column visibility settings
@@ -148,7 +163,10 @@ function setupEventListeners() {
             checkbox.checked = true;
         });
         document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
-            if (!el.classList.contains('column-title_of_book') &&
+            if (!el.classList.contains('column-date_received') &&
+                !el.classList.contains('column-author') &&
+                !el.classList.contains('column-number') &&
+                !el.classList.contains('column-title_of_book') &&
                 !el.classList.contains('column-actions') &&
                 !el.classList.contains('column-checkbox')) {
                 el.style.display = 'none';  // Hide columns
@@ -172,6 +190,13 @@ function setupEventListeners() {
             });
         });
     }); 
+
+    // Get today's date in the format YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
+
+    // Set the 'max' attribute for the start and end date inputs
+    document.getElementById('startDate').setAttribute('max', today);
+    document.getElementById('endDate').setAttribute('max', today);
 
     document.getElementById('dateRangeSelect').addEventListener('change', function() {
         const customRange = document.getElementById('customDateRange');
@@ -198,7 +223,7 @@ function setupEventListeners() {
             window.location.href = './login/login.html'; // Redirect to login page after logout
         }).catch(error => {
             console.error('Error during logout:', error);
-            alert('An error occurred. Please try again.');
+            showNotification('An error occurred. Please try again.', 'error');
         });
     });
 
@@ -259,10 +284,6 @@ function setupEventListeners() {
                 }
             });
             
-    
-    
- 
-
         // ADD-DELETE-EDIT ACTIONS
         addBookButton.addEventListener('click', () => {
             openAddBookWindow();
@@ -331,17 +352,6 @@ function setupIpcRenderers() {
     });
 }
 
-// Event listener setup for sort buttons
-function setupSortButtons() {
-    const sortButtons = document.querySelectorAll('.sort-btn');
-
-    sortButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            sortBooks(button.dataset.column, button);
-        });
-    });
-}
-
 function openEditBookWindow(record) {
     ipcRenderer.send('open-edit-book-window', record);
 }
@@ -374,7 +384,7 @@ function displayBooks() {
     const bookList = document.getElementById('bookList');
     bookList.innerHTML = '';
 
-    if (currentBooks.length === 0) {
+    if (currentBooks.length === null) {
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 15;
@@ -400,32 +410,33 @@ function getBooksForCurrentPage() {
 
 // Function to show notifications
 function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.classList.add('notification', type);
-
-    // Apply styles based on the type of notification
+    const notification = document.getElementById('notification');
+    
+    // Set the message text
+    notification.textContent = message;
+    
+    // Set background color based on type
     switch (type) {
         case 'success':
-            notification.classList.add('notification-success'); // Green styling
+            notification.style.backgroundColor = '#4CAF50'; // Green for success
             break;
         case 'error':
-            notification.classList.add('notification-error'); // Red styling
+            notification.style.backgroundColor = '#f44336'; // Red for error
             break;
-        case 'warning':
-            notification.classList.add('notification-warning'); // Yellow styling
+        case 'delete':
+            notification.style.backgroundColor = '#FF5722'; // Orange for delete
             break;
         default:
-            notification.classList.add('notification-success');
+            notification.style.backgroundColor = '#2196F3'; // Blue for default
     }
-
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    // Automatically remove the notification after 3 seconds
+    
+    // Add the show class to make it visible
+    notification.classList.add('show');
+    
+    // Remove the show class after 3 seconds (notification will fade out)
     setTimeout(() => {
-        notification.remove();
-    }, 3000);
+        notification.classList.remove('show');
+    }, 3000); // 3 seconds
 }
 
 function addBookToTable(book, prepend = false) {
@@ -457,6 +468,7 @@ function addBookToTable(book, prepend = false) {
         <td class="column-cost_price">${formattedCostPrice}</td>
         <td class="column-publisher">${book.publisher}</td>
         <td class="column-year">${book.year}</td>
+        <td class="column-condition">${book.condition}</td>
         <td class="column-remarks">${book.remarks}</td>
         <td class="column-actions">
             <button class="edit-btn" data-id="${book.id}">
@@ -484,13 +496,28 @@ function addBookToTable(book, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to delete this book record?')) {
-            deleteBookFromTable(book.id);
-            showNotification('A Book has been Deleted!', 'warning');
-        }
-        loadBooks();
-        adjustBooksPerPage();
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Deletion';
+        const message = 'Are you sure you want to delete this book record?';
+    
+        // Show the confirmation dialog
+        ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+            .then((confirmation) => {
+                if (confirmation) {
+                    deleteBookFromTable(book.id); // Assuming this is your deletion function
+                    showNotification('A Book has been Deleted!', 'delete');
+                    
+                    // Reload books and adjust pagination after deletion
+                    loadBooks();
+                    adjustBooksPerPage();
+                }
+            })
+            .catch(error => {
+                console.error('Error showing confirmation dialog:', error);
+                showNotification('Error showing confirmation dialog!', 'error');
+            });
     });
+    
 
     if (prepend) {
         bookList.insertBefore(row, bookList.firstChild);
@@ -521,6 +548,7 @@ function updateBookInTable(book) {
         <td>${formattedCostPrice}</td>
         <td>${book.publisher}</td>
         <td>${book.year}</td>
+        <td>${book.condition}</td>
         <td>${book.remarks}</td>
         <td>
             <button class="edit-btn" data-id="${book.id}"> <i class="fas fa-pencil-alt"></i> </button>
@@ -539,32 +567,62 @@ function deleteBookFromTable(id) {
 
 function deleteSelectedBooks() {
     if (selectedBookIds.size === 0) {
-        alert("No books selected.");
+        showNotification("No books selected", "error");
         return;
     }
 
     const count = selectedBookIds.size; // Count the number of selected books
 
-    // Display a confirmation dialog showing the number of selected books
-    const confirmation = confirm(`Are you sure you want to delete ${count} selected book record(s)?`);
+    // Prepare title and message for the confirmation dialog
+    const title = 'Confirm Deletion';
+    const message = `Are you sure you want to delete ${count} selected book record(s)?`;
 
-    if (confirmation) {
-        // Convert Set to Array for deletion
-        const ids = Array.from(selectedBookIds);
+    // Show the confirmation dialog
+    ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+        .then((confirmation) => {
+            if (confirmation) {
+                // Convert Set to Array for deletion
+                const ids = Array.from(selectedBookIds);
 
-        ids.forEach(id => {
-            ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
+                ids.forEach(id => {
+                    ipcRenderer.invoke('deleteBook', id); // Assuming this is how deletion is handled
+                });
+
+                // Clear the selection after deletion
+                selectedBookIds.clear();
+                
+                // Reload books and update UI
+                loadBooks();
+                adjustBooksPerPage();
+
+                showNotification(`${count} book(s) have been deleted!`, 'warning');
+            }
+        })
+        .catch(error => {
+            console.error('Error showing confirmation dialog:', error);
+            showNotification('Error showing confirmation dialog!', 'error');
         });
-
-        // Clear the selection after deletion
-        selectedBookIds.clear();
-        
-        // Reload books and update UI
-        loadBooks();
-        adjustBooksPerPage();
-
-        showNotification(`${count} book(s) have been deleted!`, 'warning');
-    }
+}
+ 
+function getBookFromRow(row) {
+    const cells = row.querySelectorAll('td');
+    return {
+        id: row.querySelector('.edit-btn').dataset.id,
+        number: cells[1].textContent,
+        date_received: cells[2].textContent,
+        class: cells[3].textContent,
+        author: cells[4].textContent,
+        title_of_book: cells[5].textContent,
+        edition: cells[6].textContent,
+        volume: cells[7].textContent,
+        source_of_fund: cells[8].textContent,
+        pages: cells[9].textContent,
+        cost_price: cells[10].textContent,
+        publisher: cells[11].textContent,
+        year: cells[12].textContent,
+        condition: cells[13].textContent,
+        remarks: cells[14].textContent,
+    };
 }
 
 function filterBooks() {
@@ -611,11 +669,9 @@ function filterBooks() {
             } else if (dateRangeSelect === 'custom') {
                 if (startDate && endDate) {
                     matches = bookDate >= startDate && bookDate <= endDate;
-                } 
-                else if(startDate==null || endDate==null) {
+                } else if (startDate == null || endDate == null) {
                     matches = true;
-                }
-                else {
+                } else {
                     matches = false;
                 }
             }
@@ -634,13 +690,29 @@ function filterBooks() {
         emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
         emptyMessageRow.appendChild(emptyMessageCell);
         bookList.appendChild(emptyMessageRow);
+        
+        // Update pagination for zero books
+        currentPage = 1; // Reset current page
+        updatePagination(); // Call updatePagination to show "0 of 0"
         return;
     }
 
     // Reset to first page after filtering
     currentPage = 1;
     displayBooks();
-    updatePagination();;
+    updatePagination();
+}
+
+
+// Event listener setup for sort buttons
+function setupSortButtons() {
+    const sortButtons = document.querySelectorAll('.sort-btn');
+
+    sortButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            sortBooks(button.dataset.column, button);
+        });
+    });
 }
 
 function sortBooks(column, button) {
@@ -649,7 +721,7 @@ function sortBooks(column, button) {
     button.dataset.order = order;
 
     // Update the sort icon based on the current order
-    button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+    // button.querySelector('i').className = order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
 
     // Sort the books based on the selected column and order
     currentBooks.sort((a, b) => {
@@ -674,9 +746,6 @@ function sortBooks(column, button) {
     displayBooks();
     updatePagination();
 }
-
-
-
 function updatePagination() {
     const firstPageBtn = document.getElementById('firstPage');
     const prevPageBtn = document.getElementById('prevPage');
@@ -686,13 +755,15 @@ function updatePagination() {
     const totalPagesSpan = document.getElementById('totalPages');
 
     const totalPages = Math.ceil(currentBooks.length / booksPerPage);
-    totalPagesSpan.textContent = `of ${totalPages}`;
-    pageLocationInput.value = currentPage;
+    
+    // Update the display to show "0 of 0" if no books are found
+    totalPagesSpan.textContent = `of ${totalPages > 0 ? totalPages : 0}`;
+    pageLocationInput.value = currentBooks.length > 0 ? currentPage : 0;
 
     firstPageBtn.disabled = currentPage === 1;
     prevPageBtn.disabled = currentPage === 1;
-    nextPageBtn.disabled = currentPage === totalPages;
-    lastPageBtn.disabled = currentPage === totalPages;
+    nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+    lastPageBtn.disabled = currentPage === totalPages || totalPages === 0;
 
     firstPageBtn.onclick = () => {
         if (currentPage !== 1) {
@@ -745,24 +816,4 @@ function syncSelectAllCheckbox() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const allBooksSelected = currentBooks.every(book => selectedBookIds.has(book.id));
     selectAllCheckbox.checked = allBooksSelected;
-}
-
-function getBookFromRow(row) {
-    const cells = row.querySelectorAll('td');
-    return {
-        id: row.querySelector('.edit-btn').dataset.id,
-        number: cells[1].textContent,
-        date_received: cells[2].textContent,
-        class: cells[3].textContent,
-        author: cells[4].textContent,
-        title_of_book: cells[5].textContent,
-        edition: cells[6].textContent,
-        volume: cells[7].textContent,
-        source_of_fund: cells[8].textContent,
-        pages: cells[9].textContent,
-        cost_price: cells[10].textContent,
-        publisher: cells[11].textContent,
-        year: cells[12].textContent,
-        remarks: cells[13].textContent,
-    };
 }

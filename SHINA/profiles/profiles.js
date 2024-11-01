@@ -1,11 +1,20 @@
 const { ipcRenderer } = require('electron');
 
+//SIDEBAR !!!
+// Sidebar toggle functionality
+document.getElementById('sidebarCollapse').addEventListener('click', function () {
+    const wrapper = document.getElementById('wrapper');
+    const sidebar = document.getElementById('sidebar-wrapper');
+    wrapper.classList.toggle('collapsed');
+    sidebar.classList.toggle('collapsed');
+});
+
+
 // Event listener to load profiles when the DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     setUpIpcRenderer();
     setupEventListeners();
     setupSelectAllCheckbox();
-    
     // Call setupSortButtons to initialize sort functionality
     setupSortButtons();
     
@@ -30,11 +39,14 @@ function setUpIpcRenderer() {
         ipcRenderer.on('profile-record-added', (event, profile) => {
             // Dynamically add the new profile to the table
             addProfileToTable(profile, true);
+            showNotification('Profile has been added!', 'success');
+            loadProfiles();
         });
     
     // Listen for the profile-record-updated event and update the profile in the table
         ipcRenderer.on('profile-record-updated', (event, updatedProfile) => {
             updateProfileInTable(updatedProfile);
+            showNotification('Profile has been updated!', 'success');
         });
 
 }
@@ -44,27 +56,35 @@ let profilesPerPage = 10; // Change this to the number of profiles you want per 
 let currentProfiles = [];
 let selectedProfileIds = new Set(); // Store selected profile IDs
 
-// Function to handle "Select All" checkbox 
 function setupSelectAllCheckbox() {
     const selectAllCheckbox = document.getElementById('selectAll');
 
     // Ensure the "Select All" checkbox starts unchecked
     selectAllCheckbox.checked = false;
 
-    selectAllCheckbox.addEventListener('click', (event) => {
+    selectAllCheckbox.addEventListener('change', (event) => {
         const isChecked = event.target.checked; // Get the state of the "Select All" checkbox
+        const checkboxes = document.querySelectorAll('#profileList input[type="checkbox"]');
 
-        // If "Select All" is checked, add all profile IDs to selectedProfileIds, else remove them
-        currentProfiles.forEach(profile => {
-            if (isChecked) {
-                selectedProfileIds.add(profile.id); // Add all profile IDs to the selected set
-            } else {
-                selectedProfileIds.delete(profile.id); // Remove all profile IDs from the selected set
-            }
-        });
-
-        // Update checkboxes on the current page to reflect the "Select All" state
-        updateCheckboxStates();
+        if (isChecked) {
+            // Select all checkboxes across all pages
+            currentProfiles.forEach(profile => {
+                selectedProfileIds.add(profile.id);
+            });
+            // Select all checkboxes on the current page
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        } else {
+            // Deselect all checkboxes across all pages
+            currentProfiles.forEach(profile => {
+                selectedProfileIds.delete(profile.id);
+            });
+            // Deselect all checkboxes on the current page
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
 
         // Optionally log the current state for debugging
         console.log('Select All clicked:', isChecked);
@@ -72,28 +92,14 @@ function setupSelectAllCheckbox() {
     });
 }
 
-// Function to update checkbox states based on selectedProfileIds (for current page)
-function updateCheckboxStates() {
-    const checkboxes = document.querySelectorAll('#profileList input[type="checkbox"]');
-
-    checkboxes.forEach(checkbox => {
-        const profileId = checkbox.getAttribute('data-id');
-        checkbox.checked = selectedProfileIds.has(profileId); // Check if this profile ID is in the selected set
-    });
-
-    // Sync the "Select All" checkbox based on whether all profiles in selectedProfileIds are checked
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const allChecked = currentProfiles.every(profile => selectedProfileIds.has(profile.id));
-    selectAllCheckbox.checked = allChecked; // Update the state of the "Select All" checkbox
-}
 
 // Function to load profiles and display them in the table
 function loadProfiles() {
     ipcRenderer.invoke('getProfiles')
         .then(profiles => {
             currentProfiles = profiles; // Store the loaded profiles
-            displayProfiles(); // Call the function to display profiles
-            updatePagination();
+            displayProfiles(currentProfiles); // Call the function to display profiles
+            updatePagination(currentProfiles);
         })
         .catch(error => {
             console.error('Error loading profiles:', error);
@@ -119,7 +125,7 @@ function displayProfiles(profiles = currentProfiles) {
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 6; // Adjust the colspan based on the number of columns
-        emptyMessageCell.textContent = "No Records Not Found";
+        emptyMessageCell.textContent = "No Records Found";
         emptyMessageCell.classList.add('empty-message-cell');
         emptyMessageRow.appendChild(emptyMessageCell);
         profileList.appendChild(emptyMessageRow);
@@ -131,6 +137,7 @@ function displayProfiles(profiles = currentProfiles) {
         addProfileToTable(profile);
     });
 }
+
 
 // Update the getProfilesForCurrentPage function to work with a parameter
 function getProfilesForCurrentPage(profiles) {
@@ -148,16 +155,22 @@ function updatePagination(profiles = currentProfiles) {
     const totalPagesSpan = document.getElementById('totalPages');
 
     const totalPages = Math.ceil(profiles.length / profilesPerPage);
-    totalPagesSpan.textContent = `of ${totalPages}`;
-    pageLocationInput.value = currentPage;
 
-    firstPageBtn.disabled = currentPage === 1;
-    prevPageBtn.disabled = currentPage === 1;
-    nextPageBtn.disabled = currentPage === totalPages;
-    lastPageBtn.disabled = currentPage === totalPages;
+    if (profiles.length === 0) {
+        totalPagesSpan.textContent = `of 0`;
+        pageLocationInput.value = 0;
+    } else {
+        totalPagesSpan.textContent = `of ${totalPages}`;
+        pageLocationInput.value = currentPage;
+    }
+
+    firstPageBtn.disabled = currentPage === 1 || profiles.length === 0;
+    prevPageBtn.disabled = currentPage === 1 || profiles.length === 0;
+    nextPageBtn.disabled = currentPage === totalPages || profiles.length === 0;
+    lastPageBtn.disabled = currentPage === totalPages || profiles.length === 0;
 
     firstPageBtn.onclick = () => {
-        if (currentPage !== 1) {
+        if (currentPage !== 1 && profiles.length > 0) {
             currentPage = 1;
             displayProfiles(profiles);
             updatePagination(profiles);
@@ -165,7 +178,7 @@ function updatePagination(profiles = currentProfiles) {
     };
 
     prevPageBtn.onclick = () => {
-        if (currentPage > 1) {
+        if (currentPage > 1 && profiles.length > 0) {
             currentPage--;
             displayProfiles(profiles);
             updatePagination(profiles);
@@ -173,7 +186,7 @@ function updatePagination(profiles = currentProfiles) {
     };
 
     nextPageBtn.onclick = () => {
-        if (currentPage < totalPages) {
+        if (currentPage < totalPages && profiles.length > 0) {
             currentPage++;
             displayProfiles(profiles);
             updatePagination(profiles);
@@ -181,7 +194,7 @@ function updatePagination(profiles = currentProfiles) {
     };
 
     lastPageBtn.onclick = () => {
-        if (currentPage !== totalPages) {
+        if (currentPage !== totalPages && profiles.length > 0) {
             currentPage = totalPages;
             displayProfiles(profiles);
             updatePagination(profiles);
@@ -195,10 +208,11 @@ function updatePagination(profiles = currentProfiles) {
             displayProfiles(profiles);
             updatePagination(profiles);
         } else {
-            pageLocationInput.value = currentPage;
+            pageLocationInput.value = profiles.length === 0 ? 0 : currentPage;
         }
     };
 }
+
 
 // Function to dynamically add a profile to the table
 function addProfileToTable(profile, prepend = false) {
@@ -214,8 +228,8 @@ function addProfileToTable(profile, prepend = false) {
         <td>${profile.phone_number || 'N/A'}</td>
         <td>${profile.email || 'N/A'}</td>
         <td>
-            <button class="btn btn-warning btn-sm edit-btn" data-id="${profile.id}"> <i class="fas fa-edit"></i> </button>
-            <button class="btn btn-danger btn-sm delete-btn" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
+            <button class="edit-btn" data-id="${profile.id}"> <i class="fas fa-edit"></i> </button>
+            <button class="delete-btn" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
         </td>
     `;
 
@@ -232,35 +246,50 @@ function addProfileToTable(profile, prepend = false) {
     });
 
     row.querySelector('.delete-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to delete this profile?')) {
-            // Send the delete request to the main process
-            ipcRenderer.invoke('deleteProfile', profile.id)
-                .then(() => {
-                    console.log(`Profile with ID ${profile.id} deleted`);
-                    loadProfiles(); // Reload profiles after deletion
-                })
-                .catch(error => {
-                    console.error('Error deleting profile:', error);
-                });
-        }
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Deletion';
+        const message = `Are you sure you want to delete this profile?`;
+    
+        // Send a request to show the confirmation dialog
+        ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+            .then((result) => {
+                if (result) { // If the user confirmed deletion
+                    // Send the delete request to the main process
+                    ipcRenderer.invoke('deleteProfile', profile.id)
+                        .then(() => {
+                            console.log(`Profile with ID ${profile.id} deleted`);
+                            showNotification('Profile has been deleted!', 'delete');
+                            loadProfiles(); // Reload profiles after deletion
+                        })
+                        .catch(error => {
+                            console.error('Error deleting profile:', error);
+                            showNotification('Error deleting profile!', 'error');
+                        });
+                }
+            });
     });
+    
 
-     // Add event listener to the checkbox for each profile
-     const checkbox = row.querySelector('input[type="checkbox"]');
-     checkbox.checked = selectedProfileIds.has(profile.id); // Set checkbox state based on selected IDs
- 
-     checkbox.addEventListener('click', (event) => {
-         event.stopPropagation(); // Prevent click event from bubbling
-         const profileId = profile.id;
- 
-         if (event.target.checked) {
-             selectedProfileIds.add(profileId); // Add profile ID to the selected set
-         } else {
-             selectedProfileIds.delete(profileId); // Remove profile ID from the selected set
-         }
- 
-         console.log('Selected Profiles:', Array.from(selectedProfileIds));
-     });
+        // Add event listener to the checkbox for each profile
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        checkbox.checked = selectedProfileIds.has(profile.id); // Set checkbox state based on selected IDs
+    
+        checkbox.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent click event from bubbling
+            const profileId = profile.id;
+    
+            if (event.target.checked) {
+                selectedProfileIds.add(profileId); // Add profile ID to the selected set
+            } else {
+                selectedProfileIds.delete(profileId); // Remove profile ID from the selected set
+            }
+    
+            // Update the "Select All" checkbox state
+            const allChecked = currentProfiles.every(profile => selectedProfileIds.has(profile.id));
+            document.getElementById('selectAll').checked = allChecked;
+    
+            console.log('Selected Profiles:', Array.from(selectedProfileIds));
+        });
     
 }
 
@@ -283,27 +312,6 @@ function filterProfiles() {
     updatePagination(filteredProfiles);
 }
 
-// // Function to display filtered profiles in the table
-// function displayFilteredProfiles(profiles) {
-//     const profileList = document.getElementById('profileList');
-//     profileList.innerHTML = ''; // Clear existing table rows
-
-//     if (profiles.length === 0) {
-//         const emptyMessageRow = document.createElement('tr');
-//         const emptyMessageCell = document.createElement('td');
-//         emptyMessageCell.colSpan = 6; // Adjust based on the number of columns
-//         emptyMessageCell.textContent = "No records found.";
-//         emptyMessageCell.classList.add('empty-message-cell');
-//         emptyMessageRow.appendChild(emptyMessageCell);
-//         profileList.appendChild(emptyMessageRow);
-//         return;
-//     }
-
-//     profiles.forEach(profile => {
-//         addProfileToTable(profile);
-//     });
-// }
-
 // Function to update a profile in the table
 function updateProfileInTable(profile) {
     const row = document.querySelector(`button[data-id="${profile.id}"]`).closest('tr');
@@ -319,6 +327,8 @@ function updateProfileInTable(profile) {
             <button class="btn btn-danger btn-sm delete-btn" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
         </td>
     `;  
+
+    loadProfiles();
 }
 
 // Function to handle delete selected profiles
@@ -330,19 +340,26 @@ function setupDeleteSelectedButton() {
         const idsToDelete = Array.from(selectedProfileIds); // Convert the Set to an Array
 
         if (idsToDelete.length === 0) {
-            alert('No profiles selected for deletion.');
+            showNotification('No profiles selected for deletion.', 'error');
             return; // Exit if no profiles are selected
         }
 
-        // Confirm deletion action
-        const confirmDeletion = confirm(`Are you sure you want to delete ${idsToDelete.length} profile(s)?`);
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Deletion';
+        const message = `Are you sure you want to delete ${idsToDelete.length} profile(s)?`;
+
+        // Send a request to show the confirmation dialog
+        const confirmDeletion = await ipcRenderer.invoke('show-confirmation-dialog', { title, message });
         if (!confirmDeletion) {
             return; // Exit if the user cancels
         }
 
+
         // Send the delete request for each selected profile
         for (const id of idsToDelete) {
             await ipcRenderer.invoke('deleteProfile', id); // Invoke the deleteProfile method in main.js
+            showNotification(`${idsToDelete.length} Profile(s) has been deleted!`, 'delete');
+            loadProfiles(); // Reload profiles after deletion
         }
 
         // Optionally, clear the selectedProfileIds Set and update UI
@@ -366,14 +383,6 @@ function sortProfiles(column, button) {
     const order = button.dataset.order === 'asc' ? 'desc' : 'asc';
     button.dataset.order = order;
 
-    // Update the sort icon based on the current order
-    // const icon = button.querySelector('i');
-    // if (order === 'asc') {
-    //     icon.className = 'fas fa-sort-up'; // Ascending
-    // } else {
-    //     icon.className = 'fas fa-sort-down'; // Descending
-    // }
-
     // Sort the currentProfiles based on the selected column and order
     currentProfiles.sort((a, b) => {
         let valueA = a[column];
@@ -391,19 +400,8 @@ function sortProfiles(column, button) {
     });
 
     // Call function to update the display
-    displayProfiles();
+    displayProfiles(currentProfiles);
 }
-
-// Function to reset all sort buttons to their default state
-// function resetSortButtons() {
-//     const sortButtons = document.querySelectorAll('.sort-btn');
-//     sortButtons.forEach(button => {
-//         const icon = button.querySelector('i');
-//         icon.className = 'fas fa-sort'; // Reset to default sort icon
-//         button.dataset.order = ''; // Clear the sort order
-//         loadProfiles();
-//     });
-// }
 
 // Event listener setup for sort buttons
 function setupSortButtons() {
@@ -417,4 +415,3 @@ function setupSortButtons() {
         });
     });
 }
-
