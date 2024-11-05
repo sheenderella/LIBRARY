@@ -1418,8 +1418,11 @@ ipcMain.handle('deleteProfile', async (event, id) => {
 // Function to create the Add Profile window
 function createAddProfileWindow() {
     addProfileWindow = new BrowserWindow({
-        width: 600,
-        height: 490,
+        width: 400,
+        height: 640,
+        minimizable: false,
+        maximizable: false,
+        alwaysOnTop: true,
         parent: mainWindow,
         modal: true,
         webPreferences: {
@@ -1450,9 +1453,11 @@ ipcMain.on('open-add-profile-from-index-window', () => {
 function createEditProfileWindow(record) {
     editProfileWindow = createWindow({
         filePath: path.join(__dirname, 'profiles', 'editProfile.html'),
-        width: 585,
-        height: 405,
-
+        width: 400,
+        height: 640,
+        minimizable: false,
+        maximizable: false,
+        alwaysOnTop: true,
         parent: mainWindow,
         onClose: () => (editProfileWindow = null),
     });

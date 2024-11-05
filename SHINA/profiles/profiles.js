@@ -222,14 +222,14 @@ function addProfileToTable(profile, prepend = false) {
     const row = document.createElement('tr');
     
     row.innerHTML = `
-        <td><input type="checkbox" data-id="${profile.id}"></td>
+        <td><input type="checkbox" title="Select" data-id="${profile.id}"></td>
         <td>${profile.borrower_id}</td>
         <td>${profile.name}</td>
         <td>${profile.phone_number || 'N/A'}</td>
         <td>${profile.email || 'N/A'}</td>
         <td>
-            <button class="edit-btn" data-id="${profile.id}"> <i class="fas fa-edit"></i> </button>
-            <button class="delete-btn" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
+            <button class="edit-btn" title="Edit" data-id="${profile.id}"> <i class="fas fa-edit"></i> </button>
+            <button class="delete-btn" title="Delete" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
         </td>
     `;
 

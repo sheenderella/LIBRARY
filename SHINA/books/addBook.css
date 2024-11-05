@@ -7,7 +7,7 @@ body {
     justify-content: center; /* Center horizontally */
     align-items: flex-start; /* Align to the top */
     height: 100vh; /* Full height of the viewport */
-    background-color: #f4f4f4; /* Keeping a light background for better contrast */
+    background-color: #f4f4f4; /* Light background for better contrast */
 }
 
 /* Card Styling */
@@ -17,8 +17,8 @@ body {
     background-color: #fff; /* Card background */
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px; /* Add some margin at the top */
-    position: relative; /* Position relative for contained elements */
+    margin-top: 20px; /* Margin at the top */
+    position: relative; /* Relative positioning for contained elements */
 }
 
 /* Card Header Styling */
@@ -33,7 +33,7 @@ body {
 
 .card-header img {
     max-height: 50px; /* Ensure image fits within the header */
-    max-width: 100%; /* Ensure the image does not exceed the width of the card */
+    max-width: 100%; /* Ensure image does not exceed card width */
     height: auto; /* Maintain aspect ratio */
     width: auto; /* Maintain aspect ratio */
 }
@@ -46,43 +46,57 @@ body {
 /* Headings */
 h1 {
     color: #343a40;
-    font-size: 20px; /* Slightly smaller font size for smaller windows */
+    font-size: 20px; /* Font size for smaller windows */
     font-weight: bold;
     margin-bottom: 20px;
     text-align: center;
 }
 
+/* Small Text Styling */
+.form-text {
+    color: #6c757d; /* Muted gray color for labels */
+    margin-bottom: 5px; /* Space between label and input field */
+    display: block; /* Ensure it takes up full width above input */
+}
 
+/* Uniform Input and Select Styling */
 input, select {
     width: 100%; /* Full width */
     padding: 10px; /* Inner padding */
     border: 1px solid #ccc; /* Border styling */
     border-radius: 4px; /* Rounded corners */
     font-size: 14px; /* Consistent font size */
+    height: 40px; /* Uniform height for all input fields */
+    box-sizing: border-box; /* Ensure padding does not affect width */
+    margin-bottom: 15px; /* Add space below each input */
 }
 
+/* Button Styling */
 button {
+    width: 100%; /* Full width button */
     padding: 10px;
-    background-color: #007bff; /* Button color */
+    background-color: #30688B; /* Button color */
     color: white; /* Text color */
     border: none; /* Remove border */
     border-radius: 4px; /* Rounded corners */
     cursor: pointer; /* Pointer cursor on hover */
     font-size: 16px; /* Button font size */
+    margin-top: 10px; /* Space above the button */
 }
 
 button:hover {
-    background-color: #0056b3; /* Darken button on hover */
+    background-color: rgb(50, 115, 156); /* Darken button on hover */
 }
 
 /* Dropdown Styling */
 #condition {
-    height: auto; /* Adjust height automatically */
+    height: 40px; /* Set height same as input fields */
     cursor: pointer; /* Pointer cursor */
 }
 
 /* Suggestion Box Styling */
 .suggestion-box {
+    width: 100%; /* Match width of input */
     border: 1px solid #ccc; /* Border styling */
     border-radius: 4px; /* Rounded corners */
     max-height: 150px; /* Max height */
@@ -103,6 +117,3 @@ button:hover {
 .suggestion-box li:hover {
     background-color: #eee; /* Highlight suggestion on hover */
 }
-
-
-

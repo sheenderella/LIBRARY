@@ -86,16 +86,28 @@ function addBorrowToTable(record) {
 
     // Ensure you're using the right field names from the database query
     row.innerHTML = `
-        <td><input type="checkbox" class="select-borrow" data-id="${record.id}" ${selectedRecords.has(record.id) ? 'checked' : ''}></td>
-        <td><span class="borrower-name" data-name="${record.borrower_name || ''}" data-borrower-id="${record.borrower_id || ''}" data-phone="${record.phone_number || ''}" data-email="${record.email || ''}">
-            ${record.borrower_name || record.borrower_id}
-        </span></td>
+        <td><input type="checkbox"  title="Select" class="select-borrow" data-id="${record.id}" ${selectedRecords.has(record.id) ? 'checked' : ''}></td>
+<td>
+    <span class="borrower-name" 
+          data-name="${record.borrower_name || ''}" 
+          data-borrower-id="${record.borrower_id || ''}" 
+          data-phone="${record.phone_number || ''}" 
+          data-email="${record.email || ''}"
+          title="Click to view borrowing history">
+        ${record.borrower_name || record.borrower_id}
+    </span>
+</td>
         
-        <td>
-            <span class="book-title" data-id="${record.id}" data-book-id="${record.book_id || ''}" data-title="${record.book_title || ''}">
-                ${record.book_title || record.book_id}
-            </span>
-        </td>
+<td>
+    <span class="book-title" 
+          data-id="${record.id}" 
+          data-book-id="${record.book_id || ''}" 
+          data-title="${record.book_title || ''}"
+          title="Click to view book history">
+        ${record.book_title || record.book_id}
+    </span>
+</td>
+
 
         <td>
             <select class="status-dropdown" data-id="${record.id}" ${record.borrowStatus === 'returned' || record.borrowStatus === 'returned overdue' ? 'disabled' : ''}>
@@ -105,7 +117,7 @@ function addBorrowToTable(record) {
             </select>
         </td>
         <td>
-            <button class="delete-btn" data-id="${record.id}"> 
+            <button class="delete-btn"  title="Delete" data-id="${record.id}"> 
                 <i class="fas fa-trash"></i> 
             </button>
         </td>
