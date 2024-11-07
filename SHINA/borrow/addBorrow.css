@@ -138,3 +138,14 @@ h1 {
     border: 1px solid #888;
     width: 80%;
 }
+
+
+.btn-primary {
+    background-color: #3A79A0;
+    border-color: #3A79A0;
+}
+
+.btn-primary:hover {
+    background-color: #32698C; /* Slightly darker shade for hover effect */
+    border-color: #32698C;
+}
