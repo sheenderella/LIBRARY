@@ -1417,27 +1417,17 @@ ipcMain.handle('deleteProfile', async (event, id) => {
 // Listen for the event from index.js
 // Function to create the Add Profile window
 function createAddProfileWindow() {
-    addProfileWindow = new BrowserWindow({
+if (!addProfileWindow) {
+    addProfileWindow = createWindow({
+        filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
         width: 400,
         height: 640,
-        minimizable: false,
-        maximizable: false,
-        alwaysOnTop: true,
         parent: mainWindow,
-        modal: true,
-        webPreferences: {
-            // No need for preload if you are not using it
-            nodeIntegration: true, // This allows you to access Node.js in your renderer process
-            contextIsolation: false // Allows direct access to ipcRenderer from the renderer process
-        },
+        onClose: () => (addProfileWindow = null),
     });
-
-    addProfileWindow.loadFile(path.join(__dirname, 'profiles', 'addProfile.html'));
-
-    addProfileWindow.on('closed', () => {
-        addProfileWindow = null;
-        if (mainWindow) mainWindow.focus();
-    });
+} else {
+    addProfileWindow.focus();
+}
 }
 
 // Listen for the event to open the Add Profile window from the index page
