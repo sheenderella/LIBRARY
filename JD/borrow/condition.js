@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Send the bookId and condition to main process
             ipcRenderer.send('submit-book-condition', { bookId, bookCondition });
+            
+           // Notify the main process of successful condition submission
+    ipcRenderer.send('condition-submission-success', { borrowId });
         });
     });
 

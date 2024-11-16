@@ -18,47 +18,46 @@
     <div id="wrapper" class="d-flex">
         <!-- Sidebar -->
         <nav id="sidebar-wrapper" class="text-white">
-
             <div class="sidebar-header p-3 d-flex flex-column align-items-left">
-                <button class="btn btn-outline-light btn-sm mb-3" id="sidebarCollapse" aria-label="Toggle Sidebar">
-                    <i class="fas fa-bars"></i>
+                <button class="btn btn-outline-light btn-sm mb-3" id="sidebarCollapse" aria-label="Toggle Sidebar" data-bs-toggle="tooltip" title="Toggle Sidebar">
+                    <i class="fas fa-bars" id="barIcon"></i>
                 </button>
                 <img src="../logo/2.png" alt="Gruba Law Library Logo" class="img-fluid mb-3">
             </div>
-
+            
             <ul id="sidebar-menu" class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="../index.html">
+                    <a class="nav-link text-white" href="../index.html" data-bs-toggle="tooltip" title="Go to Dashboard">
                         <i class="fas fa-tachometer-alt"></i>
                         <span class="link-text">Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="../books/books.html">
+                    <a class="nav-link text-white" href="../books/books.html" data-bs-toggle="tooltip" title="Manage Books">
                         <i class="fas fa-book"></i>
                         <span class="link-text">Books</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="../profiles/profiles.html">
+                    <a class="nav-link text-white" href="../profiles/profiles.html" data-bs-toggle="tooltip" title="Manage Borrower Profiles">
                         <i class="fas fa-user"></i>
                         <span class="link-text">Borrower Profiles</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="../borrow/borrow.html">
+                    <a class="nav-link text-white" href="../borrow/borrow.html" data-bs-toggle="tooltip" title="Manage Borrow Logs">
                         <i class="fas fa-table"></i>
                         <span class="link-text">Borrow Logs</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="../settings/settings.html">
+                    <a class="nav-link text-white" href="../settings/settings.html" data-bs-toggle="tooltip" title="Go to Settings">
                         <i class="fas fa-cog"></i>
                         <span class="link-text">Settings</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" id="logout-link" href="#">
+                    <a class="nav-link text-white" id="logout-link" href="#" data-bs-toggle="tooltip" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="link-text">Logout</span>
                     </a>
@@ -71,7 +70,7 @@
 
         <main id="page-content-wrapper" class="flex-grow-1 p-4">
             <!-- Back to Borrow Page Button -->
-            <a href="borrow.html" id="backToBorrowPage" class="btn btn-secondary">
+            <a href="borrow.html"  title="Back to Borrow Logs" id="backToBorrowPage" class="btn btn-secondary">
                 <i class="fa fa-arrow-left"></i>
             </a>
 
@@ -99,7 +98,7 @@
                     <!-- Search Box -->
                     <div class="input-group col">
                         <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
-                        <input type="text" id="searchTitle" class="form-control" placeholder="Search by name">
+                        <input type="text" id="searchTitle" title="Search Borrower Name" class="form-control" placeholder="Search by name">
                     </div>
                 </div>
             </div>
@@ -107,10 +106,10 @@
             <table id="statusTable">
                 <thead>
                     <tr id="statusRow">
-                        <th data-status="borrowed">Borrowed</th>
-                        <th data-status="returned">Returned</th>
-                        <th data-status="overdue">Overdue</th>
-                        <th data-status="returned overdue">Returned Overdue</th>
+                        <th data-status="borrowed" title="Select Borrowed Books">Borrowed</th>
+                        <th data-status="returned" title="Select Returned Books" >Returned</th>
+                        <th data-status="overdue" title="Select Overdue Books">Overdue</th>
+                        <th data-status="returned overdue" title="Select Returned Overdue Books">Returned Overdue</th>
                     </tr>
                 </thead>
             </table>
@@ -132,25 +131,29 @@
                 </tbody>
             </table>
 
-            <!-- Pagination Controls -->
-            <div id="paginationControls" class="pagination-container d-flex align-items-center">
-                <button id="firstPage" class="btn btn-primary me-2" disabled>
-                    <i class="fa-solid fa-backward-fast"></i>
-                </button>
-                <button id="prevPage" class="btn btn-primary me-2" disabled>
-                    <i class="fa-solid fa-caret-left"></i>
-                </button>
+  
+<!-- Pagination Controls -->
+<div id="paginationControls" class="pagination-container d-flex align-items-center">
+    <button id="firstPage" class="btn btn-primary me-2" disabled title="Go to First Page">
+        <i class="fa-solid fa-backward-fast"></i>
+    </button>
+    <button id="prevPage" class="btn btn-primary me-2" disabled title="Go to Previous Page">
+        <i class="fa-solid fa-caret-left"></i>
+    </button>
 
-                <input type="text" id="pageLocation" class="form-control me-2" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, ''); adjustWidth();">
-                <span id="totalPages"> of 1</span>
-                
-                <button id="nextPage" class="btn btn-primary ms-2">
-                    <i class="fa-solid fa-caret-right"></i>
-                </button>
-                <button id="lastPage" class="btn btn-primary ms-2">
-                    <i class="fa-solid fa-forward-fast"></i>
-                </button>
-            </div>
+    <input type="text" id="pageLocation" class="form-control me-2" value="1" 
+           oninput="this.value = this.value.replace(/[^0-9]/g, ''); adjustWidth();" 
+           title="Current Page">
+    <span id="totalPages" title="Total Pages"> of 1</span>
+    
+    <button id="nextPage" class="btn btn-primary ms-2" title="Go to Next Page">
+        <i class="fa-solid fa-caret-right"></i>
+    </button>
+    <button id="lastPage" class="btn btn-primary ms-2" title="Go to Last Page">
+        <i class="fa-solid fa-forward-fast"></i>
+    </button>
+</div>
+
         </main>
     </div>
             </div>

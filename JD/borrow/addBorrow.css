@@ -8,7 +8,6 @@ body, html {
     align-items: flex-start; /* Align the container at the top */
     background-color: #ffffff;
     font-family: Arial, sans-serif;
-
 }
 
 .container {
@@ -25,7 +24,6 @@ body, html {
     width: 600px; /* Make card stretch to full container width */
     height: auto;
     border: none;
-
     margin-top: -50px; /* Remove any margins to avoid gaps */
 }
 
@@ -60,8 +58,8 @@ h1 {
     text-align: center;
 }
 
-.form-group {
-    margin-bottom: 15px;
+.form-text {
+    margin-bottom: 5px;
 }
 
 .form-control {
@@ -88,14 +86,14 @@ h1 {
 .btn-success:hover {
     background-color: #3A79A0 !important;
 }
+
 /* Style the select dropdown */
-#addBorrowStatus option {
+#condition option {
     line-height: 2; /* Attempt to increase spacing between options */
     padding: 8px 10px; /* Some browsers may respect padding */
     color: #000; /* Option text color */
     border-radius: 0px;
 }
-
 
 /* Styles for the suggestion list */
 .suggestion-list {
@@ -120,7 +118,6 @@ h1 {
     background-color: #f0f0f0;
 }
 
-
 /* MODAL */
 .modal {
     display: none;
@@ -132,13 +129,23 @@ h1 {
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.5);
-  }
-  
-  .modal-content {
+}
+
+.modal-content {
     background-color: #fefefe;
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
-  }
-  
+}
+
+
+.btn-primary {
+    background-color: #3A79A0;
+    border-color: #3A79A0;
+}
+
+.btn-primary:hover {
+    background-color: #32698C; /* Slightly darker shade for hover effect */
+    border-color: #32698C;
+}

@@ -158,9 +158,9 @@ body {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    width: 15rem;
     height: 3rem;
     margin-left: -1.05rem;
+    width: 40rem;
 }
 
 .input-container .icon {

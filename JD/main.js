@@ -1417,24 +1417,17 @@ ipcMain.handle('deleteProfile', async (event, id) => {
 // Listen for the event from index.js
 // Function to create the Add Profile window
 function createAddProfileWindow() {
-    addProfileWindow = new BrowserWindow({
-        width: 600,
-        height: 490,
+if (!addProfileWindow) {
+    addProfileWindow = createWindow({
+        filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
+        width: 400,
+        height: 640,
         parent: mainWindow,
-        modal: true,
-        webPreferences: {
-            // No need for preload if you are not using it
-            nodeIntegration: true, // This allows you to access Node.js in your renderer process
-            contextIsolation: false // Allows direct access to ipcRenderer from the renderer process
-        },
+        onClose: () => (addProfileWindow = null),
     });
-
-    addProfileWindow.loadFile(path.join(__dirname, 'profiles', 'addProfile.html'));
-
-    addProfileWindow.on('closed', () => {
-        addProfileWindow = null;
-        if (mainWindow) mainWindow.focus();
-    });
+} else {
+    addProfileWindow.focus();
+}
 }
 
 // Listen for the event to open the Add Profile window from the index page
@@ -1450,9 +1443,11 @@ ipcMain.on('open-add-profile-from-index-window', () => {
 function createEditProfileWindow(record) {
     editProfileWindow = createWindow({
         filePath: path.join(__dirname, 'profiles', 'editProfile.html'),
-        width: 585,
-        height: 405,
-
+        width: 400,
+        height: 640,
+        minimizable: false,
+        maximizable: false,
+        alwaysOnTop: true,
         parent: mainWindow,
         onClose: () => (editProfileWindow = null),
     });
@@ -1478,8 +1473,6 @@ ipcMain.on('open-edit-profile-window', (event, record) => {
         editProfileWindow.webContents.send('fill-edit-form', record);
     }
 });
-
-
 
 
 //SETTINGS

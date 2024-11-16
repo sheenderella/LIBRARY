@@ -7,24 +7,33 @@
     <title>Edit Profile</title>
 </head>
 <body>
-    <form id="editProfileForm">
-        <!-- Hidden input to store profile ID -->
-        <input type="hidden" id="profile_id">
+    <div class="card">
+        <div class="card-header text-center">
+            <img src="../logo/1.png" alt="Gruba Law Library" class="img-fluid mb-2">
+        </div>
+        
+        <div class="card-body">
+            <h1 class="text-center mb-4">Edit Profile</h1>
+            <form id="editProfileForm">
+                <!-- Hidden input to store profile ID -->
+                <input type="hidden" id="profile_id">
 
-        <!-- <label for="borrower_id">Borrower ID:</label> -->
-        <input type="hidden" id="borrower_id" placeholder="Borrower ID" required>
+                <!-- Borrower ID input (hidden as per your original design) -->
+                <input type="hidden" id="borrower_id" placeholder="Borrower ID" required>
 
-        <label for="name">Name:</label>
-        <input type="text" id="name" placeholder="Name" required>
+                <small class="form-text text-muted">Name:</small>
+                <input type="text" id="name" placeholder="Name" required title="Edit the borrower's full name"><br>
 
-        <label for="phone_number">Phone Number:</label>
-        <input type="number" id="phone_number" placeholder="Phone Number" required>
+                <small class="form-text text-muted">Phone Number:</small>
+                <input type="number" id="phone_number" placeholder="Phone Number" required title="Edit the borrower's phone number"><br>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" placeholder="Email" required>
+                <small class="form-text text-muted">Email:</small>
+                <input type="email" id="email" placeholder="Email" required title="Edit the borrower's email address"><br>
 
-        <button type="submit">Submit</button>
-    </form>  
+                <button type="submit" title="Update borrower details">Submit</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Include JavaScript to handle the form submission -->
     <script src="editProfile.js"></script>
