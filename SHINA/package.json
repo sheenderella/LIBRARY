@@ -1,11 +1,20 @@
 {
   "devDependencies": {
+    "@electron/packager": "^18.3.6",
     "electron": "^32.1.2",
+    "electron-builder": "^25.1.8",
     "electron-rebuild": "^3.2.9"
   },
   "name": "library",
   "version": "1.0.0",
   "main": "main.js",
+  "build": {
+    "appId": "library",
+    "mac": {
+      "target": "dmg"
+    }
+  },
+
   "dependencies": {
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.3.0",
@@ -90,6 +99,7 @@
   },
   "scripts": {
     "start": "electron .",
+    "build:mac": "electron-builder --mac",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
