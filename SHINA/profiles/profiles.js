@@ -231,6 +231,9 @@ function addProfileToTable(profile, prepend = false) {
         <td>${profile.email || 'N/A'}</td>
         <td>
             <button class="edit-btn" title="Edit" data-id="${profile.id}"> <i class="fas fa-edit"></i> </button>
+            <button class="archive-btn" title="Archive" data-id="${profile.id}">
+            <i class="fas fa-archive"></i>
+            </button>
             <button class="delete-btn" title="Delete" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
         </td>
     `;

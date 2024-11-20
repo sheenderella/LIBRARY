@@ -479,6 +479,9 @@ function addBookToTable(book, prepend = false) {
             <button class="edit-btn" title="Edit" data-id="${book.id}">
                 <i class="fas fa-edit"></i>
             </button>
+            <button class="archive-btn" title="Archive" data-id="${book.id}">
+            <i class="fas fa-archive"></i>
+            </button>
             <button class="delete-btn"  title="Delete" data-id="${book.id}">
                 <i class="fas fa-trash"></i>
             </button>

@@ -791,6 +791,36 @@ ipcMain.handle('deleteBook', async (event, id) => {
     try {
         await new Promise((resolve, reject) => {
             executeQuery(
+                'DELETE FROM books WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject promise if there's an error
+                    } else {
+                        resolve(results); // Resolve promise on success
+                    }
+                }
+            );
+        });
+
+        // Notify the main window after the record is deleted
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-deleted', id);
+        }
+    } catch (error) {
+        console.error('Error deleting book record:', error);
+        // Optionally send an error notification to the renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-deletion-error', error.message);
+        }
+    }
+});
+
+
+ipcMain.handle('archiveBook', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
                 'UPDATE books SET is_deleted = TRUE WHERE id = ?',
                 [id],
                 (error, results) => {

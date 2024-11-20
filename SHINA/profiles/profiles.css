@@ -85,7 +85,7 @@ body {
 }
 
 /* Icon Section: Styling for edit and delete icons */
-.delete-btn,.edit-btn {
+.delete-btn,.edit-btn,.archive-btn {
     display: inline-block;
     color: #4C4C4C !important;
     font-size: 18px;
