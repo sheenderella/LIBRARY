@@ -30,9 +30,11 @@ body {
 }
 
 .right-side-buttons {
-    display: inline-block;
-    align-items: flex-end;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Add space between buttons */
 }
+
 
 #columnForm {
     overflow-y: scroll;
@@ -63,6 +65,8 @@ body {
     width: 5.5rem;
 }
 
+/* BUTTONS */
+
 .btn-success {
     background-color: #28a745!important; /* Green */
     color: #fff;
@@ -81,7 +85,6 @@ body {
     background-color: #1e7e34!important; /* Even darker green */
     transform: scale(0.98); /* Slight shrink on click */
 }
-
 
 .btn-danger {
     background-color: #dc3545!important; /* Red */
@@ -133,26 +136,29 @@ body {
 
 .date-range-container .icon {
     background-color: #30688B;
-    padding: 0.95rem;
+    padding: 0 15px; /* Adjust padding for better alignment */
     color: whitesmoke;
     border: 1px solid #1f1f1f;
     border-top-left-radius: 9px;
     border-bottom-left-radius: 9px;
-    position: relative;
-    display: inline-block;
+    height: 45px; /* Set height explicitly */
+    display: inline-flex; /* Flex for vertical centering */
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
 }
 
 #dateRangeSelect {
-    padding: 5px;
+    padding: 0 10px; /* Adjust padding for better alignment */
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
     border-top-right-radius: 9px;
     border-bottom-right-radius: 9px;
-    height: 3rem;
-    width: 13rem;
+    height: 45px; /* Match the icon height */
+    width: 130px;
     display: inline-block;
-    margin-left: -.3rem;
+    margin: -5px;
+
 }
 
 /* CUSTOM DATE FORM */
@@ -164,7 +170,7 @@ body {
     border: 1px solid grey;
     border-radius: 5px;
     padding: 10px;
-    width: 253px;
+    width: 180px;
     z-index: 1000;
 }
 
@@ -180,17 +186,17 @@ body {
     display: block;
     margin-bottom: 10px;
     width: calc(100% - 20px);
+    width: 160px;
 }
 
 #clearDateRange {
     background-color: #ffc107;
-    color: 1f1f1f;
+    color: #1f1f1f;
     border: none;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
-    width: 13rem;
-    margin-left: .35rem;
+    width: 160px;
     
 }
 
@@ -201,8 +207,11 @@ body {
 /* Dropdown Container */
 .right-side {
     display: flex;
-    justify-content: flex-start; /* Align all elements to the left */
-    align-items: center; /* Align items vertically in the center */
+    align-items: center;
+    height: 45px;
+    width: 45px;
+    flex-grow: 1; /* Allow the right-side section to grow and fill the available space */
+    gap: 0px; /* Add space between the dropdown and the search input */
 }
 
 .custom-dropdown,
@@ -210,6 +219,10 @@ body {
 .date-range-container {
     position: relative;
     display: inline-block; /* Ensure each container behaves inline */
+}
+
+.custom-dropdown {
+    display: inline-block;
 }
 
 .dropdown-icon {
@@ -220,6 +233,7 @@ body {
     pointer-events: none; /* Prevent icon from blocking select dropdown interaction */
     font-size: medium;
 }
+
 
 .dropdown-container .icon {
     background-color: #30688B;
@@ -235,9 +249,8 @@ body {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    height: 2.98rem;
-    margin-right: 1rem;
-    width: 5rem;
+    height: 45px;
+    width: auto;
     padding-left: 8px;
     border-top-left-radius: 9px;
     border-bottom-left-radius: 9px;
@@ -258,16 +271,18 @@ body {
 .input-container {
     display: flex;
     align-items: center;
+    flex-grow: 1; /* Allow the input container to grow */
 }
 
 .input-container input {
+    flex-grow: 1; /* Allow the input field to grow and fill the remaining space */
     padding-left: 15px;
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    width: 20rem;
-    height: 3rem;
-    margin-left: -1.05rem;
+    height: 45px;
+    width: 45px;
+
 }
 
 .input-container .icon {
@@ -278,6 +293,8 @@ body {
     border-top-right-radius: 9px;
     border-bottom-right-radius: 9px;
     margin-left: -2rem;
+    height: 45px;
+    width: 45px;
 }
 
 /* Container Styling */
@@ -462,9 +479,6 @@ td input[type="checkbox"] {
 }
 
 
-
-
-
 /* NOTIFICATION */
 /* Notification styles */
 #notification {
@@ -485,11 +499,6 @@ td input[type="checkbox"] {
     opacity: 1;
     transform: translateX(0); /* Move into view */
 }
-
-
-
-
-
 
 
 
@@ -549,8 +558,6 @@ td input[type="checkbox"] {
     font-size: 16px; /* Font size for icons */
     color: whitesmoke; /* Dark color for icons */
 }
-
-
 
 
 /* SIDE NAVBAR */
