@@ -158,21 +158,23 @@ function setupEventListeners() {
     });
 
     // Hide all columns except specific ones
-    document.getElementById('hideAll').addEventListener('click', function() {
-        document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
+    document.getElementById('hideAll').addEventListener('click', function () {
+        document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function (checkbox) {
             checkbox.checked = true;
         });
-        document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function(el) {
+        document.querySelectorAll('#tableContainer table th, #tableContainer table td').forEach(function (el) {
             if (!el.classList.contains('column-date_received') &&
                 !el.classList.contains('column-author') &&
                 !el.classList.contains('column-number') &&
                 !el.classList.contains('column-title_of_book') &&
                 !el.classList.contains('column-actions') &&
-                !el.classList.contains('column-checkbox')) {
+                !el.classList.contains('column-checkbox') &&
+                !el.classList.contains('empty-message-cell')) { // Exclude empty message cell
                 el.style.display = 'none';  // Hide columns
             }
         });
     });
+    
 
     // Handle individual column visibility changes
     document.querySelectorAll('#columnForm input[type="checkbox"]').forEach(function(checkbox) {
@@ -382,9 +384,11 @@ function loadBooks() {
 
 function displayBooks() {
     const bookList = document.getElementById('bookList');
+    const selectAllCheckbox = document.getElementById('selectAll');
     bookList.innerHTML = '';
 
-    if (currentBooks.length === null) {
+    if (currentBooks.length === 0) {
+        selectAllCheckbox.style.display = 'none'; // Hide the "Select All" checkbox
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 15;
@@ -395,6 +399,7 @@ function displayBooks() {
         return;
     }
 
+    selectAllCheckbox.style.display = 'inline-block'; // Show the "Select All" checkbox
     const booksToShow = getBooksForCurrentPage();
     booksToShow.forEach(book => {
         addBookToTable(book);
@@ -681,12 +686,14 @@ function filterBooks() {
     });
 
     const bookList = document.getElementById('bookList');
+    const selectAllCheckbox = document.getElementById('selectAll');
     bookList.innerHTML = '';
     if (currentBooks.length === 0) {
+        selectAllCheckbox.style.display = 'none'; // Hide the "Select All" checkbox
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 15;
-        emptyMessageCell.textContent = "Book Not Found";
+        emptyMessageCell.textContent = "No Records Found";
         emptyMessageCell.classList.add('empty-message-cell'); // Ensure the CSS class is defined
         emptyMessageRow.appendChild(emptyMessageCell);
         bookList.appendChild(emptyMessageRow);

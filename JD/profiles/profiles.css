@@ -24,6 +24,7 @@ body {
 }
 
 
+
 .btn-success {
     background-color: #28a745 !important; /* Green */
     color: #fff;
@@ -84,25 +85,39 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1rem;
 }
 
 .right-side-buttons {
-    display: inline-block;
-    align-items: flex-end;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Add space between buttons */
 }
 
 /* Dropdown Container */
 .right-side {
     display: flex;
-    justify-content: flex-start; /* Align all elements to the left */
-    align-items: center; /* Align items vertically in the center */
+    align-items: center;
+    height: 45px;
+    width: 45px;
+    flex-grow: 1; /* Allow the right-side section to grow and fill the available space */
+    gap: 0px; /* Add space between the dropdown and the search input */
 }
 
 .custom-dropdown,
-.input-container,
-.date-range-container {
+.input-container{
     position: relative;
     display: inline-block; /* Ensure each container behaves inline */
+}
+
+.custom-dropdown {
+    display: inline-block;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Allow the input container to grow */
 }
 
 .dropdown-icon {
@@ -128,9 +143,8 @@ body {
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    height: 2.98rem;
-    margin-right: 1rem;
-    width: 5rem;
+    height: 45px;
+    width: auto;
     padding-left: 8px;
     border-top-left-radius: 9px;
     border-bottom-left-radius: 9px;
@@ -148,19 +162,15 @@ body {
     height: 3rem;
 }
 
-.input-container {
-    display: flex;
-    align-items: center;
-}
-
 .input-container input {
+    flex-grow: 1; /* Allow the input field to grow and fill the remaining space */
     padding-left: 15px;
     font-size: 14px;
     border: 1px solid #1f1f1f;
     border-radius: 1px;
-    height: 3rem;
-    margin-left: -1.05rem;
-    width: 40rem;
+    height: 45px;
+    width: 45px;
+
 }
 
 .input-container .icon {
@@ -171,8 +181,11 @@ body {
     border-top-right-radius: 9px;
     border-bottom-right-radius: 9px;
     margin-left: -2rem;
+    height: 45px;
+    width: 45px;
 }
 
+/* TABLE */
 /* Main Table Container */
 th input[type="checkbox"] {
     margin: 0;
@@ -189,7 +202,7 @@ td input[type="checkbox"] {
     max-width: 100%;
     overflow-x: auto; /* Ensures responsiveness on smaller screens */
     margin: 20px 0;
-    border: 1px solid #ddd;
+    border: 0px solid #ddd;
     background-color: #f9f9f9;
     position: relative;
 }
@@ -203,8 +216,6 @@ td input[type="checkbox"] {
     table-layout: auto; /* Allows cells to adjust width based on content */
 }
 
-/* Styling for table headers */
-/* Styling for table headers */
 /* Styling for table headers */
 .table-container th {
     background-color: #30688B;
