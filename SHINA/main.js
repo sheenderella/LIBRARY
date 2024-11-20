@@ -818,7 +818,9 @@ ipcMain.handle('deleteBook', async (event, id) => {
 
 ipcMain.handle('getBooks', async () => {
     try {
-        const books = await executeSelectQuery('SELECT * FROM books ORDER BY createdAt DESC');
+        const books = await executeSelectQuery(
+            'SELECT * FROM books WHERE is_deleted = FALSE ORDER BY createdAt DESC'
+        );
         return books;
     } catch (error) {
         console.error('Error fetching book records:', error);
