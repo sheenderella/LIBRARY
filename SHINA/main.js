@@ -848,8 +848,9 @@ ipcMain.handle('archiveBook', async (event, id) => {
 
 ipcMain.handle('getBooks', async () => {
     try {
+    
         const books = await executeSelectQuery(
-            'SELECT * FROM books WHERE is_deleted = 0 ORDER BY createdAt DESC'
+            'SELECT * FROM books WHERE is_deleted = FALSE ORDER BY createdAt DESC'
         );
         return books;
     } catch (error) {
@@ -857,11 +858,6 @@ ipcMain.handle('getBooks', async () => {
         return [];
     }
 });
-
-
-
-
-
 //BORROW
 ipcMain.handle('getBookId', async (event, bookTitle, bookVolume, bookEdition) => {
     return new Promise((resolve, reject) => {
