@@ -1421,7 +1421,7 @@ if (!addProfileWindow) {
     addProfileWindow = createWindow({
         filePath: path.join(__dirname, 'profiles', 'addProfile.html'),
         width: 400,
-        height: 640,
+        height: 585,
         parent: mainWindow,
         onClose: () => (addProfileWindow = null),
     });
