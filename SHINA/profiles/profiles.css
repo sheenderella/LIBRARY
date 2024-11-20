@@ -189,7 +189,7 @@ td input[type="checkbox"] {
     max-width: 100%;
     overflow-x: auto; /* Ensures responsiveness on smaller screens */
     margin: 20px 0;
-    border: 1px solid #ddd;
+    border: 0px solid #ddd;
     background-color: #f9f9f9;
     position: relative;
 }

@@ -173,12 +173,13 @@ h1.h3 {
     display: flex;
     background: none;
     border: none;
-    align-items: right;
     position: relative;
     font-size: 1.2em;
     cursor: pointer;
     color: #333;
+    margin-left: auto; /* Pushes the button to the right */
 }
+
 
 .notification-btn .fa-bell {
     color: #30688B;
