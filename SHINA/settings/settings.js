@@ -33,31 +33,45 @@ document.getElementById('open-security-setup').addEventListener('click', () => {
 document.getElementById('backup-btn').addEventListener('click', async () => {
     const result = await ipcRenderer.invoke('exportDatabase');
     console.log('Backup result:', result);
-    alert(result.message || 'An unexpected error occurred.');
+   
 });
 
 document.getElementById('restore-btn').addEventListener('click', async () => {
-    const result = await ipcRenderer.invoke('importDatabase');
-    console.log('Restore result:', result);
-    alert(result.message || 'An unexpected error occurred.');
+    // Inform the user that the process has started
+    console.log('Starting database restore...');
+
+    try {
+        const result = await ipcRenderer.invoke('importDatabase');
+        console.log('Restore result:', result);
+
+        // Display feedback based on the result
+        if (result.success) {
+            
+        } else {
+            
+        }
+    } catch (error) {
+        console.error('Error invoking database restore:', error);
+       
+    }
 });
+
 
 // Export Books
 document.getElementById('export-btn').addEventListener('click', () => {
     document.getElementById('exportModal').querySelector('.btn-primary.mb-2').addEventListener('click', async () => {
         const result = await ipcRenderer.invoke('exportBooksToExcel');
         console.log('Export Books result:', result);
-        alert(result.message || 'An unexpected error occurred while exporting books.');
+        
     });
 });
 
 // Import Books
-
 document.getElementById('import-btn').addEventListener('click', () => {
     document.getElementById('importModal').querySelector('.btn-secondary.mb-2').addEventListener('click', async () => {
         const result = await ipcRenderer.invoke('importBooksFromExcel');
         console.log('Import Books result:', result);
-        alert(result.message || 'An unexpected error occurred while importing books.');
+        
     });
 });
 
@@ -67,7 +81,7 @@ document.getElementById('export-btn').addEventListener('click', () => {
     document.getElementById('exportModal').querySelector('.btn-primary:last-child').addEventListener('click', async () => {
         const result = await ipcRenderer.invoke('exportProfilesToExcel');
         console.log('Export Profiles result:', result);
-        alert(result.message || 'An unexpected error occurred while exporting borrower profiles.');
+       
     });
 });
 
@@ -77,7 +91,7 @@ document.getElementById('import-btn').addEventListener('click', () => {
     document.getElementById('importModal').querySelector('.btn-secondary:last-child').addEventListener('click', async () => {
         const result = await ipcRenderer.invoke('importProfilesFromExcel');
         console.log('Import Profiles result:', result);
-        alert(result.message || 'An unexpected error occurred while importing borrower profiles.');
+    
     });
 });
 
