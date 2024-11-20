@@ -108,9 +108,11 @@ function loadProfiles() {
 
 function displayProfiles(profiles = currentProfiles) {
     const profileList = document.getElementById('profileList');
+    const selectAllCheckbox = document.getElementById('selectAll');
     profileList.innerHTML = ''; // Clear existing table rows
 
-    if (profiles.length === null) {
+    if (profiles.length === 0) {
+        selectAllCheckbox.style.display = 'none'; // Hide the "Select All" checkbox
         const emptyMessageRow = document.createElement('tr');
         const emptyMessageCell = document.createElement('td');
         emptyMessageCell.colSpan = 6; // Adjust the colspan based on the number of columns
