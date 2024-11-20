@@ -791,7 +791,7 @@ ipcMain.handle('deleteBook', async (event, id) => {
     try {
         await new Promise((resolve, reject) => {
             executeQuery(
-                'DELETE FROM books WHERE id = ?',
+                'UPDATE books SET is_deleted = TRUE WHERE id = ?',
                 [id],
                 (error, results) => {
                     if (error) {
