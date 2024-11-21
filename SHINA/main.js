@@ -1344,7 +1344,7 @@ let editProfileWindow = null;
 
 ipcMain.handle('getProfiles', async () => {
     try {
-        const profiles = await executeSelectQuery('SELECT * FROM Profiles ORDER BY id DESC');
+        const profiles = await executeSelectQuery('SELECT * FROM Profiles WHERE is_deleted = FALSE ORDER BY id DESC');
         return profiles;
     } catch (error) {
         console.error('Error fetching profile records:', error);
@@ -1442,6 +1442,35 @@ ipcMain.handle('deleteProfile', async (event, id) => {
     }
 });
 
+ipcMain.handle('archiveProfile', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'UPDATE Profiles SET is_deleted = TRUE WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject the promise if there's an error
+                    } else {
+                        resolve(results); // Resolve on success
+                    }
+                }
+            );
+        });
+
+        // Notify the renderer process that the record is archived
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-archived', id);
+        }
+    } catch (error) {
+        console.error('Error archiving profile record:', error);
+
+        // Optionally send an error notification to the renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-archival-error', error.message);
+        }
+    }
+});
 
 
 ///PROFILES

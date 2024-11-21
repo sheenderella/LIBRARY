@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Call this function during your initialization process
     setupDeleteSelectedButton();
+
+    // Call this function during your initialization process
+    setupArchiveSelectedButton()    
 });
 
 function setupEventListeners() {
@@ -79,6 +82,7 @@ function setupSelectAllCheckbox() {
             // Deselect all checkboxes across all pages
             currentProfiles.forEach(profile => {
                 selectedProfileIds.delete(profile.id);
+                selectedProfileIds.archive(profile.id);
             });
             // Deselect all checkboxes on the current page
             checkboxes.forEach(checkbox => {
@@ -273,6 +277,31 @@ function addProfileToTable(profile, prepend = false) {
                 }
             });
     });
+
+
+    row.querySelector('.archive-btn').addEventListener('click', () => {
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Archive';
+        const message = `Are you sure you want to archive this profile?`;
+    
+        // Send a request to show the confirmation dialog
+        ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+            .then((result) => {
+                if (result) { // If the user confirmed deletion
+                    // Send the delete request to the main process
+                    ipcRenderer.invoke('archiveProfile', profile.id)
+                        .then(() => {
+                            console.log(`Profile with ID ${profile.id} archived`);
+                            showNotification('Profile has been archived!', 'archive');
+                            loadProfiles(); // Reload profiles after deletion
+                        })
+                        .catch(error => {
+                            console.error('Error archiving profile:', error);
+                            showNotification('Error archiving profile!', 'error');
+                        });
+                }
+            });
+    });
     
 
         // Add event listener to the checkbox for each profile
@@ -287,6 +316,7 @@ function addProfileToTable(profile, prepend = false) {
                 selectedProfileIds.add(profileId); // Add profile ID to the selected set
             } else {
                 selectedProfileIds.delete(profileId); // Remove profile ID from the selected set
+                selectedProfileIds.archive(profileId); // Remove profile ID from the selected set
             }
     
             // Update the "Select All" checkbox state
@@ -372,6 +402,46 @@ function setupDeleteSelectedButton() {
         updateCheckboxStates(); // Update checkbox states after deletion
     });
 }
+
+// Function to handle delete selected profiles
+function setupArchiveSelectedButton() {
+    const archiveButton = document.getElementById('archiveSelected');
+    
+    archiveButton.addEventListener('click', async () => {
+        // Get the IDs of the selected profiles
+        const idsToArchive = Array.from(selectedProfileIds); // Convert the Set to an Array
+
+        if (idsToArchive.length === 0) {
+            showNotification('No profiles selected for archive.', 'error');
+            return; // Exit if no profiles are selected
+        }
+
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Archive';
+        const message = `Are you sure you want to archive ${idsToArchive.length} profile(s)?`;
+
+        // Send a request to show the confirmation dialog
+        const confirmArchive = await ipcRenderer.invoke('show-confirmation-dialog', { title, message });
+        if (!confirmArchive) {
+            return; // Exit if the user cancels
+        }
+
+
+        // Send the delete request for each selected profile
+        for (const id of idsToArchive){
+            await ipcRenderer.invoke('archiveProfile', id); // Invoke the deleteProfile method in main.js
+            showNotification(`${idsToArchive.length} Profile(s) has been archived!`, 'archive');
+            loadProfiles(); // Reload profiles after deletion
+        }
+
+        // Optionally, clear the selectedProfileIds Set and update UI
+        selectedProfileIds.clear(); // Clear the selected IDs after deletion
+        updateCheckboxStates(); // Update checkbox states after deletion
+    });
+}
+
+
+
 
 // Function to open the add profile window
 function openAddProfileWindow() {
