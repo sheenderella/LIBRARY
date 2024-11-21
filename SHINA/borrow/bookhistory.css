@@ -182,6 +182,8 @@ h1 {
     margin-left: 15px; /* Aligns with borrowerName and h1 */
     margin-bottom: 0px;
 }
+
+
 /* Styling for the Borrower Name */
 #bookTitle {
     color: #30688B; /* Dark blue */

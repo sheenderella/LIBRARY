@@ -78,88 +78,151 @@
             </ul>
         </nav>
 
+
         <!-- Main Content -->
-        <main id="page-content-wrapper" class="flex-grow-1 p-4">
-            <!-- Back to Borrow Page Button -->
-            <a href="borrow.html" title="Back to Borrow Logs" id="backToBorrowPage" class="btn btn-secondary">
-                <i class="fa fa-arrow-left"></i>
-            </a>
-
-        <!-- Page Heading -->
-        <h2 id="borrowerName">Loading borrower name...</h2>
-        <p id="borrowerContactDetails">Loading contact details...</p> <!-- This is where ID, email, and phone number will appear -->
-
-            <h1>Borrowing History</h1>
-
-            <div id="notification" class="notification"></div>
-
-            <!-- Filters Section -->
-            <div class="controls">
-                <div id="filters" class="form-group row">
-                    <!-- Search Box -->
-                    <div class="input-group col">
-                        <span class="input-group-text"><i class="fa fa-search search-icon"></i></span>
-                        <input type="text" id="searchTitle" title="Search Book Title" class="form-control" placeholder="Search by book title">
-                    </div>
+        <main id="page-content-wrapper" class="p-4">
+            <div class="container mt-5">
+                <div class="header-content">
+                   <p class="top-head-h1"> Archive </p>
+                   <p class="top-head-p">List of archived books in the library</p>
                 </div>
-            </div>
 
-            <!-- Status Row Table -->
-            <table id="statusTable">
-                <thead>
-                    <tr id="statusRow">
-                        <th data-status="borrowed" title="Select Borrowed Books">Borrowed</th>
-                        <th data-status="returned" title="Select Returned Books" >Returned</th>
-                        <th data-status="overdue" title="Select Overdue Books">Overdue</th>
-                        <th data-status="returned overdue" title="Select Returned Overdue Books">Returned Overdue</th>
-                    </tr>
-                </thead>
-            </table>
+                <div class="button-header">
+                    <div class="right-side">
+                        <div class="dropdown-container">
+                            <div class="custom-dropdown">
+                                <select id="searchColumn" class="drop-search-form" data-bs-toggle="tooltip" title="Select a field to search">
+                                    <option value="all">All</option>
+                                    <option value="number">Number</option>
+                                    <option value="class">Class</option>
+                                    <option value="author">Author</option>
+                                    <option value="title_of_book">Book Title</option>
+                                    <option value="edition">Edition</option>
+                                    <option value="volume">Volume</option>
+                                    <option value="source_of_fund">Source of Fund</option>
+                                    <option value="pages">Pages</option>
+                                    <option value="cost_price">Cost Price</option>
+                                    <option value="publisher">Publisher</option>
+                                    <option value="year">Year</option>
+                                    <option value="condition">Condition</option>
+                                    <option value="remarks">Remarks</option>
+                                </select>
+                                <i class="fa fa-caret-down dropdown-icon"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="input-container">
+                            <input type="text" id="searchInput" class="search-form-control" placeholder="Search" data-bs-toggle="tooltip" title="Search" >
+                            <i class="icon fas fa-search"></i>
+                        </div> 
 
+                        <div id="dateRangeContainer" class="date-range-container">
+                            <i class="icon fas fa-calendar" data-bs-toggle="tooltip" title="Select a date range"></i>
+                            <select id="dateRangeSelect" class="form-control" data-bs-toggle="tooltip" title="Select a date range">
+                                <option value="">Clear Date Entry</option>
+                                <option value="last_7_days">Last 7 Days</option>
+                                <option value="last_30_days">Last 30 Days</option>
+                                <option value="this_month">This Month</option>
+                                <option value="last_month">Last Month</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
 
-            <!-- Borrower Log Table -->
-            <table id="borrowerLogTable">
-                <thead>
-                    <tr id="columnHeader">
-                        <th>Book Title</th>
-                        <th>Borrow Date</th>
-                        <th>Due Date</th>
-                        <th>Return Date</th>
-                    </tr>
-                </thead>
-                <tbody id="borrowerLogContainer">
-                    <!-- Content will be loaded by JavaScript -->
-                </tbody>
-            </table>
-
- 
-<!-- Pagination Controls -->
-<div id="paginationControls" class="pagination-container d-flex align-items-center">
-    <button id="firstPage" class="btn btn-primary me-2" disabled title="Go to First Page">
-        <i class="fa-solid fa-backward-fast"></i>
-    </button>
-    <button id="prevPage" class="btn btn-primary me-2" disabled title="Go to Previous Page">
-        <i class="fa-solid fa-caret-left"></i>
-    </button>
-
-    <input type="text" id="pageLocation" class="form-control me-2" value="1" 
-           oninput="this.value = this.value.replace(/[^0-9]/g, ''); adjustWidth();" 
-           title="Current Page">
-    <span id="totalPages" title="Total Pages"> of 1</span>
-    
-    <button id="nextPage" class="btn btn-primary ms-2" title="Go to Next Page">
-        <i class="fa-solid fa-caret-right"></i>
-    </button>
-    <button id="lastPage" class="btn btn-primary ms-2" title="Go to Last Page">
-        <i class="fa-solid fa-forward-fast"></i>
-    </button>
+                            <div id="customDateRange" class="date-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" id="startDate" class="form-control" data-bs-toggle="tooltip" title="Select start date">
+                                <label for="endDate">End Date</label>
+                                <input type="date" id="endDate" class="form-control" data-bs-toggle="tooltip" title="Select end date">
+                                <button id="clearDateRange" type="button" data-bs-toggle="tooltip" title="Clear date range">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                
+<!-- Column Visibility Form -->
+<div id="columnVisibilityForm" class="column-visibility-form">
+    <form id="columnForm">
+        <label><input type="checkbox" data-column="class" checked data-bs-toggle="tooltip" title="Toggle Class column"> Class</label>
+        <label><input type="checkbox" data-column="edition" checked data-bs-toggle="tooltip" title="Toggle Edition column"> Edition</label>
+        <label><input type="checkbox" data-column="volume" checked data-bs-toggle="tooltip" title="Toggle Volume column"> Volume</label>
+        <label><input type="checkbox" data-column="source_of_fund" checked data-bs-toggle="tooltip" title="Toggle Source of Fund column"> Source of Fund</label>
+        <label><input type="checkbox" data-column="pages" checked data-bs-toggle="tooltip" title="Toggle Pages column"> Pages</label>
+        <label><input type="checkbox" data-column="cost_price" checked data-bs-toggle="tooltip" title="Toggle Cost Price column"> Cost Price</label>
+        <label><input type="checkbox" data-column="publisher" checked data-bs-toggle="tooltip" title="Toggle Publisher column"> Publisher</label>
+        <label><input type="checkbox" data-column="year" checked data-bs-toggle="tooltip" title="Toggle Year column"> Year</label>
+        <label><input type="checkbox" data-column="condition" checked data-bs-toggle="tooltip" title="Toggle Condition column"> Condition</label>
+        <label><input type="checkbox" data-column="remarks" checked data-bs-toggle="tooltip" title="Toggle Remarks column"> Remarks</label>
+    </form>
+        <button type="button" id="showAll" class="btn btn-primary" data-bs-toggle="tooltip" title="Show all columns">Show All</button>
+        <button type="button" id="hideAll" class="btn btn-danger" data-bs-toggle="tooltip" title="Hide all columns">Hide All</button>
 </div>
-        </main>
+                    
+                    <div class="right-side-buttons">
+                        <button id="toggleColumns" class="btn btn-secondary"><i class="fas fa-eye" data-bs-toggle="tooltip" title="Toggle to show other columns" ></i></button>
+                        <button id="deleteSelected" class="btn btn-danger"><i class="fas fa-trash" data-bs-toggle="tooltip" title="Delete all selected"></i></button>
+                        <button id="archiveSelected" class="btn btn-warning"> <i class="fas fa-archive" data-bs-toggle="tooltip" title="Archive all selected"></i> </button>
+                        <button id="addBook" class="btn btn-success"><i class="fas fa-plus" data-bs-toggle="tooltip" title="Add new book"></i></button>
+                    </div>
+                    <div id="notification" class="notification"></div>
+                </div>                             
+
+        <div class="scroll-container">
+            <!-- Sticky Scrollbar Container -->
+            <div class="scrollbar-top" id="scrollbarTop">
+                <div class="scroll-content"></div>
+            </div>
+        
+            <!-- Main Scrollable Table Container -->
+            <div class="table-container" id="tableContainer">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="column-checkbox"><input type="checkbox" id="selectAll" data-bs-toggle="tooltip" title="Select all books"></th>
+                            <th class="column-number">Number <button data-column="number" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Number"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-date_received">Date Received <button data-column="date_received" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Date Received"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-class">Class <button data-column="class" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Class"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-author">Author <button data-column="author" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Author"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-title_of_book">Book Title <button data-column="title_of_book" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Book Title"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-edition">Edition <button data-column="edition" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Edition"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-volume">Volume <button data-column="volume" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Volume"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-source_of_fund">Source of Fund <button data-column="source_of_fund" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Source of Fund"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-pages">Pages <button data-column="pages" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Pages"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-cost_price">Cost Price <button data-column="cost_price" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Cost Price"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-publisher">Publisher <button data-column="publisher" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Publisher"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-year">Year <button data-column="year" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Year"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-condition">Condition <button data-column="condition" class="sort-btn" data-bs-toggle="tooltip" title="Sort by Condition"><i class="fa fa-sort"></i></button></th>
+                            <th class="column-remarks">Remarks</th>
+                            <th class="column-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookList">
+                        <!-- Table rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+                <!-- Pagination Controls -->
+                <div id="paginationControls">
+                    <button id="firstPage" data-bs-toggle="tooltip" title="Go to first page">
+                        <i class="fa-solid fa-backward-fast"></i>
+                    </button>
+                    <button id="prevPage" data-bs-toggle="tooltip" title="Go to previous page">
+                        <i class="fa-solid fa-caret-left"></i>
+                    </button>
+                    <input type="text" id="pageLocation" data-bs-toggle="tooltip" title="Enter page number">
+                    <span id="totalPages">of 1</span>
+                    <button id="nextPage" data-bs-toggle="tooltip" title="Go to next page">
+                        <i class="fa-solid fa-caret-right"></i>
+                    </button>
+                    <button id="lastPage" data-bs-toggle="tooltip" title="Go to last page">
+                        <i class="fa-solid fa-forward-fast"></i>
+                    </button>
+                </div>
+    </main>
     </div>
 
     <!-- JavaScript Files -->
-    <script src="borrowerLog.js" defer></script>
-    <script src="notification.js" defer></script>
+    <script src="archive.js" defer></script>
+    <script src="../borrow/notification.js" defer></script>
 
 
     <!-- Include Bootstrap JS and dependencies -->
