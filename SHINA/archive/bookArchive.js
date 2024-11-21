@@ -9,9 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadBooks();
 });
 
-function openAddBookWindow() {
-    ipcRenderer.send('open-add-book-window');
-}
 
 // Function to apply column visibility settings
 function applyColumnVisibility() {
@@ -35,7 +32,7 @@ function applyColumnVisibility() {
 function setupEventListeners() {
     const addBookButton = document.getElementById('addBook');
     const deleteSelectedButton = document.getElementById('deleteSelected');
-    const archiveSelectedButton = document.getElementById('archiveSelected');
+    const unarchiveSelectedButton = document.getElementById('unarchiveSelected');
 
     const searchColumn = document.getElementById('searchColumn');
     const searchInput = document.getElementById('searchInput');
@@ -274,9 +271,6 @@ function setupEventListeners() {
             });
             
         // ADD-DELETE-EDIT ACTIONS
-        addBookButton.addEventListener('click', () => {
-            openAddBookWindow();
-        });
     
         deleteSelectedButton.addEventListener('click', () => {
             deleteSelectedBooks();
@@ -284,8 +278,8 @@ function setupEventListeners() {
             adjustBooksPerPage();
         });
 
-        archiveSelectedButton.addEventListener('click', () => {
-            archiveSelectedBooks();
+        unarchiveSelectedButton.addEventListener('click', () => {
+            unarchiveSelectedBooks();
             loadBooks();
             adjustBooksPerPage();
         });
@@ -318,13 +312,7 @@ document.getElementById('selectAll').addEventListener('change', () => {
 }
 
 function setupIpcRenderers() {
-    // Listen for book record added event
-    ipcRenderer.on('book-record-added', (event, record) => {
-        addBookToTable(record, true);
-        showNotification('Book added successfully!', 'success');
-        loadBooks();
-        adjustBooksPerPage();
-    });
+
 
     // Listen for book record updated event
     ipcRenderer.on('book-record-updated', (event, record) => {
@@ -347,7 +335,7 @@ function setupIpcRenderers() {
     });
 
     ipcRenderer.on('book-record-archived', (event, id) => {
-        archiveBookFromTable(id);
+        unarchiveBookFromTable(id);
         loadBooks();
         adjustBooksPerPage();
     });
@@ -373,12 +361,12 @@ function adjustBooksPerPage() {
 }
 
 function loadBooks() {
-    ipcRenderer.invoke('getBooks').then(books => {
+    ipcRenderer.invoke('getBooksArchive').then(books => {
         originalBooks = books.slice();
         currentBooks = originalBooks;
         filterBooks(); // Apply the current search filters
         displayBooks();
-        updatePagination();;
+        updatePagination();
     });
 }
 
@@ -479,7 +467,7 @@ function addBookToTable(book, prepend = false) {
 
 
 
-            <button class="archive-btn" title="Unarchive" data-id="${book.id}">
+            <button class="unarchive-btn" title="Unarchive" data-id="${book.id}">
             <i class="fa-solid fa-rotate-right"></i>
 
             </button>
@@ -525,17 +513,17 @@ function addBookToTable(book, prepend = false) {
     });
 
 
-    row.querySelector('.archive-btn').addEventListener('click', () => {
+    row.querySelector('.unarchive-btn').addEventListener('click', () => {
         // Prepare title and message for the confirmation dialog
-        const title = 'Confirm Archiving';
-        const message = 'Are you sure you want to archive this book record?';
+        const title = 'Confirm Unarchiving';
+        const message = 'Are you sure you want to unarchive this book record?';
     
         // Show the confirmation dialog
         ipcRenderer.invoke('show-confirmation-dialog', { title, message })
             .then((confirmation) => {
                 if (confirmation) {
-                    archiveBookFromTable(book.id); // Assuming this is your archive function
-                    showNotification('The book has been archived!', 'info');
+                    unarchiveBookFromTable(book.id); // Assuming this is your archive function
+                    showNotification('The book has been unarchived!', 'info');
                     
                     // Reload books and adjust pagination after archiving
                     loadBooks();
@@ -635,46 +623,46 @@ function deleteSelectedBooks() {
 }
  
 //ARCHIVE
-function archiveBookFromTable(id) {
+function unarchiveBookFromTable(id) {
     const row = document.querySelector(`button[data-id="${id}"]`).closest('tr');
-    ipcRenderer.invoke('archiveBook', id) // Assuming this updates the record's `is_deleted` status
+    ipcRenderer.invoke('unarchiveBook', id) // Assuming this updates the record's `is_deleted` status
         .then(() => {
             row.remove();
             updatePagination();
             displayBooks();
-            showNotification('Book has been archived!', 'info');
+            showNotification('Book has been unarchived!', 'info');
         })
         .catch(error => {
-            console.error('Error archiving book record:', error);
-            showNotification('Error archiving the book!', 'error');
+            console.error('Error unarchiving book record:', error);
+            showNotification('Error unarchiving the book!', 'error');
         });
 }
 
-function archiveSelectedBooks() {
+function unarchiveSelectedBooks() {
     if (selectedBookIds.size === 0) {
         showNotification("No books selected", "error");
         return;
     }
 
     const count = selectedBookIds.size; // Count the number of selected books
-    const title = 'Confirm Archiving';
-    const message = `Are you sure you want to archive ${count} selected book record(s)?`;
+    const title = 'Confirm Unarchiving';
+    const message = `Are you sure you want to unarchive ${count} selected book record(s)?`;
 
     ipcRenderer.invoke('show-confirmation-dialog', { title, message })
         .then((confirmation) => {
             if (confirmation) {
                 const ids = Array.from(selectedBookIds);
 
-                Promise.all(ids.map(id => ipcRenderer.invoke('archiveBook', id)))
+                Promise.all(ids.map(id => ipcRenderer.invoke('unarchiveBook', id)))
                     .then(() => {
                         selectedBookIds.clear(); // Clear the selection
                         loadBooks();
                         adjustBooksPerPage();
-                        showNotification(`${count} book(s) have been archived!`, 'info');
+                        showNotification(`${count} book(s) have been unarchived!`, 'info');
                     })
                     .catch(error => {
-                        console.error('Error archiving books:', error);
-                        showNotification('Error archiving the books!', 'error');
+                        console.error('Error unarchiving books:', error);
+                        showNotification('Error unarchiving the books!', 'error');
                     });
             }
         })
@@ -685,9 +673,7 @@ function archiveSelectedBooks() {
 }
 
 function getBookFromRow(row) {
-    const cells = row.querySelectorAll('td');
-
-    
+    const cells = row.querySelectorAll('td');   
 }
 
 function filterBooks() {

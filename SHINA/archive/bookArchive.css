@@ -5,12 +5,29 @@ body {
     overflow-x: auto;
 }
 
+/* Back to Borrow Page Button */
+#backToBorrowPage {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border: none;
+    font-size: 1rem;
+    border-radius: 7px;
+}
+
+#backToBorrowPage:hover {
+    background-color: #30688B;
+}
+
+
 /* Heading */
 .top-head-h1 {
     font-size: 60px; /* Larger than the default h3 for emphasis */
     font-weight: bolder;
     color: #30688B; /* Use the customizable text color */
-    margin-top: -40px; /* Remove default margin */
     margin-bottom: -5px;
 }
 
@@ -471,7 +488,7 @@ td input[type="checkbox"] {
 }
 
 /* Icon Section: Styling for edit and delete icons */
-.delete-btn,.edit-btn,.archive-btn {
+.delete-btn,.edit-btn,.unarchive-btn {
     display: inline-block;
     color: #4C4C4C !important;
     font-size: 18px;

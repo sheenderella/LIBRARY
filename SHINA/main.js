@@ -856,6 +856,46 @@ ipcMain.handle('getBooks', async () => {
     }
 });
 
+ipcMain.handle('getBooksArchive', async () => {
+    try {
+    
+        const books = await executeSelectQuery(
+            'SELECT * FROM books WHERE is_deleted = TRUE ORDER BY createdAt DESC'
+        );
+        return books;
+    } catch (error) {
+        console.error('Error fetching book records:', error);
+        return [];
+    }
+});
+
+ipcMain.handle('unarchiveBook', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'UPDATE books SET is_deleted = FALSE WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject promise if there's an error
+                    } else {
+                        resolve(results); // Resolve promise on success
+                    }
+                }
+            );
+        });
+
+        // Notify the main window after the record is archived
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-unarchived', id);
+        }
+    } catch (error) {
+        console.error('Error archiving book record:', error);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-unarchive-error', error.message);
+        }
+    }
+});
 
 
 
@@ -1352,6 +1392,17 @@ ipcMain.handle('getProfiles', async () => {
     }
 });
 
+ipcMain.handle('getProfilesArchive', async () => {
+    try {
+        const profiles = await executeSelectQuery('SELECT * FROM Profiles WHERE is_deleted = TRUE ORDER BY id DESC');
+        return profiles;
+    } catch (error) {
+        console.error('Error fetching profile records:', error);
+        return [];
+    }
+});
+
+
 // Handle the 'addProfile' logic
 ipcMain.handle('addProfile', async (event, record) => {
     try {
@@ -1468,6 +1519,36 @@ ipcMain.handle('archiveProfile', async (event, id) => {
         // Optionally send an error notification to the renderer process
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('profile-record-archival-error', error.message);
+        }
+    }
+});
+
+ipcMain.handle('unarchiveProfile', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'UPDATE Profiles SET is_deleted = FALSE WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject the promise if there's an error
+                    } else {
+                        resolve(results); // Resolve on success
+                    }
+                }
+            );
+        });
+
+        // Notify the renderer process that the record is archived
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-unarchived', id);
+        }
+    } catch (error) {
+        console.error('Error unarchiving profile record:', error);
+
+        // Optionally send an error notification to the renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-unarchival-error', error.message);
         }
     }
 });
