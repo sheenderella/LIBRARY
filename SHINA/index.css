@@ -21,7 +21,7 @@ body {
     transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
     position: fixed; /* Sidebar remains fixed on the screen */
     height: 100%; /* Full height of the sidebar */
-    overflow-y: auto; /* Enables scrolling if the content overflows */
+    overflow-y: hidden; /* Enables scrolling if the content overflows */
     overflow-x: hidden;
 }
 
@@ -73,7 +73,7 @@ body {
 
 /* Navigation link styling */
 #sidebar-wrapper .nav-link {
-    padding: 15px 60px; /* Padding around each link */
+    padding: 13px 60px; /* Padding around each link */
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflow text */
     text-overflow: ellipsis; /* Show "..." for overflow text */

@@ -126,20 +126,6 @@ body {
     width: calc(100% - 250px); /* Adjust based on the sidebar width */
 }
 
-/* Main content area */
-#page-content-wrapper {
-    width: 10rem;
-    flex: none;
-    flex-grow: 1; /* Allow the content to expand to fill available space */
-    padding: 20px; /* Padding around the content */
-    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
-    margin-left: 250px; /* Default margin to make space for the sidebar */
-}
-
-/* Adjust main content margin when sidebar is collapsed */
-#wrapper.collapsed #page-content-wrapper {
-    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
-}
 
 /* Main content area */
 #page-content-wrapper {
@@ -156,134 +142,18 @@ body {
 
 
 
-/* MAIN CONTENT */
-
-
-.text-settings{
-    font-size: 60px; /* Larger than the default h3 for emphasis */
-    font-weight: 500;
-    color: #30688B; /* Use the customizable text color */
-    margin-top: -40px; /* Remove default margin */
-    margin-bottom: -5px;
-}
-
-/* Accordion Styles */
-.accordion-button {
-    background-color: #3A79A0;
-    color: #fff !important;
-    border: none !important;
-    outline: none;
-    font-size: 1.25rem;
-    padding: 12px 20px;
-    text-align: left;
-    width: 100%;
-}
-.accordion-button:hover {
-    background-color: #30688B;
-  }
-
-.accordion-button:focus {
-    box-shadow: none;
-}
-
-.accordion-button:not(.collapsed) {
-    background-color: #3A79A0
-}
-
-.accordion-body {
-    padding: 0; /* Remove default padding */
-}
-
-.accordion-item {
-    border: 1px solid #3A79A0;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-/* Button Styles Inside Accordion */
-.accordion-body .btn {
-    width: 100%;
-    text-align: left;
+/* Back to Borrow Page Button */
+#backToBorrowPage {
+    display: inline-block;
+    margin-top: 20px;
     padding: 10px 20px;
-    margin: 0;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
     border: none;
-    color: #333C42 !important;
-    border-radius: 0;
-    transition: background-color 0.3s ease;
+    font-size: 1rem;
 }
 
-.accordion-body .btn:hover {
-    background-color: #e2e6ea;
-}
-
-#support-btn {
-    font-size: 1.25rem;
-    padding: 12px 20px;
-    background-color: #3A79A0;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    text-align: left;
-}
-
-#support-btn:hover {
+#backToBorrowPage:hover {
     background-color: #30688B;
-}
-
-
-
-/* Add space between icon and text */
-button i {
-    margin-right: 10px; /* Adjust the value as needed */
-}
-
-/* MODAL */
-.modal-content {
-    border-radius: 8px; /* Rounded corners for the modal */
-}
-
-.modal-header {
-    background-color: #30688B; /* Custom background color */
-    color: #fff; /* Text color */
-}
-
-.modal-title {
-    font-size: 18px; /* Size of the modal title */
-}
-
-.modal-body {
-    font-family: Arial, sans-serif; /* Change font */
-    padding: 20px; /* Adjust padding */
-}
-
-h6 {
-    margin-bottom: 15px; /* Space below heading */
-}
-
-.btn {
-    border-radius: 5px; /* Rounded button corners */
-    padding: 10px; /* Adjust button padding */
-}
-
-.btn-primary, .btn-secondary {
-    background-color: #30688B; /* Custom color for both buttons */
-    border: 0 !important; /* Remove border */
-}
-
-.btn-primary:hover, .btn-secondary:hover {
-    background-color: #3A79A0 !important; /* Hover effect */
-}
-
-.btn-close {
-    border: none;
-    background: transparent; /* Transparent background */
-    color: #000; /* Color of the 'X' */
-    font-size: 20px; /* Size of the 'X' */
-    cursor: pointer; /* Pointer cursor */
-    position: absolute; /* Positioning */
-    top: 10px; /* Distance from the top */
-    right: 10px; /* Distance from the right */
-    padding: 0; /* Remove padding */
 }
