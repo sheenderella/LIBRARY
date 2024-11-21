@@ -35,6 +35,8 @@ function applyColumnVisibility() {
 function setupEventListeners() {
     const addBookButton = document.getElementById('addBook');
     const deleteSelectedButton = document.getElementById('deleteSelected');
+    const archiveSelectedButton = document.getElementById('archiveSelected');
+
     const searchColumn = document.getElementById('searchColumn');
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', filterBooks);
@@ -296,6 +298,12 @@ function setupEventListeners() {
             loadBooks();
             adjustBooksPerPage();
         });
+
+        archiveSelectedButton.addEventListener('click', () => {
+            archiveSelectedBooks();
+            loadBooks();
+            adjustBooksPerPage();
+        });
     
         searchInput.addEventListener('input', () => {
             filterBooks();
@@ -352,6 +360,13 @@ function setupIpcRenderers() {
         loadBooks();
         adjustBooksPerPage();
     });
+
+    ipcRenderer.on('book-record-archived', (event, id) => {
+        archiveBookFromTable(id);
+        loadBooks();
+        adjustBooksPerPage();
+    });
+
 }
 
 function openEditBookWindow(record) {
@@ -525,6 +540,31 @@ function addBookToTable(book, prepend = false) {
                 showNotification('Error showing confirmation dialog!', 'error');
             });
     });
+
+
+    row.querySelector('.archive-btn').addEventListener('click', () => {
+        // Prepare title and message for the confirmation dialog
+        const title = 'Confirm Archiving';
+        const message = 'Are you sure you want to archive this book record?';
+    
+        // Show the confirmation dialog
+        ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+            .then((confirmation) => {
+                if (confirmation) {
+                    archiveBookFromTable(book.id); // Assuming this is your archive function
+                    showNotification('The book has been archived!', 'info');
+                    
+                    // Reload books and adjust pagination after archiving
+                    loadBooks();
+                    adjustBooksPerPage();
+                }
+            })
+            .catch(error => {
+                console.error('Error showing confirmation dialog:', error);
+                showNotification('Error showing confirmation dialog!', 'error');
+            });
+    });
+    
     
 
     if (prepend) {
@@ -612,6 +652,56 @@ function deleteSelectedBooks() {
         });
 }
  
+//ARCHIVE
+function archiveBookFromTable(id) {
+    const row = document.querySelector(`button[data-id="${id}"]`).closest('tr');
+    ipcRenderer.invoke('archiveBook', id) // Assuming this updates the record's `is_deleted` status
+        .then(() => {
+            row.remove();
+            updatePagination();
+            displayBooks();
+            showNotification('Book has been archived!', 'info');
+        })
+        .catch(error => {
+            console.error('Error archiving book record:', error);
+            showNotification('Error archiving the book!', 'error');
+        });
+}
+
+function archiveSelectedBooks() {
+    if (selectedBookIds.size === 0) {
+        showNotification("No books selected", "error");
+        return;
+    }
+
+    const count = selectedBookIds.size; // Count the number of selected books
+    const title = 'Confirm Archiving';
+    const message = `Are you sure you want to archive ${count} selected book record(s)?`;
+
+    ipcRenderer.invoke('show-confirmation-dialog', { title, message })
+        .then((confirmation) => {
+            if (confirmation) {
+                const ids = Array.from(selectedBookIds);
+
+                Promise.all(ids.map(id => ipcRenderer.invoke('archiveBook', id)))
+                    .then(() => {
+                        selectedBookIds.clear(); // Clear the selection
+                        loadBooks();
+                        adjustBooksPerPage();
+                        showNotification(`${count} book(s) have been archived!`, 'info');
+                    })
+                    .catch(error => {
+                        console.error('Error archiving books:', error);
+                        showNotification('Error archiving the books!', 'error');
+                    });
+            }
+        })
+        .catch(error => {
+            console.error('Error showing confirmation dialog:', error);
+            showNotification('Error showing confirmation dialog!', 'error');
+        });
+}
+
 function getBookFromRow(row) {
     const cells = row.querySelectorAll('td');
     return {

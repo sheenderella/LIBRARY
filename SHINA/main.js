@@ -727,8 +727,6 @@ function createAddBookWindow() {
     });
 }
 
-
-
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'editBook.html'),
@@ -816,7 +814,6 @@ ipcMain.handle('deleteBook', async (event, id) => {
     }
 });
 
-
 ipcMain.handle('archiveBook', async (event, id) => {
     try {
         await new Promise((resolve, reject) => {
@@ -833,18 +830,18 @@ ipcMain.handle('archiveBook', async (event, id) => {
             );
         });
 
-        // Notify the main window after the record is deleted
+        // Notify the main window after the record is archived
         if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('book-record-deleted', id);
+            mainWindow.webContents.send('book-record-archived', id);
         }
     } catch (error) {
-        console.error('Error deleting book record:', error);
-        // Optionally send an error notification to the renderer process
+        console.error('Error archiving book record:', error);
         if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('book-record-deletion-error', error.message);
+            mainWindow.webContents.send('book-record-archive-error', error.message);
         }
     }
 });
+
 
 ipcMain.handle('getBooks', async () => {
     try {
@@ -858,6 +855,10 @@ ipcMain.handle('getBooks', async () => {
         return [];
     }
 });
+
+
+
+
 //BORROW
 ipcMain.handle('getBookId', async (event, bookTitle, bookVolume, bookEdition) => {
     return new Promise((resolve, reject) => {
@@ -1441,6 +1442,8 @@ ipcMain.handle('deleteProfile', async (event, id) => {
     }
 });
 
+
+
 ///PROFILES
 // Listen for the event from index.js
 // Function to create the Add Profile window
@@ -1505,8 +1508,6 @@ ipcMain.on('open-edit-profile-window', (event, record) => {
 
 //SETTINGS
 //BACKUP & RESTORE EXCEL FILES
-
-
 // Export Profiles to Excel (excluding Profile ID)
 ipcMain.handle('exportProfilesToExcel', async () => {
     try {
