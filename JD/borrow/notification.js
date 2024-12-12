@@ -15,10 +15,10 @@ function showNotification(message, type = 'success') {
             notification.style.backgroundColor = '#f44336'; // Red for error
             break;
         case 'delete':
-            notification.style.backgroundColor = '#FF5722'; // Orange for delete
+            notification.style.backgroundColor = '#4CAF50'; // Orange for delete
             break;
         default:
-            notification.style.backgroundColor = '#4CAF50'; // Blue for default
+            notification.style.backgroundColor = '#2196F3'; // Blue for default
     }
     
     // Add the show class to make it visible

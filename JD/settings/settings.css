@@ -73,7 +73,7 @@ body {
 
 /* Navigation link styling */
 #sidebar-wrapper .nav-link {
-    padding: 15px 60px; /* Padding around each link */
+    padding: 13px 60px; /* Padding around each link */
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflow text */
     text-overflow: ellipsis; /* Show "..." for overflow text */
@@ -234,11 +234,6 @@ body {
 
 
 
-/* Add space between icon and text */
-button i {
-    margin-right: 10px; /* Adjust the value as needed */
-}
-
 /* MODAL */
 .modal-content {
     border-radius: 8px; /* Rounded corners for the modal */
@@ -258,14 +253,7 @@ button i {
     padding: 20px; /* Adjust padding */
 }
 
-h6 {
-    margin-bottom: 15px; /* Space below heading */
-}
 
-.btn {
-    border-radius: 5px; /* Rounded button corners */
-    padding: 10px; /* Adjust button padding */
-}
 
 .btn-primary, .btn-secondary {
     background-color: #30688B; /* Custom color for both buttons */

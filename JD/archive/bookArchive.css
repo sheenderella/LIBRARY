@@ -5,12 +5,29 @@ body {
     overflow-x: auto;
 }
 
+/* Back to Borrow Page Button */
+#backToBorrowPage {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border: none;
+    font-size: 1rem;
+    border-radius: 7px;
+}
+
+#backToBorrowPage:hover {
+    background-color: #30688B;
+}
+
+
 /* Heading */
 .top-head-h1 {
     font-size: 60px; /* Larger than the default h3 for emphasis */
     font-weight: bolder;
     color: #30688B; /* Use the customizable text color */
-    margin-top: -40px; /* Remove default margin */
     margin-bottom: -5px;
 }
 
@@ -23,10 +40,53 @@ body {
     margin-left: 5px;
 }
 
+.button-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
+.right-side-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Add space between buttons */
+}
+
+
+#columnForm {
+    overflow-y: scroll;
+    height: 12rem;
+    margin-bottom: 1rem;
+}
+
+.column-visibility-form {
+    display: none;
+    position: absolute;
+    top: 35.5%;
+    right: 1.5%;
+    background-color: whitesmoke;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 10px;
+    width: 230px;
+    z-index: 1000;
+    padding-left: 1rem;
+}
+
+.column-visibility-form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.column-visibility-form .btn-danger{
+    width: 5.5rem;
+    height: 2.45rem;
+}
+
+/* BUTTONS */
 
 .btn-success {
-    background-color: #28a745 !important; /* Green */
+    background-color: #28a745!important; /* Green */
     color: #fff;
     height: 45px;
     width: 45px;
@@ -41,6 +101,25 @@ body {
 
 .btn-success:active {
     background-color: #1e7e34!important; /* Even darker green */
+    transform: scale(0.98); /* Slight shrink on click */
+}
+
+.btn-danger {
+    background-color: #dc3545!important; /* Red */
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-danger :hover {
+    background-color: #c82333!important; /* Darker red */
+}
+
+.btn-danger :active {
+    background-color: #bd2130!important; /* Even darker red */
     transform: scale(0.98); /* Slight shrink on click */
 }
 
@@ -65,8 +144,8 @@ body {
 }
 
 
-.btn-danger {
-    background-color: #dc3545; /* Red */
+.btn-secondary {
+    background-color: #7d7d7d !important; /* Set the background color to gray */
     color: #fff;
     height: 45px;
     width: 45px;
@@ -75,43 +154,92 @@ body {
     border: none;
 }
 
-.btn-danger :hover {
-    background-color: #c82333 !important; /* Darker red */
+.btn-secondary:hover {
+    background-color: #666666  !important; /* Darker gray on hover *//
 }
 
-.btn-danger :active {
-    background-color: #bd2130 !important; /* Even darker red */
-    transform: scale(0.98)  !important; /* Slight shrink on click */
+.btn-secondary:active {
+    background-color: #505050  !important; /* Darker gray when active */
+    transform: scale(0.98); /* Slight shrink on click */
 }
 
-/* Icon Section: Styling for edit and delete icons */
-.delete-btn,.edit-btn,.archive-btn {
+
+
+/* Date Range Container */
+.date-range-container {
+    position: relative;
+    display: flex;
+    margin: 1rem;
+}
+
+.date-range-container .icon {
+    background-color: #30688B;
+    padding: 0 15px; /* Adjust padding for better alignment */
+    color: whitesmoke;
+    border: 1px solid #1f1f1f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    height: 45px; /* Set height explicitly */
+    display: inline-flex; /* Flex for vertical centering */
+    align-items: center; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+}
+
+#dateRangeSelect {
+    padding: 0 10px; /* Adjust padding for better alignment */
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    height: 45px; /* Match the icon height */
+    width: 130px;
     display: inline-block;
-    color: #4C4C4C !important;
-    font-size: 18px;
-    background: none !important; /* Remove background for icons */
-    border: none !important; /* Ensure no border around icons */
-    text-align: center;
+    margin: -5px;
+
+}
+
+/* CUSTOM DATE FORM */
+.date-group {
+    display: none;
+    position: absolute;
+    top: 100%;
+    background-color: whitesmoke;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 10px;
+    width: 180px;
+    z-index: 1000;
+}
+
+.date-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.date-group input[type="date"] {
+    display: block;
+    margin-bottom: 10px;
+    width: calc(100% - 20px);
+    width: 160px;
+}
+
+#clearDateRange {
+    background-color: #ffc107;
+    color: #1f1f1f;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
     cursor: pointer;
+    width: 160px;
+    
 }
 
-/* Icon Section: Styling for edit and delete icons */
-.delete-btn:hover ,.edit-btn:hover  {
-    color: #333C42 !important;
-}
-
-
-.button-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.right-side-buttons {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem; /* Add space between buttons */
+#clearDateRange:hover {
+    opacity: 0.8;
 }
 
 /* Dropdown Container */
@@ -125,19 +253,14 @@ body {
 }
 
 .custom-dropdown,
-.input-container{
+.input-container,
+.date-range-container {
     position: relative;
     display: inline-block; /* Ensure each container behaves inline */
 }
 
 .custom-dropdown {
     display: inline-block;
-}
-
-.input-container {
-    display: flex;
-    align-items: center;
-    flex-grow: 1; /* Allow the input container to grow */
 }
 
 .dropdown-icon {
@@ -148,6 +271,7 @@ body {
     pointer-events: none; /* Prevent icon from blocking select dropdown interaction */
     font-size: medium;
 }
+
 
 .dropdown-container .icon {
     background-color: #30688B;
@@ -182,6 +306,12 @@ body {
     height: 3rem;
 }
 
+.input-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Allow the input container to grow */
+}
+
 .input-container input {
     flex-grow: 1; /* Allow the input field to grow and fill the remaining space */
     padding-left: 15px;
@@ -205,7 +335,31 @@ body {
     width: 45px;
 }
 
-/* TABLE */
+/* Container Styling */
+.scroll-container {
+    position: relative;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+
+/* Sticky Scrollbar Styling */
+.scrollbar-top {
+    position: sticky;
+    top: 0;
+    height: 18px;
+    background-color: #f1f1f1;
+    overflow-x: auto;
+    z-index: 10;
+    width: 100%;
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+/* Dummy content for scrollbar sync */
+.scrollbar-top .dummy-content {
+    height: 1px; /* Minimal height to ensure scrollbar appears */
+}
+
 /* Main Table Container */
 th input[type="checkbox"] {
     margin: 0;
@@ -222,7 +376,7 @@ td input[type="checkbox"] {
     max-width: 100%;
     overflow-x: auto; /* Ensures responsiveness on smaller screens */
     margin: 20px 0;
-    border: 0px solid #ddd;
+    border: 1px solid #ddd;
     background-color: #f9f9f9;
     position: relative;
 }
@@ -235,6 +389,7 @@ td input[type="checkbox"] {
     font-size: 14px;
     table-layout: auto; /* Allows cells to adjust width based on content */
 }
+
 
 /* Styling for table headers */
 .table-container th {
@@ -265,7 +420,7 @@ td input[type="checkbox"] {
     min-width: 150px; /* Minimum width for key columns */
 }
 
-.column-class, .column-edition, 
+.column-date_received, .column-class, .column-edition, 
 .column-volume, .column-source_of_fund, .column-pages, 
 .column-cost_price, .column-publisher, .column-year, 
 .column-remarks, .column-actions {
@@ -318,6 +473,51 @@ td input[type="checkbox"] {
     cursor: pointer;
 }
 
+
+
+/* Icon button styling */
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    padding: 1em;
+}
+
+/* Icon Section: Styling for edit and delete icons */
+.delete-btn,.edit-btn,.unarchive-btn {
+    display: inline-block;
+    color: #4C4C4C !important;
+    font-size: 18px;
+    background: none !important; /* Remove background for icons */
+    border: none !important; /* Ensure no border around icons */
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Icon Section: Styling for edit and delete icons */
+.delete-btn:hover ,.edit-btn:hover  {
+    color: #333C42 !important;
+}
+
+
+/* Empty message cell styling */
+.empty-message-cell {
+    text-align: center;
+    padding: 3.45rem 0;
+    font-size: 1.5rem;
+    color: #555555;
+    background-color: #f9f9f9;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    height: 10rem;
+}
+
+
+/* NOTIFICATION */
 /* Notification styles */
 #notification {
     position: fixed;
@@ -331,13 +531,13 @@ td input[type="checkbox"] {
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform: translateX(100%); /* Hide off-screen */
-    z-index: 1500;
 }
 
 #notification.show {
     opacity: 1;
     transform: translateX(0); /* Move into view */
 }
+
 
 
 /* PAGINATION */
@@ -395,18 +595,6 @@ td input[type="checkbox"] {
 #paginationControls button i {
     font-size: 16px; /* Font size for icons */
     color: whitesmoke; /* Dark color for icons */
-}
-
-/* Icon button styling */
-.icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-    padding: 1em;
 }
 
 

@@ -727,8 +727,6 @@ function createAddBookWindow() {
     });
 }
 
-
-
 function createEditBookWindow(record) {
     editBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'editBook.html'),
@@ -816,9 +814,41 @@ ipcMain.handle('deleteBook', async (event, id) => {
     }
 });
 
+ipcMain.handle('archiveBook', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'UPDATE books SET is_deleted = TRUE WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject promise if there's an error
+                    } else {
+                        resolve(results); // Resolve promise on success
+                    }
+                }
+            );
+        });
+
+        // Notify the main window after the record is archived
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-archived', id);
+        }
+    } catch (error) {
+        console.error('Error archiving book record:', error);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-archive-error', error.message);
+        }
+    }
+});
+
+
 ipcMain.handle('getBooks', async () => {
     try {
-        const books = await executeSelectQuery('SELECT * FROM books ORDER BY createdAt DESC');
+    
+        const books = await executeSelectQuery(
+            'SELECT * FROM books WHERE is_deleted = FALSE ORDER BY createdAt DESC'
+        );
         return books;
     } catch (error) {
         console.error('Error fetching book records:', error);
@@ -826,7 +856,46 @@ ipcMain.handle('getBooks', async () => {
     }
 });
 
+ipcMain.handle('getBooksArchive', async () => {
+    try {
+    
+        const books = await executeSelectQuery(
+            'SELECT * FROM books WHERE is_deleted = TRUE ORDER BY createdAt DESC'
+        );
+        return books;
+    } catch (error) {
+        console.error('Error fetching book records:', error);
+        return [];
+    }
+});
 
+ipcMain.handle('unarchiveBook', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'UPDATE books SET is_deleted = FALSE WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject promise if there's an error
+                    } else {
+                        resolve(results); // Resolve promise on success
+                    }
+                }
+            );
+        });
+
+        // Notify the main window after the record is archived
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-unarchived', id);
+        }
+    } catch (error) {
+        console.error('Error archiving book record:', error);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('book-record-unarchive-error', error.message);
+        }
+    }
+});
 
 
 
@@ -1002,13 +1071,13 @@ ipcMain.handle('addBorrow', async (event, record) => {
     try {
         // Validate borrower ID
         const borrowerExists = await executeSelectQuery(
-            'SELECT * FROM Profiles WHERE borrower_id = ?',
+            'SELECT * FROM Profiles WHERE borrower_id = ? AND is_deleted = 0',
             [record.borrowerID]
         );
 
         if (borrowerExists.length === 0) {
             mainWindow.webContents.send('borrow-error', {
-                message: 'Borrower ID does not exist',
+                message: 'Borrower ID does not exist. Please try again',
                 type: 'error'
             });
             return;
@@ -1016,13 +1085,13 @@ ipcMain.handle('addBorrow', async (event, record) => {
 
         // Validate book ID
         const bookExists = await executeSelectQuery(
-            'SELECT * FROM books WHERE id = ?',
+            'SELECT * FROM books WHERE id = ? AND is_deleted = 0',
             [record.bookId]  // Using the unique bookId for validation
         );
 
         if (bookExists.length === 0) {
             mainWindow.webContents.send('borrow-error', {
-                message: 'Book ID does not exist',
+                message: 'Book ID does not exist. Please try again',
                 type: 'error'
             });
             return;
@@ -1120,10 +1189,9 @@ ipcMain.handle('getBookDetails', async (event, title) => {
     }
 });
 
-// Handle fetching all borrower IDs
 ipcMain.handle('getBorrowerIDs', async () => {
     try {
-        const borrowerIDs = await executeSelectQuery('SELECT borrower_id FROM Profiles'); // Ensure this matches your column name
+        const borrowerIDs = await executeSelectQuery('SELECT borrower_id FROM Profiles WHERE is_deleted = 0'); // Filter by is_deleted = 0
         return borrowerIDs.map(borrower => borrower.borrower_id); // Return only the IDs
     } catch (error) {
         console.error('Error fetching borrower IDs:', error);
@@ -1133,7 +1201,7 @@ ipcMain.handle('getBorrowerIDs', async () => {
 
 ipcMain.handle('getBorrowerNameByID', async (event, id) => {
     try {
-        const result = await executeSelectQuery(`SELECT name FROM Profiles WHERE borrower_id = ?`, [id]); // Fetch the borrower name
+        const result = await executeSelectQuery(`SELECT name FROM Profiles WHERE borrower_id = ? AND is_deleted = 0`, [id]); // Fetch the borrower name
         if (result.length > 0) {
             return result[0].name; // Assuming 'name' is the column that holds the borrower's name
         } else {
@@ -1149,7 +1217,7 @@ ipcMain.handle('getBorrowerNameByID', async (event, id) => {
 ipcMain.handle('getBorrowerNames', async () => {
     try {
         // Adjust the SQL query to match your actual database schema
-        const result = await executeSelectQuery(`SELECT name FROM Profiles`); // Fetch all borrower names
+        const result = await executeSelectQuery(`SELECT name FROM Profiles WHERE is_deleted = 0`); // Fetch all borrower names
         return result.map(row => row.name); // Return an array of names
     } catch (error) {
         console.error('Error fetching borrower names:', error);
@@ -1160,7 +1228,7 @@ ipcMain.handle('getBorrowerNames', async () => {
 // IPC handler for fetching borrower ID by name
 ipcMain.handle('getBorrowerIDByName', async (event, name) => {
     try {
-        const result = await executeSelectQuery(`SELECT borrower_id FROM Profiles WHERE name = ?`, [name]); // Fetch borrower ID
+        const result = await executeSelectQuery(`SELECT borrower_id FROM Profiles WHERE name = ? AND is_deleted = 0`, [name]); // Fetch borrower ID
         if (result.length > 0) {
             return result[0].borrower_id; // Assuming 'borrower_id' is the column that holds the borrower's ID
         } else {
@@ -1315,13 +1383,24 @@ let editProfileWindow = null;
 
 ipcMain.handle('getProfiles', async () => {
     try {
-        const profiles = await executeSelectQuery('SELECT * FROM Profiles ORDER BY id DESC');
+        const profiles = await executeSelectQuery('SELECT * FROM Profiles WHERE is_deleted = FALSE ORDER BY id DESC');
         return profiles;
     } catch (error) {
         console.error('Error fetching profile records:', error);
         return [];
     }
 });
+
+ipcMain.handle('getProfilesArchive', async () => {
+    try {
+        const profiles = await executeSelectQuery('SELECT * FROM Profiles WHERE is_deleted = TRUE ORDER BY id DESC');
+        return profiles;
+    } catch (error) {
+        console.error('Error fetching profile records:', error);
+        return [];
+    }
+});
+
 
 // Handle the 'addProfile' logic
 ipcMain.handle('addProfile', async (event, record) => {
@@ -1413,6 +1492,67 @@ ipcMain.handle('deleteProfile', async (event, id) => {
     }
 });
 
+ipcMain.handle('archiveProfile', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'UPDATE Profiles SET is_deleted = TRUE WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject the promise if there's an error
+                    } else {
+                        resolve(results); // Resolve on success
+                    }
+                }
+            );
+        });
+
+        // Notify the renderer process that the record is archived
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-archived', id);
+        }
+    } catch (error) {
+        console.error('Error archiving profile record:', error);
+
+        // Optionally send an error notification to the renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-archival-error', error.message);
+        }
+    }
+});
+
+ipcMain.handle('unarchiveProfile', async (event, id) => {
+    try {
+        await new Promise((resolve, reject) => {
+            executeQuery(
+                'UPDATE Profiles SET is_deleted = FALSE WHERE id = ?',
+                [id],
+                (error, results) => {
+                    if (error) {
+                        reject(error); // Reject the promise if there's an error
+                    } else {
+                        resolve(results); // Resolve on success
+                    }
+                }
+            );
+        });
+
+        // Notify the renderer process that the record is archived
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-unarchived', id);
+        }
+    } catch (error) {
+        console.error('Error unarchiving profile record:', error);
+
+        // Optionally send an error notification to the renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('profile-record-unarchival-error', error.message);
+        }
+    }
+});
+
+
 ///PROFILES
 // Listen for the event from index.js
 // Function to create the Add Profile window
@@ -1477,8 +1617,6 @@ ipcMain.on('open-edit-profile-window', (event, record) => {
 
 //SETTINGS
 //BACKUP & RESTORE EXCEL FILES
-
-
 // Export Profiles to Excel (excluding Profile ID)
 ipcMain.handle('exportProfilesToExcel', async () => {
     try {

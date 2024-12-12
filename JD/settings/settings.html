@@ -54,10 +54,18 @@
                         <span class="link-text">Borrow Logs</span>
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../archive/archive.html" data-bs-toggle="tooltip" title="Go to Archive">
+                        <i class="fas fa-archive"></i>
+                        <span class="link-text">Archive</span>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link text-white" href="../settings/settings.html" data-bs-toggle="tooltip" title="Go to Settings">
                         <i class="fas fa-cog"></i>
-                        <span class="link-text">Settings</span>
+                        <span class="link-text"> Settings</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -81,15 +89,15 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingOne">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                <i class="fas fa-user-cog"></i> Account Settings
+                                <i class="fas fa-user-cog"></i> &nbsp; Account Settings
                             </button>
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accountSettingsAccordion">
                             <div class="accordion-body p-0">
                                 <div class="d-flex flex-column align-items-start">
-                                    <button class="btn btn-outline-primary w-100 text-start" id="change-username-button"><i class="fas fa-user"></i> Change Username</button>
-                                    <button class="btn btn-outline-primary w-100 text-start" id="password-btn"><i class="fas fa-key"></i> Change Password</button>
-                                    <button class="btn btn-outline-success w-100 text-start" id="open-security-setup"><i class="fas fa-shield-alt"></i> Add Security Question</button>
+                                    <button class="btn btn-outline-primary w-100 text-start" id="change-username-button"><i class="fas fa-user"></i> &nbsp; Change Username</button>
+                                    <button class="btn btn-outline-primary w-100 text-start" id="password-btn"><i class="fas fa-key"></i> &nbsp; Change Password</button>
+                                    <button class="btn btn-outline-success w-100 text-start" id="open-security-setup"><i class="fas fa-shield-alt"></i> &nbsp; Add Security Question</button>
                                 </div>
                             </div>
                             
@@ -102,14 +110,14 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingTwo">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                <i class="fas fa-database"></i> Database Management
+                <i class="fas fa-database"></i> &nbsp; Database Management
             </button>
         </h2>
         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#databaseManagementAccordion">
             <div class="accordion-body p-0">
                 <div class="d-flex flex-column align-items-start">
-                    <button class="btn btn-outline-warning w-100 text-start" id="backup-btn"><i class="fas fa-download"></i> Backup Database</button>
-                    <button class="btn btn-outline-danger w-100 text-start" id="restore-btn"><i class="fas fa-upload"></i> Restore Database</button>
+                    <button class="btn btn-outline-warning w-100 text-start" id="backup-btn"><i class="fas fa-download"></i> &nbsp;  Backup Database</button>
+                    <button class="btn btn-outline-danger w-100 text-start" id="restore-btn"><i class="fas fa-upload"></i>&nbsp;  Restore Database</button>
                     
                     <!-- New Export/Import Section -->
                     <button class="btn btn-outline-primary w-100 text-start" id="export-btn" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="fas fa-file-export"></i> Export to Excel</button>
@@ -124,7 +132,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exportModalLabel">Export to Excel</h5>
+                <h5 class="modal-title" id="exportModalLabel">&nbsp; Export to Excel</h5>
 <!-- Close Button with Font Awesome -->
 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
     <i class="fas fa-times"></i> <!-- X Icon -->
@@ -144,7 +152,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="importModalLabel">Import from Excel</h5>
+                <h5 class="modal-title" id="importModalLabel">&nbsp; Import from Excel</h5>
 <!-- Close Button with Font Awesome -->
 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
     <i class="fas fa-times"></i> <!-- X Icon -->
@@ -152,8 +160,8 @@
             </div>
             <div class="modal-body">
                 <h6>Select Data to Import:</h6>
-                <button class="btn btn-secondary w-100 mb-2" onclick="importData('books')">Import Books</button>
-                <button class="btn btn-secondary w-100" onclick="importData('borrowers')">Import Borrower Profiles</button>
+                <button class="btn btn-secondary w-100 mb-2" onclick="importData('books')"> Import Books</button>
+                <button class="btn btn-secondary w-100" onclick="importData('borrowers')"> Import Borrower Profiles</button>
             </div>
         </div>
     </div>
@@ -161,7 +169,7 @@
 
                 <!-- Support & FAQs -->
                 <div class="text-start mb-4">
-                    <button class="btn btn-info w-100 text-start" id="support-btn"><i class="fas fa-question-circle"></i> Support & FAQs</button>
+                    <button class="btn btn-info w-100 text-start" id="support-btn"><i class="fas fa-question-circle"></i> &nbsp;Support & FAQs</button>
                 </div>
 
             </div>

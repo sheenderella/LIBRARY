@@ -543,6 +543,7 @@ async function loadBorrowRecords() {
         const recordsToShow = filteredRecords.slice(startIndex, endIndex);
 
         if (recordsToShow.length === 0) {
+            selectAllCheckbox.style.display = 'none'; // Hide the "Select All" checkbox
             const emptyRow = document.createElement('tr');
             const emptyCell = document.createElement('td');
             emptyCell.colSpan = 7;

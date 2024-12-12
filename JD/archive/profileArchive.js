@@ -25,11 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDeleteSelectedButton();
 
     // Call this function during your initialization process
-    setupArchiveSelectedButton()    
+    setupUnarchiveSelectedButton()    
 });
 
 function setupEventListeners() {
-    document.getElementById('addProfile').addEventListener('click', openAddProfileWindow);
     // Event listener for clicks outside the sort buttons
     // document.addEventListener('click', resetSortButtons);
     // Attach event listeners to search elements
@@ -37,15 +36,7 @@ function setupEventListeners() {
     document.getElementById('searchColumn').addEventListener('change', filterProfiles);
 }
 
-function setUpIpcRenderer() {
-    // Listen for the profile-record-added event and add the profile to the table
-        ipcRenderer.on('profile-record-added', (event, profile) => {
-            // Dynamically add the new profile to the table
-            addProfileToTable(profile, true);
-            showNotification('Profile has been added!', 'success');
-            loadProfiles();
-        });
-    
+function setUpIpcRenderer() {    
     // Listen for the profile-record-updated event and update the profile in the table
         ipcRenderer.on('profile-record-updated', (event, updatedProfile) => {
             updateProfileInTable(updatedProfile);
@@ -99,7 +90,7 @@ function setupSelectAllCheckbox() {
 
 // Function to load profiles and display them in the table
 function loadProfiles() {
-    ipcRenderer.invoke('getProfiles')
+    ipcRenderer.invoke('getProfilesArchive')
         .then(profiles => {
             currentProfiles = profiles; // Store the loaded profiles
             displayProfiles(currentProfiles); // Call the function to display profiles
@@ -235,8 +226,8 @@ function addProfileToTable(profile, prepend = false) {
         <td>${profile.email || 'N/A'}</td>
         <td>
             <button class="edit-btn" title="Edit" data-id="${profile.id}"> <i class="fas fa-edit"></i> </button>
-            <button class="archive-btn" title="Archive" data-id="${profile.id}">
-            <i class="fas fa-archive"></i>
+            <button class="unarchive-btn" title="Unarchive" data-id="${profile.id}">
+            <i class="fa-solid fa-rotate-right"></i>
             </button>
             <button class="delete-btn" title="Delete" data-id="${profile.id}"> <i class="fas fa-trash"></i> </button>
         </td>
@@ -279,25 +270,25 @@ function addProfileToTable(profile, prepend = false) {
     });
 
 
-    row.querySelector('.archive-btn').addEventListener('click', () => {
+    row.querySelector('.unarchive-btn').addEventListener('click', () => {
         // Prepare title and message for the confirmation dialog
-        const title = 'Confirm Archive';
-        const message = `Are you sure you want to archive this profile?`;
+        const title = 'Confirm unarchive';
+        const message = `Are you sure you want to unarchive this profile?`;
     
         // Send a request to show the confirmation dialog
         ipcRenderer.invoke('show-confirmation-dialog', { title, message })
             .then((result) => {
                 if (result) { // If the user confirmed deletion
                     // Send the delete request to the main process
-                    ipcRenderer.invoke('archiveProfile', profile.id)
+                    ipcRenderer.invoke('unarchiveProfile', profile.id)
                         .then(() => {
-                            console.log(`Profile with ID ${profile.id} archived`);
-                            showNotification('Profile has been archived!', 'archive');
+                            console.log(`Profile with ID ${profile.id} unarchived`);
+                            showNotification('Profile has been unarchived!', 'unarchive');
                             loadProfiles(); // Reload profiles after deletion
                         })
                         .catch(error => {
-                            console.error('Error archiving profile:', error);
-                            showNotification('Error archiving profile!', 'error');
+                            console.error('Error unarchiving profile:', error);
+                            showNotification('Error unarchiving profile!', 'error');
                         });
                 }
             });
@@ -316,7 +307,7 @@ function addProfileToTable(profile, prepend = false) {
                 selectedProfileIds.add(profileId); // Add profile ID to the selected set
             } else {
                 selectedProfileIds.delete(profileId); // Remove profile ID from the selected set
-                selectedProfileIds.archive(profileId); // Remove profile ID from the selected set
+                selectedProfileIds.unarchive(profileId); // Remove profile ID from the selected set
             }
     
             // Update the "Select All" checkbox state
@@ -404,21 +395,21 @@ function setupDeleteSelectedButton() {
 }
 
 // Function to handle delete selected profiles
-function setupArchiveSelectedButton() {
-    const archiveButton = document.getElementById('archiveSelected');
+function setupUnarchiveSelectedButton() {
+    const unarchiveButton = document.getElementById('unarchiveSelected');
     
-    archiveButton.addEventListener('click', async () => {
+    unarchiveButton.addEventListener('click', async () => {
         // Get the IDs of the selected profiles
-        const idsToArchive = Array.from(selectedProfileIds); // Convert the Set to an Array
+        const idsToUnarchive = Array.from(selectedProfileIds); // Convert the Set to an Array
 
-        if (idsToArchive.length === 0) {
-            showNotification('No profiles selected for archive.', 'error');
+        if (idsToUnarchive.length === 0) {
+            showNotification('No profiles selected for unarchive.', 'error');
             return; // Exit if no profiles are selected
         }
 
         // Prepare title and message for the confirmation dialog
-        const title = 'Confirm Archive';
-        const message = `Are you sure you want to archive ${idsToArchive.length} profile(s)?`;
+        const title = 'Confirm Unarchive';
+        const message = `Are you sure you want to archive ${idsToUnarchive.length} profile(s)?`;
 
         // Send a request to show the confirmation dialog
         const confirmArchive = await ipcRenderer.invoke('show-confirmation-dialog', { title, message });
@@ -428,9 +419,9 @@ function setupArchiveSelectedButton() {
 
 
         // Send the delete request for each selected profile
-        for (const id of idsToArchive){
-            await ipcRenderer.invoke('archiveProfile', id); // Invoke the deleteProfile method in main.js
-            showNotification(`${idsToArchive.length} Profile(s) has been archived!`, 'archive');
+        for (const id of idsToUnarchive){
+            await ipcRenderer.invoke('unarchiveProfile', id); // Invoke the deleteProfile method in main.js
+            showNotification(`${idsToUnarchive.length} Profile(s) has been unarchived!`, 'unarchive');
             loadProfiles(); // Reload profiles after deletion
         }
 
@@ -440,13 +431,6 @@ function setupArchiveSelectedButton() {
     });
 }
 
-
-
-
-// Function to open the add profile window
-function openAddProfileWindow() {
-    ipcRenderer.send('open-add-profile-window');
-}
 
 // Function to open the edit profile window and send the selected record
 function openEditProfileWindow(record) {

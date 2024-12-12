@@ -107,6 +107,26 @@ body {
 }
 
 
+.btn-warning {
+    background-color: #ffc107 !important; /* Warning yellow */
+    color: #fff!important; /* Dark text for contrast */
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-warning:hover {
+    background-color: #f0c33c !important; /* Darker yellow */
+}
+
+.btn-warning:active {
+    background-color: #fdd764 !important; /* Even darker yellow */
+    transform: scale(0.98); /* Slight shrink on click */
+}
+
+
 .btn-secondary {
     background-color: #7d7d7d !important; /* Set the background color to gray */
     color: #fff;
@@ -451,7 +471,7 @@ td input[type="checkbox"] {
 }
 
 /* Icon Section: Styling for edit and delete icons */
-.delete-btn,.edit-btn {
+.delete-btn,.edit-btn,.archive-btn {
     display: inline-block;
     color: #4C4C4C !important;
     font-size: 18px;
@@ -629,7 +649,7 @@ td input[type="checkbox"] {
 
 /* Navigation link styling */
 #sidebar-wrapper .nav-link {
-    padding: 15px 60px; /* Padding around each link */
+    padding: 13px 60px; /* Padding around each link */
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflow text */
     text-overflow: ellipsis; /* Show "..." for overflow text */

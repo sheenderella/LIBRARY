@@ -47,35 +47,54 @@ ipcMain.handle('importDatabase', async () => {
     if (isDialogOpen) {
         return { success: false, message: 'Restore is already open.' };
     }
-    
+
     isDialogOpen = true;
 
     try {
         const { filePaths } = await dialog.showOpenDialog({
-            title: 'Open Database Backup',
+            title: 'Select Database Backup',
             buttonLabel: 'Open',
             filters: [{ name: 'SQLite Database', extensions: ['sqlite'] }],
             properties: ['openFile']
         });
 
-        console.log('Restore filePaths:', filePaths);
-
-        if (filePaths && filePaths.length > 0) {
-            const importedDbPath = filePaths[0];
-            await mergeDatabases(importedDbPath, dbPath);
-            console.log('Restore successful:', importedDbPath);
-            return { success: true, message: 'Database restore was successful!' };
+        if (!filePaths || filePaths.length === 0) {
+            console.log('Restore cancelled');
+            await dialog.showMessageBox({
+                type: 'warning',
+                title: 'Restore Cancelled',
+                message: 'No file was selected. Database restore was cancelled.',
+                buttons: ['OK']
+            });
+            return { success: false, message: 'Restore cancelled.' };
         }
 
-        console.log('Restore cancelled');
-        return { success: false, message: 'Restore cancelled.' };
+        const importedDbPath = filePaths[0];
+        await mergeDatabases(importedDbPath, dbPath);
+        console.log('Restore successful:', importedDbPath);
+
+        await dialog.showMessageBox({
+            type: 'info',
+            title: 'Restore Successful',
+            message: 'The database restore was completed successfully!',
+            buttons: ['OK']
+        });
+
+        return { success: true, message: 'Database restore was successful!' };
     } catch (error) {
         console.error('Error importing database:', error);
+        await dialog.showMessageBox({
+            type: 'error',
+            title: 'Restore Failed',
+            message: `An error occurred during database restore: ${error.message}`,
+            buttons: ['OK']
+        });
         return { success: false, message: `Error: ${error.message}` };
     } finally {
         isDialogOpen = false;
     }
 });
+
 
 // Merge data from the imported database into the main database for all tables
 async function mergeDatabases(importedDbPath, mainDbPath) {
