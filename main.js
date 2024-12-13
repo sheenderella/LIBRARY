@@ -1765,41 +1765,143 @@ ipcMain.handle('importProfilesFromExcel', async () => {
 
 //GENERATE REPORTS
 // + REPORTS
-// Export Books to Excel
 ipcMain.handle('exportBooksToExcel', async () => {
     try {
         const books = await executeSelectQuery('SELECT * FROM books');
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Books');
+        
+        // Add "Books" worksheet
+        const booksSheet = workbook.addWorksheet('Books');
 
-        // Define readable column names
-        const columns = [
-            { header: 'ID', key: 'id', hidden: true },
-            { header: 'Book Number', key: 'number' },
-            { header: 'Date Received', key: 'date_received' },
-            { header: 'Class', key: 'class' },
-            { header: 'Author', key: 'author' },
-            { header: 'Title of Book', key: 'title_of_book' },
-            { header: 'Edition', key: 'edition' },
-            { header: 'Source of Fund', key: 'source_of_fund' },
-            { header: 'Cost Price', key: 'cost_price' },
-            { header: 'Publisher', key: 'publisher' },
-            { header: 'Year', key: 'year' },
-            { header: 'Remarks', key: 'remarks' },
-            { header: 'Volume', key: 'volume' },
-            { header: 'Pages', key: 'pages' },
-            { header: 'Condition', key: 'condition' },
-            { header: 'Created At', key: 'createdAt', hidden: true } // Hide the createdAt column
+        // Add and style the title row
+        booksSheet.mergeCells('A1:O1'); // Merge cells across the first row
+        booksSheet.getCell('A1').value = 'Exported List of Books';
+        booksSheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+        booksSheet.getCell('A1').font = { bold: true, size: 16 };
+
+        // Add column headers manually in row 2
+        const headers = [
+            'ID',
+            'Book Number',
+            'Date Received',
+            'Class',
+            'Author',
+            'Title of Book',
+            'Edition',
+            'Source of Fund',
+            'Cost Price',
+            'Publisher',
+            'Year',
+            'Remarks',
+            'Volume',
+            'Pages',
+            'Condition',
+            'Created At'
         ];
-        worksheet.columns = columns;
+        const headerRow = booksSheet.addRow(headers);
+        headerRow.font = { bold: true }; // Make headers bold
+
+        // Set column widths and hide specific columns
+        booksSheet.columns = [
+            { key: 'id', width: 10, hidden: true }, // Hide ID
+            { key: 'number', width: 15 },
+            { key: 'date_received', width: 15 },
+            { key: 'class', width: 10 },
+            { key: 'author', width: 20 },
+            { key: 'title_of_book', width: 25 },
+            { key: 'edition', width: 10 },
+            { key: 'source_of_fund', width: 20 },
+            { key: 'cost_price', width: 10 },
+            { key: 'publisher', width: 15 },
+            { key: 'year', width: 10 },
+            { key: 'remarks', width: 20 },
+            { key: 'volume', width: 10 },
+            { key: 'pages', width: 10 },
+            { key: 'condition', width: 15 },
+            { key: 'createdAt', width: 15, hidden: true } // Hide Created At
+        ];
 
         // Add rows from books data
         books.forEach(book => {
-            worksheet.addRow(book);
+            booksSheet.addRow([
+                book.id,
+                book.number,
+                book.date_received,
+                book.class,
+                book.author,
+                book.title_of_book,
+                book.edition,
+                book.source_of_fund,
+                book.cost_price,
+                book.publisher,
+                book.year,
+                book.remarks,
+                book.volume,
+                book.pages,
+                book.condition,
+                book.createdAt
+            ]);
         });
 
+        // Add "SUMMARY" worksheet
+        const summarySheet = workbook.addWorksheet('SUMMARY');
+
+        // Set column widths for the SUMMARY sheet
+        summarySheet.columns = [
+            { width: 30 }, // First column for labels
+            { width: 10 }  // Second column for values (numeric or count)
+        ];
+
+        // Calculate summary data
+        const conditionCounts = {
+            new: 0,
+            good: 0,
+            acceptable: 0,
+            poor: 0,
+            'not usable': 0
+        };
+        const yearCounts = {};
+        let totalBooks = books.length;
+
+        books.forEach(book => {
+            // Count conditions
+            const condition = book.condition?.toLowerCase();
+            if (conditionCounts[condition] !== undefined) {
+                conditionCounts[condition]++;
+            }
+
+            // Count years
+            const year = book.year;
+            if (year) {
+                yearCounts[year] = (yearCounts[year] || 0) + 1;
+            }
+        });
+
+        // Populate the SUMMARY sheet
+        summarySheet.addRow(['Summary of Book Conditions']);
+        Object.entries(conditionCounts).forEach(([condition, count]) => {
+            summarySheet.addRow([`${condition.charAt(0).toUpperCase() + condition.slice(1)}:`, count]);
+        });
+
+        summarySheet.addRow([]); // Empty row
+        summarySheet.addRow(['Total Number of Books:', totalBooks]);
+
+        summarySheet.addRow([]); // Empty row
+        const summaryOfYearsRow = summarySheet.addRow(['Summary of Book Years']);
+        summaryOfYearsRow.font = { bold: true }; // Bold "Summary of Book Years"
+
+        Object.entries(yearCounts).forEach(([year, count]) => {
+            summarySheet.addRow([`Year ${year}:`, count]);
+        });
+
+        // Style the summary headers
+        summarySheet.getRow(1).font = { bold: true }; // Book condition summary header
+        summarySheet.getRow(6).font = { bold: true }; // Total number of books
+        summarySheet.getRow(8).font = { bold: true }; // Book year summary header
+
+        // Save the workbook
         const { filePath } = await dialog.showSaveDialog({
-            title: 'Save Excel File',
+            title: 'Save Exported Books as Excel',
             defaultPath: 'books.xlsx',
             filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
         });
@@ -1830,13 +1932,27 @@ ipcMain.handle('importBooksFromExcel', async () => {
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(filePaths[0]);
 
-        const worksheet = workbook.getWorksheet('Books'); // Adjusted to match your export worksheet name
+        const worksheet = workbook.getWorksheet('Books');
         let importedCount = 0; // Track the number of successfully imported books
 
+        // Validate that the worksheet has the expected structure
+        const headers = [
+            'ID', 'Book Number', 'Date Received', 'Class', 'Author', 'Title of Book', 'Edition',
+            'Source of Fund', 'Cost Price', 'Publisher', 'Year', 'Remarks', 'Volume',
+            'Pages', 'Condition', 'Created At'
+        ];
+
+        const firstRow = worksheet.getRow(2);
+        const rowHeaders = firstRow.values.slice(1); // Remove null value from the start
+        
+        if (!headers.every((header, index) => rowHeaders[index] === header)) {
+            throw new Error('Invalid Excel format. Please ensure the column headers match the export format.');
+        }
+
         // Loop through each row, validating and merging data
-        for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) { // Start from the second row
+        for (let rowNumber = 3; rowNumber <= worksheet.rowCount; rowNumber++) { // Start from the third row (data rows)
             const row = worksheet.getRow(rowNumber);
-            const title_of_book = row.getCell(6).value; // Assuming this is the "Title of Book" column
+            const title_of_book = row.getCell(6).value; // "Title of Book" column
 
             // Validate for missing title
             if (!title_of_book) {
@@ -1859,8 +1975,8 @@ ipcMain.handle('importBooksFromExcel', async () => {
                 remarks: row.getCell(12).value,          // Excel Column: "Remarks"
                 volume: row.getCell(13).value,           // Excel Column: "Volume"
                 pages: row.getCell(14).value,            // Excel Column: "Pages"
-                createdAt: row.getCell(15).value,        // Excel Column: "Created At"
-                condition: row.getCell(16).value         // Excel Column: "Condition"
+                condition: row.getCell(15).value,        // Excel Column: "Condition"
+                createdAt: row.getCell(16).value         // Excel Column: "Created At"
             };
 
             // Check if the Book ID already exists
@@ -1868,7 +1984,7 @@ ipcMain.handle('importBooksFromExcel', async () => {
                 const existingBook = await executeSelectQuery('SELECT * FROM books WHERE id = ?', [book.id]);
 
                 if (existingBook.length > 0) {
-                    // If Book ID exists, merge the book (update the existing record)
+                    // Update the existing record
                     await executeQuery(
                         `UPDATE books SET 
                             number = ?, date_received = ?, class = ?, author = ?, title_of_book = ?, edition = ?, source_of_fund = ?, cost_price = ?, publisher = ?, year = ?, remarks = ?, volume = ?, pages = ?, createdAt = ?, condition = ? 
@@ -1882,11 +1998,11 @@ ipcMain.handle('importBooksFromExcel', async () => {
                         ]
                     );
                 } else {
-                    // If the ID is provided but doesn't exist in the database, insert the record with that ID
+                    // Insert new record with the specified ID
                     await executeQuery(
                         `INSERT INTO books (id, number, date_received, class, author, title_of_book, edition, source_of_fund, cost_price, publisher, year, remarks, volume, pages, createdAt, condition) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                        [
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                        , [
                             book.id, book.number, book.date_received, book.class, book.author, 
                             book.title_of_book, book.edition, book.source_of_fund, 
                             book.cost_price, book.publisher, book.year, 
@@ -1896,11 +2012,11 @@ ipcMain.handle('importBooksFromExcel', async () => {
                     );
                 }
             } else {
-                // If no ID is provided, insert a new record and let the database auto-increment the ID
+                // Insert a new record and let the database auto-increment the ID
                 await executeInsertQuery(
                     `INSERT INTO books (number, date_received, class, author, title_of_book, edition, source_of_fund, cost_price, publisher, year, remarks, volume, pages, createdAt, condition) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                    , [
                         book.number, book.date_received, book.class, book.author, 
                         book.title_of_book, book.edition, book.source_of_fund, 
                         book.cost_price, book.publisher, book.year, 
@@ -1923,11 +2039,13 @@ ipcMain.handle('importBooksFromExcel', async () => {
             });
         }
 
+        return { message: 'Import successful!' };
     } catch (error) {
         console.error('Error importing books:', error);
         return { message: 'Error importing books.' };
     }
 });
+
 
 // GENERATE REPORTS
 let reportsWindow = null; // Initialize the reportsWindow variable
@@ -1968,10 +2086,10 @@ function createReportsWindow() {
 // Books Availability
 ipcMain.handle('checkBooksAvailability', async () => {
     try {
-        // Query to get book information and its status, including the book ID
+        // Query to get book information and its status
         const booksAvailability = await executeSelectQuery(`
             SELECT 
-                b.id,  -- Add book ID
+                b.id,  
                 b.title_of_book, 
                 b.year, 
                 b.edition, 
@@ -1986,68 +2104,90 @@ ipcMain.handle('checkBooksAvailability', async () => {
         `);
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Books Availability');
 
-        // Define readable column names, adding a hidden 'Book ID' column
+        
+
+        // Add books availability sheet
+        const booksSheet = workbook.addWorksheet('Books Availability');
+
+        // Add title to books sheet
+        booksSheet.mergeCells('A1:F1');
+        booksSheet.getCell('A1').value = 'BOOK STATUS REPORT';
+        booksSheet.getCell('A1').font = { bold: true, size: 16 };
+        booksSheet.getCell('A1').alignment = { horizontal: 'center' };
+
+        // Define column headers
         const columns = [
-            { header: 'Book ID', key: 'id', hidden: true },  // Hidden Book ID column
-            { header: 'Title of Book', key: 'title_of_book' },
-            { header: 'Year', key: 'year' },
-            { header: 'Edition', key: 'edition' },
-            { header: 'Volume', key: 'volume' },
-            { header: 'Book Status', key: 'book_status' }
+            { header: 'Book ID', key: 'id', hidden: true },  // Book ID now hidden
+            { header: 'Title of Book', key: 'title_of_book', width: 30 },
+            { header: 'Year', key: 'year', width: 15 },
+            { header: 'Edition', key: 'edition', width: 15 },
+            { header: 'Volume', key: 'volume', width: 15 },
+            { header: 'Book Status', key: 'book_status', width: 20 }
         ];
-        worksheet.columns = columns;
+        booksSheet.columns = columns;
 
-        // Add rows from books status data
+        // Add blank row for spacing
+        booksSheet.addRow([]);
+
+        // Add column headers
+        booksSheet.insertRow(3, columns.map(col => col.header));
+
+        // Add data rows
         booksAvailability.forEach(book => {
-            worksheet.addRow(book);
+            booksSheet.addRow(book);
         });
 
-        // Apply conditional formatting: Green for 'Available' books (for entire row)
-        worksheet.eachRow((row, rowNumber) => {
-            const bookStatusCell = row.getCell('book_status');
-            if (bookStatusCell.value === 'Available') {
-                row.eachCell({ includeEmpty: true }, (cell) => {
-                    cell.fill = {
+        // Apply formatting for data rows
+        booksSheet.eachRow((row, rowNumber) => {
+            if (rowNumber > 3) { // Skip title and header rows
+                const bookStatusCell = row.getCell(6); // Book Status is the 6th column
+                if (bookStatusCell.value === 'Available') {
+                    bookStatusCell.fill = {
                         type: 'pattern',
                         pattern: 'solid',
-                        fgColor: { argb: 'FF00FF00' }, // Green color for available books
+                        fgColor: { argb: 'FF00FF00' } // Green for available books
                     };
-                });
-            }
-        });
-
-        // Apply dropdown (data validation) for the "Book Status" column
-        worksheet.getColumn('book_status').eachCell({ includeEmpty: true }, (cell, rowNumber) => {
-            if (rowNumber > 1) { // Skip header row
-                cell.dataValidation = {
-                    type: 'list',
-                    allowBlank: true,
-                    formula1: '"Available,Not Available"', // Dropdown options
-                    showDropDown: true
-                };
+                } else if (bookStatusCell.value === 'Not Available') {
+                    bookStatusCell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFFF0000' } // Red for unavailable books
+                    };
+                }
             }
         });
 
         // Apply auto-filter to the worksheet
-        worksheet.autoFilter = {
-            from: 'A1',
-            to: 'F1' // Adjust if the range changes
+        booksSheet.autoFilter = {
+            from: 'B3',
+            to: 'F3'
         };
-
-        // Calculate availability statistics
-        const totalBooks = booksAvailability.length;
-        const availableBooks = booksAvailability.filter(book => book.book_status === 'Available').length;
-        const notAvailableBooks = totalBooks - availableBooks;
-        const availablePercentage = ((availableBooks / totalBooks) * 100).toFixed(2);
-        const notAvailablePercentage = (100 - availablePercentage).toFixed(2);
-
-        // Add summary to a new sheet
+        // Add summary sheet
         const summarySheet = workbook.addWorksheet('Summary');
-        summarySheet.addRow(['Status', 'Count', 'Percentage']);
-        summarySheet.addRow(['Available', availableBooks, `${availablePercentage}%`]);
-        summarySheet.addRow(['Not Available', notAvailableBooks, `${notAvailablePercentage}%`]);
+
+        // Calculate summary data
+        const totalBooks = booksAvailability.length;
+        const borrowedBooks = booksAvailability.filter(book => book.book_status === 'Not Available').length;
+
+        // Add title to summary sheet
+        summarySheet.mergeCells('A1:C1');
+        summarySheet.getCell('A1').value = 'BOOK STATUS SUMMARY';
+        summarySheet.getCell('A1').font = { bold: true, size: 16 };
+        summarySheet.getCell('A1').alignment = { horizontal: 'center' };
+
+       // Define column widths for proper sizing
+       summarySheet.columns = [
+        { header: '', key: 'blank', width: 5 },
+        { header: 'Description', key: 'description', width: 30 },
+        { header: 'BOOK STATUS SUMMARY', key: 'BOOK STATUS SUMMARY', width: 20 }
+    ];        
+
+        // Add summary data
+        summarySheet.addRow([]); // Blank row
+        summarySheet.addRow(['', 'Total Number of Books:', totalBooks]);
+        summarySheet.addRow(['', 'Total Number of Borrowed Books:', borrowedBooks]);
+        summarySheet.addRow(['', 'Total Number of Available Books:', (totalBooks - borrowedBooks)]);
 
         const { filePath } = await dialog.showSaveDialog({
             title: 'Save Excel File',
@@ -2057,7 +2197,7 @@ ipcMain.handle('checkBooksAvailability', async () => {
 
         if (filePath) {
             await workbook.xlsx.writeFile(filePath);
-            return { message: 'Books status exported successfully with summary!' };
+            return { message: 'Books status exported successfully!' };
         }
 
         return { message: 'Export canceled.' };
@@ -2066,6 +2206,7 @@ ipcMain.handle('checkBooksAvailability', async () => {
         return { message: 'Error exporting books status.' };
     }
 });
+
 
 // Borrowing Details - Handle generating reports based on time period and category
 // Define function to get SQL time condition based on borrowDate and selected time period
