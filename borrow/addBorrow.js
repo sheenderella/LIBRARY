@@ -10,7 +10,7 @@ async function fetchBorrowerIDs() {
         return [];
     }
 }
-
+ 
 // Function to fetch borrower names for suggestions from the database
 async function fetchBorrowerNames() {
     try {
@@ -251,11 +251,23 @@ document.getElementById('addBookButton').addEventListener('click', function () {
     const volumeInput = document.getElementById('addVolume');
     const editionInput = document.getElementById('addEdition');
     const bookIdInput = document.getElementById('addBookId');
-    
+    const notification = document.getElementById('notification'); // Notification element for messages
+
     const bookTitle = bookTitleInput.value.trim();
     const volume = volumeInput.value.trim() || 'n/a'; // Default to 'n/a' if empty
     const edition = editionInput.value.trim() || 'n/a'; // Default to 'n/a' if empty
     const bookId = bookIdInput.value.trim();
+
+    // Check if the maximum limit of borrowed books is reached
+    if (borrowedBooks.length >= 3) {
+        notification.textContent = 'Maximum books to borrow has been reached!';
+        notification.classList.add('alert', 'alert-warning'); // Add styling for the notification
+        setTimeout(() => {
+            notification.textContent = ''; // Clear the notification after 3 seconds
+            notification.classList.remove('alert', 'alert-warning');
+        }, 3000);
+        return;
+    }
 
     // Validate the book title and ID before adding
     if (bookTitle && bookId) {
@@ -290,6 +302,7 @@ function updateBorrowedBooksList() {
         list.appendChild(listItem);
     });
 };
+
 
 // Event listener for form submission
 document.addEventListener('DOMContentLoaded', () => {
