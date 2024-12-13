@@ -1775,7 +1775,7 @@ ipcMain.handle('exportBooksToExcel', async () => {
 
         // Add and style the title row
         booksSheet.mergeCells('A1:O1'); // Merge cells across the first row
-        booksSheet.getCell('A1').value = 'Exported List of Books';
+        booksSheet.getCell('A1').value = 'LIST OF BOOKS';
         booksSheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
         booksSheet.getCell('A1').font = { bold: true, size: 16 };
 
@@ -2083,6 +2083,7 @@ function createReportsWindow() {
     }
 }
 
+
 // Books Availability
 ipcMain.handle('checkBooksAvailability', async () => {
     try {
@@ -2096,6 +2097,7 @@ ipcMain.handle('checkBooksAvailability', async () => {
                 b.volume,
                 CASE 
                     WHEN br.borrowStatus = 'borrowed' THEN 'Not Available'
+                    WHEN br.borrowStatus = 'overdue' THEN 'Not Available'
                     ELSE 'Available'
                 END AS book_status
             FROM books b
@@ -2104,18 +2106,16 @@ ipcMain.handle('checkBooksAvailability', async () => {
         `);
 
         const workbook = new ExcelJS.Workbook();
-
         
-
         // Add books availability sheet
-        const booksSheet = workbook.addWorksheet('Books Availability');
+        const booksSheet = workbook.addWorksheet('Books Status');
 
         // Add title to books sheet
         booksSheet.mergeCells('A1:F1');
-        booksSheet.getCell('A1').value = 'BOOK STATUS REPORT';
+        booksSheet.getCell('A1').value = 'BOOK STATUS'.toUpperCase();
         booksSheet.getCell('A1').font = { bold: true, size: 16 };
         booksSheet.getCell('A1').alignment = { horizontal: 'center' };
-
+        
         // Define column headers
         const columns = [
             { header: 'Book ID', key: 'id', hidden: true },  // Book ID now hidden
@@ -2127,11 +2127,9 @@ ipcMain.handle('checkBooksAvailability', async () => {
         ];
         booksSheet.columns = columns;
 
-        // Add blank row for spacing
-        booksSheet.addRow([]);
-
-        // Add column headers
-        booksSheet.insertRow(3, columns.map(col => col.header));
+        // Add column headers directly below the title
+        const headerRow = booksSheet.insertRow(2, columns.map(col => col.header));
+        headerRow.font = { bold: true }; // Make headers bold
 
         // Add data rows
         booksAvailability.forEach(book => {
@@ -2140,7 +2138,7 @@ ipcMain.handle('checkBooksAvailability', async () => {
 
         // Apply formatting for data rows
         booksSheet.eachRow((row, rowNumber) => {
-            if (rowNumber > 3) { // Skip title and header rows
+            if (rowNumber > 2) { // Skip title and header rows
                 const bookStatusCell = row.getCell(6); // Book Status is the 6th column
                 if (bookStatusCell.value === 'Available') {
                     bookStatusCell.fill = {
@@ -2160,9 +2158,10 @@ ipcMain.handle('checkBooksAvailability', async () => {
 
         // Apply auto-filter to the worksheet
         booksSheet.autoFilter = {
-            from: 'B3',
-            to: 'F3'
+            from: 'B2',
+            to: 'F2'
         };
+
         // Add summary sheet
         const summarySheet = workbook.addWorksheet('Summary');
 
@@ -2176,18 +2175,18 @@ ipcMain.handle('checkBooksAvailability', async () => {
         summarySheet.getCell('A1').font = { bold: true, size: 16 };
         summarySheet.getCell('A1').alignment = { horizontal: 'center' };
 
-       // Define column widths for proper sizing
-       summarySheet.columns = [
-        { header: '', key: 'blank', width: 5 },
-        { header: 'Description', key: 'description', width: 30 },
-        { header: 'BOOK STATUS SUMMARY', key: 'BOOK STATUS SUMMARY', width: 20 }
-    ];        
+        // Define column widths for proper sizing
+        summarySheet.columns = [
+            { header: '', key: 'blank', width: 5 },
+            { header: 'Description', key: 'description', width: 30 },
+            { header: 'BOOK STATUS SUMMARY', key: 'BOOK STATUS SUMMARY', width: 20 }
+        ];        
 
         // Add summary data
         summarySheet.addRow([]); // Blank row
-        summarySheet.addRow(['', 'Total Number of Books:', totalBooks]);
-        summarySheet.addRow(['', 'Total Number of Borrowed Books:', borrowedBooks]);
-        summarySheet.addRow(['', 'Total Number of Available Books:', (totalBooks - borrowedBooks)]);
+        summarySheet.addRow(['', 'Books Total:', totalBooks]);
+        summarySheet.addRow(['', 'Borrowed Books Total:', borrowedBooks]);
+        summarySheet.addRow(['', 'Available Books Total:', (totalBooks - borrowedBooks)]);
 
         const { filePath } = await dialog.showSaveDialog({
             title: 'Save Excel File',
@@ -2206,6 +2205,7 @@ ipcMain.handle('checkBooksAvailability', async () => {
         return { message: 'Error exporting books status.' };
     }
 });
+
 
 
 // Borrowing Details - Handle generating reports based on time period and category
@@ -2231,7 +2231,6 @@ function getTimePeriodCondition(timePeriod) {
 
     return condition;
 }
-
 ipcMain.handle('generateReport', async (event, timePeriod, category) => {
     try {
         console.log(`Generating report for time period: ${timePeriod}, category: ${category}`);
@@ -2241,33 +2240,32 @@ ipcMain.handle('generateReport', async (event, timePeriod, category) => {
         if (category === 'borrowing-history') {
             query = `
                 SELECT 
-                    br.borrower_id,       -- Borrower ID
-                    p.name AS borrower_name, -- Borrower Name
-                    b.title_of_book AS book_title, -- Book Title
-                    br.borrowDate,        -- Borrow Date
-                    br.borrowStatus,      -- Borrow Status
-                    br.returnDate,        -- Return Date
-                    br.dueDate            -- Due Date
+                    br.borrower_id,       
+                    p.name AS borrower_name,
+                    b.title_of_book AS book_title,
+                    DATE(br.borrowDate) AS borrow_date,
+                    br.borrowStatus AS borrow_status,
+                    DATE(br.returnDate) AS return_date,
+                    DATE(br.dueDate) AS due_date
                 FROM borrow br
                 JOIN Profiles p ON br.borrower_id = p.borrower_id
                 JOIN books b ON br.book_id = b.id
-                WHERE ${getTimePeriodCondition(timePeriod)}  -- Apply time period condition based on borrowDate
-                ORDER BY br.borrowDate DESC  -- Sort by borrowDate in descending order
+                WHERE ${getTimePeriodCondition(timePeriod)}  
+                ORDER BY br.borrowDate DESC
             `;
         } else if (category === 'most-borrowed-books') {
             query = `
                 SELECT 
-                    b.id AS book_id,                     -- Book ID
-                    b.title_of_book AS book_title,       -- Book Title
-                    b.year AS year,                     -- Year
-                    b.edition AS edition,               -- Edition
-                    b.volume AS volume,                 -- Volume
-                    COUNT(br.book_id) AS borrow_count   -- Number of times borrowed
+                    b.title_of_book AS book_title,
+                    b.year,
+                    b.edition,
+                    b.volume,
+                    COUNT(br.book_id) AS borrow_count
                 FROM borrow br
                 JOIN books b ON br.book_id = b.id
-                WHERE ${getTimePeriodCondition(timePeriod)}  -- Apply time period condition
-                GROUP BY b.id, b.title_of_book, b.year, b.edition, b.volume  -- Group by all book fields
-                ORDER BY borrow_count DESC  -- Order by borrow count in descending order
+                WHERE ${getTimePeriodCondition(timePeriod)}  
+                GROUP BY b.title_of_book, b.year, b.edition, b.volume
+                ORDER BY borrow_count DESC
             `;
         }
 
@@ -2276,45 +2274,131 @@ ipcMain.handle('generateReport', async (event, timePeriod, category) => {
         console.log('Report Data:', reportData);
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet(category === 'borrowing-history' ? 'Borrowing History' : 'Most Borrowed Books');
+        const reportSheet = workbook.addWorksheet(category === 'borrowing-history' ? 'Borrowing History' : 'Most Borrowed Books');
+        reportSheet.mergeCells('A1:G1');
+        reportSheet.getCell('A1').value = category === 'borrowing-history' ? 'BORROWING HISTORY REPORT' : 'MOST BORROWED BOOKS REPORT';
+        reportSheet.getCell('A1').font = { bold: true, size: 16 };
+        reportSheet.getCell('A1').alignment = { horizontal: 'center' };
 
-        // Define columns for the Excel worksheet
-        let columns = [];
+        reportSheet.addRow([]);
+
+        const headers = category === 'borrowing-history'
+            ? ['Borrower ID', 'Borrower Name', 'Book Title', 'Borrow Date', 'Borrow Status', 'Return Date', 'Due Date']
+            : ['Book Title', 'Year', 'Edition', 'Volume', 'Times Borrowed'];
+
+        const columnWidths = category === 'borrowing-history'
+            ? [15, 30, 25, 20, 20, 20, 20]
+            : [30, 15, 15, 15, 20];
+
+        const headerRowIndex = 3;
+        const headerRow = reportSheet.insertRow(headerRowIndex, headers);
+        headerRow.font = { bold: true };
+
+        columnWidths.forEach((width, index) => {
+            reportSheet.getColumn(index + 1).width = width;
+        });
+
+        reportData.forEach(row => {
+            const dataRow = category === 'borrowing-history'
+                ? [
+                    row.borrower_id,
+                    row.borrower_name,
+                    row.book_title,
+                    row.borrow_date || 'N/A',
+                    row.borrow_status || 'N/A',
+                    row.return_date || 'N/A',
+                    row.due_date || 'N/A'
+                ]
+                : [
+                    row.book_title,
+                    row.year || 'N/A',
+                    row.edition || 'N/A',
+                    row.volume || 'N/A',
+                    row.borrow_count || 0
+                ];
+            reportSheet.addRow(dataRow);
+        });
+
+        reportSheet.autoFilter = {
+            from: 'A3',
+            to: `${String.fromCharCode(64 + headers.length)}3`
+        };
+        const summarySheet = workbook.addWorksheet('Summary');
+        summarySheet.mergeCells('A1:D1');
+        summarySheet.getCell('A1').value = category === 'borrowing-history'
+            ? 'BORROWING HISTORY REPORT SUMMARY'
+            : 'MOST BORROWED BOOKS REPORT SUMMARY';
+        summarySheet.getCell('A1').font = { bold: true, size: 16 };
+        summarySheet.getCell('A1').alignment = { horizontal: 'center' };
+
+        summarySheet.addRow([]);
+        summarySheet.addRow(['Summary Details']);
+        summarySheet.getCell('A3').font = { bold: true, size: 14 };
+        summarySheet.addRow([]);
 
         if (category === 'borrowing-history') {
-            columns = [
-                { header: 'Borrower Name', key: 'borrower_name' },
-                { header: 'Book Title', key: 'book_title' },
-                { header: 'Borrow Date', key: 'borrowDate' },
-                { header: 'Borrow Status', key: 'borrowStatus' },
-                { header: 'Return Date', key: 'returnDate' },
-                { header: 'Due Date', key: 'dueDate' }
-            ];
+            const totalBorrowers = new Set(reportData.map(row => row.borrower_id)).size;
+            const totalBooksBorrowed = reportData.length;
+
+            summarySheet.addRow(['Total of Borrowers:', totalBorrowers]);
+            summarySheet.getCell('A5').font = { bold: true };
+            summarySheet.addRow(['Total of Borrowed Books:', totalBooksBorrowed]);
+            summarySheet.getCell('A6').font = { bold: true };
+            
+            summarySheet.addRow([]);
+            summarySheet.addRow(['Top 5 Borrowers']);
+            summarySheet.getCell('A8').font = { bold: true, size: 14 };
+
+            summarySheet.addRow(['Borrower Name', 'Borrower ID', 'Borrow Count']);
+            const headerRowBorrowers = summarySheet.lastRow;
+            headerRowBorrowers.eachCell(cell => {
+                cell.font = { bold: true };
+            });
+
+            const topBorrowers = reportData.reduce((acc, row) => {
+                acc[row.borrower_id] = acc[row.borrower_id] || { name: row.borrower_name, count: 0 };
+                acc[row.borrower_id].count++;
+                return acc;
+            }, {});
+
+            const sortedTopBorrowers = Object.entries(topBorrowers)
+                .map(([id, { name, count }]) => ({ id, name, count }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5);
+
+            sortedTopBorrowers.forEach(borrower => {
+                summarySheet.addRow([borrower.name, borrower.id, borrower.count]);
+            });
         } else if (category === 'most-borrowed-books') {
-            columns = [
-                { header: 'Book ID', key: 'book_id' },         // New column for Book ID
-                { header: 'Book Title', key: 'book_title' },
-                { header: 'Year', key: 'year' },               // New column for Year
-                { header: 'Edition', key: 'edition' },         // New column for Edition
-                { header: 'Volume', key: 'volume' },           // New column for Volume
-                { header: 'Times Borrowed', key: 'borrow_count' }
-            ];
+            const totalBorrows = reportData.reduce((sum, row) => sum + row.borrow_count, 0);
+
+            summarySheet.addRow(['Total of Borrows:', totalBorrows]);
+            summarySheet.getCell('A5').font = { bold: true };
+
+            summarySheet.addRow([]);
+            summarySheet.addRow(['Top 5 Most Borrowed Books']);
+            summarySheet.getCell('A7').font = { bold: true, size: 14 };
+
+            summarySheet.addRow(['Book Title', 'Number of Borrows']);
+            const headerRowBooks = summarySheet.lastRow;
+            headerRowBooks.eachCell(cell => {
+                cell.font = { bold: true };
+            });
+
+            const topBooks = reportData.slice(0, 5);
+            topBooks.forEach(book => {
+                summarySheet.addRow([book.book_title, book.borrow_count]);
+            });
         }
 
-        worksheet.columns = columns;
+        columnWidths.forEach((width, index) => {
+            summarySheet.getColumn(index + 1).width = width + 5;
+        });
 
-        // Add rows to the worksheet from the report data
-        reportData.forEach(row => worksheet.addRow(row));
 
-        // Add auto-filter to the first row
-        worksheet.autoFilter = {
-            from: 'A1',
-            to: `${String.fromCharCode(64 + worksheet.columns.length)}1`  // Dynamically set the last column for autofilter
-        };
 
-        // Show a save dialog to save the Excel file
         const { filePath } = await dialog.showSaveDialog({
-            title: 'Save Report as Excel',
+            title: 'Save Excel File',
             defaultPath: `${category}_report.xlsx`,
             filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
         });
