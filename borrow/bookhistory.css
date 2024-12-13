@@ -205,12 +205,37 @@ h1 {
 /* Filters Section */
 #filters {
     display: flex;
-    justify-content: space-between;
-    align-items: center; /* Center vertically */
-    margin: 10px 0;
-    flex-wrap: wrap;
-    gap: 1px;
+    justify-content: space-between; /* Spread elements across the row */
+    align-items: center; /* Center items vertically */
+    margin: 1px 0;
+    margin-right: 16px; /* Aligns with borrowerName and h1 */
+    flex-wrap: nowrap; /* Ensure items stay in one row */
 }
+
+/* Styling for the Generate Report icon button */
+#generateReport {
+    font-size: 20px; /* Adjust the size of the icon */
+    background-color: #007bff; /* Primary blue color */
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px; 
+}
+
+#generateReport:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+#generateReport i {
+    margin: 0; /* Ensure no extra spacing around the icon */
+}
+
+
 
 /* Search Box */
 .input-group-text {
