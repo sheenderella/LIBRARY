@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Update Borrow Record</title>
+    <link rel="stylesheet" type="text/css" href="borrow.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Update Borrow Record</h1>
+        <form id="updateBorrowForm">
+            <input type="hidden" id="updateBorrowerId">
+            <div class="form-group">
+                <input class="form-control" type="text" id="updateBorrowerName" placeholder="Borrower Name" required>
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="text" id="updateBookTitle" placeholder="Book Title" required>
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="date" id="updateBorrowDate" required>
+            </div>
+            <div class="form-group">
+                <select class="form-control" id="updateBorrowStatus" required>
+                    <option value="borrowed">Borrowed</option>
+                    <option value="returned">Returned</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">Update Borrow</button>
+        </form>
+    </div>
+    <script src="borrow.js"></script>
+</body>
+</html>

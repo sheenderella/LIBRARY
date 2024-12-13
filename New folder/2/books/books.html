@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+    <title>Library Books</title>
+    <link rel="stylesheet" type="text/css" href="books.css">
+    <style>
+        .table-container {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Library Books</h1>
+        <p>List of books in the library.</p>
+
+        <div>
+            <a class="nav-link" href="../index.html">Back</a>
+        </div>
+
+        <button id="addBook" class="btn btn-success">Add Book</button>
+
+        <!-- Search, Filter and Sort Controls -->
+        <div class="search-sort">
+            <select id="searchColumn" class="form-control">
+                <option value="all">All</option>
+                <option value="number">Number</option>
+                <option value="date_received">Date Received</option>
+                <option value="class">Class</option>
+                <option value="author">Author</option>
+                <option value="title_of_book">Title of Book</option>
+                <option value="edition">Edition</option>
+                <option value="volume">Volume</option>
+                <option value="source_of_fund">Source of Fund</option>
+                <option value="pages">Pages</option>
+                <option value="cost_price">Cost Price</option>
+                <option value="publisher">Publisher</option>
+                <option value="year">Year</option>
+                <option value="remarks">Remarks</option>
+            </select>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search :>">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Number
+                            <button id="sortNumberAsc" data-column="number" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortNumberDesc" data-column="number" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Date Received
+                            <button id="sortDateReceivedAsc" data-column="date_received" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortDateReceivedDesc" data-column="date_received" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Class
+                            <button id="sortClassAsc" data-column="class" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortClassDesc" data-column="class" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Author
+                            <button id="sortAuthorAsc" data-column="author" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortAuthorDesc" data-column="author" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Title of Book
+                            <button id="sortTitleAsc" data-column="title_of_book" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortTitleDesc" data-column="title_of_book" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Edition
+                            <button id="sortEditionAsc" data-column="edition" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortEditionDesc" data-column="edition" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Volume
+                            <button id="sortVolumeAsc" data-column="volume" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortVolumeDesc" data-column="volume" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Source of Fund
+                            <button id="sortSourceAsc" data-column="source_of_fund" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortSourceDesc" data-column="source_of_fund" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Pages
+                            <button id="sortPagesAsc" data-column="pages" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortPagesDesc" data-column="pages" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Cost Price
+                            <button id="sortCostAsc" data-column="cost_price" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortCostDesc" data-column="cost_price" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Publisher
+                            <button id="sortPublisherAsc" data-column="publisher" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortPublisherDesc" data-column="publisher" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>
+                            Year
+                            <button id="sortYearAsc" data-column="year" data-order="asc" class="sort-btn">↑</button>
+                            <button id="sortYearDesc" data-column="year" data-order="desc" class="sort-btn">↓</button>
+                        </th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookList"></tbody>
+            </table>
+        </div>
+    </div>
+    <script src="books.js"></script>
+</body>
+</html>

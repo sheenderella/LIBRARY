@@ -1,0 +1,564 @@
+/* Reset CSS */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: auto;
+}
+
+
+/* Back to Borrow Page Button */
+#backToBorrowPage {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border: none;
+    font-size: 1rem;
+    border-radius: 7px;
+}
+
+#backToBorrowPage:hover {
+    background-color: #30688B;
+}
+
+
+/* Heading */
+.top-head-h1 {
+    font-size: 60px; /* Larger than the default h3 for emphasis */
+    font-weight: bolder;
+    color: #30688B; /* Use the customizable text color */
+    margin-bottom: -5px;
+}
+
+/* Paragraph */
+.top-head-p {
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    color: #666;
+    font-style: italic; /* Make the text italic */
+    margin-left: 5px;
+}
+
+
+
+.btn-success {
+    background-color: #28a745 !important; /* Green */
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #218838!important; /* Darker green */
+}
+
+.btn-success:active {
+    background-color: #1e7e34!important; /* Even darker green */
+    transform: scale(0.98); /* Slight shrink on click */
+}
+
+
+.btn-warning {
+    background-color: #ffc107 !important; /* Warning yellow */
+    color: #fff!important; /* Dark text for contrast */
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-warning:hover {
+    background-color: #f0c33c !important; /* Darker yellow */
+}
+
+.btn-warning:active {
+    background-color: #fdd764 !important; /* Even darker yellow */
+    transform: scale(0.98); /* Slight shrink on click */
+}
+
+
+.btn-danger {
+    background-color: #dc3545; /* Red */
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-danger :hover {
+    background-color: #c82333 !important; /* Darker red */
+}
+
+.btn-danger :active {
+    background-color: #bd2130 !important; /* Even darker red */
+    transform: scale(0.98)  !important; /* Slight shrink on click */
+}
+
+/* Icon Section: Styling for edit and delete icons */
+.delete-btn,.edit-btn,.unarchive-btn {
+    display: inline-block;
+    color: #4C4C4C !important;
+    font-size: 18px;
+    background: none !important; /* Remove background for icons */
+    border: none !important; /* Ensure no border around icons */
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Icon Section: Styling for edit and delete icons */
+.delete-btn:hover ,.edit-btn:hover  {
+    color: #333C42 !important;
+}
+
+
+.button-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.right-side-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Add space between buttons */
+}
+
+/* Dropdown Container */
+.right-side {
+    display: flex;
+    align-items: center;
+    height: 45px;
+    width: 45px;
+    flex-grow: 1; /* Allow the right-side section to grow and fill the available space */
+    gap: 0px; /* Add space between the dropdown and the search input */
+}
+
+.custom-dropdown,
+.input-container{
+    position: relative;
+    display: inline-block; /* Ensure each container behaves inline */
+}
+
+.custom-dropdown {
+    display: inline-block;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Allow the input container to grow */
+}
+
+.dropdown-icon {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Prevent icon from blocking select dropdown interaction */
+    font-size: medium;
+}
+
+.dropdown-container .icon {
+    background-color: #30688B;
+    padding: 0.95rem;
+    color: whitesmoke;
+    border: 1px solid #1f1f1f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+}
+
+/* Hide the default dropdown arrow */
+.drop-search-form {
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    height: 45px;
+    width: auto;
+    padding-left: 8px;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 30px; /* Space for the icon */
+    cursor: pointer;
+}
+
+.search-form-control {
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    height: 3rem;
+}
+
+.input-container input {
+    flex-grow: 1; /* Allow the input field to grow and fill the remaining space */
+    padding-left: 15px;
+    font-size: 14px;
+    border: 1px solid #1f1f1f;
+    border-radius: 1px;
+    height: 45px;
+    width: 45px;
+
+}
+
+.input-container .icon {
+    background-color: #30688B;
+    padding: .95rem;
+    color: whitesmoke;
+    border: 1px solid #1f1f1f;
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    margin-left: -2rem;
+    height: 45px;
+    width: 45px;
+}
+
+/* TABLE */
+/* Main Table Container */
+th input[type="checkbox"] {
+    margin: 0;
+    accent-color: #1f1f1f;
+}
+
+td input[type="checkbox"] {
+    margin: 0;
+    accent-color: #1f1f1f;
+}
+
+/* Container for the entire table */
+.table-container {
+    max-width: 100%;
+    overflow-x: auto; /* Ensures responsiveness on smaller screens */
+    margin: 20px 0;
+    border: 0px solid #ddd;
+    background-color: #f9f9f9;
+    position: relative;
+}
+
+/* Styling for the table */
+.table-container table {
+    width: 100%;
+    border-collapse: collapse; /* Removes space between table cells */
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    table-layout: auto; /* Allows cells to adjust width based on content */
+}
+
+/* Styling for table headers */
+.table-container th {
+    background-color: #30688B;
+    color: white;
+    text-align: center; /* Center content horizontally */
+    padding: 15px 10px 15px 10px;
+    position: sticky; /* Keeps the header fixed while scrolling */
+    top: 0;
+    z-index: 10; /* Ensures the header is on top */
+    white-space: nowrap; /* Prevents text wrapping */
+    vertical-align: middle; /* Aligns content vertically in the middle */
+}
+
+/* Container to keep text and button together */
+.th-content {
+    display: inline-block; /* Allows for inline placement */
+    white-space: nowrap; /* Prevents text and button from breaking to a new line */
+}
+
+/* Specific column styles */
+.column-checkbox {
+    width: 40px;
+    text-align: center;
+}
+
+.column-number, .column-title_of_book, .column-author {
+    min-width: 150px; /* Minimum width for key columns */
+}
+
+.column-class, .column-edition, 
+.column-volume, .column-source_of_fund, .column-pages, 
+.column-cost_price, .column-publisher, .column-year, 
+.column-remarks, .column-actions {
+    min-width: 120px;
+}
+
+/* Table body rows with alternating colors */
+.table-container tbody tr:nth-child(odd) {
+    background-color: whitesmoke; /* Odd rows */
+}
+
+.table-container tbody tr:nth-child(even) {
+    background-color: #ededed; /* Even rows (grey) */
+    transition: background-color 0.3s;
+}
+
+/* Table data cells */
+.table-container td {
+    padding: 10px;
+    text-align: center; /* Centers content horizontally */
+    vertical-align: middle; /* Centers content vertically */
+    word-wrap: break-word; /* Wraps long words within the cell */
+    white-space: normal; /* Allows wrapping within cells */
+    overflow: hidden; /* Ensures content doesn't overflow the cell */
+    text-overflow: ellipsis; /* Adds ellipsis (...) for overflowed text */
+}
+
+/* Sort button styles */
+.sort-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    margin-left: 5px; /* Small space between text and button */
+    vertical-align: middle; /* Aligns button vertically in line with text */
+}
+
+/* Sort icon styling */
+.sort-btn i {
+    font-size: 12px;
+    color: #f0f0f0;
+    transition: color 0.2s;
+}
+
+.sort-btn:hover i {
+    color: #dcdcdc;
+}
+
+/* Checkbox in header */
+#selectAll {
+    cursor: pointer;
+}
+
+/* Notification styles */
+#notification {
+    position: fixed;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    background-color: #4CAF50; /* Default to green; can be overridden */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(100%); /* Hide off-screen */
+    z-index: 1500;
+}
+
+#notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Move into view */
+}
+
+
+/* PAGINATION */
+/* Style for pagination controls container */
+#paginationControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between elements */
+    margin: 20px 0; /* Space around the controls */
+}
+
+/* Style for each button */
+#paginationControls button {
+    background-color: #30688B; /* Light gray background */
+    border: none; /* Gray border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 8px 12px; /* Padding inside the button */
+    font-size: 16px; /* Font size for the icon */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
+}
+
+/* Change background and border color on hover */
+#paginationControls button:hover {
+    opacity: 90%;
+}
+
+/* Style for disabled buttons */
+#paginationControls button:disabled {
+    background-color: #d0d0d0; /* Light gray background for disabled state */
+    border-color: #bbb; /* Gray border for disabled state */
+    color: #888; /* Light gray text color */
+    cursor: not-allowed; /* Indicate that the button is disabled */
+}
+
+/* Style for the input field */
+#paginationControls input#pageLocation {
+    width: 50px; /* Set width for the input */
+    text-align: center; /* Center text inside the input */
+    padding: 8px; /* Padding inside the input */
+    border: 1px solid #ccc; /* Gray border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size for the input */
+}
+
+/* Style for the total pages span */
+#paginationControls #totalPages {
+    font-size: 16px; /* Font size for the total pages text */
+    color: #333; /* Dark text color */
+    font-weight: bold;
+}
+
+/* Style for icons inside buttons */
+#paginationControls button i {
+    font-size: 16px; /* Font size for icons */
+    color: whitesmoke; /* Dark color for icons */
+}
+
+/* Icon button styling */
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    padding: 1em;
+}
+
+
+/* SIDE NAVBAR */
+/* Container for the sidebar and main content */
+#wrapper {
+    display: flex; /* Flexbox layout for sidebar and content */
+    transition: all 0.3s ease-in-out; /* Smooth transition for expanding/collapsing */
+}
+
+/* Sidebar styling */
+#sidebar-wrapper {
+    position: fixed; /* Keeps the sidebar fixed on the left */
+    z-index: 1000; /* High z-index to ensure it stays on top of main content */
+    width: 250px; /* Default width of the sidebar */
+    background-color: #30688B; /* Sidebar background color */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+    position: fixed; /* Sidebar remains fixed on the screen */
+    height: 100%; /* Full height of the sidebar */
+    overflow-y: auto; /* Enables scrolling if the content overflows */
+    overflow-x: hidden;
+}
+
+/* Collapsed sidebar styling */
+#sidebar-wrapper.collapsed {
+    width: 80px; /* Width when the sidebar is collapsed */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+/* Sidebar header */
+.sidebar-header {
+    padding: 15px; /* Padding inside the header */
+    width: 100%; /* Full width of the sidebar header */
+    position: relative; /* Position relative for button positioning */
+    display: flex; /* Flexbox layout */
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the left */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
+}
+
+/* Sidebar toggle button */
+.sidebar-header button {
+    border: none; /* Remove button border */
+    background: transparent; /* Transparent background */
+    color: #fff; /* Button icon color */
+    padding: 8px 10px; /* Add padding for the right amount of background */
+    text-align: center; /* Center align the button content */
+    width: auto; /* Auto width to fit content only */
+    position: relative; /* Position relative within the header */
+    margin-left: 0; /* Align button to the left */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+/* Sidebar header when collapsed */
+#sidebar-wrapper.collapsed .sidebar-header {
+    justify-content: center; /* Center align the content when collapsed */
+}
+
+/* Sidebar toggle button when collapsed */
+#sidebar-wrapper.collapsed .sidebar-header button {
+    text-align: center; /* Center align the button when collapsed */
+    margin-left: auto; /* Center button when sidebar is collapsed */
+    margin-right: auto;
+}
+
+/* Navigation link styling */
+#sidebar-wrapper .nav-link {
+    padding: 13px 60px; /* Padding around each link */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Show "..." for overflow text */
+    transition: all 0.3s ease-in-out; /* Smooth transition for hover effects */
+    display: flex; /* Flexbox layout for icon and text */
+    align-items: center; /* Vertically center align the icon and text */
+    justify-content: flex-start; /* Align icon and text to the left */
+}
+ 
+/* Hover effect for navigation links */
+.nav-link:hover {
+    background-color: #1e4f6b; /* Darker background on hover */
+    color: #fff; /* Text color on hover (optional, you can change this) */
+    text-decoration: none; /* Remove underline from text */
+}
+
+.nav-link i {
+    flex-shrink: 0; /* Prevent icon from shrinking */
+    width: 24px; /* Set a fixed width for the icon */
+    text-align: center; /* Center align the icon */
+    font-size: 20px; /* Icon size */
+}
+
+.nav-link .link-text {
+    flex-grow: 1; /* Allow the text to take up available space */
+    display: inline-block; /* Display link text inline */
+    margin-left: 15px; /* Space between the icon and text */
+    transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
+    font-family: Arial, sans-serif;
+
+}
+
+/* Collapsed sidebar link styling */
+#sidebar-wrapper.collapsed .nav-link {
+    justify-content: center; /* Center align the icon */
+    padding: 15px 0; /* Adjust padding to keep icon centered */
+}
+
+#sidebar-wrapper.collapsed .nav-link i {
+    width: 100%; /* Icon takes full width when collapsed */
+    text-align: center; /* Ensure the icon is centered */
+    margin-right: 0; /* Remove margin in collapsed state */
+}
+
+#sidebar-wrapper.collapsed .nav-link .link-text {
+    display: none; /* Hide the link text when sidebar is collapsed */
+}
+
+#wrapper:not(.collapsed) #page-content-wrapper {
+    width: calc(100% - 250px); /* Adjust based on the sidebar width */
+}
+
+/* Main content area */
+#page-content-wrapper {
+    width: 10rem;
+    flex: none;
+    flex-grow: 1; /* Allow the content to expand to fill available space */
+    padding: 20px; /* Padding around the content */
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
+    margin-left: 250px; /* Default margin to make space for the sidebar */
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
+}

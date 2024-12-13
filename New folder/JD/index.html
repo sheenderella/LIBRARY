@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Add Chart.js -->
+
+    <title>GRUBA LAW LIBRARY</title>
+</head>
+
+<body>
+    <div id="wrapper" class="d-flex">
+        <!-- Sidebar -->
+        <nav id="sidebar-wrapper" class="text-white">
+            <div class="sidebar-header p-3 d-flex flex-column align-items-left">
+                <button class="btn btn-outline-light btn-sm mb-3" id="sidebarCollapse" aria-label="Toggle Sidebar" data-bs-toggle="tooltip" title="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <img src="./logo/2.png" alt="Gruba Law Library Logo" class="img-fluid mb-3">
+            </div>
+            
+            <ul id="sidebar-menu" class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="./index.html" data-bs-toggle="tooltip" title="Go to Dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="link-text">Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="./books/books.html" data-bs-toggle="tooltip" title="View Books">
+                        <i class="fas fa-book"></i>
+                        <span class="link-text">Books</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="./profiles/profiles.html" data-bs-toggle="tooltip" title="View Borrower Profiles">
+                        <i class="fas fa-user"></i>
+                        <span class="link-text">Borrower Profiles</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="./borrow/borrow.html" data-bs-toggle="tooltip" title="View Borrow Logs">
+                        <i class="fas fa-table"></i>
+                        <span class="link-text">Borrow Logs</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="./archive/archive.html" data-bs-toggle="tooltip" title="Go to Archive">
+                        <i class="fas fa-archive"></i>
+                        <span class="link-text">Archive</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="./settings/settings.html" data-bs-toggle="tooltip" title="Go to Settings">
+                        <i class="fas fa-cog"></i>
+                        <span class="link-text">Settings</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" id="logout-link" href="#" data-bs-toggle="tooltip" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="link-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Main Content -->
+        <main id="page-content-wrapper" class="flex-grow-1 p-4">
+            <div class="header-container">
+                <h1 class="h3">Dashboard</h1>
+
+                <!-- Notification Button -->
+                <button id="notificationButton" class="notification-btn" data-bs-toggle="tooltip" title="View Notifications">
+                    <i class="fa fa-bell"></i>
+                    <span class="notification-count" id="notificationCount">0</span>
+                </button>
+
+                <!-- Notification Sidebar -->
+                <div id="notificationSidebar" class="notification-sidebar">
+                    <button id="closeSidebarButton" class="close-sidebar-btn" data-bs-toggle="tooltip" title="Close Notifications">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <h2 class="notification-title">Notifications</h2>
+                    <ul class="notification-list" id="notificationList">
+                        <!-- Notifications will be dynamically added here -->
+                    </ul>
+                </div>
+
+                <div class="search-container">
+                    <div class="search-box"></div>
+                </div>
+            </div>
+
+            <div class="custom-flex mb-4">
+                <div class="btn-group-custom">
+                    <a href="#" id="add-book-button" class="btn-primary-custom" data-bs-toggle="tooltip" title="Add a new book">
+                        <i class="fas fa-plus"></i>
+                        <span class="btn-add"> ADD BOOK </span>
+                    </a> 
+
+                    <a href="#" id="total-books-link" class="btn-info-custom total-books-link" data-bs-toggle="tooltip" title="Total Books">
+                        <div class="number-icon-container">
+                            <i class="fas fa-book"></i>
+                            <span id="total-books-count">0</span>
+                        </div>
+                        <span class="btn-text">BOOKS TOTAL</span>
+                    </a>
+                    <a href="./borrow/borrow.html" class="btn-info-custom" data-bs-toggle="tooltip" title="Total Borrowed Books">
+                        <div class="number-icon-container">
+                            <i class="fas fa-book-reader"></i>
+                            <span id="totalCount">0</span>
+                        </div>
+                        <span class="btn-text">BORROWED BOOKS TOTAL</span>
+                    </a>
+
+                    <a href="#" id="openReportsButton" class="btn-info-custom generate-reports" data-bs-toggle="tooltip" title="Generate Reports">
+                        <div class="number-icon-container">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <span class="btn-text">GENERATE REPORTS</span>
+                    </a>
+
+                </div>
+            </div>
+            
+            <div class="d-flex">
+                <div class="books-table-container me-4 flex-grow-1">
+                    <div class="books-header">
+                        <h2>recently added books</h2>
+                        <a href="#" id="view-all-books" class="view-all-button" data-bs-toggle="tooltip" title="View All Books"> view all</a>
+                    </div>
+                    <table class="books-table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Title of Book</th>
+                                <th>Author</th>
+                            </tr>
+                        </thead>
+                        <tbody id="books-list">
+                            <!-- Rows will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="chart-container">
+                      <canvas id="libraryPieChart"></canvas>
+                </div>
+            </div>
+        </main>        
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./index.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
+</body>
+</html>

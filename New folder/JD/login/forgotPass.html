@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forgot Password</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="forgotPass.css"> 
+    <style>
+        /* Add this style to your forgotPass.css or within <style> tags in the HTML */
+        .container {
+            max-width: 400px; /* Adjust as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12"> 
+                <div class="card">
+                    <div class="card-header">Forgot Password</div>
+                    <div class="card-body">
+                        <form id="forgot-password-form">
+                            <div class="form-group">
+                                <label for="username">Username:</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="form-group" id="password-hint-div" style="display: none;">
+                                <label for="hint">Password Hint:</label>
+                                <p id="password-hint"></p> 
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <div id="error-message" class="text-danger"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="forgotPass.js"></script>
+</body>
+</html>

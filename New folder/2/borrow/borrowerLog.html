@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrower's Log</title>
+    <script src="borrowerLog.js" defer></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Borrowers Log</h1>
+    <h2 id="borrowerName"> Loading borrower name...</h2>
+    <table id="borrowerLogTable">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Borrow Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="borrowerLogContainer">
+            <!-- Content will be loaded by JavaScript -->
+        </tbody>
+    </table>
+    <a href="#" id="backToBorrowPage">Back to Borrow Page</a>
+    <script>
+        document.getElementById('backToBorrowPage').addEventListener('click', () => {
+            window.history.back();
+        });
+    </script>
+</body>
+</html>

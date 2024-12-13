@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Book</title>
+    <link rel="stylesheet" type="text/css" href="addBook.css">
+</head>
+<body>
+    <div class="card">
+        <div class="card-header text-center">
+            <img src="../logo/1.png" alt="Gruba Law Library" class="img-fluid mb-2">
+        </div>
+        
+        <div class="card-body">
+            <h1 class="text-center mb-4">Edit Book</h1>
+            <form id="editBookForm">
+                <input type="hidden" id="id" name="id">
+                <input type="hidden" id="number" name="number" min="1"><br>
+
+                <small class="form-text text-muted"> Title of Book: </small> 
+                <input type="text" id="title_of_book" name="title_of_book" required title="Edit title of the book"><br>
+
+                <small class="form-text text-muted"> Date Received: </small>
+                <input type="date" id="date_received" name="date_received" title="Edit the date the book was received"><br>
+
+                <small class="form-text text-muted"> Class: </small>
+                <input type="text" id="class" name="class" title="Edit the classification or genre of the book"><br>
+
+                <small class="form-text text-muted"> Author: </small>
+                <input type="text" id="author" name="author" title="Edit the name of the author"><br>
+
+                <small class="form-text text-muted"> Edition: </small>
+                <input type="text" id="edition" name="edition" title="Edit the edition of the book"><br>
+
+                <small class="form-text text-muted"> Volume: </small>
+                <input type="text" id="volume" name="volume" title="Edit the volume number"><br>
+
+                <small class="form-text text-muted"> Pages: </small>
+                <input type="number" id="pages" name="pages" min="1" title="Edit the number of pages in the book"><br>
+
+                <small class="form-text text-muted"> Source of Fund: </small>
+                <input type="text" id="source_of_fund" name="source_of_fund" title="Edit the funding source for this book"><br>
+
+                <small class="form-text text-muted"> Cost Price: </small>
+                <input type="number" id="cost_price" name="cost_price" min="0" step="0.01" title="Edit the cost price of the book"><br>
+
+                <small class="form-text text-muted"> Publisher: </small>
+                <input type="text" id="publisher" name="publisher" title="Edit the name of the publisher"><br>
+
+                <small class="form-text text-muted"> Year: </small>
+                <input type="number" id="year" name="year" min="1000" title="Edit the publication year"><br> 
+
+                <div class="conditionContainer">
+                    <small class="form-text text-muted"> Condition: </small>
+                    <select name="condition" id="condition" title="Edit the selected current condition of the book">
+                        <option value="new">new</option>
+                        <option value="good">good</option>
+                        <option value="acceptable">acceptable</option>
+                        <option value="poor">poor</option>
+                        <option value="not usable">not usable</option>
+                    </select>
+                </div>   
+
+                <small class="form-text text-muted"> Remarks: </small>
+                <input type="text" id="remarks" name="remarks" title="Edit the remarks about the book"><br>
+
+                <button type="submit" title="Update Book">Update Book</button>
+            </form>
+
+            <script src="editBook.js"></script>
+            <script>
+                // Select the cost price input
+                const costPriceInput = document.getElementById('cost_price');
+
+                // Add an event listener to round the value to two decimal places
+                costPriceInput.addEventListener('blur', function () {
+                    // Parse and round the value to two decimal places
+                    const value = parseFloat(this.value);
+                    if (!isNaN(value)) {
+                        this.value = value.toFixed(2);
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</body>
+</html>

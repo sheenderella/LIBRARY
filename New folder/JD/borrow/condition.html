@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Condition</title>
+    <link rel="stylesheet" href="condition.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <img src="../logo/1.png" alt="Gruba Law Library" class="img-fluid">
+            </div>
+            <div id="notification" class="notification"></div>
+
+            <div class="card-body">
+                <h2 class="text-center">Please select the condition of the book upon return:</h2>
+                <form id="conditionForm">
+                    <div class="form-group">
+                        <small class="form-text text-muted">Book Condition:</small>
+                        <select id="bookCondition" name="bookCondition" class="form-control" required>
+                            <option value="" disabled selected>Select condition</option>
+                            <option value="new">New</option>
+                            <option value="good">Good</option>
+                            <option value="acceptable">Acceptable</option>
+                            <option value="poor">Poor</option>
+                            <option value="not usable">Not Usable</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-block">SUBMIT</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="condition.js"></script>
+    <script src="notification.js"></script>  
+</body>
+</html>

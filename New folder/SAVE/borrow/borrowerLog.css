@@ -1,0 +1,564 @@
+/* General styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+
+/* SIDE NAVBAR */
+/* Container to hold the sidebar and main content */
+#wrapper {
+    display: flex; /* Flexbox layout for sidebar and content */
+    transition: all 0.3s ease-in-out; /* Smooth transition for expanding/collapsing */
+}
+
+/* Sidebar styling */
+#sidebar-wrapper {
+    width: 250px; /* Default width of the sidebar */
+    background-color: #30688B; /* Sidebar background color */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+    position: fixed; /* Sidebar remains fixed on the screen */
+    height: 100%; /* Full height of the sidebar */
+}
+
+/* Collapsed sidebar styling */
+#sidebar-wrapper.collapsed {
+    width: 80px; /* Width when the sidebar is collapsed */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+/* Sidebar header */
+.sidebar-header {
+    padding: 15px; /* Padding inside the header */
+    width: 100%; /* Full width of the sidebar header */
+    position: relative; /* Position relative for button positioning */
+    display: flex; /* Flexbox layout */
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the left */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+/* Sidebar toggle button */
+.sidebar-header button {
+    border: none; /* Remove button border */
+    background: transparent; /* Transparent background */
+    color: #fff; /* Button icon color */
+    padding: 8px 10px; /* Add padding for the right amount of background */
+    text-align: center; /* Center align the button content */
+    width: auto; /* Auto width to fit content only */
+    position: relative; /* Position relative within the header */
+    margin-left: 0; /* Align button to the left */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+/* Sidebar header when collapsed */
+#sidebar-wrapper.collapsed .sidebar-header {
+    justify-content: center; /* Center align the content when collapsed */
+}
+
+/* Sidebar toggle button when collapsed */
+#sidebar-wrapper.collapsed .sidebar-header button {
+    text-align: center; /* Center align the button when collapsed */
+    margin-left: auto; /* Center button when sidebar is collapsed */
+    margin-right: auto;
+}
+
+/* Navigation link styling */
+
+#sidebar-wrapper .nav-link {
+    padding: 15px 60px; /* Padding around each link */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Show "..." for overflow text */
+    transition: all 0.3s ease-in-out; /* Smooth transition for hover effects */
+    display: flex; /* Flexbox layout for icon and text */
+    align-items: center; /* Vertically center align the icon and text */
+    justify-content: flex-start; /* Align icon and text to the left */
+}
+
+
+/* Hover effect for navigation links */
+#sidebar-wrapper .nav-link:hover {
+    background-color: #1e4f6b; /* Darker background on hover */
+    color: #fff; /* Text color on hover (optional, you can change this) */
+    text-decoration: none; /* Remove underline from text */
+ 
+}
+
+#sidebar-wrapper .nav-link i {
+    flex-shrink: 0; /* Prevent icon from shrinking */
+    width: 24px; /* Set a fixed width for the icon */
+    text-align: center; /* Center align the icon */
+    font-size: 20px; /* Icon size */
+}
+
+#sidebar-wrapper .nav-link .link-text {
+    flex-grow: 1; /* Allow the text to take up available space */
+    display: inline-block; /* Display link text inline */
+    margin-left: 15px; /* Space between the icon and text */
+    transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
+    font-family: Arial, sans-serif;
+}
+
+/* Collapsed sidebar link styling */
+#sidebar-wrapper.collapsed .nav-link {
+    justify-content: center; /* Center align the icon */
+    padding: 15px 0; /* Adjust padding to keep icon centered */
+}
+
+#sidebar-wrapper.collapsed .nav-link i {
+    width: 100%; /* Icon takes full width when collapsed */
+    text-align: center; /* Ensure the icon is centered */
+    margin-right: 0; /* Remove margin in collapsed state */
+}
+
+#sidebar-wrapper.collapsed .nav-link .link-text {
+    display: none; /* Hide the link text when sidebar is collapsed */
+}
+
+
+
+
+/* Main content area */
+#page-content-wrapper {
+    flex-grow: 1; /* Allow the content to expand to fill available space */
+    padding: 20px; /* Padding around the content */
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
+    margin-left: 250px; /* Default margin to make space for the sidebar */
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
+}
+
+/* BORROWER NAME */
+h1 {
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    color: #666;
+    font-style: italic; /* Make the text italic */
+    margin-bottom: 40px;
+    margin-left: 15px;
+    text-align: left; /* Ensures all child elements are aligned to the left */
+}
+
+
+/* Styling for the Borrower Name */
+#borrowerName {
+    color: #30688B; /* Dark blue */
+    margin-top: 20px;
+    font-size: 60px; /* Larger than the default h3 for emphasis */
+    font-weight: bolder;
+    margin-left: 7px;
+    margin-bottom: -5px;
+}
+
+
+
+/* Filters Section */
+#filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Center vertically */
+    margin: 10px 0;
+    flex-wrap: wrap;
+    gap: 1px;
+}
+
+/* Search Box */
+.input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #30688B;
+    border: 1px solid #333C42;
+    height: 45px;
+    
+}
+
+.search-icon {
+    color: #fff;
+    font-size: 18px;
+    pointer-events: none;
+    width: 80%;
+
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    flex-grow: 2; /* Larger flex-grow for the search input */
+
+}
+
+/* Input and Select Elements */
+#filters input[type="text"],
+#filters select {
+    padding: 10px;
+    border: 1px solid #333C42;
+    font-size: 1rem;
+    height: 45px;
+}
+
+#searchTitle {
+    flex-grow: 1;
+    padding-left: 10px;
+    border: 100px solid #ff0000;
+    margin-left: -1px;
+    
+}
+
+/* Status Filter */
+.status-filter-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjusted width */
+}
+
+.status-filter-box {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    color: #333C42;
+    cursor: pointer;
+    border: 1px solid #333C42;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%; /* Ensure it occupies the full container */
+    padding: 10px;
+    height: 45px;
+    border-radius: 4px;
+    
+}
+
+.filter-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #333C42;
+}
+
+.dropdown-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #333C42;
+}
+
+#statusFilterText {
+    margin-left: 5px;
+    flex-grow: 1;
+    color: #333C42;
+}
+
+#filterStatus {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Date Range Filter Section: Styles for date range dropdown */
+.date-range-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    max-width: 200px; /* Adjust this based on your needs */
+    position: relative; /* To ensure the custom date range is positioned correctly */
+
+}
+
+.date-range-box {
+    display: flex;
+    height: 45px;
+    align-items: center;
+    background-color: #ffffff;
+    color: #333C42;
+    cursor: pointer;
+    border: 1px solid #333C42;
+    box-sizing: border-box;
+    width: 100%; /* Ensure it occupies the full container */
+    padding: 10px;
+    position: relative;
+    border-radius: 4px;
+}
+
+.calendar-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #333C42;
+}
+
+#dateRangeFilterText {
+    margin-left: 5px;
+    flex-grow: 1;
+    color: #333C42;
+}
+
+.dropdown-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #333C42;
+}
+
+#dateRangeSelect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Custom Date Range Section */
+#customDateRange {
+    display: none;
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 10px;
+    position: absolute;
+    top: calc(100% + 5px); /* Slightly below the dropdown */
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.date-group label {
+    font-size: 0.9rem;
+    color: #333C42;
+}
+
+.date-group input {
+    height: 34px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 5px 10px;
+    font-size: 1rem;
+    color: #333C42;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.button-group button {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.button-group button:first-child {
+    background-color: #007bff; /* Apply button */
+    border: none;
+}
+
+.button-group button:last-child {
+    background-color: #6c757d; /* Clear button */
+    border: none;
+}
+
+
+
+
+/* TABLE */
+#borrowerLogTable {
+    width: 97%;
+    margin-top: 20px;
+    margin-left: 15px;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+
+#borrowerLogTable th, 
+#borrowerLogTable td {
+    padding: 12px;
+    border: none;
+    text-align: center; /* Align text in the center */
+    word-wrap: break-word; /* Enable word wrapping */
+    white-space: normal;   /* Allow text to wrap */
+}
+
+/* Fixed width for 2nd and 3rd columns */
+#borrowerLogTable th:nth-child(2),
+#borrowerLogTable td:nth-child(2) {
+    min-width: 150px; /* Set fixed width for the 2nd column */
+    width: auto;
+}
+
+#borrowerLogTable th:nth-child(3),
+#borrowerLogTable td:nth-child(3) {
+    min-width: 100px; /* Set fixed width for the 3rd column */
+    width: auto;
+}
+
+
+#borrowerLogTable th {
+    background-color: #30688B;
+    color: white;
+   
+}
+
+
+#borrowerLogTable tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+#borrowerLogTable tr:nth-child(even) {
+    background-color: #eeeeee;
+}
+
+
+
+
+
+/* Back to Borrow Page Button */
+#backToBorrowPage {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border: none;
+    font-size: 1rem;
+}
+
+#backToBorrowPage:hover {
+    background-color: #30688B;
+}
+
+
+
+/* PAGINATION */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Full width for centering */
+    margin: 0 auto; /* Center it horizontally */
+    padding-top: 20px;
+
+}
+
+.pagination-container button {
+    padding: 7px 18px; /* Adjust button padding */
+    background-color: #30688B;
+    font-size: 14px;
+
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.pagination-container button:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+}
+
+.pagination-container button:hover:not(:disabled) {
+    background-color: #3A79A0;
+}
+
+#pageLocation {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    min-width: 40px; /* Initial width */
+    border-radius: 5px;
+    height: 45px;
+    box-shadow: 0 1px 3px 30688B;
+    transition: width 0.2s ease-in-out; /* Smooth transition for width */
+}
+
+#totalPages {
+    font-weight: bold;
+    margin-left: 8px;
+    font-size: 14px;
+}
+
+button i {
+    font-size: 16px;
+}
+
+
+
+
+/* Button Styles */
+.btn-info {
+    background-color: #17a2b8; /* Teal for info */
+    border: none;
+    color: #fff;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Red for delete */
+    border: none;
+    color: #fff;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.edit-btn i, .delete-btn i {
+    margin-right: 0.25rem;
+}
+
+
+
+/* STATUS */
+/* General styling for the table */
+#borrowList {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Row styling */
+#borrowList tr {
+    height: 30px; /* Adjust the height if needed */
+}
+
+/* Styling for the status text to highlight */
+/* Styling for the status text to highlight */
+.status-text {
+    padding: 2px 4px; /* Small padding around the text */
+    border-radius: 4px; /* Rounded corners for better appearance */
+    display: inline-block; /* Ensure the background wraps only the text */
+    color: #333C42;
+    font-style: normal; /* Ensure normal font style */
+    font-weight: normal; /* Ensure font weight is normal */
+}
+
+
+/* Highlighting based on status */
+.status-text.borrowed {
+    background-color: #FBEEAD; /* Light yellow for Borrowed */
+    font-style: normal;
+}
+
+.status-text.returned {
+    background-color: #C2FFC8; /* Light green for Returned */
+}

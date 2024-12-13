@@ -1,0 +1,289 @@
+/* General styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* SIDE NAVBAR */
+/* Container for the sidebar and main content */
+#wrapper {
+    display: flex; /* Flexbox layout for sidebar and content */
+    transition: all 0.3s ease-in-out; /* Smooth transition for expanding/collapsing */
+}
+
+/* Sidebar styling */
+#sidebar-wrapper {
+    position: fixed; /* Keeps the sidebar fixed on the left */
+    z-index: 1000; /* High z-index to ensure it stays on top of main content */
+    width: 250px; /* Default width of the sidebar */
+    background-color: #30688B; /* Sidebar background color */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+    position: fixed; /* Sidebar remains fixed on the screen */
+    height: 100%; /* Full height of the sidebar */
+    overflow-y: auto; /* Enables scrolling if the content overflows */
+    overflow-x: hidden;
+}
+
+/* Collapsed sidebar styling */
+#sidebar-wrapper.collapsed {
+    width: 80px; /* Width when the sidebar is collapsed */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+/* Sidebar header */
+.sidebar-header {
+    padding: 15px; /* Padding inside the header */
+    width: 100%; /* Full width of the sidebar header */
+    position: relative; /* Position relative for button positioning */
+    display: flex; /* Flexbox layout */
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the left */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+#sidebarCollapse {
+    font-family: Arial, sans-serif;
+}
+
+/* Sidebar toggle button */
+.sidebar-header button {
+    border: none; /* Remove button border */
+    background: transparent; /* Transparent background */
+    color: #fff; /* Button icon color */
+    padding: 8px 10px; /* Add padding for the right amount of background */
+    text-align: center; /* Center align the button content */
+    width: auto; /* Auto width to fit content only */
+    position: relative; /* Position relative within the header */
+    margin-left: 0; /* Align button to the left */
+    transition: width 0.3s ease-in-out; /* Smooth transition when sidebar width changes */
+}
+
+/* Sidebar header when collapsed */
+#sidebar-wrapper.collapsed .sidebar-header {
+    justify-content: center; /* Center align the content when collapsed */
+}
+
+/* Sidebar toggle button when collapsed */
+#sidebar-wrapper.collapsed .sidebar-header button {
+    text-align: center; /* Center align the button when collapsed */
+    margin-left: auto; /* Center button when sidebar is collapsed */
+    margin-right: auto;
+}
+
+/* Navigation link styling */
+#sidebar-wrapper .nav-link {
+    padding: 15px 60px; /* Padding around each link */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Show "..." for overflow text */
+    transition: all 0.3s ease-in-out; /* Smooth transition for hover effects */
+    display: flex; /* Flexbox layout for icon and text */
+    align-items: center; /* Vertically center align the icon and text */
+    justify-content: flex-start; /* Align icon and text to the left */
+}
+ 
+/* Hover effect for navigation links */
+.nav-link:hover {
+    background-color: #1e4f6b; /* Darker background on hover */
+    color: #fff; /* Text color on hover (optional, you can change this) */
+    text-decoration: none; /* Remove underline from text */
+}
+
+.nav-link i {
+    flex-shrink: 0; /* Prevent icon from shrinking */
+    width: 24px; /* Set a fixed width for the icon */
+    text-align: center; /* Center align the icon */
+    font-size: 20px; /* Icon size */
+}
+
+.nav-link .link-text {
+    flex-grow: 1; /* Allow the text to take up available space */
+    display: inline-block; /* Display link text inline */
+    margin-left: 15px; /* Space between the icon and text */
+    transition: opacity 0.3s ease-in-out; /* Smooth transition for text opacity */
+    font-family: Arial, sans-serif;
+
+}
+
+/* Collapsed sidebar link styling */
+#sidebar-wrapper.collapsed .nav-link {
+    justify-content: center; /* Center align the icon */
+    padding: 15px 0; /* Adjust padding to keep icon centered */
+}
+
+#sidebar-wrapper.collapsed .nav-link i {
+    width: 100%; /* Icon takes full width when collapsed */
+    text-align: center; /* Ensure the icon is centered */
+    margin-right: 0; /* Remove margin in collapsed state */
+}
+
+#sidebar-wrapper.collapsed .nav-link .link-text {
+    display: none; /* Hide the link text when sidebar is collapsed */
+}
+
+#wrapper:not(.collapsed) #page-content-wrapper {
+    width: calc(100% - 250px); /* Adjust based on the sidebar width */
+}
+
+/* Main content area */
+#page-content-wrapper {
+    width: 10rem;
+    flex: none;
+    flex-grow: 1; /* Allow the content to expand to fill available space */
+    padding: 20px; /* Padding around the content */
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
+    margin-left: 250px; /* Default margin to make space for the sidebar */
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
+}
+
+/* Main content area */
+#page-content-wrapper {
+    flex-grow: 1; /* Allow the content to expand to fill available space */
+    padding: 20px; /* Padding around the content */
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin changes */
+    margin-left: 250px; /* Default margin to make space for the sidebar */
+}
+
+/* Adjust main content margin when sidebar is collapsed */
+#wrapper.collapsed #page-content-wrapper {
+    margin-left: 80px; /* Reduced margin when sidebar is collapsed */
+}
+
+
+
+/* MAIN CONTENT */
+
+
+.text-settings{
+    font-size: 60px; /* Larger than the default h3 for emphasis */
+    font-weight: 500;
+    color: #30688B; /* Use the customizable text color */
+    margin-top: -40px; /* Remove default margin */
+    margin-bottom: -5px;
+}
+
+/* Accordion Styles */
+.accordion-button {
+    background-color: #3A79A0;
+    color: #fff !important;
+    border: none !important;
+    outline: none;
+    font-size: 1.25rem;
+    padding: 12px 20px;
+    text-align: left;
+    width: 100%;
+}
+.accordion-button:hover {
+    background-color: #30688B;
+  }
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #3A79A0
+}
+
+.accordion-body {
+    padding: 0; /* Remove default padding */
+}
+
+.accordion-item {
+    border: 1px solid #3A79A0;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* Button Styles Inside Accordion */
+.accordion-body .btn {
+    width: 100%;
+    text-align: left;
+    padding: 10px 20px;
+    margin: 0;
+    border: none;
+    color: #333C42 !important;
+    border-radius: 0;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-body .btn:hover {
+    background-color: #e2e6ea;
+}
+
+#support-btn {
+    font-size: 1.25rem;
+    padding: 12px 20px;
+    background-color: #3A79A0;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    text-align: left;
+}
+
+#support-btn:hover {
+    background-color: #30688B;
+}
+
+
+
+/* Add space between icon and text */
+button i {
+    margin-right: 10px; /* Adjust the value as needed */
+}
+
+/* MODAL */
+.modal-content {
+    border-radius: 8px; /* Rounded corners for the modal */
+}
+
+.modal-header {
+    background-color: #30688B; /* Custom background color */
+    color: #fff; /* Text color */
+}
+
+.modal-title {
+    font-size: 18px; /* Size of the modal title */
+}
+
+.modal-body {
+    font-family: Arial, sans-serif; /* Change font */
+    padding: 20px; /* Adjust padding */
+}
+
+h6 {
+    margin-bottom: 15px; /* Space below heading */
+}
+
+.btn {
+    border-radius: 5px; /* Rounded button corners */
+    padding: 10px; /* Adjust button padding */
+}
+
+.btn-primary, .btn-secondary {
+    background-color: #30688B; /* Custom color for both buttons */
+    border: 0 !important; /* Remove border */
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    background-color: #3A79A0 !important; /* Hover effect */
+}
+
+.btn-close {
+    border: none;
+    background: transparent; /* Transparent background */
+    color: #000; /* Color of the 'X' */
+    font-size: 20px; /* Size of the 'X' */
+    cursor: pointer; /* Pointer cursor */
+    position: absolute; /* Positioning */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    padding: 0; /* Remove padding */
+}

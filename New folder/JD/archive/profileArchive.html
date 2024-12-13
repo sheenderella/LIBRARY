@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
+    
+    <title>GRUBA LAW LIBRARY</title>
+    
+    <link rel="stylesheet" type="text/css" href="profileArchive.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+    
+</head>
+<body>
+    <div id="wrapper" class="d-flex">
+        <!-- Sidebar -->
+        <nav id="sidebar-wrapper" class="text-white">
+            <div class="sidebar-header p-3 d-flex flex-column align-items-left">
+                <button class="btn btn-outline-light btn-sm mb-3" id="sidebarCollapse" aria-label="Toggle Sidebar" data-bs-toggle="tooltip" title="Toggle Sidebar">
+                    <i class="fas fa-bars" id="barIcon"></i>
+                </button>
+                <img src="../logo/2.png" alt="Gruba Law Library Logo" class="img-fluid mb-3">
+            </div>
+            
+            <ul id="sidebar-menu" class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../index.html" data-bs-toggle="tooltip" title="Go to Dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="link-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../books/books.html" data-bs-toggle="tooltip" title="Manage Books">
+                        <i class="fas fa-book"></i>
+                        <span class="link-text">Books</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../profiles/profiles.html" data-bs-toggle="tooltip" title="Manage Borrower Profiles">
+                        <i class="fas fa-user"></i>
+                        <span class="link-text">Borrower Profiles</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../borrow/borrow.html" data-bs-toggle="tooltip" title="Manage Borrow Logs">
+                        <i class="fas fa-table"></i>
+                        <span class="link-text">Borrow Logs</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../archive/archive.html" data-bs-toggle="tooltip" title="Go to Archive">
+                        <i class="fas fa-archive"></i>
+                        <span class="link-text">Archive</span>
+                    </a>
+                </li>
+
+
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="../settings/settings.html" data-bs-toggle="tooltip" title="Go to Settings">
+                        <i class="fas fa-cog"></i>
+                        <span class="link-text">Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" id="logout-link" href="#" data-bs-toggle="tooltip" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="link-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main id="page-content-wrapper" class="p-4">
+            
+            <div class="container mt-5">
+
+                <!-- Back to Borrow Page Button -->
+                <a href="./archive.html"  title="Back to Borrow Logs" id="backToBorrowPage">
+                    <i class="fa fa-arrow-left"></i>
+                </a>
+
+                <div class="header-content">
+                   <p class="top-head-h1">Profiles Archive</p>
+                   <p class="top-head-p">List of borrowers profile archive in the library.</p>
+                </div>
+
+                <div class="button-header">
+                    <div class="right-side">
+                        <div class="custom-dropdown">
+                            <div class="dropdown-container">
+                                <select id="searchColumn" class="drop-search-form" title="Select search criteria">
+                                    <option value="all">All</option>
+                                    <option value="borrower_id">ID Number</option>
+                                    <option value="name">Name</option>
+                                    <option value="phone_number">Phone Number</option>
+                                    <option value="email">Email</option>
+                                </select>
+                                <i class="fa fa-caret-down dropdown-icon"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="input-container">
+                            <input type="text" id="searchInput" class="search-form-control" placeholder="Search" title="Enter search">
+                            <i class="icon fas fa-search"></i>
+                        </div>
+                    </div>
+  
+                    <div class="right-side-buttons">
+                        <button id="deleteSelected" class="btn btn-danger" title="Delete selected profiles"><i class="fas fa-trash"></i></button>
+                        <button id="unarchiveSelected" class="btn btn-warning"> <i class="fa-solid fa-rotate-right" data-bs-toggle="tooltip" title="Unarchive all selected"></i> </button>
+                    </div>
+
+                    <div id="notification" class="notification"></div>
+                </div>                             
+
+                <div class="scroll-container">
+                    <div class="table-container" id="tableContainer">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="column-checkbox">
+                                        <input type="checkbox" id="selectAll" title="Select all profiles">
+                                    </th>
+                                    <th class="column-borrower_id">ID Number <button data-column="borrower_id" class="sort-btn" title="Sort by ID Number"><i class="fa fa-sort"></i></button></th>
+                                    <th class="column-name">Name <button data-column="name" class="sort-btn" title="Sort by Name"><i class="fa fa-sort"></i></button></th>
+                                    <th class="column-phone_number">Phone Number <button data-column="phone_number" class="sort-btn" title="Sort by Phone Number"><i class="fa fa-sort"></i></button></th>
+                                    <th class="column-email">Email <button data-column="email" class="sort-btn" title="Sort by Email"><i class="fa fa-sort"></i></button></th>
+                                    <th class="column-actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="profileList">
+                                <!-- Table rows will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Pagination Controls -->
+                <div id="paginationControls" title="Pagination controls">
+                    <button id="firstPage" title="First page">
+                        <i class="fa-solid fa-backward-fast"></i>
+                    </button>
+                    <button id="prevPage" title="Previous page">
+                        <i class="fa-solid fa-caret-left"></i>
+                    </button>
+                    <input type="text" id="pageLocation" title="Current page">
+                    <span id="totalPages" title="Total pages">of 1</span>
+                    <button id="nextPage" title="Next page">
+                        <i class="fa-solid fa-caret-right"></i>
+                    </button>
+                    <button id="lastPage" title="Last page">
+                        <i class="fa-solid fa-forward-fast"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="profileArchive.js"></script>
+    <script src="../borrow/notification.js"></script>
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../login/logout.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="profileForm.css">
+    <title>Add Borrower</title>
+</head>
+<body>
+    <div class="card">
+        <div class="card-header text-center">
+            <img src="../logo/1.png" alt="Gruba Law Library" class="img-fluid mb-2">
+        </div>
+        
+        <div class="card-body">
+            <h1 class="text-center mb-4">Add Borrower</h1>
+            <form id="addProfileForm">
+                <small class="form-text text-muted">Borrower ID:</small>
+                <input type="number" id="borrower_id" placeholder="Borrower ID" required title="Enter the unique ID for the borrower"><br>
+                
+                <small class="form-text text-muted">Name:</small>
+                <input type="text" id="name" placeholder="Name" required title="Enter the full name of the borrower"><br>
+                
+                <small class="form-text text-muted">Phone Number:</small>
+                <input type="number" id="phone_number" placeholder="Phone Number" required title="Enter the borrower's phone number"><br>
+                
+                <small class="form-text text-muted">Email:</small>
+                <input type="email" id="email" placeholder="Email" required title="Enter the borrower's email address"><br>
+
+                <button type="submit" title="Submit borrower details">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include JavaScript to handle the form submission -->
+    <script src="addProfile.js"></script>
+</body>
+</html>

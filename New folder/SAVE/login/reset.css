@@ -1,0 +1,150 @@
+/* Instruction Text Styling */
+.instruction-text {
+    font-size: 16px;
+    color: #6c757d;
+    text-align: center;
+    margin-bottom: 0%;
+    font-style: italic;
+}
+
+
+/* Security Question Styling */
+.security-question {
+    font-size: 18px;
+    font-weight: bold;
+    color: #343a40(203 19% 45%);
+    text-align: center; /* Center the security question text */
+    display: inline-block;
+    width: 100%; /* Ensure it spans the entire width */
+
+}
+
+
+
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align the container at the top */
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Prevent scrollbars */
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align the card at the top */
+    padding: 0;
+    margin: 0;
+}
+
+.card {
+    width: 100%; /* Make card stretch to full container width */
+    max-width: none; /* Remove max-width to allow full stretching */
+    height: auto;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: -50px; /* Remove any margins to avoid gaps */
+
+}
+
+.card-header {
+    background-color: #30688B;
+    color: #fff;
+    padding: 10px;
+    width: 100%; /* Make header stretch to full card width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+
+}
+
+.card-header img {
+    max-height: 50px;
+}
+
+.card-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 100%;
+}
+
+h1 {
+    color: #343a40;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    border: 1px solid #ced4da;
+    border-radius: 0%;
+    height: 45px;
+    font-size: 16px;
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+}
+
+.btn-success {
+    background-color: #30688B;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.btn-success:hover {
+    background-color: #3A79A0;
+}
+
+
+.input-group-text {
+    cursor: pointer;
+    background-color: #f3f3f3;
+    border: 1px solid #ced4da;
+}
+
+.input-group-text:hover {
+    background-color: #e9ecef;
+}
+
+
+/* Notification styles */
+
+#notification {
+    position: fixed;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    background-color: #4CAF50; /* Default to green; can be overridden */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(100%); /* Hide off-screen */
+}
+
+#notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Move into view */
+}
+
