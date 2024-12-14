@@ -9,11 +9,6 @@ const ExcelJS = require('exceljs');
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
-require('./settings/backupRestore.js');
-require(path.join(__dirname, 'settings', 'backupRestore.js'));
-const backupRestore = require('./settings/backupRestore.js');
-
-
 
 
 
@@ -2459,3 +2454,10 @@ ipcMain.handle('generateReport', async (event, timePeriod, category) => {
         return { message: 'Error generating report.' };
     }
 });
+
+
+
+require('./settings/backupRestore.js');
+require(path.join(__dirname, 'settings', 'backupRestore.js'));
+const backupRestore = require('./settings/backupRestore.js');
+
