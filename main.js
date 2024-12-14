@@ -10,8 +10,8 @@ let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow,
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
 require('./settings/backupRestore.js');
-
 require(path.join(__dirname, 'settings', 'backupRestore.js'));
+const backupRestore = require('./settings/backupRestore.js');
 
 
 
