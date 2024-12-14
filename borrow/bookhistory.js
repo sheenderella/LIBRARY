@@ -21,6 +21,16 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
+// Add event listener to the "Generate Report" button
+document.addEventListener('DOMContentLoaded', () => {
+    const generateReportButton = document.getElementById('generateReport');
+    if (generateReportButton) {
+        generateReportButton.addEventListener('click', () => {
+            ipcRenderer.send('open-book-reports'); // Send event to main process
+        });
+    }
+});
+
 
 //BOOK DETAILS DISPLAY
 // Function to get query parameters from the URL

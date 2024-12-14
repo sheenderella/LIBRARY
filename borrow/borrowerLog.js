@@ -22,6 +22,7 @@ document.getElementById('logout-link').addEventListener('click', function(event)
 });
 
 
+
 let logData = [];
 let filteredLogData = [];
 let currentPage = 1;

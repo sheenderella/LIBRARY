@@ -1375,6 +1375,43 @@ ipcMain.on('open-condition-window', (event, { bookId, borrowId, originalStatus }
     }
 });
 
+let bookreportsWindow = null;
+
+// Function to create the Reports Window
+function createbookReportsWindow() {
+    if (!bookreportsWindow) { // Check if the reports window is already open
+        bookreportsWindow = new BrowserWindow({
+            width: 400,
+            height: 600,
+            resizable: false,
+            parent: mainWindow, // Assuming mainWindow is already defined
+            modal: true,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
+        });
+
+        bookreportsWindow.loadFile(path.join(__dirname,  'borrow', 'bookReports.html')); // Load the reports HTML file
+
+        // Log when the reports window is opened
+        console.log('Reports window created');
+
+        bookreportsWindow.on('closed', () => {
+            bookreportsWindow = null; // Clear reference on close
+        });
+    } else {
+        bookreportsWindow.focus(); // Focus on the existing window if it's already open
+    }
+}
+
+// Listen for 'open-book-reports' event
+ipcMain.on('open-book-reports', () => {
+    createbookReportsWindow();
+});
+
+
+
 
 //PROFILES' CRUD
 let addProfileWindow = null;
