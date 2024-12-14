@@ -9,6 +9,8 @@ body, html {
     align-items: flex-start;
     background-color: #ffffff;
     font-family: Arial, sans-serif;
+    overflow: hidden; /* Disables vertical scrolling */
+
 }
 
 /* Container styles */
@@ -55,26 +57,22 @@ body, html {
 
 /* Specific text size controls for different sections */
 #reports-header h1 {
-    font-size: 28px; /* Customize the size for the Reports header */
+    font-size: 45px; /* Customize the size for the Reports header */
     color: #343a40;
-    font-weight: bold;
+    font-weight: bolder;
     text-align: center;
-}
+    text-transform: uppercase;
 
-#books-header h2 {
-    padding-top: 30px;
-    font-size: 24px; /* Customize the size for the Books section */
-    color: #343a40;
-    font-weight: bold;
-    text-align: center;
 }
 
 #borrowing-header h2 {
-    padding-top: 30px;
+    padding-top: 25px;
+    padding-bottom: 10px;
     font-size: 24px; /* Customize the size for the Borrowing section */
-    color: #343a40;
+    color: #4C4C4C;
     font-weight: bold;
     text-align: center;
+    text-transform: uppercase;
 }
 
 #filter-header h3 {

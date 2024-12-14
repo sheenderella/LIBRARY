@@ -1375,14 +1375,15 @@ ipcMain.on('open-condition-window', (event, { bookId, borrowId, originalStatus }
     }
 });
 
-let bookreportsWindow = null;
+// BORROW - BOOK BORROWING HISTORY
+let bookReportsWindow = null;
 
-// Function to create the Reports Window
-function createbookReportsWindow() {
-    if (!bookreportsWindow) { // Check if the reports window is already open
-        bookreportsWindow = new BrowserWindow({
+// Function to create the Book Reports Window
+function createBookReportsWindow() {
+    if (!bookReportsWindow) { // Check if the reports window is already open
+        bookReportsWindow = new BrowserWindow({
             width: 400,
-            height: 600,
+            height: 500,
             resizable: false,
             parent: mainWindow, // Assuming mainWindow is already defined
             modal: true,
@@ -1392,22 +1393,58 @@ function createbookReportsWindow() {
             },
         });
 
-        bookreportsWindow.loadFile(path.join(__dirname,  'borrow', 'bookReports.html')); // Load the reports HTML file
+        bookReportsWindow.loadFile(path.join(__dirname, 'borrow', 'bookReports.html')); // Load the reports HTML file
 
         // Log when the reports window is opened
-        console.log('Reports window created');
+        console.log('Book Reports window created');
 
-        bookreportsWindow.on('closed', () => {
-            bookreportsWindow = null; // Clear reference on close
+        bookReportsWindow.on('closed', () => {
+            bookReportsWindow = null; // Clear reference on close
         });
     } else {
-        bookreportsWindow.focus(); // Focus on the existing window if it's already open
+        bookReportsWindow.focus(); // Focus on the existing window if it's already open
     }
 }
 
 // Listen for 'open-book-reports' event
 ipcMain.on('open-book-reports', () => {
-    createbookReportsWindow();
+    createBookReportsWindow();
+});
+
+// BORROW - BORROWING HISTORY
+let borrowingReportsWindow = null;
+
+// Function to create the Borrowing Reports Window
+function createBorrowingReportsWindow() {
+    if (!borrowingReportsWindow) { // Check if the reports window is already open
+        borrowingReportsWindow = new BrowserWindow({
+            width: 400,
+            height: 500,
+            resizable: false,
+            parent: mainWindow, // Assuming mainWindow is already defined
+            modal: true,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
+        });
+        
+        borrowingReportsWindow.loadFile(path.join(__dirname, 'borrow', 'borrowerReports.html')); // Load the reports HTML file
+
+        // Log when the reports window is opened
+        console.log('Borrowing Reports window created');
+
+        borrowingReportsWindow.on('closed', () => {
+            borrowingReportsWindow = null; // Clear reference on close
+        });
+    } else {
+        borrowingReportsWindow.focus(); // Focus on the existing window if it's already open
+    }
+}
+
+// Listen for 'open-borrowing-reports' event
+ipcMain.on('open-borrowing-reports', () => {
+    createBorrowingReportsWindow();
 });
 
 
@@ -2453,9 +2490,9 @@ ipcMain.handle('generateReport', async (event, timePeriod, category) => {
     }
 });
 
-//BACKUP
 
 
+//BACKUP & RESTORE - SETTINGS
 // Update this to the absolute path of your main database file
 const dbPath = path.join(__dirname, './library.db');
 

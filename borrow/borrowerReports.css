@@ -1,0 +1,114 @@
+/* Body and HTML general styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: #ffffff;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Disables vertical scrolling */
+
+}
+
+/* Container styles */
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+}
+
+/* Card styles */
+.card {
+    width: 600px;
+    height: auto;
+    border: none;
+    margin-top: -50px;
+}
+
+.card-header {
+    background-color: #30688B;
+    color: #fff;
+    padding: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+.card-header img {
+    max-height: 50px;
+}
+
+.card-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Specific text size controls for different sections */
+#reports-header h1 {
+    font-size: 45px; /* Customize the size for the Reports header */
+    color: #343a40;
+    font-weight: bolder;
+    text-align: center;
+    text-transform: uppercase;
+
+}
+
+#borrowing-header h2 {
+    padding-top: 25px;
+    padding-bottom: 10px;
+    font-size: 24px; /* Customize the size for the Borrowing section */
+    color: #4C4C4C;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+#filter-header h3 {
+    font-size: 20px; /* Customize the size for the Filter section */
+    color: #343a40;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Form and input styles */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    border: 1px solid #ced4da;
+    border-radius: 9px;
+    height: 45px;
+    font-size: 16px;
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+}
+
+/* Button styles */
+.btn-success {
+    background-color: #30688B !important;
+    border-radius: 9px;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    border-color: #30688B !important;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background-color: #3A79A0 !important;
+}

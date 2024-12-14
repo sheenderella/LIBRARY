@@ -18,20 +18,11 @@
             <div class="card-body">
                 <!-- Divs for changeable text sizes -->
                 <div id="reports-header">
-                    <h1>Generate Reports</h1>
+                    <h1> Reports </h1>
                 </div>
-
-                <div id="books-header">
-                    <h2 class="text-center">Books</h2>
-                </div>
-
-                <button id="list-books-btn" class="btn btn-success btn-block mb-4">List of Books</button>
-                <!-- New button for Books Availability -->
-
-                <button id="books-availability-btn" class="btn btn-success btn-block mb-4">Books Availability</button>
 
                 <div id="borrowing-header">
-                    <h2 class="text-center">Borrowing Details</h2>
+                    <h2>BOOK BORROWING HISTORY REPORT</h2>
                 </div>
 
                 <form id="reportFilterForm">
@@ -58,15 +49,7 @@
                             <input type="date" id="end-date" class="form-control">
                         </div>
                     </div>
-                
-                    <div class="form-group">
-                        <label for="category">Select Category:</label>
-                        <select id="category" class="form-control">
-                            <option value="borrowing-history">Borrowing History</option>
-                            <option value="most-borrowed-books">Most Borrowed Books</option>
-                        </select>
-                    </div>
-
+    
                     <button id="generate-report-btn" class="btn btn-success btn-block">Generate Report</button>
                 </form>
             </div>

@@ -21,6 +21,15 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
+// Add event listener to the "Generate Report" button
+document.addEventListener('DOMContentLoaded', () => {
+    const generateReportButton = document.getElementById('generateReport');
+    if (generateReportButton) {
+        generateReportButton.addEventListener('click', () => {
+            ipcRenderer.send('open-borrowing-reports'); // Send event to main process
+        });
+    }
+});
 
 
 let logData = [];
