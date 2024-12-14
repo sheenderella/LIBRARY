@@ -9,7 +9,14 @@ const ExcelJS = require('exceljs');
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
-const backupRestore = require('./settings/backupRestore.js');
+require('./settings/backupRestore.js');
+
+require(path.join(__dirname, 'settings', 'backupRestore.js'));
+
+
+
+
+
 
 function createWindow(options) {
     const window = new BrowserWindow({
