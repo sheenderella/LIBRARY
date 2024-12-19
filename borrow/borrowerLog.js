@@ -21,15 +21,37 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
+
 // Add event listener to the "Generate Report" button
 document.addEventListener('DOMContentLoaded', () => {
     const generateReportButton = document.getElementById('generateReport');
     if (generateReportButton) {
         generateReportButton.addEventListener('click', () => {
-            ipcRenderer.send('open-borrowing-reports'); // Send event to main process
+            const params = getQueryParams(); // Retrieve the parameters from the URL
+            console.log('Sending parameters:', params); // Log the params for debugging
+
+            // Send event to main process with parameters
+            ipcRenderer.send('open-borrowing-reports', {
+                borrowerName: params.borrowerName,
+                borrowerId: params.borrowerId,
+                phoneNumber: params.phoneNumber,
+                email: params.email,
+            });
         });
     }
 });
+
+// Function to extract query parameters from the URL
+function getQueryParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+        borrowerName: urlParams.get('borrowerName'),
+        borrowerId: urlParams.get('borrowerId'),
+        phoneNumber: urlParams.get('phoneNumber'),
+        email: urlParams.get('email'),
+    };
+}
+
 
 
 let logData = [];

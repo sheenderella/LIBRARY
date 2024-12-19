@@ -9,8 +9,6 @@ body, html {
     align-items: flex-start;
     background-color: #ffffff;
     font-family: Arial, sans-serif;
-    overflow: hidden; /* Disables vertical scrolling */
-
 }
 
 /* Container styles */

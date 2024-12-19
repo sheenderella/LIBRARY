@@ -10,7 +10,6 @@
 <body>
     <div class="container mt-5">
         <div class="card">
-            
             <div class="card-header text-center">
                 <img src="../logo/1.png" alt="Gruba Law Library" class="img-fluid mb-2">
             </div>
@@ -24,7 +23,7 @@
                 <div id="borrowing-header">
                     <h2>BOOK BORROWING HISTORY REPORT</h2>
                 </div>
-
+                
                 <form id="reportFilterForm">
                     <div class="form-group">
                         <label for="time-period">Select Time Period:</label>
@@ -38,7 +37,7 @@
                     </div>
                 
                     <!-- Custom Date Range Inputs -->
-                    <div id="custom-range" style="display: none;"> <!-- Initially hidden -->
+                    <div id="custom-range" style="display: none;">
                         <div class="form-group">
                             <label for="start-date">Start Date:</label>
                             <input type="date" id="start-date" class="form-control">
@@ -50,7 +49,7 @@
                         </div>
                     </div>
     
-                    <button id="generate-report-btn" class="btn btn-success btn-block">Generate Report</button>
+                    <button id="export-report-btn" class="btn btn-success btn-block">Generate Report</button>
                 </form>
             </div>
         </div>
@@ -65,6 +64,16 @@
             } else {
                 customRange.style.display = 'none'; // Hide the custom range inputs
             }
+
+            const timePeriodDisplay = {
+                'all time': 'All Time',
+                weekly: 'This Week',
+                monthly: 'This Month',
+                yearly: 'This Year',
+                custom: 'Custom Range',
+            };
+            const header = document.getElementById('borrowing-header').querySelector('h2');
+            header.textContent = `BOOK BORROWING HISTORY REPORT - ${timePeriodDisplay[this.value] || 'All Time'}`;
         });
     </script>
 </body>

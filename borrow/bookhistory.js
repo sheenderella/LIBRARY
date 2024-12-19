@@ -21,18 +21,27 @@ document.getElementById('logout-link').addEventListener('click', function(event)
     });
 });
 
+
+
 // Add event listener to the "Generate Report" button
 document.addEventListener('DOMContentLoaded', () => {
     const generateReportButton = document.getElementById('generateReport');
     if (generateReportButton) {
         generateReportButton.addEventListener('click', () => {
-            ipcRenderer.send('open-book-reports'); // Send event to main process
+            const params = getQueryParams(); // Retrieve the parameters from the URL
+            console.log('Sending parameters:', params); // Log the params for debugging
+
+            // Send event to main process with parameters
+            ipcRenderer.send('open-book-reports', {
+                bookTitle: params.bookTitle,
+                bookId: params.bookId,
+                recordId: params.recordId,
+            });
         });
     }
 });
 
-
-//BOOK DETAILS DISPLAY
+// BOOK DETAILS DISPLAY
 // Function to get query parameters from the URL
 function getQueryParams() {
     const params = new URLSearchParams(window.location.search);
@@ -42,6 +51,7 @@ function getQueryParams() {
         recordId: params.get('recordId') // Retrieve the record ID
     };
 }
+
 
 // Function to update the HTML elements with the book details
 async function displayBookDetails() {
@@ -89,7 +99,8 @@ function getQueryParams() {
     const params = new URLSearchParams(window.location.search);
     return {
         bookTitle: params.get('bookTitle'),
-        bookId: params.get('bookId')
+        bookId: params.get('bookId'),
+        recordId: params.get('recordId') // Retrieve the record ID
     };
 }
 

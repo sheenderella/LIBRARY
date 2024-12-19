@@ -1133,8 +1133,6 @@ ipcMain.handle('addBorrow', async (event, record) => {
 });
 
 
-
-
 // Handle fetching all book titles for suggestions, returning unique combinations of title, volume, edition, etc.
 ipcMain.handle('getBookTitles', async () => {
     try {
@@ -1313,7 +1311,6 @@ ipcMain.handle('show-confirmation-dialog', async (event, { title, message }) => 
     return result.response === 0;
 });
 
-
 ipcMain.on('open-condition-window', (event, { bookId, borrowId, originalStatus }) => {
     const conditionWindow = new BrowserWindow({
         width: 450,
@@ -1375,17 +1372,40 @@ ipcMain.on('open-condition-window', (event, { bookId, borrowId, originalStatus }
     }
 });
 
-// BORROW - BOOK BORROWING HISTORY
+// Handle showing dialogs from renderer process
+ipcMain.handle('showDialog', (event, type, message) => {
+    switch (type) {
+        case 'info':
+            dialog.showMessageBox({
+                type: 'info',
+                title: 'Information',
+                message: message
+            });
+            break;
+        case 'error':
+            dialog.showMessageBox({
+                type: 'error',
+                title: 'Error',
+                message: message
+            });
+            break;
+        default:
+            console.warn('Unknown dialog type:', type);
+    }
+});
+
 let bookReportsWindow = null;
+let bookDetails = {}; // Store book details
+let bookRecords = []; // Store book records
 
 // Function to create the Book Reports Window
-function createBookReportsWindow() {
-    if (!bookReportsWindow) { // Check if the reports window is already open
+function createBookReportsWindow(params) {
+    if (!bookReportsWindow) {
         bookReportsWindow = new BrowserWindow({
             width: 400,
             height: 500,
             resizable: false,
-            parent: mainWindow, // Assuming mainWindow is already defined
+            parent: mainWindow,
             modal: true,
             webPreferences: {
                 nodeIntegration: true,
@@ -1393,29 +1413,264 @@ function createBookReportsWindow() {
             },
         });
 
-        bookReportsWindow.loadFile(path.join(__dirname, 'borrow', 'bookReports.html')); // Load the reports HTML file
+        const query = new URLSearchParams(params).toString();
+        const reportPath = `file://${path.join(__dirname, 'borrow', 'bookReports.html')}?${query}`;
+        bookReportsWindow.loadURL(reportPath);
 
-        // Log when the reports window is opened
-        console.log('Book Reports window created');
+        console.log('Book Reports window created with params:', params);
 
         bookReportsWindow.on('closed', () => {
-            bookReportsWindow = null; // Clear reference on close
+            bookReportsWindow = null;
         });
     } else {
-        bookReportsWindow.focus(); // Focus on the existing window if it's already open
+        bookReportsWindow.focus();
     }
 }
 
-// Listen for 'open-book-reports' event
-ipcMain.on('open-book-reports', () => {
-    createBookReportsWindow();
+// Listener for opening book reports
+ipcMain.on('open-book-reports', (event, details) => {
+    console.log('Received book details in main process:', details);
+
+    // Save details for use in other operations
+    bookDetails = details;
+
+    // Create the book reports window
+    createBookReportsWindow(details);
 });
+
+// Listener for receiving book details
+ipcMain.on('send-book-details', (event, details) => {
+    bookDetails = details;
+    console.log('Book details received:', bookDetails);
+});
+
+// Listener for receiving book records
+ipcMain.on('send-book-records', (event, records) => {
+    bookRecords = records;
+    console.log('Book records received in main:', bookRecords);
+});
+
+// Listener for combined data (book details and borrow records)
+ipcMain.on('send-combined-data', (event, data) => {
+    const { bookDetails, borrowRecords } = data;
+    console.log('Book Details:', bookDetails);
+    console.log('Borrow Records:', borrowRecords);
+});
+ipcMain.handle('exportBorrowRecords', async (event, enrichedRecords) => {
+    try {
+        if (enrichedRecords.length === 0) {
+            dialog.showErrorBox('Export Failed', 'No records to export.');
+            return { success: false, message: 'No records to export.' };
+        }
+
+        // Enrich the records with borrower_id and book details from the database
+        for (let record of enrichedRecords) {
+            // Get borrower_id from borrow table using borrow_id
+            await new Promise((resolve, reject) => {
+                db.get(
+                    'SELECT borrower_id, book_id FROM borrow WHERE id = ?',
+                    [record.borrow_id],
+                    (err, row) => {
+                        if (err) {
+                            console.error('Error fetching borrower_id and book_id:', err);
+                            reject(err);
+                        } else {
+                            record.borrower_id = row ? row.borrower_id : 'N/A'; // Handle missing borrower_id
+                            record.book_id = row ? row.book_id : 'N/A'; // Handle missing book_id
+                            resolve();
+                        }
+                    }
+                );
+            });
+
+            // Get book details from books table using book_id
+            await new Promise((resolve, reject) => {
+                db.get(
+                    'SELECT * FROM books WHERE id = ?', // Query using book_id
+                    [record.book_id],
+                    (err, bookDetails) => {
+                        if (err) {
+                            console.error('Error fetching book details:', err);
+                            reject(err);
+                        } else {
+                            record.bookDetails = bookDetails || {}; // Store book details
+                            resolve();
+                        }
+                    }
+                );
+            });
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        const recordsSheet = workbook.addWorksheet('Borrow Records');
+        const summarySheet = workbook.addWorksheet('Summary');
+
+        // Borrow Records header
+        recordsSheet.mergeCells('A1:F1');
+        const headerCell = recordsSheet.getCell('A1');
+        headerCell.value = 'BOOK BORROWING HISTORY';
+        headerCell.font = { size: 16, bold: true };
+        headerCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        // Borrow Records column headers
+        const headers = ['Borrower ID', 'Borrower Name', 'Borrow Date', 'Due Date', 'Return Date', 'Status'];
+        recordsSheet.addRow(headers);
+        recordsSheet.getRow(2).font = { bold: true };
+
+        // Populate Borrow Records with enriched data
+        enrichedRecords.forEach(record => {
+            recordsSheet.addRow([
+                record.borrower_id,
+                record.borrower_name,
+                record.borrowDate,
+                record.dueDate,
+                record.returnDate,
+                record.borrowStatus,
+            ]);
+        });
+
+        headers.forEach((header, index) => {
+            const column = recordsSheet.getColumn(index + 1);
+            column.width = header.length + 5;
+        });
+
+        // Summary header
+        summarySheet.mergeCells('A1:D1');
+        const summaryHeaderCell = summarySheet.getCell('A1');
+        summaryHeaderCell.value = 'SUMMARY';
+        summaryHeaderCell.font = { size: 16, bold: true };
+        summaryHeaderCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        // Add total number of borrowers
+        summarySheet.addRow([]); // Empty row for spacing
+        summarySheet.addRow(['Total number of borrowers:', enrichedRecords.length]);
+        summarySheet.addRow([]); // Empty row for spacing
+        summarySheet.addRow(['Top 5 Borrowers']);
+        summarySheet.addRow(['Borrower Name', 'Borrower ID', 'Number of Borrows']);
+
+        const borrowerCounts = enrichedRecords.reduce((acc, record) => {
+            const { borrower_name, borrower_id } = record;
+            if (!acc[borrower_id]) {
+                acc[borrower_id] = { borrowerName: borrower_name, borrowerID: borrower_id, count: 0 };
+            }
+            acc[borrower_id].count++;
+            return acc;
+        }, {});
+
+        const topBorrowers = Object.values(borrowerCounts)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+        topBorrowers.forEach(borrower => {
+            summarySheet.addRow([borrower.borrowerName, borrower.borrowerID, borrower.count]);
+        });
+
+        // Process book details in summary (from enriched records)
+        enrichedRecords.forEach(record => {
+            const { borrow_id, bookDetails } = record;
+
+            summarySheet.addRow([]); // Empty row for spacing
+            summarySheet.addRow([`Borrow ID: ${borrow_id}`]);
+
+            summarySheet.addRow([
+                'Book Title', 'Book ID', 'Author', 'Edition', 'Publisher', 'Year', 'Cost Price', 'Pages', 'Volume', 'Condition'
+            ]);
+
+            // Check if bookDetails exists before accessing its properties
+            if (bookDetails) {
+                summarySheet.addRow([
+                    bookDetails.title_of_book || 'N/A',
+                    bookDetails.id || 'N/A', // bookId from books table
+                    bookDetails.author || 'N/A',
+                    bookDetails.edition || 'N/A',
+                    bookDetails.publisher || 'N/A',
+                    bookDetails.year || 'N/A',
+                    bookDetails.cost_price || 'N/A',
+                    bookDetails.pages || 'N/A',
+                    bookDetails.volume || 'N/A',
+                    bookDetails.condition || 'N/A',
+                ]);
+            } else {
+                console.log(`No book details found for borrow_id: ${borrow_id}`);
+                summarySheet.addRow(['No book details found', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A']);
+            }
+        });
+
+        // Adjust column widths for Summary
+        summarySheet.columns.forEach(column => {
+            column.width = 25;
+        });
+
+        // Save file dialog
+        const { canceled, filePath } = await dialog.showSaveDialog({
+            title: 'Save Borrow Records',
+            defaultPath: path.join(__dirname, `Book-Borrow-Records_${new Date().toISOString().split('T')[0]}.xlsx`),
+            filters: [
+                { name: 'Excel Files', extensions: ['xlsx'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+
+        if (canceled) {
+            dialog.showMessageBox({
+                type: 'info',
+                title: 'Export Cancelled',
+                message: 'Export cancelled by user.'
+            });
+            return { success: false, message: 'Export cancelled by user.' };
+        }
+
+        // Check if the file exists and confirm overwrite if necessary
+        if (fs.existsSync(filePath)) {
+            const { response } = await dialog.showMessageBox({
+                type: 'warning',
+                buttons: ['Overwrite', 'Cancel'],
+                defaultId: 1,
+                title: 'Confirm Overwrite',
+                message: `The file "${path.basename(filePath)}" already exists. Do you want to overwrite it?`
+            });
+
+            if (response === 1) {
+                dialog.showMessageBox({
+                    type: 'info',
+                    title: 'Export Cancelled',
+                    message: 'Export cancelled by user.'
+                });
+                return { success: false, message: 'Export cancelled by user.' };
+            }
+        }
+
+        // Save the workbook
+        await workbook.xlsx.writeFile(filePath);
+
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'Export Successful',
+            message: `Report exported successfully to: ${filePath}`
+        });
+
+        return { success: true, filePath };
+    } catch (error) {
+        console.error('Error exporting borrow records:', error);
+        dialog.showErrorBox('Export Error', 'An error occurred while exporting the borrow records. Please try again.');
+        throw new Error('Failed to export borrow records');
+    }
+});
+
+
+
+
+
+
+
+
 
 // BORROW - BORROWING HISTORY
 let borrowingReportsWindow = null;
+let borrowerDetails = {}; // To store borrower details
+
 
 // Function to create the Borrowing Reports Window
-function createBorrowingReportsWindow() {
+function createBorrowingReportsWindow(params) {
     if (!borrowingReportsWindow) { // Check if the reports window is already open
         borrowingReportsWindow = new BrowserWindow({
             width: 400,
@@ -1428,11 +1683,16 @@ function createBorrowingReportsWindow() {
                 contextIsolation: false,
             },
         });
+
+        // Load the borrowerReports.html file and pass the parameters as a query string
+        const query = new URLSearchParams(params).toString();
+        console.log("Generated Query String:", query); // Debugging
+        const reportPath = `file://${path.join(__dirname, 'borrow', 'borrowerReports.html')}?${query}`;
         
-        borrowingReportsWindow.loadFile(path.join(__dirname, 'borrow', 'borrowerReports.html')); // Load the reports HTML file
+        borrowingReportsWindow.loadURL(reportPath);
 
         // Log when the reports window is opened
-        console.log('Borrowing Reports window created');
+        console.log('Borrowing Reports window created with params:', params);
 
         borrowingReportsWindow.on('closed', () => {
             borrowingReportsWindow = null; // Clear reference on close
@@ -1443,8 +1703,132 @@ function createBorrowingReportsWindow() {
 }
 
 // Listen for 'open-borrowing-reports' event
-ipcMain.on('open-borrowing-reports', () => {
-    createBorrowingReportsWindow();
+ipcMain.on('open-borrowing-reports', (event, borrowerDetails) => {
+    console.log('Received borrower details in main process:', borrowerDetails);
+    
+    createBorrowingReportsWindow(borrowerDetails);
+});
+
+// Listen for the 'send-borrower-details' event
+ipcMain.on('send-borrower-details', (event, details) => {
+    borrowerDetails = details;
+    console.log('Borrower details received:', borrowerDetails);
+});
+
+
+ipcMain.handle('exportBorrowingRecords', async (event, records) => {
+    try {
+        if (records.length === 0) {
+            dialog.showErrorBox('Export Failed', 'No records to export.');
+            return { success: false, message: 'No records to export.' };
+        }
+
+        // Use borrowerDetails for user info in the summary
+        const borrowerName = borrowerDetails.borrowerName || 'N/A';
+        const borrowerId = borrowerDetails.borrowerId || 'N/A';
+        const email = borrowerDetails.email || 'N/A';
+        const phoneNumber = borrowerDetails.phoneNumber || 'N/A';
+
+        // Initialize workbook and worksheets
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Borrowing Records');
+        const summarySheet = workbook.addWorksheet('SUMMARY');
+
+        // Add title: "BORROWING HISTORY"
+        worksheet.addRow(['BORROWING HISTORY']);
+        worksheet.getCell('A1').font = { bold: true, size: 16 };
+        worksheet.mergeCells('A1:F1'); // Center the title
+        worksheet.getCell('A1').alignment = { horizontal: 'center' };
+
+        // Add column headers
+        worksheet.addRow(['Book Title', 'Borrow Date', 'Due Date', 'Return Date', 'Status']);
+        worksheet.getRow(2).font = { bold: true }; // Make headers bold
+
+        // Add rows of records
+        records.forEach(record => {
+            worksheet.addRow([
+                record.book_title,
+                record.borrowDate,
+                record.dueDate,
+                record.returnDate || 'N/A',
+                record.borrowStatus
+            ]);
+        });
+
+        // Adjust column widths dynamically
+        worksheet.columns = [
+            { width: 25 }, // Book Title
+            { width: 15 }, // Borrow Date
+            { width: 15 }, // Due Date
+            { width: 15 }, // Return Date
+            { width: 10 }  // Status
+        ];
+
+        // Generate summary values
+        const totalBooksBorrowed = records.length;
+        const totalBooksReturned = records.filter(r => r.borrowStatus === 'returned').length;
+        const totalOverdueBooks = records.filter(r => r.borrowStatus === 'overdue').length;
+        const totalReturnedOverdueBooks = records.filter(r => r.borrowStatus === 'returned overdue').length;
+
+        // Add User Information and Summary to SUMMARY sheet
+        summarySheet.addRows([
+            ['SUMMARY', ''],
+            ['User Information', ''],
+            ['Name:', borrowerName],
+            ['ID Number:', borrowerId],
+            ['Email:', email],
+            ['Phone:', phoneNumber],
+            [''],
+            ['Report Summary', ''],
+            ['Total Books Borrowed:', totalBooksBorrowed],
+            ['Total Books Returned:', totalBooksReturned],
+            ['Total Overdue Books:', totalOverdueBooks],
+            ['Total Returned Overdue Books:', totalReturnedOverdueBooks],
+        ]);
+
+        summarySheet.getRow(1).font = { bold: true, size: 14 }; // Title styling
+        summarySheet.getRow(2).font = { bold: true }; // User Info Section Title
+        summarySheet.getRow(8).font = { bold: true }; // Report Summary Section Title
+
+        summarySheet.getColumn(1).width = 25; // Adjust column width
+        summarySheet.getColumn(2).width = 30;
+
+        // Show save dialog
+        const { canceled, filePath } = await dialog.showSaveDialog({
+            title: 'Save Borrowing Records',
+            defaultPath: path.join(__dirname, `Borrower_Borrowing_History_${new Date().toISOString().split('T')[0]}.xlsx`),
+            filters: [
+                { name: 'Excel Files', extensions: ['xlsx'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+
+        if (canceled) {
+            dialog.showMessageBox({
+                type: 'info',
+                title: 'Export Cancelled',
+                message: 'Export cancelled by user.'
+            });
+            return { success: false, message: 'Export cancelled by user.' };
+        }
+
+        // Save workbook to file
+        await workbook.xlsx.writeFile(filePath);
+
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'Export Successful',
+            message: `Report exported successfully to: ${filePath}`
+        });
+
+        return { success: true, filePath };
+    } catch (error) {
+        console.error('Error exporting borrower records:', error);
+
+        // Show error dialog
+        await dialog.showErrorBox('Export Error', 'An error occurred while exporting the borrowing records. Please try again.');
+        throw new Error('Failed to export borrower records');
+    }
 });
 
 
