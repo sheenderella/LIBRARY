@@ -183,7 +183,7 @@ h1 {
 /* Styling for the Generate Report icon button */
 #generateReport {
     font-size: 20px; /* Adjust the size of the icon */
-    background-color: #007bff; /* Primary blue color */
+    background-color: #30688B; /* Primary blue color */
     border: none;
     color: white;
     cursor: pointer;
@@ -196,7 +196,7 @@ h1 {
 }
 
 #generateReport:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+    background-color: #3A79A0; /* Darker blue on hover */
 }
 
 #generateReport i {
