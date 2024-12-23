@@ -1456,6 +1456,7 @@ ipcMain.on('send-combined-data', (event, data) => {
     console.log('Book Details:', bookDetails);
     console.log('Borrow Records:', borrowRecords);
 });
+
 ipcMain.handle('exportBorrowRecords', async (event, enrichedRecords) => {
     try {
         if (enrichedRecords.length === 0) {
@@ -2075,41 +2076,67 @@ ipcMain.on('open-edit-profile-window', (event, record) => {
 
 //SETTINGS
 //BACKUP & RESTORE EXCEL FILES
-// Export Profiles to Excel (excluding Profile ID)
+// Export Profiles to Excel
 ipcMain.handle('exportProfilesToExcel', async () => {
     try {
-        const profiles = await executeSelectQuery('SELECT * FROM Profiles');
+        const profiles = await executeSelectQuery('SELECT * FROM Profiles WHERE is_deleted = 0'); // Exclude deleted profiles
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Borrower Profiles');
 
-        // Define headers without Profile ID
-        const headers = [
-            { header: 'Borrower ID', key: 'borrower_id', width: 15 },
-            { header: 'Name', key: 'name', width: 30 },
-            { header: 'Phone Number', key: 'phone_number', width: 20 },
-            { header: 'Email Address', key: 'email', width: 30 }
-        ];
+        // Create Borrower Profiles sheet
+        const profilesSheet = workbook.addWorksheet('Borrower Profiles');
 
-        worksheet.columns = headers;
+        // Add title to Borrower Profiles sheet
+        profilesSheet.mergeCells('A1:D1');
+        profilesSheet.getCell('A1').value = 'BORROWER PROFILES';
+        profilesSheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+        profilesSheet.getCell('A1').font = { bold: true, size: 14 };
 
-        let lastProfileID = 0; // Track Profile ID for incrementing
+        // Add headers to Borrower Profiles sheet
+        const headers = ['Borrower ID', 'Name', 'Phone Number', 'Email Address'];
+        profilesSheet.addRow(headers);
 
-        const borrowerIDSet = new Set();
-
-        profiles.forEach(profile => {
-            // Increment Profile ID if it's a new Borrower ID
-            if (!borrowerIDSet.has(profile.borrower_id)) {
-                borrowerIDSet.add(profile.borrower_id);
-                lastProfileID++;
-            }
-
-            worksheet.addRow({
-                borrower_id: profile.borrower_id,
-                name: profile.name,
-                phone_number: profile.phone_number,
-                email: profile.email
-            });
+        // Format headers
+        const headerRow = profilesSheet.getRow(2);
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
+
+        // Adjust column widths
+        profilesSheet.getColumn(1).width = 15; // Borrower ID
+        profilesSheet.getColumn(2).width = 30; // Name
+        profilesSheet.getColumn(3).width = 20; // Phone Number
+        profilesSheet.getColumn(4).width = 30; // Email Address
+
+        // Add profile data
+        profiles.forEach(profile => {
+            profilesSheet.addRow([
+                profile.borrower_id,
+                profile.name,
+                profile.phone_number,
+                profile.email
+            ]);
+        });
+
+        // Create Summary sheet
+        const summarySheet = workbook.addWorksheet('Summary');
+
+        // Add title to Summary sheet
+        summarySheet.mergeCells('A1:B1');
+        summarySheet.getCell('A1').value = 'SUMMARY';
+        summarySheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+        summarySheet.getCell('A1').font = { bold: true, size: 14 };
+
+       // Set column widths in the Summary sheet
+       summarySheet.getColumn(1).width = 30; // Set width for "Registered Borrowers Total" label column
+       summarySheet.getColumn(2).width = 15; // Set width for the count column       
+
+        // Add summary data with proper spacing and alignment
+        summarySheet.addRow([' ', ' ']); // Add an empty row for spacing
+        const summaryRow = summarySheet.addRow(['Registered Borrowers Total:', profiles.length]);
+        summaryRow.getCell(1).font = { bold: true }; // Bold the label
+        summaryRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' }; // Right-align the label
+        summaryRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' }; // Center-align the count
 
         const { filePath } = await dialog.showSaveDialog({
             title: 'Save Excel File',
@@ -2119,7 +2146,7 @@ ipcMain.handle('exportProfilesToExcel', async () => {
 
         if (filePath) {
             await workbook.xlsx.writeFile(filePath);
-            return { message: 'Profiles exported successfully!' };
+            return { message: 'Profiles and summary exported successfully!' };
         }
 
         return { message: 'Export canceled.' };
@@ -2128,6 +2155,7 @@ ipcMain.handle('exportProfilesToExcel', async () => {
         return { message: 'Error exporting profiles.' };
     }
 });
+
 
 // Import Profiles from Excel 
 ipcMain.handle('importProfilesFromExcel', async () => {
@@ -2220,6 +2248,9 @@ ipcMain.handle('importProfilesFromExcel', async () => {
         return { message: 'Error importing profiles.' };
     }
 });
+
+
+
 
 //GENERATE REPORTS
 // + REPORTS
@@ -2419,23 +2450,24 @@ ipcMain.handle('importBooksFromExcel', async () => {
             }
 
             const book = {
-                id: row.getCell(1).value,                // Excel Column: "ID"
-                number: row.getCell(2).value,            // Excel Column: "Book Number"
-                date_received: row.getCell(3).value,     // Excel Column: "Date Received"
-                class: row.getCell(4).value,             // Excel Column: "Class"
-                author: row.getCell(5).value,            // Excel Column: "Author"
-                title_of_book: title_of_book,             // Required Title
-                edition: row.getCell(7).value,           // Excel Column: "Edition"
-                source_of_fund: row.getCell(8).value,    // Excel Column: "Source of Fund"
-                cost_price: row.getCell(9).value,        // Excel Column: "Cost Price"
-                publisher: row.getCell(10).value,        // Excel Column: "Publisher"
-                year: row.getCell(11).value,             // Excel Column: "Year"
-                remarks: row.getCell(12).value,          // Excel Column: "Remarks"
-                volume: row.getCell(13).value,           // Excel Column: "Volume"
-                pages: row.getCell(14).value,            // Excel Column: "Pages"
-                condition: row.getCell(15).value,        // Excel Column: "Condition"
-                createdAt: row.getCell(16).value         // Excel Column: "Created At"
+                id: row.getCell(1).value ?? '',                // Excel Column: "ID"
+                number: row.getCell(2).value ?? '',            // Excel Column: "Book Number"
+                date_received: row.getCell(3).value ?? '',     // Excel Column: "Date Received"
+                class: row.getCell(4).value ?? '',             // Excel Column: "Class"
+                author: row.getCell(5).value ?? '',            // Excel Column: "Author"
+                title_of_book: title_of_book ?? '',            // Required Title
+                edition: row.getCell(7).value ?? '',           // Excel Column: "Edition"
+                source_of_fund: row.getCell(8).value ?? '',    // Excel Column: "Source of Fund"
+                cost_price: row.getCell(9).value ?? '',        // Excel Column: "Cost Price"
+                publisher: row.getCell(10).value ?? '',        // Excel Column: "Publisher"
+                year: row.getCell(11).value ?? '',             // Excel Column: "Year"
+                remarks: row.getCell(12).value ?? '',          // Excel Column: "Remarks"
+                volume: row.getCell(13).value ?? '',           // Excel Column: "Volume"
+                pages: row.getCell(14).value ?? '',            // Excel Column: "Pages"
+                condition: row.getCell(15).value ?? '',        // Excel Column: "Condition"
+                createdAt: row.getCell(16).value ?? ''         // Excel Column: "Created At"
             };
+            
 
             // Check if the Book ID already exists
             if (book.id) {
@@ -2505,6 +2537,8 @@ ipcMain.handle('importBooksFromExcel', async () => {
 });
 
 
+
+
 // GENERATE REPORTS
 let reportsWindow = null; // Initialize the reportsWindow variable
 
@@ -2540,7 +2574,6 @@ function createReportsWindow() {
         reportsWindow.focus(); // Focus on the existing window if it's already open
     }
 }
-
 
 // Books Availability
 ipcMain.handle('checkBooksAvailability', async () => {
@@ -2664,8 +2697,6 @@ ipcMain.handle('checkBooksAvailability', async () => {
     }
 });
 
-
-
 // Borrowing Details - Handle generating reports based on time period and category
 // Define function to get SQL time condition based on borrowDate and selected time period
 function getTimePeriodCondition(timePeriod) {
@@ -2689,6 +2720,7 @@ function getTimePeriodCondition(timePeriod) {
 
     return condition;
 }
+
 ipcMain.handle('generateReport', async (event, timePeriod, category) => {
     try {
         console.log(`Generating report for time period: ${timePeriod}, category: ${category}`);

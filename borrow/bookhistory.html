@@ -85,21 +85,6 @@
             </a>
 
             <h2 id="bookTitle">Loading book title...</h2>
-            <p id="bookDetails">Book ID</p>
-            <p id="bookNumber"></p>
-            <p id="dateReceived"></p>
-            <p id="author"></p>
-            <p id="edition"></p>
-            <p id="sourceOfFund"></p>
-            <p id="costPrice"></p>
-            <p id="publisher"></p>
-            <p id="year"></p>
-            <p id="remarks"></p>
-            <p id="volume"></p>
-            <p id="pages"></p>
-            <p id="condition"></p>
-            <p id="class"></p>
-
             <h1>Book Borrowing History</h1>
 
             <!-- Filters Section -->
@@ -117,6 +102,46 @@
                 </div>
             </div>
 
+
+
+            
+
+            <div class="tab-content mt-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#bookDetailsTab">Book Details</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#statusTab">Status</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+                    <div id="bookDetailsTab" class="tab-pane fade show active">
+                        <!-- Book Details Content -->
+                        <table class="table">
+
+                            <p id="bookDetails">Book ID</p>
+                            <p id="bookNumber"></p>
+                            <p id="dateReceived"></p>
+                            <p id="author"></p>
+                            <p id="edition"></p>
+                            <p id="sourceOfFund"></p>
+                            <p id="costPrice"></p>
+                            <p id="publisher"></p>
+                            <p id="year"></p>
+                            <p id="remarks"></p>
+                            <p id="volume"></p>
+                            <p id="pages"></p>
+                            <p id="condition"></p>
+                            <p id="class"></p>
+
+                        </table>
+                    </div>
+
+                    <div id="statusTab" class="tab-pane fade">
+                        <!-- Status Content -->
+                       
             <table id="statusTable">
                 <thead>
                     <tr id="statusRow">
@@ -144,6 +169,11 @@
                     <!-- Content will be loaded by JavaScript -->
                 </tbody>
             </table>
+                    </div>
+                </div>
+            </div>
+
+
 
   
 <!-- Pagination Controls -->
