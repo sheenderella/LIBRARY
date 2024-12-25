@@ -1,20 +1,26 @@
 {
   "devDependencies": {
     "@electron/packager": "^18.3.6",
-    "electron": "^32.1.2",
+    "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
+    "electron-packager": "^17.1.2",
     "electron-rebuild": "^3.2.9"
   },
   "name": "library",
   "version": "1.0.0",
   "main": "main.js",
   "build": {
-    "appId": "library",
-    "mac": {
-      "target": "dmg"
-    }
-  },
-
+    "appId": "ZGLAWLIBRARY",
+"productName": "ZGLAW LIBRARY",
+  "mac": {
+    "target": [
+      "dmg",
+      "zip"
+    ],
+    "category": "public.app-category.utilities",
+    "icon": "logo/logo.svg"
+  }
+},
   "dependencies": {
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.3.0",
@@ -99,7 +105,8 @@
   },
   "scripts": {
     "start": "electron .",
-    "build:mac": "electron-builder --mac",
+    "build": "electron-builder",
+    "package-mac": "electron-packager . ZGLAWLIBRARY --platform=darwin --arch=x64 --out=dist --overwrite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
