@@ -10,17 +10,17 @@
   "version": "1.0.0",
   "main": "main.js",
   "build": {
-    "appId": "ZGLAWLIBRARY",
-"productName": "ZGLAW LIBRARY",
-  "mac": {
-    "target": [
-      "dmg",
-      "zip"
-    ],
-    "category": "public.app-category.utilities",
-    "icon": "logo/logo.svg"
-  }
-},
+    "appId": "GRUBALIBRARY",
+    "productName": "GRUBA LIBRARY",
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities",
+      "icon": "logo/logo.svg"
+    }
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.3.0",

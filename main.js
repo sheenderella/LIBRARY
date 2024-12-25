@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron');
 const path = require('path');
 const db = require('./database.js');
-
 const sqlite3 = require('sqlite3').verbose();;
 const fs = require('fs');
 const ExcelJS = require('exceljs'); 
