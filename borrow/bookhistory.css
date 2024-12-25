@@ -286,9 +286,44 @@ h1 {
     margin-top: 1rem;
     margin-left: 15px;
 }
+
+.table {
+    border: none;  /* Remove the table border */
+    width: 100%;  /* Ensure the table takes the full width of the container */
+}
+
+.table td {
+    padding: 8px;  /* Adjust padding for readability */
+    font-weight: normal;  /* Ensure the text is not bold */
+    word-wrap: break-word;  /* Allow long words to wrap within the table cell */
+}
+
+.label {
+    font-weight: bold !important;  /* Default font weight, can be adjusted */
+    font-size: 14px;
+    width: 200px;  /* Set a fixed width for labels */
+    white-space: nowrap;  /* Prevent label text from wrapping */
+}
+
+.table td {
+    word-wrap: break-word;  /* Ensure content wraps in the table cells */
+    min-width: 150px;  /* Set minimum width for the data cells */
+}
+
+
+.nav-tabs .nav-link {
+    color: #30688B;  /* Change this to your preferred default font color */
+}
+
+
 .nav-tabs .nav-link.active {
-    background-color: #0d6efd;
+    background-color: #30688B;
     color: #fff;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #3A79A0;  /* Change this to your preferred hover color */
+    color: #fff;  /* Keep the text color white on hover */
 }
 
 

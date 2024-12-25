@@ -66,19 +66,19 @@ async function displayBookDetails() {
         try {
             const bookDetails = await ipcRenderer.invoke('fetch-book-details', bookId);
             if (bookDetails) {
-                document.getElementById('bookNumber').innerText = `Number: ${bookDetails.number || 'N/A'}`;
-                document.getElementById('dateReceived').innerText = `Date Received: ${bookDetails.date_received || 'N/A'}`;
-                document.getElementById('author').innerText = `Author: ${bookDetails.author || 'N/A'}`;
-                document.getElementById('edition').innerText = `Edition: ${bookDetails.edition || 'N/A'}`;
-                document.getElementById('sourceOfFund').innerText = `Source of Fund: ${bookDetails.source_of_fund || 'N/A'}`;
-                document.getElementById('costPrice').innerText = `Cost Price: ${bookDetails.cost_price || 'N/A'}`;
-                document.getElementById('publisher').innerText = `Publisher: ${bookDetails.publisher || 'N/A'}`;
-                document.getElementById('year').innerText = `Year: ${bookDetails.year || 'N/A'}`;
-                document.getElementById('remarks').innerText = `Remarks: ${bookDetails.remarks || 'N/A'}`;
-                document.getElementById('volume').innerText = `Volume: ${bookDetails.volume || 'N/A'}`;
-                document.getElementById('pages').innerText = `Pages: ${bookDetails.pages || 'N/A'}`;
-                document.getElementById('condition').innerText = `Condition: ${bookDetails.condition || 'N/A'}`;
-                document.getElementById('class').innerText = `Class: ${bookDetails.class || 'N/A'}`;
+                document.getElementById('bookNumber').innerText = `${bookDetails.number || 'N/A'}`;
+                document.getElementById('dateReceived').innerText = ` ${bookDetails.date_received || 'N/A'}`;
+                document.getElementById('author').innerText = `${bookDetails.author || 'N/A'}`;
+                document.getElementById('edition').innerText = `${bookDetails.edition || 'N/A'}`;
+                document.getElementById('sourceOfFund').innerText = `${bookDetails.source_of_fund || 'N/A'}`;
+                document.getElementById('costPrice').innerText = ` ${bookDetails.cost_price || 'N/A'}`;
+                document.getElementById('publisher').innerText = ` ${bookDetails.publisher || 'N/A'}`;
+                document.getElementById('year').innerText = `${bookDetails.year || 'N/A'}`;
+                document.getElementById('remarks').innerText = `${bookDetails.remarks || 'N/A'}`;
+                document.getElementById('volume').innerText = `${bookDetails.volume || 'N/A'}`;
+                document.getElementById('pages').innerText = `${bookDetails.pages || 'N/A'}`;
+                document.getElementById('condition').innerText = `${bookDetails.condition || 'N/A'}`;
+                document.getElementById('class').innerText = `${bookDetails.class || 'N/A'}`;
             } else {
                 console.error('Book details not found');
             }
@@ -110,26 +110,26 @@ async function displayBookDetails() {
 
     // Set the book title and ID in the HTML
     document.getElementById('bookTitle').innerText = bookTitle || 'No title available';
-    document.getElementById('bookDetails').innerText = `Book ID: ${bookId || 'No ID available'}`;
+    document.getElementById('bookDetails').innerText = `${bookId || ''}`;
 
     // Fetch additional details for the book using the bookId
     if (bookId) {
         try {
             const bookDetails = await ipcRenderer.invoke('fetch-book-details', bookId);
             if (bookDetails) {
-                document.getElementById('bookNumber').innerText = `Number: ${bookDetails.number || 'N/A'}`;
-                document.getElementById('dateReceived').innerText = `Date Received: ${bookDetails.date_received || 'N/A'}`;
-                document.getElementById('author').innerText = `Author: ${bookDetails.author || 'N/A'}`;
-                document.getElementById('edition').innerText = `Edition: ${bookDetails.edition || 'N/A'}`;
-                document.getElementById('sourceOfFund').innerText = `Source of Fund: ${bookDetails.source_of_fund || 'N/A'}`;
-                document.getElementById('costPrice').innerText = `Cost Price: ${bookDetails.cost_price || 'N/A'}`;
-                document.getElementById('publisher').innerText = `Publisher: ${bookDetails.publisher || 'N/A'}`;
-                document.getElementById('year').innerText = `Year: ${bookDetails.year || 'N/A'}`;
-                document.getElementById('remarks').innerText = `Remarks: ${bookDetails.remarks || 'N/A'}`;
-                document.getElementById('volume').innerText = `Volume: ${bookDetails.volume || 'N/A'}`;
-                document.getElementById('pages').innerText = `Pages: ${bookDetails.pages || 'N/A'}`;
-                document.getElementById('condition').innerText = `Condition: ${bookDetails.condition || 'N/A'}`;
-                document.getElementById('class').innerText = `Class: ${bookDetails.class || 'N/A'}`;
+                document.getElementById('bookNumber').innerText = `${bookDetails.number || ''}`;
+                document.getElementById('dateReceived').innerText = `${bookDetails.date_received || ''}`;
+                document.getElementById('author').innerText = `${bookDetails.author || ''}`;
+                document.getElementById('edition').innerText = `${bookDetails.edition || ''}`;
+                document.getElementById('sourceOfFund').innerText = `${bookDetails.source_of_fund || ''}`;
+                document.getElementById('costPrice').innerText = `${bookDetails.cost_price || ''}`;
+                document.getElementById('publisher').innerText = `${bookDetails.publisher || ''}`;
+                document.getElementById('year').innerText = `${bookDetails.year || ''}`;
+                document.getElementById('remarks').innerText = `${bookDetails.remarks || ''}`;
+                document.getElementById('volume').innerText = `${bookDetails.volume || ''}`;
+                document.getElementById('pages').innerText = `${bookDetails.pages || ''}`;
+                document.getElementById('condition').innerText = `${bookDetails.condition || ''}`;
+                document.getElementById('class').innerText = `${bookDetails.class || ''}`;
             } else {
                 console.error('Book details not found');
             }
