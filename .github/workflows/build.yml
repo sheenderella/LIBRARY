@@ -37,6 +37,26 @@ jobs:
       - name: List dist directory
         run: ls -R dist
 
+      # Archive .app file for macOS
+      - name: Archive macOS .app into .zip
+        run: |
+          APP_DIR=$(find dist/ -type d -name "*.app" | head -n 1)
+          if [ -z "$APP_DIR" ]; then
+            echo "Error: No .app file found!"
+            exit 1
+          fi
+          zip -r dist/Gruba-Law-Library-macOS.zip "$APP_DIR"
+        
+      # Archive .exe file for Windows
+      - name: Archive Windows .exe into .zip
+        run: |
+          EXE_FILE=$(find dist/ -type f -name "*.exe" | head -n 1)
+          if [ -z "$EXE_FILE" ]; then
+            echo "Error: No .exe file found!"
+            exit 1
+          fi
+          zip -r dist/Gruba-Law-Library-Windows.zip "$EXE_FILE"
+
       # Create GitHub Release
       - name: Create GitHub Release
         id: create_release
