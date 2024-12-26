@@ -124,10 +124,10 @@ jobs:
       # Archive the .exe file into a .zip archive
       - name: Archive .exe into .zip
         run: |
-          ZIP_FILE="dist/Gruba-Law-Library-Windows.zip"
-          EXE_DIR="${{ env.exe_path }}"
-          echo "Zipping the .exe file from: $EXE_DIR"
-          powershell Compress-Archive -Path "$EXE_DIR" -DestinationPath "$ZIP_FILE"
+          $ZIP_FILE = "dist/Gruba-Law-Library-Windows.zip"
+          $EXE_DIR = $env:exe_path
+          Write-Host "Zipping the .exe file from: $EXE_DIR"
+          Compress-Archive -Path $EXE_DIR -DestinationPath $ZIP_FILE
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
 
       # Upload Windows .exe Release Asset
