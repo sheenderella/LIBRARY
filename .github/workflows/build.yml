@@ -110,7 +110,7 @@ jobs:
       - name: Debug dist directory
         run: dir dist
 
-  # Find and verify .exe file existence
+      # Find and verify .exe file existence
       - name: Verify .exe file existence
         run: |
           $EXE_FILE = Get-ChildItem -Recurse -Filter *.exe -Path dist | Select-Object -First 1
@@ -124,6 +124,11 @@ jobs:
       # Archive the .exe file into a .zip archive
       - name: Archive .exe into .zip
         run: |
+          # Check the contents of the dist directory
+          Write-Host "Listing contents of dist/ directory:"
+          Get-ChildItem -Recurse -Path dist
+
+          # Ensure EXE_FILE is correctly set
           $ZIP_FILE = "dist/Gruba-Law-Library-Windows.zip"
           $EXE_DIR = $env:exe_path
 
