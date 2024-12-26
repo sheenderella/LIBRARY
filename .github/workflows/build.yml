@@ -126,37 +126,25 @@ jobs:
         run: |
           if ($env:COMPUTERNAME) {
             # PowerShell-specific code
-            $ZIP_FILE = "dist/Gruba-Law-Library-windows.zip"
+            $ZIP_FILE = "dist/Gruba-Law-Library-Windows.zip"
             $EXE_FILE = "dist\win-unpacked\gruba-law-library.exe"
             echo "Zipping the .exe file from: $EXE_FILE"
             Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
           } else {
             # CMD-specific code
-            set ZIP_FILE=dist\Gruba-Law-Library-windows.zip
+            set ZIP_FILE=dist\Gruba-Law-Library-Windows.zip
             set EXE_FILE=dist\win-unpacked\gruba-law-library.exe
             echo Zipping the .exe file from: %EXE_FILE%
             powershell -Command "Compress-Archive -Path '%EXE_FILE%' -DestinationPath '%ZIP_FILE%'"
           }
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
-  
-      # Create GitHub Release
-      - name: Upload Windows .exe Release Asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: https://uploads.github.com/repos/sheenderella/LIBRARY/releases/192370446/assets{?name,label}
-          asset_path: dist/Gruba-Law-Library-Windows.zip  # Add the correct path to the asset
-          asset_name: Gruba-Law-Library-Windows.zip
-          asset_content_type: application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.zip_file }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use dynamic upload URL from create_release step
+          asset_path: dist/Gruba-Law-Library-Windows.zip
           asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
         env:
