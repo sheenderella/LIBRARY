@@ -46,6 +46,14 @@ jobs:
           echo "Found macOS .app: $APP_FILE"
           echo "app_path=$APP_FILE" >> $GITHUB_ENV
 
+      # Archive .app into a .zip file
+      - name: Archive .app into .zip
+        run: |
+          ZIP_FILE="dist/Gruba-Law-Library-macOS.zip"
+          APP_DIR="${{ env.app_path }}"
+          zip -r $ZIP_FILE $APP_DIR
+          echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
+
       # Create GitHub Release
       - name: Create GitHub Release
         id: create_release
@@ -61,13 +69,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload macOS .app Release Asset
+      # Upload macOS .app Release Asset (as .zip)
       - name: Upload macOS .app Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.app_path }}
-          asset_name: Gruba-Law-Library-macOS.app
-          asset_content_type: application/x-mac-app
+          asset_path: ${{ env.zip_file }}
+          asset_name: Gruba-Law-Library-macOS.zip
+          asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
