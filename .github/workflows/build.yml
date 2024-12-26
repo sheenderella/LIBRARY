@@ -71,7 +71,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GRUBA_LAW_LIBRARY }}
 
       # Upload macOS .app Release Asset
       - name: Upload macOS .app Release Asset
