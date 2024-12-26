@@ -26,7 +26,7 @@ jobs:
         run: |
           npm install
           npm install -g electron-builder
-
+          
       # Build the .app file for macOS
       - name: Build .app for macOS
         run: npx electron-builder --mac dir
@@ -45,7 +45,7 @@ jobs:
           fi
           echo "Found macOS .app: $APP_FILE"
           echo "app_path=$APP_FILE" >> $GITHUB_ENV
-
+          
       # Archive the .app file into a .zip archive
       - name: Archive .app into .zip
         run: |
@@ -81,9 +81,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Save the upload_url as an artifact for use in other jobs
+      - name: Save upload_url as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-upload-url
+          path: ${{ steps.create_release.outputs.upload_url }}
+
   windows_build:
     runs-on: windows-latest
-  
+    needs: build  # Make this job depend on the "build" job to ensure it runs afterward
+
     steps:
       # Checkout the repository
       - name: Checkout Code
@@ -101,7 +109,7 @@ jobs:
         run: |
           npm install
           npm install -g electron-builder
-  
+          
       # Build the .exe file for Windows
       - name: Build .exe for Windows
         run: npx electron-builder --win dir
@@ -120,31 +128,32 @@ jobs:
           }
           Write-Host "Found Windows .exe: $($EXE_FILE.FullName)"
           echo "exe_path=$($EXE_FILE.FullName)" >> $GITHUB_ENV
-  
+          
       # Archive the .exe file into a .zip archive
       - name: Archive .exe into .zip
         run: |
-          if ($env:COMPUTERNAME) {
-            # PowerShell-specific code
-            $ZIP_FILE = "dist/Gruba-Law-Library-Windows.zip"
-            $EXE_FILE = "dist\win-unpacked\gruba-law-library.exe"
-            echo "Zipping the .exe file from: $EXE_FILE"
-            Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
-          } else {
-            # CMD-specific code
-            set ZIP_FILE=dist\Gruba-Law-Library-Windows.zip
-            set EXE_FILE=dist\win-unpacked\gruba-law-library.exe
-            echo Zipping the .exe file from: %EXE_FILE%
-            powershell -Command "Compress-Archive -Path '%EXE_FILE%' -DestinationPath '%ZIP_FILE%'"
-          }
+          $ZIP_FILE = "dist/Gruba-Law-Library-Windows.zip"
+          $EXE_FILE = "dist\win-unpacked\gruba-law-library.exe"
+          echo "Zipping the .exe file from: $EXE_FILE"
+          Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
+          
+      # Download the upload_url artifact from the "build" job
+      - name: Download upload_url artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: release-upload-url
+
+      # Set the upload_url variable from the downloaded artifact
+      - name: Set upload_url environment variable
+        run: echo "UPLOAD_URL=$(cat release-upload-url)" >> $GITHUB_ENV
 
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use dynamic upload URL from create_release step
-          asset_path: ${{ env.zip_file }}
+          upload_url: ${{ env.UPLOAD_URL }}  # Use the downloaded URL
+          asset_path: dist/Gruba-Law-Library-Windows.zip
           asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
         env:
