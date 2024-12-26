@@ -26,15 +26,19 @@ jobs:
         run: npm install
 
       # Build .app for macOS
-      - name: Build .app
+      - name: Build .app for macOS
         run: npx electron-builder --mac dir
 
-      # List dist directory to ensure the .app file exists
+      # Build .exe for Windows
+      - name: Build .exe for Windows
+        run: npx electron-builder --win dir
+
+      # List dist directory to ensure the files exist
       - name: List dist directory
         run: ls -R dist
 
-      # Archive the .app file if it's found
-      - name: Archive .app
+      # Archive the .app file (macOS)
+      - name: Archive .app for macOS
         run: |
           APP_DIR=$(find dist/ -type d -name "*.app" | head -n 1)
           if [ -z "$APP_DIR" ]; then
@@ -42,7 +46,18 @@ jobs:
             exit 1
           fi
           echo "Found app directory: $APP_DIR"
-          zip -r dist/Gruba-Law-Library.zip "$APP_DIR"
+          zip -r dist/Gruba-Law-Library-macOS.zip "$APP_DIR"
+
+      # Archive the .exe file (Windows)
+      - name: Archive .exe for Windows
+        run: |
+          EXE_FILE=$(find dist/ -type f -name "*.exe" | head -n 1)
+          if [ -z "$EXE_FILE" ]; then
+            echo "Error: No .exe file found!"
+            exit 1
+          fi
+          echo "Found .exe file: $EXE_FILE"
+          zip -r dist/Gruba-Law-Library-Windows.zip "$EXE_FILE"
 
       # Create a GitHub release
       - name: Create Release
@@ -52,31 +67,26 @@ jobs:
           tag_name: v1.0.0
           release_name: GRUBA LAW LIBRARY v1.0.0
           body: |
-            🎉 Initial release of the Gruba Law Library app for macOS! Download the `.app` file below or the source code.
+            🎉 Initial release of the Gruba Law Library app for macOS and Windows! Download the `.app` or `.exe` file below.
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload the .zip file containing the .app file as a release asset
-      - name: Upload .app Release Asset
+      # Upload macOS .app Release Asset
+      - name: Upload macOS .app Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/Gruba-Law-Library.zip
-          asset_name: Gruba-Law-Library.zip
+          asset_path: dist/Gruba-Law-Library-macOS.zip
+          asset_name: Gruba-Law-Library-macOS.zip
           asset_content_type: application/zip
 
-      # Create a ZIP of the source code
-      - name: Archive Source Code
-        run: |
-          zip -r dist/Gruba-Law-Library-Source.zip .  # This zips the entire source code
-
-      # Upload the source code as a separate release asset
-      - name: Upload Source Code
+      # Upload Windows .exe Release Asset
+      - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/Gruba-Law-Library-Source.zip
-          asset_name: Gruba-Law-Library-Source.zip
+          asset_path: dist/Gruba-Law-Library-Windows.zip
+          asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
