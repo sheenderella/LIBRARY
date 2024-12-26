@@ -8,7 +8,7 @@
   "appId": "com.example.grubalibrary",
   "mac": {
     "category": "public.app-category.utilities",
-    "target": "dmg"
+    "target": ["dir"]
   },
   "publish": null
 
