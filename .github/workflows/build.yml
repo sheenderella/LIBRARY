@@ -29,17 +29,21 @@ jobs:
       - name: Build .app
         run: npx electron-builder --mac dir
 
+      # List dist directory to ensure the .app file exists
+      - name: List dist directory
+        run: ls -R dist
+
       # Archive the .app file
       - name: Archive .app
         run: |
           APP_DIR=$(find dist/ -type d -name "*.app" | head -n 1)
           echo "Found app directory: $APP_DIR"
-          zip -r Gruba-Law-Library.zip "$APP_DIR"
+          zip -r dist/Gruba-Law-Library.zip "$APP_DIR"
 
       # Create a GitHub release and upload the .zip
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: actions/create-release@v1.2
         with:
           tag_name: v1.0.${{ github.run_number }}
           release_name: GRUBA LAW LIBRARY v1.0.${{ github.run_number }}
