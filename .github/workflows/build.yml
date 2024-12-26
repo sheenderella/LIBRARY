@@ -144,7 +144,7 @@ jobs:
         with:
           name: release-upload-url
 
-      # Set the upload_url variable from the downloaded artifact
+      # Set the upload_url environment variable
       - name: Set upload_url environment variable
         run: echo "UPLOAD_URL=$(cat release-upload-url)" >> $GITHUB_ENV
 
