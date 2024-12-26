@@ -8,7 +8,20 @@
   "appId": "com.example.grubalibrary",
   "mac": {
     "category": "public.app-category.utilities",
-    "target": ["dir"]
+    "target": [
+      {
+        "target": "zip",
+        "arch": ["x64", "arm64"]
+      }
+    ]
+  },
+  "win": {
+    "target": [
+      {
+        "target": "zip",
+        "arch": ["x64"]
+      }
+    ]
   },
   "publish": null
 },

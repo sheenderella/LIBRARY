@@ -27,26 +27,15 @@ jobs:
 
       # Build .app for macOS
       - name: Build .app for macOS
-        run: npx electron-builder --mac dir
+        run: npx electron-builder --mac
 
       # Build .exe for Windows
       - name: Build .exe for Windows
-        run: npx electron-builder --win dir
+        run: npx electron-builder --win
 
-      # List dist directory
-      - name: List dist directory
+      # Debug dist directory to verify files
+      - name: Debug dist directory
         run: ls -R dist
-
-      # Archive .app file for macOS
-      - name: Archive .app for macOS
-        run: |
-          APP_DIR=$(find dist/ -type d -name "*.app" | head -n 1)
-          if [ -z "$APP_DIR" ]; then
-            echo "Error: No .app file found!"
-            exit 1
-          fi
-          echo "Found app directory: $APP_DIR"
-          zip -r dist/Gruba-Law-Library-macOS.zip "$APP_DIR"
 
       # Create GitHub Release
       - name: Create GitHub Release
@@ -58,23 +47,29 @@ jobs:
           body: |
             🎉 Initial release of the Gruba Law Library app for macOS and Windows!
             Download the `.app` or `.exe` file below.
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload macOS Release Asset
-      - name: Upload macOS Release Asset
+      # Upload macOS .app Release Asset
+      - name: Upload macOS .app Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: dist/Gruba-Law-Library-macOS.zip
           asset_name: Gruba-Law-Library-macOS.zip
           asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload Windows Release Asset
-      - name: Upload Windows Release Asset
+      # Upload Windows .exe Release Asset
+      - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: dist/Gruba-Law-Library-Windows.zip
           asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
