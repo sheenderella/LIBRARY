@@ -25,19 +25,25 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Build and package for macOS
+      # Build .app for macOS
       - name: Build .app
         run: npx electron-builder --mac dir
 
-      # Archive the .app file
+      # Check the dist directory and list files
+      - name: List dist directory
+        run: ls -R dist
+
+      # Archive the .app file (check the output folder first)
       - name: Archive .app
         run: |
-          cd dist/mac
-          zip -r Gruba-Law-Library.zip "Gruba Law Library.app"
+          # Adjust path if necessary, based on the output directory structure
+          APP_DIR=$(find dist/ -type d -name "*.app" | head -n 1)
+          echo "Found app directory: $APP_DIR"
+          zip -r Gruba-Law-Library.zip "$APP_DIR"
 
       # Upload the .zip as an artifact
       - name: Upload Build
         uses: actions/upload-artifact@v4
         with:
           name: macOS-build
-          path: dist/mac/Gruba-Law-Library.zip
+          path: dist/Gruba-Law-Library.zip
