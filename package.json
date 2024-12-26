@@ -9,7 +9,9 @@
   "mac": {
     "category": "public.app-category.utilities",
     "target": "dmg"
-  }
+  },
+  "publish": null
+
 },
 
 
