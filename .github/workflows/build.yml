@@ -33,6 +33,28 @@ jobs:
       - name: Build .exe for Windows
         run: npx electron-builder --win dir
 
+      # Create macOS .zip File
+      - name: Archive .app for macOS
+        run: |
+          APP_DIR=$(find dist/ -type d -name "*.app" | head -n 1)
+          if [ -z "$APP_DIR" ]; then
+            echo "Error: No .app file found!"
+            exit 1
+          fi
+          echo "Found app directory: $APP_DIR"
+          zip -r dist/Gruba-Law-Library-macOS.zip "$APP_DIR"
+
+      # Create Windows .zip File
+      - name: Archive .exe for Windows
+        run: |
+          EXE_FILE=$(find dist/ -type f -name "*.exe" | head -n 1)
+          if [ -z "$EXE_FILE" ]; then
+            echo "Error: No .exe file found!"
+            exit 1
+          fi
+          echo "Found .exe file: $EXE_FILE"
+          zip -r dist/Gruba-Law-Library-Windows.zip "$EXE_FILE"
+
       # List dist directory
       - name: List dist directory
         run: ls -R dist
