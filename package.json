@@ -1,39 +1,33 @@
 {
-  "devDependencies": {
-    "@electron/packager": "^18.3.6",
-    "electron": "^33.2.1",
-    "electron-builder": "^25.1.8",
-    "electron-packager": "^17.1.2",
-    "electron-rebuild": "^3.2.9"
-  },
-  "name": "library",
+  "name": "gruba-law-library",
   "version": "1.0.0",
+  "description": "a library management system",
   "main": "main.js",
+
   "build": {
-    "appId": "GRUBALIBRARY",
-    "productName": "GRUBA LIBRARY",
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "category": "public.app-category.utilities",
-      "icon": "logo/logo.svg"
-    }
+  "appId": "gruba.law.library",
+  "mac": {
+    "category": "library",
+    "target": "dmg"
+  }
+},
+
+
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
-    "better-sqlite3": "^11.3.0",
     "boolean": "^3.2.0",
     "buffer-crc32": "^0.2.13",
     "cacheable-lookup": "^5.0.4",
     "cacheable-request": "^7.0.4",
-    "canvas": "^2.11.2",
-    "chart.js": "^3.5.1",
-    "chartjs-node-canvas": "^4.1.6",
     "clone-response": "^1.0.3",
-    "daterangepicker": "^3.1.0",
-    "debug": "^4.3.5",
+    "debug": "^4.4.0",
     "decompress-response": "^6.0.0",
     "defer-to-connect": "^2.0.1",
     "define-data-property": "^1.1.4",
@@ -41,31 +35,23 @@
     "detect-node": "^2.1.0",
     "end-of-stream": "^1.4.4",
     "env-paths": "^2.2.1",
-    "es-define-property": "^1.0.0",
+    "es-define-property": "^1.0.1",
     "es-errors": "^1.3.0",
     "es6-error": "^4.1.1",
     "escape-string-regexp": "^4.0.0",
     "exceljs": "^4.4.0",
     "extract-zip": "^2.0.1",
     "fd-slicer": "^1.1.0",
-    "flatpickr": "^4.6.13",
     "fs-extra": "^8.1.0",
-    "function-bind": "^1.1.2",
-    "get-intrinsic": "^1.2.4",
     "get-stream": "^5.2.0",
     "global-agent": "^3.0.0",
     "globalthis": "^1.0.4",
-    "google-charts": "^2.0.0",
-    "gopd": "^1.0.1",
+    "gopd": "^1.2.0",
     "got": "^11.8.6",
     "graceful-fs": "^4.2.11",
     "has-property-descriptors": "^1.0.2",
-    "has-proto": "^1.0.3",
-    "has-symbols": "^1.0.3",
-    "hasown": "^2.0.2",
     "http-cache-semantics": "^4.1.1",
     "http2-wrapper": "^1.0.3",
-    "jquery": "^3.7.1",
     "json-buffer": "^3.0.1",
     "json-stringify-safe": "^5.0.1",
     "jsonfile": "^4.0.0",
@@ -73,19 +59,15 @@
     "lowercase-keys": "^2.0.0",
     "matcher": "^3.0.0",
     "mimic-response": "^1.0.1",
-    "moment": "^2.30.1",
-    "ms": "^2.1.2",
+    "ms": "^2.1.3",
     "normalize-url": "^6.1.0",
     "object-keys": "^1.1.1",
-    "officegen": "^0.6.5",
     "once": "^1.4.0",
     "p-cancelable": "^2.1.1",
-    "pdfkit": "^0.15.0",
     "pend": "^1.2.0",
     "progress": "^2.0.3",
-    "pump": "^3.0.0",
+    "pump": "^3.0.2",
     "quick-lru": "^5.1.1",
-    "react-icons": "^5.3.0",
     "resolve-alpn": "^1.2.1",
     "responselike": "^2.0.1",
     "roarr": "^2.15.4",
@@ -96,21 +78,12 @@
     "sqlite3": "^5.1.7",
     "sumchecker": "^3.0.1",
     "type-fest": "^0.13.1",
-    "undici-types": "^5.26.5",
+    "undici-types": "^6.19.8",
     "universalify": "^0.1.2",
     "wrappy": "^1.0.2",
-    "xlsx": "^0.18.5",
-    "xlsx-populate": "^1.21.0",
     "yauzl": "^2.10.0"
-  },
-  "scripts": {
-    "start": "electron .",
-    "build": "electron-builder",
-    "package-mac": "electron-packager . ZGLAWLIBRARY --platform=darwin --arch=x64 --out=dist --overwrite",
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "description": ""
+  "license": "ISC"
 }
