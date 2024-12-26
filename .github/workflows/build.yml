@@ -140,19 +140,16 @@ jobs:
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
   
       # Create GitHub Release
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Upload Windows .exe Release Asset
+        uses: actions/upload-release-asset@v1
         with:
-          tag_name: v2.0.1          # New version 2.0.1
-          release_name: "GRUBA LAW LIBRARY v2.0.1"  # New version 2.0.1
-          body: |
-            🎉 New release of the Gruba Law Library app for macOS and Windows!
-            Download the `.app` or `.exe` file below.
-          draft: false
-          prerelease: false
+          upload_url: https://uploads.github.com/repos/sheenderella/LIBRARY/releases/192370446/assets{?name,label}
+          asset_path: dist/Gruba-Law-Library-Windows.zip  # Add the correct path to the asset
+          asset_name: Gruba-Law-Library-Windows.zip
+          asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
