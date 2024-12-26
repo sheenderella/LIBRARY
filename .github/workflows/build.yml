@@ -26,14 +26,18 @@ jobs:
         run: npm install
 
       # Build and package for macOS
-      - name: Build and Package
-        run: |
-          npm run build
-          npx electron-builder --mac
+      - name: Build .app
+        run: npx electron-builder --mac dir
 
-      # Upload artifacts
+      # Archive the .app file
+      - name: Archive .app
+        run: |
+          cd dist/mac
+          zip -r Gruba-Law-Library.zip "Gruba Law Library.app"
+
+      # Upload the .zip as an artifact
       - name: Upload Build
         uses: actions/upload-artifact@v4
         with:
           name: macOS-build
-          path: dist/*.dmg
+          path: dist/mac/Gruba-Law-Library.zip
