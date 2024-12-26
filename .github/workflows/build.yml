@@ -36,25 +36,24 @@ jobs:
           echo "Found app directory: $APP_DIR"
           zip -r Gruba-Law-Library.zip "$APP_DIR"
 
-      # Create a GitHub release
+      # Create a GitHub release and upload the .zip
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: v1.0.0
-          release_name: GRUBA LAW LIBRARY v1.0.0
+          tag_name: v1.0.${{ github.run_number }}
+          release_name: GRUBA LAW LIBRARY v1.0.${{ github.run_number }}
           body: |
-            🎉 Initial release of the Gruba Law Library app for macOS! Download the `.app` file below.
+            🎉 New release of the Gruba Law Library app for macOS! Download the `.app` file below.
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload the .zip file to the release
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Gruba-Law-Library.zip
+          asset_path: dist/Gruba-Law-Library.zip
           asset_name: Gruba-Law-Library.zip
           asset_content_type: application/zip
