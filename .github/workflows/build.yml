@@ -60,23 +60,83 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: v1.0.0
-          release_name: "GRUBA LAW LIBRARY v1.0.0"
+          tag_name: v2.0.0          # New version 2.0.0
+          release_name: "GRUBA LAW LIBRARY v2.0.0"  # New version 2.0.0
           body: |
-            🎉 Initial release of the Gruba Law Library app for macOS and Windows!
+            🎉 New release of the Gruba Law Library app for macOS and Windows!
             Download the `.app` or `.exe` file below.
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload macOS .app Release Asset (as .zip)
+      # Upload macOS .app Release Asset
       - name: Upload macOS .app Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.zip_file }}
           asset_name: Gruba-Law-Library-macOS.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  windows_build:
+    runs-on: windows-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.18.1
+          cache: 'npm'
+
+      # Install necessary dependencies
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install -g electron-builder
+
+      # Build the .exe file for Windows
+      - name: Build .exe for Windows
+        run: npx electron-builder --win dir
+
+      # Debug dist directory to locate build output
+      - name: Debug dist directory
+        run: dir dist
+
+      # Find and verify .exe file existence
+      - name: Verify .exe file existence
+        run: |
+          EXE_FILE=$(find dist/ -name "*.exe" -print -quit)
+          if [ -z "$EXE_FILE" ]; then
+            echo "Error: .exe file not found in the dist/ directory."
+            exit 1
+          fi
+          echo "Found Windows .exe: $EXE_FILE"
+          echo "exe_path=$EXE_FILE" >> $GITHUB_ENV
+
+      # Archive the .exe file into a .zip archive
+      - name: Archive .exe into .zip
+        run: |
+          ZIP_FILE="dist/Gruba-Law-Library-Windows.zip"
+          EXE_DIR="${{ env.exe_path }}"
+          echo "Zipping the .exe file from: $EXE_DIR"
+          powershell Compress-Archive -Path "$EXE_DIR" -DestinationPath "$ZIP_FILE"
+          echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
+
+      # Upload Windows .exe Release Asset
+      - name: Upload Windows .exe Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.zip_file }}
+          asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
