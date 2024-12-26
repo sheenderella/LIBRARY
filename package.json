@@ -4,10 +4,10 @@
   "description": "a library management system",
   "main": "main.js",
 
-  "build": {
-  "appId": "gruba.law.library",
+"build": {
+  "appId": "com.example.grubalibrary",
   "mac": {
-    "category": "library",
+    "category": "public.app-category.utilities",
     "target": "dmg"
   }
 },
