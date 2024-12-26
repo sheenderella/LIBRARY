@@ -1,0 +1,42 @@
+name: GRUBA LAW LIBRARY
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.18.1
+          cache: 'npm'
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Build and package for macOS
+      - name: Build and Package
+        run: |
+          npm run build
+          npx electron-builder --mac
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+
+      # Upload artifacts
+      - name: Upload Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: macOS-build
+          path: dist/*.dmg
