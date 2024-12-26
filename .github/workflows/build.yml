@@ -139,6 +139,21 @@ jobs:
           }
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
   
+      # Create GitHub Release
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v2.0.0          # New version 2.0.0
+          release_name: "GRUBA LAW LIBRARY v2.0.0"  # New version 2.0.0
+          body: |
+            🎉 New release of the Gruba Law Library app for macOS and Windows!
+            Download the `.app` or `.exe` file below.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
