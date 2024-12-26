@@ -110,16 +110,16 @@ jobs:
       - name: Debug dist directory
         run: dir dist
 
-      # Find and verify .exe file existence
+  # Find and verify .exe file existence
       - name: Verify .exe file existence
         run: |
-          EXE_FILE=$(find dist/ -name "*.exe" -print -quit)
-          if [ -z "$EXE_FILE" ]; then
-            echo "Error: .exe file not found in the dist/ directory."
+          $EXE_FILE = Get-ChildItem -Recurse -Filter *.exe -Path dist | Select-Object -First 1
+          if ($null -eq $EXE_FILE) {
+            Write-Error "Error: .exe file not found in the dist/ directory."
             exit 1
-          fi
-          echo "Found Windows .exe: $EXE_FILE"
-          echo "exe_path=$EXE_FILE" >> $GITHUB_ENV
+          }
+          Write-Host "Found Windows .exe: $($EXE_FILE.FullName)"
+          echo "exe_path=$($EXE_FILE.FullName)" >> $GITHUB_ENV
 
       # Archive the .exe file into a .zip archive
       - name: Archive .exe into .zip
