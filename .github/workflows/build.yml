@@ -83,33 +83,33 @@ jobs:
 
   windows_build:
     runs-on: windows-latest
-
+  
     steps:
       # Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
-
+  
       # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.1
           cache: 'npm'
-
+  
       # Install necessary dependencies
       - name: Install Dependencies
         run: |
           npm install
           npm install -g electron-builder
-
+  
       # Build the .exe file for Windows
       - name: Build .exe for Windows
         run: npx electron-builder --win dir
-
+  
       # Debug dist directory to locate build output
       - name: Debug dist directory
         run: dir dist
-
+  
       # Find and verify .exe file existence
       - name: Verify .exe file existence
         run: |
@@ -120,17 +120,25 @@ jobs:
           }
           Write-Host "Found Windows .exe: $($EXE_FILE.FullName)"
           echo "exe_path=$($EXE_FILE.FullName)" >> $GITHUB_ENV
-      
+  
       # Archive the .exe file into a .zip archive
       - name: Archive .exe into .zip
         run: |
-          ZIP_FILE="dist/Gruba-Law-Library-windows.zip"
-          EXE_FILE="${{ env.exe_path }}"
-          echo "Zipping the .exe file from: $EXE_FILE"
-          powershell -Command "Compress-Archive -Path '$EXE_FILE' -DestinationPath '$ZIP_FILE'"
+          if ($env:COMPUTERNAME) {
+            # PowerShell-specific code
+            $ZIP_FILE = "dist/Gruba-Law-Library-windows.zip"
+            $EXE_FILE = "${{ env.exe_path }}"
+            echo "Zipping the .exe file from: $EXE_FILE"
+            Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
+          } else {
+            # CMD-specific code
+            set ZIP_FILE=dist\Gruba-Law-Library-windows.zip
+            set EXE_FILE=%exe_path%
+            echo Zipping the .exe file from: %EXE_FILE%
+            powershell -Command "Compress-Archive -Path '%EXE_FILE%' -DestinationPath '%ZIP_FILE%'"
+          }
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
-
-
+  
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
