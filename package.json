@@ -9,21 +9,19 @@
   "mac": {
     "category": "public.app-category.utilities",
     "target": [
-      {
-        "target": "zip",
-        "arch": ["x64", "arm64"]
-      }
+      "dmg",
+      "zip"
     ]
   },
   "win": {
     "target": [
-      {
-        "target": "zip",
-        "arch": ["x64"]
-      }
+      "nsis",
+      "zip"
     ]
   },
-  "publish": null
+  "directories": {
+    "output": "dist"
+  }
 },
 
 
