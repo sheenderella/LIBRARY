@@ -127,13 +127,13 @@ jobs:
           if ($env:COMPUTERNAME) {
             # PowerShell-specific code
             $ZIP_FILE = "dist/Gruba-Law-Library-windows.zip"
-            $EXE_FILE = "${{ env.exe_path }}"
+            $EXE_FILE = "dist\win-unpacked\gruba-law-library.exe"
             echo "Zipping the .exe file from: $EXE_FILE"
             Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
           } else {
             # CMD-specific code
             set ZIP_FILE=dist\Gruba-Law-Library-windows.zip
-            set EXE_FILE=%exe_path%
+            set EXE_FILE=dist\win-unpacked\gruba-law-library.exe
             echo Zipping the .exe file from: %EXE_FILE%
             powershell -Command "Compress-Archive -Path '%EXE_FILE%' -DestinationPath '%ZIP_FILE%'"
           }
