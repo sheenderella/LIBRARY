@@ -126,9 +126,24 @@ jobs:
         run: |
           $ZIP_FILE = "dist/Gruba-Law-Library-Windows.zip"
           $EXE_DIR = $env:exe_path
+
+          # Check if EXE_DIR is not empty
+          if (-not $EXE_DIR) {
+            Write-Error "Error: EXE file path is empty. Please ensure the .exe file exists."
+            exit 1
+          }
+
+          # Create dist directory if it doesn't exist
+          if (-not (Test-Path "dist")) {
+            Write-Host "Creating dist directory."
+            New-Item -Path "dist" -ItemType Directory
+          }
+
           Write-Host "Zipping the .exe file from: $EXE_DIR"
           Compress-Archive -Path $EXE_DIR -DestinationPath $ZIP_FILE
+          Write-Host "Created ZIP file: $ZIP_FILE"
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
+
 
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
