@@ -4,36 +4,49 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build:
     runs-on: macos-latest
 
     steps:
+      # Checkout repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.18.1
           cache: 'npm'
 
+      # Install dependencies
       - name: Install Dependencies
         run: npm install
 
+      # Build .app for macOS
       - name: Build .app for macOS
         run: npx electron-builder --mac dir
 
+      # Build .exe for Windows
       - name: Build .exe for Windows
         run: npx electron-builder --win dir
 
+      # List dist directory
       - name: List dist directory
         run: ls -R dist
 
+      # Authenticate GitHub CLI
       - name: Authenticate GitHub CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GRUBA_LAW_LIBRARY }}
         run: echo "${{ secrets.GRUBA_LAW_LIBRARY }}" | gh auth login --with-token
 
+      # Create GitHub Release
       - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GRUBA_LAW_LIBRARY }}
         run: |
           gh release create v1.0.0 dist/Gruba-Law-Library-macOS.zip dist/Gruba-Law-Library-Windows.zip \
             --title "GRUBA LAW LIBRARY v1.0.0" \
