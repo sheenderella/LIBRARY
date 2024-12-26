@@ -29,17 +29,24 @@ jobs:
       - name: Build .app
         run: npx electron-builder --mac dir
 
-      # Check the dist directory and list files
+      # List the contents of the dist directory
       - name: List dist directory
         run: ls -R dist
 
       # Archive the .app file (check the output folder first)
       - name: Archive .app
         run: |
-          # Adjust path if necessary, based on the output directory structure
+          # Search for any .app file in dist directory
           APP_DIR=$(find dist/ -type d -name "*.app" | head -n 1)
           echo "Found app directory: $APP_DIR"
-          zip -r Gruba-Law-Library.zip "$APP_DIR"
+          
+          # If an app directory is found, zip it
+          if [ -d "$APP_DIR" ]; then
+            zip -r dist/Gruba-Law-Library.zip "$APP_DIR"
+          else
+            echo "No .app file found in dist directory"
+            exit 1
+          fi
 
       # Upload the .zip as an artifact
       - name: Upload Build
