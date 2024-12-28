@@ -32,7 +32,8 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "electron-rebuild"
   },
   "devDependencies": {
     "electron": "^33.2.1",
