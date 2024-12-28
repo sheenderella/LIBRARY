@@ -3,34 +3,35 @@
   "version": "1.0.0",
   "description": "a library management system",
   "main": "main.js",
-
-"build": {
-  "appId": "com.example.grubalibrary",
-  "mac": {
-    "category": "public.app-category.utilities",
-    "target": [
-      {
-        "target": "dir",
-        "arch": ["x64", "arm64"]
-      }
-    ]
+  "build": {
+    "appId": "com.example.grubalibrary",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "publish": null
   },
-  "win": {
-    "target": [
-      {
-        "target": "zip",
-        "arch": ["x64"]
-      }
-    ]
-  },
-  "publish": null
-},
-
-
-
   "scripts": {
     "start": "electron .",
-      "build": "electron-builder",
+    "build": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "electron-builder": "^25.1.8"
   },
   "dependencies": {
+    "better-sqlite3": "^11.7.0",
     "boolean": "^3.2.0",
     "buffer-crc32": "^0.2.13",
     "cacheable-lookup": "^5.0.4",
