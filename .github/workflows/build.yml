@@ -42,11 +42,22 @@ jobs:
       - name: Save macOS upload_url
         run: echo "${{ steps.create_macos_release.outputs.upload_url }}" > upload_url_macos.txt
 
+      - name: Archive .app into .zip
+        run: |
+          ZIP_FILE="dist/Gruba-Law-Library-macOS.zip"
+          APP_DIR="${{ env.app_path }}"
+          echo "Zipping the .app file from: $APP_DIR"
+          zip -r $ZIP_FILE "$APP_DIR"
+          echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
+      
+      - name: List dist directory contents (macOS)
+        run: ls -R dist
+      
       - name: Upload macOS .app Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_macos_release.outputs.upload_url }}
-          asset_path: dist/Gruba-Law-Library-macOS.zip
+          asset_path: ${{ env.zip_file }}  # This should be the exact path to the zip file
           asset_name: Gruba-Law-Library-macOS.zip
           asset_content_type: application/zip
         env:
