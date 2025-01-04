@@ -97,11 +97,11 @@ jobs:
       - name: Build Windows .exe
         run: npx electron-builder --win dir
 
-      # Download the macOS release information
-      - name: Download macOS release info
+      - name: Set upload_url environment variable for Windows
         run: |
-          UPLOAD_URL=$(cat upload_url.txt)
+          $UPLOAD_URL = Get-Content -Raw -Path upload_url.txt
           echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
+        shell: pwsh
 
       - name: Archive Windows .exe into .zip
         run: |
