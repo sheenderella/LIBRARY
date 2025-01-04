@@ -99,7 +99,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  windows_build:
+   windows_build:
     runs-on: windows-latest
     needs: build  # Ensure this job runs after the "build" job
 
@@ -157,15 +157,18 @@ jobs:
 
       # Set the upload_url environment variable
       - name: Set upload_url environment variable
-        run: echo "UPLOAD_URL=$(cat upload_url.txt)" >> $GITHUB_ENV
+        run: |
+          UPLOAD_URL=$(Get-Content -Raw -Path upload_url.txt)
+          echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
 
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ env.UPLOAD_URL }}
+          upload_url: ${{ env.UPLOAD_URL }}  # Use the downloaded URL
           asset_path: dist/Gruba-Law-Library-Windows.zip
           asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
