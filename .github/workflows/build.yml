@@ -137,7 +137,7 @@ jobs:
           echo "Zipping the .exe file from: $EXE_FILE"
           Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
-           
+          
       # Download the upload_url artifact from the "build" job
       - name: Download upload_url artifact
         uses: actions/download-artifact@v3
