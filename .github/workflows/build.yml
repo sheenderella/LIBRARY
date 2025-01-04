@@ -60,7 +60,7 @@ jobs:
             fi
             echo "Found macOS .app: $APP_FILE"
             echo "app_path=$APP_FILE" >> $GITHUB_ENV
-          else
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
             EXE_FILE=$(Get-ChildItem -Recurse -Filter *.exe -Path dist | Select-Object -First 1)
             if ($null -eq $EXE_FILE) {
               Write-Error "Error: .exe file not found in the dist/ directory."
@@ -69,6 +69,7 @@ jobs:
             echo "Found Windows .exe: $($EXE_FILE.FullName)"
             echo "exe_path=$($EXE_FILE.FullName)" >> $GITHUB_ENV
           fi
+
 
       # Archive the build file into a .zip archive
       - name: Archive build into .zip
