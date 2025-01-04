@@ -6,9 +6,8 @@ const fs = require('fs');
 const ExcelJS = require('exceljs'); 
 
 
-
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
-let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
+let selectedBookIds = []; 
 
 
 function createWindow(options) {
@@ -16,7 +15,7 @@ function createWindow(options) {
         width: options.width || 800,
         height: options.height || 600,
         parent: options.parent || null,
-        resizable: false, // Prevents resizing
+        resizable: false,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -41,7 +40,7 @@ function createMainWindow() {
     });
 }
 
-// Create a new function for the Add Book button in index.html
+// Add Book button in index.html
 function createAddBookFromIndexWindow() {
     addBookWindow = createWindow({
         filePath: path.join(__dirname, 'books', 'addBook.html'),
@@ -50,10 +49,8 @@ function createAddBookFromIndexWindow() {
         parent: mainWindow,
         onClose: () => (addBookWindow = null),
     });
-
-    // Ensure the window is not reused elsewhere
+    
     addBookWindow.webContents.on('did-finish-load', () => {
-        // You can send specific data or commands here if necessary
     });
 }
 
@@ -69,9 +66,8 @@ ipcMain.on('open-add-book-from-index-window', () => {
 // Function to open the books page
 function createBooksPageWindow() {
     if (!mainWindow) {
-        createMainWindow(); // Make sure the main window is created if it's not already
+        createMainWindow();
     }
-    // You can adjust the navigation logic to ensure the books page is loaded within the main window
     mainWindow.loadFile(path.join(__dirname, 'books', 'books.html'));
 }
 
@@ -118,7 +114,6 @@ async function getBooksCountByStatus() {
             if (error) {
                 reject(error);
             } else {
-                // Convert the rows into a more usable object
                 const counts = {
                     borrowed: 0,
                     overdue: 0,
@@ -154,7 +149,6 @@ ipcMain.handle('getBooksCountByStatus', async () => {
 // Function to fetch unique borrowers
 ipcMain.handle('getUniqueBorrowers', async () => {
     try {
-        // Assuming you have a function `getUniqueBorrowersFromDB` that returns an array of unique borrower names
         const uniqueBorrowers = await getUniqueBorrowersFromDB();
         return uniqueBorrowers;
     } catch (error) {
@@ -186,7 +180,7 @@ ipcMain.handle('getBooksCount', async (event) => {
 });
 
 
-// LOGIN (updated)
+// LOGIN
 function createLoginWindow() {
     loginWindow = createWindow({
         filePath: path.join(__dirname, 'login', 'login.html'),
@@ -198,10 +192,10 @@ function createLoginWindow() {
 }
 
 //FORGOT PASSWORD
-let forgotPasswordWindow = null; // Declare the variable outside the function to track the window instance
+let forgotPasswordWindow = null; 
 
 function createForgotPasswordWindow() {
-    if (forgotPasswordWindow === null) { // Only create the window if it doesn't already exist
+    if (forgotPasswordWindow === null) { 
         forgotPasswordWindow = new BrowserWindow({
             width: 450,
             height: 400,
@@ -221,12 +215,10 @@ function createForgotPasswordWindow() {
             forgotPasswordWindow.show();
         });
 
-        // Ensure the forgot password window is properly handled when it's closed
         forgotPasswordWindow.on('close', () => {
             forgotPasswordWindow = null; 
         });
 
-        // Close the forgot password window when the login window is closed
         loginWindow.on('close', () => {
             if (forgotPasswordWindow && !forgotPasswordWindow.isDestroyed()) {
                 forgotPasswordWindow.close();
@@ -234,17 +226,6 @@ function createForgotPasswordWindow() {
         });
     }
 };
-
-//DELETE WARNING
-function createDeleteNotifWindow() {
-    deleteNotifWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
-        width: 400,
-        height: 300,
-        parent: mainWindow,
-        onClose: () => (deleteNotifWindow = null),
-    });
-}
 
 
 // Handle IPC calls
@@ -293,7 +274,7 @@ function validatelogin({ username, password }) {
         }
 
         if (result) {
-            loggedInUsername = username; // Store the logged-in username
+            loggedInUsername = username;
             createMainWindow();
             if (mainWindow) mainWindow.show();
             if (loginWindow && !loginWindow.isDestroyed()) loginWindow.close();
@@ -322,8 +303,7 @@ function executeQuery(sql, params, callback) {
     });
 }
 
-
-// Variable to store the reset password window instance
+//RESET PASSWORD
 let resetPasswordWindow = null;
 
 // Function to create the Reset Password window and pass the username
@@ -336,23 +316,23 @@ function createResetPasswordWindow(username) {
     resetPasswordWindow = new BrowserWindow({
         width: 400,
         height: 500,
-        parent: mainWindow, // Ensure it is a child of the main window
+        parent: mainWindow, 
         resizable: false,
         modal: true,
-        alwaysOnTop: true,      // Keep the popup on top of other windows
-        movable: true,          // Allow moving the popup around
-        center: true,           // Center the window on the screen
-        show: true, // Ensure the window is visible when created
+        alwaysOnTop: true,   
+        movable: true,      
+        center: true,      
+        show: true, 
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
         },
     });
 
-    resetPasswordWindow.loadFile(path.join(__dirname, 'login', 'reset.html')); // Load the HTML file for the Reset Password window
+    resetPasswordWindow.loadFile(path.join(__dirname, 'login', 'reset.html'));
 
     resetPasswordWindow.on('closed', () => {
-        resetPasswordWindow = null; // Handle cleanup when the window is closed
+        resetPasswordWindow = null; 
     });
 
     // Send the username to the reset.html renderer once the window is ready
@@ -363,7 +343,7 @@ function createResetPasswordWindow(username) {
 
 // IPC handler to open the reset password window
 ipcMain.handle('open-reset-password-window', (event, username) => {
-    createResetPasswordWindow(username); // Calls the function to create the Reset Password window with the username
+    createResetPasswordWindow(username); 
 });
 
 ipcMain.on('close-window', (event) => {
@@ -375,37 +355,36 @@ ipcMain.on('close-window', (event) => {
 
 
 //CHANGE USERNAME
-let changeUsernameWindow; // Declare the variable at the top
+let changeUsernameWindow; 
 
 // Function to create the Change Username window
 function createChangeUsernameWindow() {
     if (changeUsernameWindow) {
-        changeUsernameWindow.focus(); // Bring the existing window to the front if it's already open
+        changeUsernameWindow.focus(); 
         return;
     }
 
     changeUsernameWindow = new BrowserWindow({
         width: 400,
         height: 600,
-        parent: mainWindow, // Ensures it is a child of the main window
+        parent: mainWindow, 
         resizable: false,
-        show: true, // Ensures the window is visible when created
+        show: true, 
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
         },
     });
 
-    changeUsernameWindow.loadFile(path.join(__dirname, 'settings', 'username.html')); // Load the HTML file for the Change Username window
-
+    changeUsernameWindow.loadFile(path.join(__dirname, 'settings', 'username.html')); 
     changeUsernameWindow.on('closed', () => {
-        changeUsernameWindow = null; // Handle cleanup when the window is closed
+        changeUsernameWindow = null; 
     });
 }
 
 // Listen for the event to open the Change Username window
 ipcMain.handle('open-change-username-window', () => {
-    createChangeUsernameWindow(); // Calls the function to create the Change Username window
+    createChangeUsernameWindow(); 
 });
 
 // IPC handler to change the username
@@ -439,37 +418,37 @@ ipcMain.handle('change-username', async (event, { newUsername, currentPassword }
 
 
 //CHANGE PASSWORD
-let changePasswordWindow; // Declare the variable at the top
+let changePasswordWindow; 
 
 // Function to create the Change Password window
 function createChangePasswordWindow() {
     if (changePasswordWindow) {
-        changePasswordWindow.focus(); // Bring the existing window to the front if it's already open
+        changePasswordWindow.focus(); 
         return;
     }
 
     changePasswordWindow = new BrowserWindow({
         width: 400,
         height: 650,
-        parent: mainWindow, // Ensures it is a child of the main window
+        parent: mainWindow, 
         resizable: false,
-        show: true, // Ensures the window is visible when created
+        show: true, 
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
         },
     });
 
-    changePasswordWindow.loadFile(path.join(__dirname, 'settings', 'password.html')); // Load the HTML file for the Change Password window
+    changePasswordWindow.loadFile(path.join(__dirname, 'settings', 'password.html')); 
 
     changePasswordWindow.on('closed', () => {
-        changePasswordWindow = null; // Handle cleanup when the window is closed
+        changePasswordWindow = null; 
     });
 }
 
 // Listen for the event to open the Change Password window
 ipcMain.handle('open-change-password-window', () => {
-    createChangePasswordWindow(); // Calls the function to create the Change Password window
+    createChangePasswordWindow(); 
 });
 
 //Change Password IPC Handler
@@ -573,45 +552,44 @@ let securitySetupWindow;
 // Function to create the Security Setup window
 function createSecuritySetupWindow() {
     if (securitySetupWindow) {
-        securitySetupWindow.focus(); // Bring the existing window to the front if it's already open
+        securitySetupWindow.focus(); 
         return;
     }
 
     securitySetupWindow = new BrowserWindow({
         width: 400,
         height: 650,
-        parent: mainWindow, // Ensure it is a child of the main window
+        parent: mainWindow, 
         resizable: false,
-        show: true, // Ensure the window is visible when created
+        show: true, 
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
         },
     });
 
-    securitySetupWindow.loadFile(path.join(__dirname, 'settings', 'security.html')); // Load the HTML file for the Security Setup window
+    securitySetupWindow.loadFile(path.join(__dirname, 'settings', 'security.html'));
 
     securitySetupWindow.on('closed', () => {
-        securitySetupWindow = null; // Handle cleanup when the window is closed
+        securitySetupWindow = null; 
     });
 }
 
 ipcMain.handle('open-security-setup-window', () => {
-    createSecuritySetupWindow(); // Calls the function to create the Security Setup window
+    createSecuritySetupWindow(); 
 });
 
 
 // IPC handler to save the security question
 ipcMain.handle('save-security-question', async (event, { question, answer, currentPassword }) => {
     try {
-        // Validate the current password
+       
         const user = await validateCurrentPassword(currentPassword);
 
         if (!user) {
             return { success: false, error: 'Current password is incorrect' };
         }
 
-        // Save the security question and answer in the database
         await executeQuery('UPDATE user SET security_question = ?, security_answer = ? WHERE id = ?', [question, answer, user.id]);
 
         return { success: true };
@@ -658,26 +636,24 @@ ipcMain.handle('verify-security-answer', async (event, { username, answer }) => 
         const result = await new Promise((resolve, reject) => {
             db.get('SELECT security_answer FROM user WHERE username = ?', [username], (err, row) => {
                 if (err) {
-                    reject(err); // Reject the promise if an error occurs
+                    reject(err); 
                 } else {
-                    resolve(row); // Resolve with the row (or null if no user is found)
+                    resolve(row);
                 }
             });
         });
 
-        // If no user is found, return an error
         if (!result) {
             return { success: false, error: 'Username not found.' };
         }
 
-        // Perform a case-insensitive comparison of the answers
         const storedAnswer = result.security_answer.toLowerCase();
         const userAnswer = answer.toLowerCase();
 
         if (storedAnswer === userAnswer) {
-            return { success: true }; // Success if answers match
+            return { success: true }; 
         } else {
-            return { success: false, error: 'Incorrect security answer.' }; // Error if answers don't match
+            return { success: false, error: 'Incorrect security answer.' };
         }
     } catch (error) {
         console.error('Error verifying security answer:', error);
@@ -793,21 +769,20 @@ ipcMain.handle('deleteBook', async (event, id) => {
                 [id],
                 (error, results) => {
                     if (error) {
-                        reject(error); // Reject promise if there's an error
+                        reject(error); 
                     } else {
-                        resolve(results); // Resolve promise on success
+                        resolve(results); 
                     }
                 }
             );
         });
 
-        // Notify the main window after the record is deleted
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('book-record-deleted', id);
         }
     } catch (error) {
         console.error('Error deleting book record:', error);
-        // Optionally send an error notification to the renderer process
+
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('book-record-deletion-error', error.message);
         }
@@ -822,15 +797,14 @@ ipcMain.handle('archiveBook', async (event, id) => {
                 [id],
                 (error, results) => {
                     if (error) {
-                        reject(error); // Reject promise if there's an error
+                        reject(error); 
                     } else {
-                        resolve(results); // Resolve promise on success
+                        resolve(results);
                     }
                 }
             );
         });
 
-        // Notify the main window after the record is archived
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('book-record-archived', id);
         }
@@ -907,14 +881,14 @@ ipcMain.handle('getBookId', async (event, bookTitle, bookVolume, bookEdition) =>
             WHERE title_of_book = ? 
             AND (volume = ? OR volume IS NULL) 
             AND (edition = ? OR edition IS NULL)
-        `; // Ensure proper SQL syntax with logical AND for grouping
+        `; 
 
         db.get(sql, [bookTitle, bookVolume || null, bookEdition || null], (err, row) => {
             if (err) {
-                console.error('Database error:', err); // Log the error
-                return reject(err); // Reject with error
+                console.error('Database error:', err); 
+                return reject(err);
             }
-            resolve(row ? row.id : null); // Return the book ID or null if not found
+            resolve(row ? row.id : null);
         });
     });
 });
@@ -936,7 +910,7 @@ ipcMain.handle('fetch-book-details', async (event, bookId) => {
                 console.error('Database query error:', err);
                 reject(err);
             } else {
-                resolve(row || null); // Return the book details or null if not found
+                resolve(row || null);
             }
         });
     });
@@ -1069,7 +1043,6 @@ function createAddBorrowWindow() {
 
 ipcMain.handle('addBorrow', async (event, record) => {
     try {
-        // Validate borrower ID
         const borrowerExists = await executeSelectQuery(
             'SELECT * FROM Profiles WHERE borrower_id = ? AND is_deleted = 0',
             [record.borrowerID]
@@ -1083,10 +1056,10 @@ ipcMain.handle('addBorrow', async (event, record) => {
             return;
         }
 
-        // Validate book ID
+
         const bookExists = await executeSelectQuery(
             'SELECT * FROM books WHERE id = ? AND is_deleted = 0',
-            [record.bookId]  // Using the unique bookId for validation
+            [record.bookId]  
         );
 
         if (bookExists.length === 0) {
@@ -1097,10 +1070,9 @@ ipcMain.handle('addBorrow', async (event, record) => {
             return;
         }
 
-        // Check if the book with this exact ID is already borrowed or overdue
         const bookStatus = await executeSelectQuery(
             'SELECT borrowStatus FROM borrow WHERE book_id = ? AND (borrowStatus = "borrowed" OR borrowStatus = "overdue")',
-            [record.bookId] // Ensure this `bookId` is for the specific edition selected
+            [record.bookId] 
         );
 
         if (bookStatus.length > 0) {
@@ -1111,8 +1083,6 @@ ipcMain.handle('addBorrow', async (event, record) => {
             return;
         }
 
-
-        // Add the borrow record with borrower_id and book_id
         await executeQuery(
             'INSERT INTO borrow (borrower_id, book_id, borrowDate, dueDate, borrowStatus, createdAt) VALUES (?, ?, ?, ?, ?, datetime("now"))',
             [record.borrowerID, record.bookId, record.borrowDate, record.dueDate, record.borrowStatus]
@@ -1142,7 +1112,7 @@ ipcMain.handle('getBookTitles', async () => {
             WHERE id NOT IN 
             (SELECT book_id FROM borrow WHERE borrowStatus = 'borrowed' OR borrowStatus = 'overdue')`
         );
-        return bookTitles; // Return the full details including unique bookId
+        return bookTitles; 
     } catch (error) {
         console.error('Error fetching book titles:', error);
         throw new Error('Failed to fetch book titles');
@@ -1156,7 +1126,7 @@ ipcMain.handle('checkBookBorrowed', async (event, bookId) => {
             'SELECT borrowStatus FROM borrow WHERE book_id = ? AND (borrowStatus = "borrowed" OR borrowStatus = "overdue")',
             [bookId]
         );
-        return bookStatus.length > 0; // Return true if borrowed, false otherwise
+        return bookStatus.length > 0; 
     } catch (error) {
         console.error('Error checking if book is borrowed:', error);
         return false;
@@ -1535,17 +1505,15 @@ ipcMain.handle('exportBorrowRecords', async (event, enrichedRecords) => {
             column.width = header.length + 5;
         });
 
-        // Summary header
         summarySheet.mergeCells('A1:D1');
         const summaryHeaderCell = summarySheet.getCell('A1');
         summaryHeaderCell.value = 'SUMMARY';
         summaryHeaderCell.font = { size: 16, bold: true };
         summaryHeaderCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-        // Add total number of borrowers
-        summarySheet.addRow([]); // Empty row for spacing
+        summarySheet.addRow([]); 
         summarySheet.addRow(['Total number of borrowers:', enrichedRecords.length]);
-        summarySheet.addRow([]); // Empty row for spacing
+        summarySheet.addRow([]); 
         summarySheet.addRow(['Top 5 Borrowers']);
         summarySheet.addRow(['Borrower Name', 'Borrower ID', 'Number of Borrows']);
 
@@ -1565,22 +1533,20 @@ ipcMain.handle('exportBorrowRecords', async (event, enrichedRecords) => {
             summarySheet.addRow([borrower.borrowerName, borrower.borrowerID, borrower.count]);
         });
 
-        // Process book details in summary (from enriched records)
         enrichedRecords.forEach(record => {
             const { borrow_id, bookDetails } = record;
 
-            summarySheet.addRow([]); // Empty row for spacing
+            summarySheet.addRow([]); 
             summarySheet.addRow([`Borrow ID: ${borrow_id}`]);
 
             summarySheet.addRow([
                 'Book Title', 'Book ID', 'Author', 'Edition', 'Publisher', 'Year', 'Cost Price', 'Pages', 'Volume', 'Condition'
             ]);
 
-            // Check if bookDetails exists before accessing its properties
             if (bookDetails) {
                 summarySheet.addRow([
                     bookDetails.title_of_book || 'N/A',
-                    bookDetails.id || 'N/A', // bookId from books table
+                    bookDetails.id || 'N/A', 
                     bookDetails.author || 'N/A',
                     bookDetails.edition || 'N/A',
                     bookDetails.publisher || 'N/A',
@@ -1596,12 +1562,10 @@ ipcMain.handle('exportBorrowRecords', async (event, enrichedRecords) => {
             }
         });
 
-        // Adjust column widths for Summary
         summarySheet.columns.forEach(column => {
             column.width = 25;
         });
 
-        // Save file dialog
         const { canceled, filePath } = await dialog.showSaveDialog({
             title: 'Save Borrow Records',
             defaultPath: path.join(__dirname, `Book-Borrow-Records_${new Date().toISOString().split('T')[0]}.xlsx`),
@@ -1660,24 +1624,18 @@ ipcMain.handle('exportBorrowRecords', async (event, enrichedRecords) => {
 
 
 
-
-
-
-
-
 // BORROW - BORROWING HISTORY
 let borrowingReportsWindow = null;
-let borrowerDetails = {}; // To store borrower details
-
+let borrowerDetails = {}; 
 
 // Function to create the Borrowing Reports Window
 function createBorrowingReportsWindow(params) {
-    if (!borrowingReportsWindow) { // Check if the reports window is already open
+    if (!borrowingReportsWindow) { 
         borrowingReportsWindow = new BrowserWindow({
             width: 400,
             height: 500,
             resizable: false,
-            parent: mainWindow, // Assuming mainWindow is already defined
+            parent: mainWindow, 
             modal: true,
             webPreferences: {
                 nodeIntegration: true,
@@ -1696,10 +1654,10 @@ function createBorrowingReportsWindow(params) {
         console.log('Borrowing Reports window created with params:', params);
 
         borrowingReportsWindow.on('closed', () => {
-            borrowingReportsWindow = null; // Clear reference on close
+            borrowingReportsWindow = null; 
         });
     } else {
-        borrowingReportsWindow.focus(); // Focus on the existing window if it's already open
+        borrowingReportsWindow.focus(); 
     }
 }
 
@@ -1831,8 +1789,6 @@ ipcMain.handle('exportBorrowingRecords', async (event, records) => {
         throw new Error('Failed to export borrower records');
     }
 });
-
-
 
 
 //PROFILES' CRUD
