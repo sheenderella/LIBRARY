@@ -1,29 +1,15 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const fs = require('fs');
-const { app } = require('electron');
 
-// Define the path to the database in a writable directory
-const dbPath = path.join(app.getPath('userData'), 'library.db');
-const defaultDbPath = path.join(__dirname, 'default-library.db'); // Path to your pre-packaged database
-
-// Check if the database already exists in the userData directory
-if (!fs.existsSync(dbPath)) {
-    if (fs.existsSync(defaultDbPath)) {
-        // Copy the pre-packaged database to the userData directory
-        fs.copyFileSync(defaultDbPath, dbPath);
-        console.log('Pre-populated database copied to userData directory.');
-    } else {
-        console.log('No pre-packaged database found. A new database will be created.');
-    }
-}
+// Define the path to the database
+const dbPath = path.resolve(__dirname, 'library.db');
 
 // Open the database (it will create the database file if it doesn't exist)
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening database:', err.message);
     } else {
-        console.log(`Connected to the SQLite database at ${dbPath}`);
+        console.log('Connected to the SQLite database.');
     }
 });
 

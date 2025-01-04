@@ -30,21 +30,20 @@ jobs:
       - name: Debug dist directory
         run: ls -R dist  # List files to ensure .app exists
 
-      # Create GitHub Release for macOS
       - name: Create GitHub Release for macOS
         id: create_macos_release
         uses: actions/create-release@v1
         with:
-          tag_name: v1.0.0  # Same version for macOS and Windows
-          release_name: "GRUBA LAW LIBRARY v1.0.0"
-          body: "Release of the Gruba Law Library for macOS and Windows"
+          tag_name: v1.0.0
+          release_name: "GRUBA LAW LIBRARY v1.0.0 (macOS)"
+          body: "macOS release of the Gruba Law Library"
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save macOS upload_url
-        run: echo "${{ steps.create_macos_release.outputs.upload_url }}" > upload_url.txt
+        run: echo "${{ steps.create_macos_release.outputs.upload_url }}" > upload_url_macos.txt
 
       - name: Verify .app file existence
         run: |
@@ -97,25 +96,26 @@ jobs:
       - name: Build Windows .exe
         run: npx electron-builder --win dir
 
-      - name: Set upload_url environment variable for Windows
-        run: |
-          $UPLOAD_URL = Get-Content -Raw -Path upload_url.txt
-          echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
-        shell: pwsh
+      - name: Create GitHub Release for Windows
+        id: create_windows_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v1.0.0
+          release_name: "GRUBA LAW LIBRARY v1.0.0 (Windows)"
+          body: "Windows release of the Gruba Law Library"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Archive Windows .exe into .zip
-        run: |
-          ZIP_FILE="dist/Gruba-Law-Library-Windows.zip"
-          EXE_FILE="dist/win-unpacked/Gruba-Law-Library.exe"
-          echo "Zipping the .exe file from: $EXE_FILE"
-          Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
-          echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV  # Save zip file path for later use
+      - name: Save Windows upload_url
+        run: echo "${{ steps.create_windows_release.outputs.upload_url }}" > upload_url_windows.txt
 
       - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ env.UPLOAD_URL }}  # Use the uploaded URL from the macOS release
-          asset_path: ${{ env.zip_file }}  # Path to the Windows zip file
+          upload_url: ${{ steps.create_windows_release.outputs.upload_url }}
+          asset_path: dist/Gruba-Law-Library-Windows.zip
           asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
         env:

@@ -2,6 +2,7 @@ const { ipcMain, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
+const db = require('./database'); // Replace with the path to your database module
 
 // Update this to the absolute path of your main database file
 const dbPath = path.join(__dirname, '../library.db');
