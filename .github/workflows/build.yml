@@ -99,7 +99,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-   windows_build:
+  windows_build:
     runs-on: windows-latest
     needs: build  # Ensure this job runs after the "build" job
 
