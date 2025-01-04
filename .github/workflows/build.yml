@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  macos_build:
     runs-on: macos-latest
 
     steps:
@@ -91,7 +91,7 @@ jobs:
   windows_build:
     runs-on: windows-latest
     needs: build  # Make this job depend on the "build" job to ensure it runs afterward
-
+  
     steps:
       # Checkout the repository
       - name: Checkout Code
@@ -137,17 +137,17 @@ jobs:
           echo "Zipping the .exe file from: $EXE_FILE"
           Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
-          
-      # Download the release-upload-url artifact from the "build" job
-      - name: Download release-upload-url artifact
+  
+      # Download the release-info artifact from the "build" job
+      - name: Download release-info artifact
         uses: actions/download-artifact@v3
         with:
-          name: release-upload-url
-
+          name: release-info  # Change this to match the artifact name you used
+  
       # Set the upload_url environment variable
       - name: Set upload_url environment variable
-        run: echo "UPLOAD_URL=$(cat release-upload-url)" >> $GITHUB_ENV
-
+        run: echo "UPLOAD_URL=$(cat release-info)" >> $GITHUB_ENV
+  
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
@@ -158,3 +158,4 @@ jobs:
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
