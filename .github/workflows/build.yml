@@ -140,7 +140,7 @@ jobs:
           
       # Download the upload_url artifact from the "build" job
       - name: Download upload_url artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v1
         with:
           name: release-upload-url
 
