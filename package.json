@@ -9,23 +9,20 @@
       "category": "public.app-category.utilities",
       "target": [
         {
-          "target": "dir",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
         }
-      ]
+      ],
+      "icon": "logo/logo.icns"
     },
     "win": {
       "target": [
         {
           "target": "zip",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         }
-      ]
+      ],
+      "icon": "logo/logo.ico"
     },
     "publish": null
   },
