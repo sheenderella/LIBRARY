@@ -27,9 +27,9 @@ jobs:
           npm install
           npm install -g electron-builder
           
-      # Build the .app file for macOS
-      - name: Build .app for macOS
-        run: npx electron-builder --mac dir
+      # Build the .app file for macOS (no signing)
+      - name: Build .app for macOS (No signing)
+        run: npx electron-builder --mac dir  # No signing here
 
       # Debug dist directory to locate build output
       - name: Debug dist directory
