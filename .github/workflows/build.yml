@@ -69,7 +69,11 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+  
+      # Debug the upload_url before the upload step
+      - name: Debug upload_url
+        run: |
+            echo "upload_url: ${{ steps.create_release.outputs.upload_url }}"  # Debug the upload_url
 
       # Upload macOS .app Release Asset
       - name: Upload macOS .app Release Asset
