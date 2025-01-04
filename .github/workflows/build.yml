@@ -60,8 +60,8 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: v2.0.0          # New version 2.0.0
-          release_name: "GRUBA LAW LIBRARY v2.0.0"  # New version 2.0.0
+          tag_name: v1.0.0          # First version 1.0.0
+          release_name: "GRUBA LAW LIBRARY v1.0.0"  # First version 1.0.0
           body: |
             🎉 New release of the Gruba Law Library app for macOS and Windows!
             Download the `.app` or `.exe` file below.
@@ -69,6 +69,7 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       # Upload macOS .app Release Asset
       - name: Upload macOS .app Release Asset
