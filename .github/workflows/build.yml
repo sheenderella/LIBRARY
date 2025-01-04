@@ -155,6 +155,17 @@ jobs:
         with:
           name: release-info  # Ensure this name matches the artifact uploaded in the "build" job
 
+      - name: Check if upload_url.txt exists
+        run: |
+          if (Test-Path upload_url.txt) {
+            Write-Host "File exists: upload_url.txt"
+            Write-Host "File content: $(Get-Content upload_url.txt)"
+          } else {
+            Write-Host "upload_url.txt does not exist."
+            exit 1
+          }
+
+
       # Set the upload_url environment variable
       - name: Set upload_url environment variable
         run: |
