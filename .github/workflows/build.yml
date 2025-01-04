@@ -175,7 +175,7 @@ jobs:
       - name: Upload Windows .exe Release Asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ env.UPLOAD_URL }}  # Correctly using the environment variable
+          upload_url: https://uploads.github.com/repos/sheenderella/LIBRARY/releases/193156499/assets%7B?name,label}
           asset_path: dist/Gruba-Law-Library-Windows.zip
           asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
