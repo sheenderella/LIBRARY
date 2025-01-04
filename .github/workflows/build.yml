@@ -7,11 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest]
+    runs-on: macos-latest
 
     steps:
       # Checkout the repository
@@ -30,71 +26,42 @@ jobs:
         run: |
           npm install
           npm install -g electron-builder
-
-      # Build the application based on OS
-      - name: Build for ${{ matrix.os }}
-        run: |
-          if [ "${{ matrix.os }}" == "macos-latest" ]; then
-            npx electron-builder --mac dir
-          else
-            npx electron-builder --win dir
-          fi
+          
+      # Build the .app file for macOS (no signing)
+      - name: Build .app for macOS (No signing)
+        run: npx electron-builder --mac dir  # No signing here
 
       # Debug dist directory to locate build output
       - name: Debug dist directory
+        run: ls -R dist
+
+      # Find and verify .app file existence
+      - name: Verify .app file existence
         run: |
-          if [ "${{ matrix.os }}" == "macos-latest" ]; then
-            ls -R dist
-          else
-            dir dist
+          APP_FILE=$(find dist/ -name "*.app" -print -quit)
+          if [ -z "$APP_FILE" ]; then
+            echo "Error: .app file not found in the dist/ directory."
+            exit 1
           fi
-
-      # Find and verify the appropriate file existence (.app for macOS, .exe for Windows)
-      - name: Verify build file existence
-        run: |
-          if [ "${{ matrix.os }}" == "macos-latest" ]; then
-            APP_FILE=$(find dist/ -name "*.app" -print -quit)
-            if [ -z "$APP_FILE" ]; then
-              echo "Error: .app file not found in the dist/ directory."
-              exit 1
-            fi
-            echo "Found macOS .app: $APP_FILE"
-            echo "app_path=$APP_FILE" >> $GITHUB_ENV
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            EXE_FILE=$(powershell -Command "Get-ChildItem -Recurse -Filter *.exe -Path dist | Select-Object -First 1")
-            if [ -z "$EXE_FILE" ]; then
-              echo "Error: .exe file not found in the dist/ directory."
-              exit 1
-            fi
-            echo "Found Windows .exe: $EXE_FILE"
-            echo "exe_path=$EXE_FILE" >> $GITHUB_ENV
-          fi
-
-
-
-      # Archive the build file into a .zip archive
-      - name: Archive build into .zip
-        run: |
-          if [ "${{ matrix.os }}" == "macos-latest" ]; then
-            ZIP_FILE="dist/Gruba-Law-Library-macOS.zip"
-            APP_DIR="${{ env.app_path }}"
-            zip -r $ZIP_FILE "$APP_DIR"
-            echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            ZIP_FILE="dist/Gruba-Law-Library-Windows.zip"
-            EXE_FILE="${{ env.exe_path }}"
-            Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
-            echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
-          fi
+          echo "Found macOS .app: $APP_FILE"
+          echo "app_path=$APP_FILE" >> $GITHUB_ENV
           
+      # Archive the .app file into a .zip archive
+      - name: Archive .app into .zip
+        run: |
+          ZIP_FILE="dist/Gruba-Law-Library-macOS.zip"
+          APP_DIR="${{ env.app_path }}"
+          echo "Zipping the .app file from: $APP_DIR"
+          zip -r $ZIP_FILE "$APP_DIR"
+          echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
 
       # Create GitHub Release
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: v2.0.0
-          release_name: "GRUBA LAW LIBRARY v2.0.0"
+          tag_name: v2.0.0          # New version 2.0.0
+          release_name: "GRUBA LAW LIBRARY v2.0.0"  # New version 2.0.0
           body: |
             🎉 New release of the Gruba Law Library app for macOS and Windows!
             Download the `.app` or `.exe` file below.
@@ -103,13 +70,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload the release asset (macOS or Windows)
-      - name: Upload Release Asset
+      # Upload macOS .app Release Asset
+      - name: Upload macOS .app Release Asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.zip_file }}
-          asset_name: ${{ matrix.os == 'macos-latest' && 'Gruba-Law-Library-macOS.zip' || 'Gruba-Law-Library-Windows.zip' }}
+          asset_name: Gruba-Law-Library-macOS.zip
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -120,3 +87,74 @@ jobs:
         with:
           name: release-upload-url
           path: ${{ steps.create_release.outputs.upload_url }}
+
+  windows_build:
+    runs-on: windows-latest
+    needs: build  # Make this job depend on the "build" job to ensure it runs afterward
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+  
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.18.1
+          cache: 'npm'
+  
+      # Install necessary dependencies
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install -g electron-builder
+          
+      # Build the .exe file for Windows
+      - name: Build .exe for Windows
+        run: npx electron-builder --win dir
+  
+      # Debug dist directory to locate build output
+      - name: Debug dist directory
+        run: dir dist
+  
+      # Find and verify .exe file existence
+      - name: Verify .exe file existence
+        run: |
+          $EXE_FILE = Get-ChildItem -Recurse -Filter *.exe -Path dist | Select-Object -First 1
+          if ($null -eq $EXE_FILE) {
+            Write-Error "Error: .exe file not found in the dist/ directory."
+            exit 1
+          }
+          Write-Host "Found Windows .exe: $($EXE_FILE.FullName)"
+          echo "exe_path=$($EXE_FILE.FullName)" >> $GITHUB_ENV
+          
+      # Archive the .exe file into a .zip archive
+      - name: Archive .exe into .zip
+        run: |
+          $ZIP_FILE = "dist/Gruba-Law-Library-Windows.zip"
+          $EXE_FILE = "dist\win-unpacked\gruba-law-library.exe"
+          echo "Zipping the .exe file from: $EXE_FILE"
+          Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
+          echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
+          
+      # Download the upload_url artifact from the "build" job
+      - name: Download upload_url artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: release-upload-url
+
+      # Set the upload_url environment variable
+      - name: Set upload_url environment variable
+        run: echo "UPLOAD_URL=$(cat release-upload-url)" >> $GITHUB_ENV
+
+      # Upload Windows .exe Release Asset
+      - name: Upload Windows .exe Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}  # Use the downloaded URL
+          asset_path: dist/Gruba-Law-Library-Windows.zip
+          asset_name: Gruba-Law-Library-Windows.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
