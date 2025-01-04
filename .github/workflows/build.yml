@@ -80,12 +80,13 @@ jobs:
             APP_DIR="${{ env.app_path }}"
             zip -r $ZIP_FILE "$APP_DIR"
             echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
-          else
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
             ZIP_FILE="dist/Gruba-Law-Library-Windows.zip"
             EXE_FILE="${{ env.exe_path }}"
             Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
             echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
           fi
+          
 
       # Create GitHub Release
       - name: Create GitHub Release
