@@ -138,8 +138,8 @@ jobs:
           Compress-Archive -Path $EXE_FILE -DestinationPath $ZIP_FILE
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV
           
-      # Download the upload_url artifact from the "build" job
-      - name: Download upload_url artifact
+      # Download the release-upload-url artifact from the "build" job
+      - name: Download release-upload-url artifact
         uses: actions/download-artifact@v3
         with:
           name: release-upload-url
