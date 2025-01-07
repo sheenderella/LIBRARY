@@ -51,43 +51,69 @@ ipcMain.handle('importDatabase', async () => {
 });
 
 // Merge data from the imported database into the main database for all tables
-async function mergeDatabases(importedDbPath, mainDbPath) {
-    const importedDb = require('better-sqlite3')(importedDbPath);
-    const mainDb = require('better-sqlite3')(mainDbPath);
-
-    // Get the list of tables in the database
-    const tables = importedDb.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
-
-    for (const table of tables) {
-        const tableName = table.name;
-
-        // Skip SQLite internal tables
-        if (tableName === 'sqlite_sequence' || tableName === 'sqlite_stat1') {
-            continue;
-        }
-
-        const importedRows = importedDb.prepare(`SELECT * FROM ${tableName}`).all();
-        const mainRows = mainDb.prepare(`SELECT * FROM ${tableName}`).all();
-        const mainRowIds = new Set(mainRows.map(row => row.id));
-
-        // Dynamically generate the SQL insert statement based on the columns of the table
-        const columns = Object.keys(importedRows[0]).join(', ');
-        const placeholders = Object.keys(importedRows[0]).map(() => '?').join(', ');
-        const insertStmt = mainDb.prepare(
-            `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`
-        );
-
-        for (const row of importedRows) {
-            if (!mainRowIds.has(row.id)) {
-                insertStmt.run(...Object.values(row));
-            }
-        }
+function importDatabase(importPath) {
+    if (!fs.existsSync(importPath)) {
+      console.error('Import file does not exist.');
+      return;
     }
+  
+    // Open the imported database
+    const importedDB = new sqlite3.Database(importPath, (err) => {
+      if (err) {
+        console.error('Error opening imported database:', err.message);
+        return;
+      }
+      console.log('Opened imported database successfully.');
+    });
+  
+    // Validate the imported database
+    importedDB.get('PRAGMA integrity_check;', (err, row) => {
+      if (err || row.integrity_check !== 'ok') {
+        console.error('Imported database integrity check failed:', err ? err.message : row);
+        importedDB.close();
+        return;
+      }
+  
+      console.log('Imported database passed integrity check.');
+  
+      // Merge tables
+      const tables = ['user', 'books', 'borrow', 'Profiles']; // Add your tables here
+      tables.forEach((table) => {
+        importedDB.all(`SELECT * FROM ${table};`, [], (err, rows) => {
+          if (err) {
+            console.error(`Error reading data from table ${table}:`, err.message);
+            return;
+          }
+  
+          // Insert data into the main database
+          rows.forEach((row) => {
+            const columns = Object.keys(row).join(', ');
+            const placeholders = Object.keys(row).map(() => '?').join(', ');
+            const values = Object.values(row);
+  
+            db.run(
+              `INSERT OR IGNORE INTO ${table} (${columns}) VALUES (${placeholders});`,
+              values,
+              (err) => {
+                if (err) {
+                  console.error(`Error inserting data into table ${table}:`, err.message);
+                }
+              }
+            );
+          });
+        });
+      });
+  
+      // Close the imported database
+      importedDB.close(() => {
+        console.log('Imported database closed successfully.');
+      });
+    });
+  }
+  
+  module.exports = { importDatabase };
 
-    importedDb.close();
-    mainDb.close();
-}
-
+  
 // Export 'borrow' table to an Excel file
 ipcMain.handle('exportBorrowToExcel', async () => {
     const { filePath } = await dialog.showSaveDialog({

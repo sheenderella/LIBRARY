@@ -1,19 +1,26 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const { app } = require('electron');
+const fs = require('fs'); // Import the 'fs' module
 
-// Use userData path for packaged app
+// Determine the database file path
 const dbPath = app.isPackaged
   ? path.join(app.getPath('userData'), 'library.db') // For packaged app
   : path.resolve(__dirname, 'library.db'); // For development
 
+// Check if the database file exists
+if (!fs.existsSync(dbPath)) {
+  console.log('Database file not found. Creating a new empty database...');
+  fs.writeFileSync(dbPath, ''); // Create an empty file
+}
+
 // Open the database (it will create the database file if it doesn't exist)
 const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
-    }
+  if (err) {
+    console.error('Error opening database:', err.message);
+  } else {
+    console.log('Connected to the SQLite database.');
+  }
 });
 
 // SQL script to create tables and add necessary schema changes
@@ -101,11 +108,11 @@ CREATE TABLE IF NOT EXISTS Profiles (
 
 // Execute the SQL script to create tables and triggers
 db.exec(createTablesSQL, (err) => {
-    if (err) {
-        console.error('Error executing SQL script:', err.message);
-    } else {
-        console.log('Tables created and schema altered successfully.');
-    }
+  if (err) {
+    console.error('Error executing SQL script:', err.message);
+  } else {
+    console.log('Tables created and schema altered successfully.');
+  }
 });
 
 module.exports = db;
