@@ -1139,7 +1139,7 @@ ipcMain.handle('getBookTitles', async () => {
         const bookTitles = await executeSelectQuery(
             `SELECT id as bookId, title_of_book, volume, edition, year 
             FROM books 
-            WHERE id NOT IN 
+            WHERE is_deleted != 1 AND id NOT IN 
             (SELECT book_id FROM borrow WHERE borrowStatus = 'borrowed' OR borrowStatus = 'overdue')`
         );
         return bookTitles; // Return the full details including unique bookId
