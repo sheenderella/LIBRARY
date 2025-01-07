@@ -2127,9 +2127,9 @@ ipcMain.handle('exportProfilesToExcel', async () => {
         summarySheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
         summarySheet.getCell('A1').font = { bold: true, size: 14 };
 
-       // Set column widths in the Summary sheet
-       summarySheet.getColumn(1).width = 30; // Set width for "Registered Borrowers Total" label column
-       summarySheet.getColumn(2).width = 15; // Set width for the count column       
+        // Set column widths in the Summary sheet
+        summarySheet.getColumn(1).width = 30; // Set width for "Registered Borrowers Total" label column
+        summarySheet.getColumn(2).width = 15; // Set width for the count column       
 
         // Add summary data with proper spacing and alignment
         summarySheet.addRow([' ', ' ']); // Add an empty row for spacing
@@ -2144,15 +2144,37 @@ ipcMain.handle('exportProfilesToExcel', async () => {
             filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
         });
 
-        if (filePath) {
-            await workbook.xlsx.writeFile(filePath);
-            return { message: 'Profiles and summary exported successfully!' };
+        if (!filePath) {
+            console.log('Export canceled');
+            await dialog.showMessageBox({
+                type: 'warning',
+                title: 'Export Canceled',
+                message: 'No file was selected. Export operation was canceled.',
+                buttons: ['OK']
+            });
+            return { message: 'Export canceled.' };
         }
 
-        return { message: 'Export canceled.' };
+        await workbook.xlsx.writeFile(filePath);
+        console.log('Export successful:', filePath);
+
+        await dialog.showMessageBox({
+            type: 'info',
+            title: 'Export Successful',
+            message: 'Profiles and summary exported successfully!',
+            buttons: ['OK']
+        });
+
+        return { message: 'Profiles and summary exported successfully!' };
     } catch (error) {
         console.error('Error exporting profiles:', error);
-        return { message: 'Error exporting profiles.' };
+        await dialog.showMessageBox({
+            type: 'error',
+            title: 'Export Failed',
+            message: `An error occurred during export: ${error.message}`,
+            buttons: ['OK']
+        });
+        return { message: `Error exporting profiles: ${error.message}` };
     }
 });
 
@@ -2166,7 +2188,16 @@ ipcMain.handle('importProfilesFromExcel', async () => {
             properties: ['openFile']
         });
 
-        if (filePaths.length === 0) return { message: 'Import canceled.' };
+        if (filePaths.length === 0) {
+            // Notify the user about the cancellation
+            await dialog.showMessageBox({
+                type: 'warning',
+                title: 'Import Canceled',
+                message: 'The import operation was canceled.',
+                buttons: ['OK']
+            });
+            return { message: 'Import canceled.' };
+        }
 
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(filePaths[0]);
@@ -2245,10 +2276,18 @@ ipcMain.handle('importProfilesFromExcel', async () => {
 
     } catch (error) {
         console.error('Error importing profiles:', error);
+
+        // Show error dialog to the user
+        await dialog.showMessageBox({
+            type: 'error',
+            title: 'Import Error',
+            message: `An error occurred while importing profiles:\n\n${error.message}`,
+            buttons: ['OK']
+        });
+
         return { message: 'Error importing profiles.' };
     }
 });
-
 
 
 
@@ -2397,12 +2436,28 @@ ipcMain.handle('exportBooksToExcel', async () => {
 
         if (filePath) {
             await workbook.xlsx.writeFile(filePath);
+            await dialog.showMessageBox({
+                type: 'info',
+                title: 'Export Successful',
+                message: 'Books have been exported successfully!',
+                buttons: ['OK']
+            });
             return { message: 'Books exported successfully!' };
+        } else {
+            // Notify the user about cancellation
+            await dialog.showMessageBox({
+                type: 'info',
+                title: 'Export Canceled',
+                message: 'The export operation was canceled.',
+                buttons: ['OK']
+            });
+            return { message: 'Export canceled.' };
         }
-
-        return { message: 'Export canceled.' };
     } catch (error) {
         console.error('Error exporting books:', error);
+
+        // Show error dialog to the user
+        await dialog.showErrorBox('Export Error', 'An error occurred while exporting books.');
         return { message: 'Error exporting books.' };
     }
 });
@@ -2416,13 +2471,21 @@ ipcMain.handle('importBooksFromExcel', async () => {
             properties: ['openFile']
         });
 
-        if (filePaths.length === 0) return { message: 'Import canceled.' };
+        if (filePaths.length === 0) {
+            await dialog.showMessageBox({
+                type: 'warning',
+                title: 'Import Canceled',
+                message: 'No file was selected for import.',
+                buttons: ['OK']
+            });
+            return { message: 'Import canceled.' };
+        }
 
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(filePaths[0]);
 
         const worksheet = workbook.getWorksheet('Books');
-        let importedCount = 0; // Track the number of successfully imported books
+        let importedCount = 0;
 
         // Validate that the worksheet has the expected structure
         const headers = [
@@ -2524,7 +2587,14 @@ ipcMain.handle('importBooksFromExcel', async () => {
             await dialog.showMessageBox({
                 type: 'info',
                 title: 'Import Successful',
-                message: `${importedCount} Books imported and merged successfully!`,
+                message: `${importedCount} Books were imported and merged successfully!`,
+                buttons: ['OK']
+            });
+        } else {
+            await dialog.showMessageBox({
+                type: 'info',
+                title: 'Import Complete',
+                message: 'No valid books were found to import.',
                 buttons: ['OK']
             });
         }
@@ -2532,6 +2602,7 @@ ipcMain.handle('importBooksFromExcel', async () => {
         return { message: 'Import successful!' };
     } catch (error) {
         console.error('Error importing books:', error);
+        await dialog.showErrorBox('Import Error', 'An error occurred while importing books.');
         return { message: 'Error importing books.' };
     }
 });
@@ -2555,7 +2626,6 @@ function createReportsWindow() {
             height: 600,
             resizable: false,
             parent: mainWindow,
-            modal: true,
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
@@ -2909,7 +2979,6 @@ ipcMain.handle('generateReport', async (event, timePeriod, category) => {
 
 
 //BACKUP & RESTORE - SETTINGS
-// Update this to the absolute path of your main database file
 const dbPath = path.join(__dirname, './library.db');
 
 let isDialogOpen = false;
@@ -2919,7 +2988,7 @@ ipcMain.handle('exportDatabase', async () => {
     if (isDialogOpen) {
         return { success: false, message: 'Backup is already open.' };
     }
-    
+
     isDialogOpen = true;
 
     try {
@@ -2930,23 +2999,43 @@ ipcMain.handle('exportDatabase', async () => {
             filters: [{ name: 'SQLite Database', extensions: ['sqlite'] }],
         });
 
-        console.log('Backup filePath:', filePath);
-
-        if (filePath) {
-            fs.copyFileSync(dbPath, filePath);
-            console.log('Backup successful:', filePath);
-            return { success: true, message: 'Database backup was successful!' };
+        if (!filePath) {
+            console.log('Backup cancelled');
+            await dialog.showMessageBox({
+                type: 'warning',
+                title: 'Backup Cancelled',
+                message: 'No file was selected. Database backup was cancelled.',
+                buttons: ['OK']
+            });
+            return { success: false, message: 'Backup cancelled.' };
         }
 
-        console.log('Backup cancelled');
-        return { success: false, message: 'Backup cancelled.' };
+        console.log('Backup filePath:', filePath);
+        fs.copyFileSync(dbPath, filePath);
+        console.log('Backup successful:', filePath);
+
+        await dialog.showMessageBox({
+            type: 'info',
+            title: 'Backup Successful',
+            message: 'The database backup was completed successfully!',
+            buttons: ['OK']
+        });
+
+        return { success: true, message: 'Database backup was successful!' };
     } catch (error) {
         console.error('Error exporting database:', error);
+        await dialog.showMessageBox({
+            type: 'error',
+            title: 'Backup Failed',
+            message: `An error occurred during database backup: ${error.message}`,
+            buttons: ['OK']
+        });
         return { success: false, message: `Error: ${error.message}` };
     } finally {
         isDialogOpen = false;
     }
 });
+
 
 // Import database from a file and merge it with the main database
 ipcMain.handle('importDatabase', async () => {
