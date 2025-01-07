@@ -4,6 +4,7 @@
   "description": "a library management system",
   "main": "main.js",
   "build": {
+    "icon": "logo/logo.ico",
     "appId": "com.example.grubalibrary",
     "mac": {
       "category": "public.app-category.utilities",
