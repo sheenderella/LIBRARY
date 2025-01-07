@@ -9,6 +9,13 @@
       "category": "public.app-category.utilities",
       "target": [
         {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
           "target": "dir",
           "arch": [
             "x64",
@@ -20,6 +27,12 @@
     "win": {
       "target": [
         {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
           "target": "zip",
           "arch": [
             "x64"
@@ -27,7 +40,22 @@
         }
       ]
     },
-    "publish": null
+    "publish": null,
+    "files": [
+      "**/*.db",
+      "database.js",            
+      "main.js",              
+      "**/*.html",                      
+      "**/*.js",           
+      "**/*.css",
+      "archive/**/*",
+      "books/**/*",
+      "borrow/**/*",
+      "login/**/*",
+      "logo/**/*",
+      "profiles/**/*",
+      "settings/**/*"        
+    ]
   },
   "scripts": {
     "start": "electron .",

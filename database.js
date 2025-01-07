@@ -1,8 +1,11 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const { app } = require('electron');
 
-// Define the path to the database
-const dbPath = path.resolve(__dirname, 'library.db');
+// Use userData path for packaged app
+const dbPath = app.isPackaged
+  ? path.join(app.getPath('userData'), 'library.db') // For packaged app
+  : path.resolve(__dirname, 'library.db'); // For development
 
 // Open the database (it will create the database file if it doesn't exist)
 const db = new sqlite3.Database(dbPath, (err) => {
