@@ -2093,7 +2093,7 @@ ipcMain.handle('exportProfilesToExcel', async () => {
         profilesSheet.getCell('A1').font = { bold: true, size: 14 };
 
         // Add headers to Borrower Profiles sheet
-        const headers = ['Borrower ID', 'Name', 'Phone Number', 'Email Address'];
+        const headers = ['ID Number', 'Name', 'Phone Number', 'Email'];
         profilesSheet.addRow(headers);
 
         // Format headers
@@ -2104,10 +2104,10 @@ ipcMain.handle('exportProfilesToExcel', async () => {
         });
 
         // Adjust column widths
-        profilesSheet.getColumn(1).width = 15; // Borrower ID
+        profilesSheet.getColumn(1).width = 15; // ID Number
         profilesSheet.getColumn(2).width = 30; // Name
         profilesSheet.getColumn(3).width = 20; // Phone Number
-        profilesSheet.getColumn(4).width = 30; // Email Address
+        profilesSheet.getColumn(4).width = 30; // Email
 
         // Add profile data
         profiles.forEach(profile => {
@@ -2203,7 +2203,54 @@ ipcMain.handle('importProfilesFromExcel', async () => {
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(filePaths[0]);
 
-        const worksheet = workbook.getWorksheet('Borrower Profiles');
+        // Expected headers
+        const expectedHeaders = ['ID Number', 'Name', 'Phone Number', 'Email'];
+
+        let targetWorksheet = null;
+        let columnMap = {};
+
+        // Find the worksheet and map headers
+        workbook.worksheets.forEach(worksheet => {
+            const currentMap = {};
+            let headerRow = null;
+
+            // Search for the row containing the required headers
+            worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+                const headersFound = [];
+                row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                    if (cell.value && typeof cell.value === 'string') {
+                        const header = cell.value.trim(); // Remove extra spaces
+                        const normalizedHeader = header.toLowerCase(); // Normalize case
+
+                        expectedHeaders.forEach(expected => {
+                            if (normalizedHeader === expected.toLowerCase()) {
+                                currentMap[expected] = colNumber;
+                                headersFound.push(expected);
+                            }
+                        });
+                    }
+                });
+
+                // If all headers are found in this row, it's the header row
+                if (headersFound.length === expectedHeaders.length) {
+                    headerRow = rowNumber;
+                    return false; // Stop searching further
+                }
+            });
+
+            if (headerRow && Object.keys(currentMap).length === expectedHeaders.length) {
+                targetWorksheet = worksheet;
+                columnMap = currentMap;
+            }
+        });
+
+        if (!targetWorksheet) {
+            throw new Error(`No worksheet with the required headers found. Expected headers: ${expectedHeaders.join(', ')}`);
+        }
+
+        console.log(`Using worksheet: ${targetWorksheet.name}`);
+        console.log(`Header mapping:`, columnMap);
+
         let incompleteDataFound = false; // Track if any incomplete data is found
         let importedCount = 0; // Track the number of successfully imported profiles
 
@@ -2211,23 +2258,23 @@ ipcMain.handle('importProfilesFromExcel', async () => {
         let result = await executeSelectQuery('SELECT MAX(id) as maxId FROM Profiles');
         let lastProfileID = result[0]?.maxId || 0;
 
-        // Loop through each row, validating and merging data
-        for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) { // Start from the second row
-            const row = worksheet.getRow(rowNumber);
-            const borrower_id = row.getCell(1).value;
-            const name = row.getCell(2).value;
-            const phone_number = row.getCell(3).value;
+        // Loop through rows starting from the detected header row + 1
+        for (let rowNumber = targetWorksheet.getRow(2).number + 1; rowNumber <= targetWorksheet.rowCount; rowNumber++) {
+            const row = targetWorksheet.getRow(rowNumber);
+            const id_number = row.getCell(columnMap['ID Number']).value;
+            const name = row.getCell(columnMap['Name']).value;
+            const phone_number = row.getCell(columnMap['Phone Number']).value;
 
             // For the email, check if it's a hyperlink or a plain value
-            let emailCell = row.getCell(4);
+            let emailCell = row.getCell(columnMap['Email']);
             let email = emailCell.text || (emailCell.hyperlink ? emailCell.hyperlink : emailCell.value);
 
             // Validate for missing data
             let missingFields = [];
-            if (!borrower_id) missingFields.push('Borrower ID');
+            if (!id_number) missingFields.push('ID Number');
             if (!name) missingFields.push('Name');
             if (!phone_number) missingFields.push('Phone Number');
-            if (!email) missingFields.push('Email Address');
+            if (!email) missingFields.push('Email');
 
             if (missingFields.length > 0) {
                 console.warn(`Row ${rowNumber} has incomplete data: ${missingFields.join(', ')}.`);
@@ -2243,29 +2290,29 @@ ipcMain.handle('importProfilesFromExcel', async () => {
                 continue; // Skip incomplete rows
             }
 
-            // Check if the Borrower ID already exists
-            const existingProfile = await executeSelectQuery('SELECT * FROM Profiles WHERE borrower_id = ?', [borrower_id]);
+            // Check if the ID Number already exists
+            const existingProfile = await executeSelectQuery('SELECT * FROM Profiles WHERE borrower_id = ?', [id_number]);
 
             if (existingProfile.length > 0) {
-                // If Borrower ID exists, merge the profile (update the existing record)
+                // If ID Number exists, merge the profile (update the existing record)
                 await executeQuery(
                     `UPDATE Profiles SET 
                         name = ?, phone_number = ?, email = ? 
                      WHERE borrower_id = ?`,
-                    [name, phone_number, email, borrower_id]
+                    [name, phone_number, email, id_number]
                 );
             } else {
-                // If Borrower ID is new, increment Profile ID and insert new profile
+                // If ID Number is new, increment Profile ID and insert new profile
                 lastProfileID++;
                 await executeQuery(
                     'INSERT INTO Profiles (id, borrower_id, name, phone_number, email) VALUES (?, ?, ?, ?, ?)',
-                    [lastProfileID, borrower_id, name, phone_number, email]
+                    [lastProfileID, id_number, name, phone_number, email]
                 );
             }
             importedCount++; // Increment the count of successfully imported profiles
         }
 
-        // Show success message if no incomplete data found and some profiles were imported
+        // Show success message
         if (!incompleteDataFound && importedCount > 0) {
             await dialog.showMessageBox({
                 type: 'info',
@@ -2273,8 +2320,14 @@ ipcMain.handle('importProfilesFromExcel', async () => {
                 message: `${importedCount} Borrower Profiles imported and merged successfully!`,
                 buttons: ['OK']
             });
+        } else if (importedCount === 0) {
+            await dialog.showMessageBox({
+                type: 'info',
+                title: 'No Data Imported',
+                message: 'No valid profiles were found to import.',
+                buttons: ['OK']
+            });
         }
-
     } catch (error) {
         console.error('Error importing profiles:', error);
 
@@ -2485,53 +2538,89 @@ ipcMain.handle('importBooksFromExcel', async () => {
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(filePaths[0]);
 
-        const worksheet = workbook.getWorksheet('Books');
-        let importedCount = 0;
-
-        // Validate that the worksheet has the expected structure
-        const headers = [
+        // Expected headers
+        const expectedHeaders = [
             'ID', 'Book Number', 'Date Received', 'Class', 'Author', 'Title of Book', 'Edition',
             'Source of Fund', 'Cost Price', 'Publisher', 'Year', 'Remarks', 'Volume',
             'Pages', 'Condition', 'Created At'
         ];
 
-        const firstRow = worksheet.getRow(2);
-        const rowHeaders = firstRow.values.slice(1); // Remove null value from the start
-        
-        if (!headers.every((header, index) => rowHeaders[index] === header)) {
-            throw new Error('Invalid Excel format. Please ensure the column headers match the export format.');
+        let targetWorksheet = null;
+        let columnMap = {};
+
+        // Find the worksheet and map headers
+        workbook.worksheets.forEach(worksheet => {
+            const currentMap = {};
+            let headerRow = null;
+
+            // Search for the row containing the required headers
+            worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+                const headersFound = [];
+                row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                    if (cell.value && typeof cell.value === 'string') {
+                        const header = cell.value.trim(); // Remove extra spaces
+                        const normalizedHeader = header.toLowerCase(); // Normalize case
+
+                        expectedHeaders.forEach(expected => {
+                            if (normalizedHeader === expected.toLowerCase()) {
+                                currentMap[expected] = colNumber;
+                                headersFound.push(expected);
+                            }
+                        });
+                    }
+                });
+
+                // If all headers are found in this row, it's the header row
+                if (headersFound.length === expectedHeaders.length) {
+                    headerRow = rowNumber;
+                    return false; // Stop searching further
+                }
+            });
+
+            if (headerRow && Object.keys(currentMap).length === expectedHeaders.length) {
+                targetWorksheet = worksheet;
+                columnMap = currentMap;
+            }
+        });
+
+        if (!targetWorksheet) {
+            throw new Error(`No worksheet with the required headers found. Expected headers: ${expectedHeaders.join(', ')}`);
         }
 
-        // Loop through each row, validating and merging data
-        for (let rowNumber = 3; rowNumber <= worksheet.rowCount; rowNumber++) { // Start from the third row (data rows)
-            const row = worksheet.getRow(rowNumber);
-            const title_of_book = row.getCell(6).value; // "Title of Book" column
+        console.log(`Using worksheet: ${targetWorksheet.name}`);
+        console.log(`Header mapping:`, columnMap);
+
+        let importedCount = 0;
+
+        // Loop through rows starting from the detected header row + 1
+        for (let rowNumber = targetWorksheet.getRow(2).number + 1; rowNumber <= targetWorksheet.rowCount; rowNumber++) {
+            const row = targetWorksheet.getRow(rowNumber);
+            const title_of_book = row.getCell(columnMap['Title of Book']).value;
 
             // Validate for missing title
             if (!title_of_book) {
                 console.warn(`Row ${rowNumber} has incomplete data: Title of Book is required.`);
-                continue; // Skip rows without the title of book
+                continue;
             }
 
             const book = {
-                id: row.getCell(1).value ?? '',                // Excel Column: "ID"
-                number: row.getCell(2).value ?? '',            // Excel Column: "Book Number"
-                date_received: row.getCell(3).value ?? '',     // Excel Column: "Date Received"
-                class: row.getCell(4).value ?? '',             // Excel Column: "Class"
-                author: row.getCell(5).value ?? '',            // Excel Column: "Author"
-                title_of_book: title_of_book ?? '',            // Required Title
-                edition: row.getCell(7).value ?? '',           // Excel Column: "Edition"
-                source_of_fund: row.getCell(8).value ?? '',    // Excel Column: "Source of Fund"
-                cost_price: row.getCell(9).value ?? '',        // Excel Column: "Cost Price"
-                publisher: row.getCell(10).value ?? '',        // Excel Column: "Publisher"
-                year: row.getCell(11).value ?? '',             // Excel Column: "Year"
-                remarks: row.getCell(12).value ?? '',          // Excel Column: "Remarks"
-                volume: row.getCell(13).value ?? '',           // Excel Column: "Volume"
-                pages: row.getCell(14).value ?? '',            // Excel Column: "Pages"
-                condition: row.getCell(15).value ?? '',        // Excel Column: "Condition"
-                createdAt: row.getCell(16).value ?? ''         // Excel Column: "Created At"
+                id: row.getCell(columnMap['ID']).value ?? '',
+                number: row.getCell(columnMap['Book Number']).value ?? '',
+                date_received: row.getCell(columnMap['Date Received']).value ?? '',
+                class: row.getCell(columnMap['Class']).value ?? '',
+                author: row.getCell(columnMap['Author']).value ?? '',
+                title_of_book: title_of_book ?? '',
+                edition: row.getCell(columnMap['Edition']).value ?? '',
+                source_of_fund: row.getCell(columnMap['Source of Fund']).value ?? '',
+                cost_price: row.getCell(columnMap['Cost Price']).value ?? '',
+                publisher: row.getCell(columnMap['Publisher']).value ?? '',
+                year: row.getCell(columnMap['Year']).value ?? '',
+                remarks: row.getCell(columnMap['Remarks']).value ?? '',
+                volume: row.getCell(columnMap['Volume']).value ?? '',
+                pages: row.getCell(columnMap['Pages']).value ?? '',
+                condition: row.getCell(columnMap['Condition']).value ?? '',
+                createdAt: row.getCell(columnMap['Created At']).value ?? ''
             };
-            
 
             // Check if the Book ID already exists
             if (book.id) {
@@ -2544,10 +2633,10 @@ ipcMain.handle('importBooksFromExcel', async () => {
                             number = ?, date_received = ?, class = ?, author = ?, title_of_book = ?, edition = ?, source_of_fund = ?, cost_price = ?, publisher = ?, year = ?, remarks = ?, volume = ?, pages = ?, createdAt = ?, condition = ? 
                          WHERE id = ?`,
                         [
-                            book.number, book.date_received, book.class, book.author, 
-                            book.title_of_book, book.edition, book.source_of_fund, 
-                            book.cost_price, book.publisher, book.year, 
-                            book.remarks, book.volume, book.pages, 
+                            book.number, book.date_received, book.class, book.author,
+                            book.title_of_book, book.edition, book.source_of_fund,
+                            book.cost_price, book.publisher, book.year,
+                            book.remarks, book.volume, book.pages,
                             book.createdAt, book.condition, book.id
                         ]
                     );
@@ -2555,12 +2644,12 @@ ipcMain.handle('importBooksFromExcel', async () => {
                     // Insert new record with the specified ID
                     await executeQuery(
                         `INSERT INTO books (id, number, date_received, class, author, title_of_book, edition, source_of_fund, cost_price, publisher, year, remarks, volume, pages, createdAt, condition) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-                        , [
-                            book.id, book.number, book.date_received, book.class, book.author, 
-                            book.title_of_book, book.edition, book.source_of_fund, 
-                            book.cost_price, book.publisher, book.year, 
-                            book.remarks, book.volume, book.pages, 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            book.id, book.number, book.date_received, book.class, book.author,
+                            book.title_of_book, book.edition, book.source_of_fund,
+                            book.cost_price, book.publisher, book.year,
+                            book.remarks, book.volume, book.pages,
                             book.createdAt, book.condition
                         ]
                     );
@@ -2569,21 +2658,21 @@ ipcMain.handle('importBooksFromExcel', async () => {
                 // Insert a new record and let the database auto-increment the ID
                 await executeInsertQuery(
                     `INSERT INTO books (number, date_received, class, author, title_of_book, edition, source_of_fund, cost_price, publisher, year, remarks, volume, pages, createdAt, condition) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-                    , [
-                        book.number, book.date_received, book.class, book.author, 
-                        book.title_of_book, book.edition, book.source_of_fund, 
-                        book.cost_price, book.publisher, book.year, 
-                        book.remarks, book.volume, book.pages, 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        book.number, book.date_received, book.class, book.author,
+                        book.title_of_book, book.edition, book.source_of_fund,
+                        book.cost_price, book.publisher, book.year,
+                        book.remarks, book.volume, book.pages,
                         book.createdAt, book.condition
                     ]
                 );
             }
 
-            importedCount++; // Increment the count of successfully imported books
+            importedCount++;
         }
 
-        // Show success message if some books were imported
+        // Success message
         if (importedCount > 0) {
             await dialog.showMessageBox({
                 type: 'info',
@@ -2603,7 +2692,7 @@ ipcMain.handle('importBooksFromExcel', async () => {
         return { message: 'Import successful!' };
     } catch (error) {
         console.error('Error importing books:', error);
-        await dialog.showErrorBox('Import Error', 'An error occurred while importing books.');
+        await dialog.showErrorBox('Import Error', `An error occurred while importing books: ${error.message}`);
         return { message: 'Error importing books.' };
     }
 });

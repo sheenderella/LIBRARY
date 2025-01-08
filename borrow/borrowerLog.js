@@ -57,7 +57,7 @@ function getQueryParams() {
 let logData = [];
 let filteredLogData = [];
 let currentPage = 1;
-const recordsPerPage = 1; // Display 7 records per page
+const recordsPerPage = 7; 
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeBorrowerDetails();

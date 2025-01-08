@@ -145,7 +145,7 @@ window.onload = displayBookDetails;
 let logData = [];
 let filteredLogData = [];
 let currentPage = 1;
-const recordsPerPage = 7; // Set the number of records per page
+const recordsPerPage = 7; 
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeBorrowerDetails();
