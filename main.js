@@ -1,10 +1,11 @@
 const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron');
+const sqlite3 = require('sqlite3').verbose();;
+
 const path = require('path');
 const db = require('./database.js');
-const sqlite3 = require('sqlite3').verbose();;
+const betterSqlite = require('better-sqlite3');
 const fs = require('fs');
 const ExcelJS = require('exceljs'); 
-
 
 
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
@@ -2983,6 +2984,20 @@ const dbPath = path.join(__dirname, './library.db');
 
 let isDialogOpen = false;
 
+// Execute an insert query with a new database connection
+function executeInsertQuery(sql, params = []) {
+    const db = betterSqlite(dbPath);
+    try {
+        const stmt = db.prepare(sql);
+        stmt.run(...params);
+    } catch (error) {
+        console.error('Error executing insert query:', error.message);
+    } finally {
+        db.close();
+    }
+}
+
+
 // Export database to a file
 ipcMain.handle('exportDatabase', async () => {
     if (isDialogOpen) {
@@ -3037,7 +3052,7 @@ ipcMain.handle('exportDatabase', async () => {
 });
 
 
-// Import database from a file and merge it with the main database
+// Import database from a file and merge it
 ipcMain.handle('importDatabase', async () => {
     if (isDialogOpen) {
         return { success: false, message: 'Restore is already open.' };
@@ -3050,7 +3065,7 @@ ipcMain.handle('importDatabase', async () => {
             title: 'Select Database Backup',
             buttonLabel: 'Open',
             filters: [{ name: 'SQLite Database', extensions: ['sqlite'] }],
-            properties: ['openFile']
+            properties: ['openFile'],
         });
 
         if (!filePaths || filePaths.length === 0) {
@@ -3059,20 +3074,20 @@ ipcMain.handle('importDatabase', async () => {
                 type: 'warning',
                 title: 'Restore Cancelled',
                 message: 'No file was selected. Database restore was cancelled.',
-                buttons: ['OK']
+                buttons: ['OK'],
             });
             return { success: false, message: 'Restore cancelled.' };
         }
 
         const importedDbPath = filePaths[0];
-        await mergeDatabases(importedDbPath, dbPath);
+        await mergeDatabases(importedDbPath);
         console.log('Restore successful:', importedDbPath);
 
         await dialog.showMessageBox({
             type: 'info',
             title: 'Restore Successful',
             message: 'The database restore was completed successfully!',
-            buttons: ['OK']
+            buttons: ['OK'],
         });
 
         return { success: true, message: 'Database restore was successful!' };
@@ -3082,7 +3097,7 @@ ipcMain.handle('importDatabase', async () => {
             type: 'error',
             title: 'Restore Failed',
             message: `An error occurred during database restore: ${error.message}`,
-            buttons: ['OK']
+            buttons: ['OK'],
         });
         return { success: false, message: `Error: ${error.message}` };
     } finally {
@@ -3090,12 +3105,10 @@ ipcMain.handle('importDatabase', async () => {
     }
 });
 
-
-// Merge data from the imported database into the main database for all tables
-async function mergeDatabases(importedDbPath, mainDbPath) {
-    const sqlite3 = require('better-sqlite3');
-    const importedDb = sqlite3(importedDbPath);
-    const mainDb = sqlite3(mainDbPath);
+// Merge data from the imported database
+async function mergeDatabases(importedDbPath) {
+    const importedDb = betterSqlite(importedDbPath);
+    const mainDb = betterSqlite(dbPath);
 
     const tables = importedDb.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
 
@@ -3103,13 +3116,12 @@ async function mergeDatabases(importedDbPath, mainDbPath) {
         const tableName = table.name;
 
         if (tableName === 'sqlite_sequence' || tableName === 'sqlite_stat1') {
-            continue; // Skip these internal SQLite tables
+            continue; // Skip internal SQLite tables
         }
 
         const importedRows = importedDb.prepare(`SELECT * FROM ${tableName}`).all();
 
         if (importedRows.length === 0) {
-            // If there are no rows in the imported table, skip this table
             console.log(`No rows to merge in table: ${tableName}`);
             continue;
         }
@@ -3119,15 +3131,34 @@ async function mergeDatabases(importedDbPath, mainDbPath) {
 
         const columns = Object.keys(importedRows[0]).join(', ');
         const placeholders = Object.keys(importedRows[0]).map(() => '?').join(', ');
+
+        const maxId = mainDb.prepare(`SELECT MAX(id) AS maxId FROM ${tableName}`).get().maxId || 0;
+        let nextId = maxId + 1;
+
         const insertStmt = mainDb.prepare(
-            `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`
+            `INSERT OR REPLACE INTO ${tableName} (${columns}) VALUES (${placeholders})`
         );
 
-        for (const row of importedRows) {
-            if (!mainRowIds.has(row.id)) {
-                insertStmt.run(...Object.values(row));
+        const transaction = mainDb.transaction((rows) => {
+            for (const row of rows) {
+                try {
+                    if (!row.id) {
+                        row.id = nextId++;
+                    }
+
+                    if (!mainRowIds.has(row.id)) {
+                        const rowValues = Object.keys(importedRows[0]).map((key) => row[key] || null);
+                        insertStmt.run(...rowValues);
+                    } else {
+                        console.log(`Skipped row with duplicate ID (${row.id}) in table ${tableName}:`, row);
+                    }
+                } catch (error) {
+                    console.error(`Failed to insert row in table ${tableName}:`, row, error.message);
+                }
             }
-        }
+        });
+
+        transaction(importedRows);
     }
 
     importedDb.close();
