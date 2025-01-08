@@ -167,16 +167,16 @@ document.getElementById('addBookTitle').addEventListener('input', async function
     displaySuggestions(suggestions); // Display the filtered suggestions
 });
 
-// Modify the filterSuggestions function to exclude borrowed books
+// Modify the filterSuggestions function to exclude books already in borrowedBooks
 async function filterSuggestions(titles, input) {
     const lowerInput = input.toLowerCase();
 
     const filtered = [];
     for (const title of titles) {
         if (title.title_of_book.toLowerCase().includes(lowerInput)) {
-            const isBorrowed = await checkIfBookIsBorrowed(title.bookId); // Directly check by bookId
-            if (!isBorrowed) {
-                filtered.push(title); // Only add the book to suggestions if it's not borrowed
+            const isAlreadyBorrowed = borrowedBooks.some(book => book.id === title.bookId);
+            if (!isAlreadyBorrowed) {
+                filtered.push(title); // Only add the book to suggestions if it's not in borrowedBooks
             }
         }
     }
@@ -271,6 +271,18 @@ document.getElementById('addBookButton').addEventListener('click', function () {
 
     // Validate the book title and ID before adding
     if (bookTitle && bookId) {
+        // Prevent duplicate book entries based on bookId
+        const isDuplicate = borrowedBooks.some(book => book.id === bookId);
+        if (isDuplicate) {
+            notification.textContent = 'This book is already in the list!';
+            notification.classList.add('alert', 'alert-warning');
+            setTimeout(() => {
+                notification.textContent = '';
+                notification.classList.remove('alert', 'alert-warning');
+            }, 3000);
+            return;
+        }
+
         borrowedBooks.push({ title: bookTitle, volume, edition, id: bookId }); // Add to the borrowed books array
         updateBorrowedBooksList(); // Update the displayed list
         bookTitleInput.value = ''; // Clear the input
