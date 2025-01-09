@@ -59,27 +59,61 @@ if (openReportsButton) {
     });
 }
 
-    // Listen for book addition and update the table and dashboard accordingly
-    ipcRenderer.on('book-record-added', (event, newBook) => {
-        addBookToTable(newBook);  // Add the new book to the table at the top
-        updateDashboard(newBook); // Optionally update other parts of the dashboard
-    });
-
-    // Function to add a new book to the table at the top
-    function addBookToTable(book) {
-        const booksList = document.getElementById('books-list');
-        if (booksList) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${book.number}</td>
-                <td>${book.title_of_book}</td>
-                <td>${book.author}</td>
-            `;
-            // Add the new row at the top of the table
-            booksList.prepend(row);
-        }
+    const viewAllBooksLink = document.getElementById('view-all-books');
+    if (viewAllBooksLink) {
+        viewAllBooksLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            ipcRenderer.send('open-books-page');
+        });
     }
+// Function to add a single book to the table
+function addBookToTable(book) {
+    const booksList = document.getElementById('books-list');
+    if (booksList) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${book.number}</td>
+            <td>${book.title_of_book}</td>
+            <td>${book.author}</td>
+        `;
+        // Add the new row at the top of the table
+        booksList.prepend(row);
+    }
+}
 
+// Function to refresh the entire table
+function refreshBooksTable() {
+    ipcRenderer.invoke('getBooks')
+        .then((books) => {
+            const booksList = document.getElementById('books-list');
+            if (booksList) {
+                // Limit the number of books displayed in the index
+                const limitedBooks = books.slice(0, 5); // Adjust this limit as needed
+
+                // Clear the existing table content
+                booksList.innerHTML = '';
+
+                // Display the most recent books at the top
+                limitedBooks.forEach((book) => {
+                    addBookToTable(book);
+                });
+            }
+        })
+        .catch((error) => {
+            console.error('Error refreshing books table:', error);
+        });
+}
+
+// Listen for book addition and update the table and dashboard accordingly
+ipcRenderer.on('book-record-added', (event, newBook) => {
+    refreshBooksTable(); // Reload the entire table
+    updateDashboard(newBook); // Optionally update other parts of the dashboard
+});
+
+// Initial load of books to populate the table
+refreshBooksTable();
+
+    //NUMBERS
     // Fetch total number of books and update the display
     ipcRenderer.invoke('getBooks').then((books) => {
         const totalBooks = books.length;
@@ -99,33 +133,6 @@ if (openReportsButton) {
             ipcRenderer.send('open-books-page');
         });
     }
-
-    const viewAllBooksLink = document.getElementById('view-all-books');
-    if (viewAllBooksLink) {
-        viewAllBooksLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            ipcRenderer.send('open-books-page');
-        });
-    }
-
-    // Fetch books and display them in the table
-    ipcRenderer.invoke('getBooks').then((books) => {
-        const booksList = document.getElementById('books-list');
-        if (booksList) {
-            // Limit the number of books displayed in the index
-            const limitedBooks = books.slice(0, 5); // Adjust this limit as needed
-
-            // Clear the existing table content
-            booksList.innerHTML = '';
-
-            // Display the most recent books at the top
-            limitedBooks.forEach((book) => {
-                addBookToTable(book);
-            });
-        }
-    }).catch((error) => {
-        console.error('Error fetching books:', error);
-    });
 
     // Fetch total number of borrowed books and update the display
     function updateBorrowedBooksCount() {
@@ -226,8 +233,9 @@ Promise.all([
     console.error('Error fetching data for pie chart:', error);
 });
 
-
 });
+
+
 // NOTIF
 // Fetch and display overdue notifications
 async function checkForOverdueNotifications() {
@@ -300,3 +308,6 @@ document.getElementById('closeSidebarButton').addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', () => {
     checkForOverdueNotifications();
 });
+
+
+

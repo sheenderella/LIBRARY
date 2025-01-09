@@ -7,7 +7,6 @@ const betterSqlite = require('better-sqlite3');
 const fs = require('fs');
 const ExcelJS = require('exceljs'); 
 
-
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
@@ -187,7 +186,7 @@ ipcMain.handle('getBooksCount', async (event) => {
 });
 
 
-// LOGIN (updated)
+// LOGIN 
 function createLoginWindow() {
     loginWindow = createWindow({
         filePath: path.join(__dirname, 'login', 'login.html'),
@@ -848,7 +847,7 @@ ipcMain.handle('getBooks', async () => {
     try {
     
         const books = await executeSelectQuery(
-            'SELECT * FROM books WHERE is_deleted = FALSE ORDER BY createdAt DESC'
+            'SELECT * FROM books WHERE is_deleted = FALSE ORDER BY number DESC'
         );
         return books;
     } catch (error) {
@@ -2179,7 +2178,6 @@ ipcMain.handle('exportProfilesToExcel', async () => {
     }
 });
 
-
 // Import Profiles from Excel 
 ipcMain.handle('importProfilesFromExcel', async () => {
     try {
@@ -2342,7 +2340,6 @@ ipcMain.handle('importProfilesFromExcel', async () => {
         return { message: 'Error importing profiles.' };
     }
 });
-
 
 
 //GENERATE REPORTS
@@ -2538,28 +2535,40 @@ ipcMain.handle('importBooksFromExcel', async () => {
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.readFile(filePaths[0]);
 
-        // Expected headers
         const expectedHeaders = [
-            'ID', 'Book Number', 'Date Received', 'Class', 'Author', 'Title of Book', 'Edition',
-            'Source of Fund', 'Cost Price', 'Publisher', 'Year', 'Remarks', 'Volume',
-            'Pages', 'Condition', 'Created At'
+            'ID', 
+            'Date Received', 
+            'Class', 
+            'Author',
+            'Title of Book', 
+            'Edition', 
+            'Source of Fund', 
+            'Cost Price',
+            'Publisher', 
+            'Year', 
+            'Remarks', 
+            'Volume', 
+            'Pages',
+            'Condition', 
+            'Created At'
         ];
 
         let targetWorksheet = null;
         let columnMap = {};
 
-        // Find the worksheet and map headers
+        // 2) Detect the header row
+        let headerRow = null;
+
         workbook.worksheets.forEach(worksheet => {
             const currentMap = {};
-            let headerRow = null;
+            let possibleHeaderRow = null; // We'll store the row number temporarily
 
-            // Search for the row containing the required headers
             worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
                 const headersFound = [];
                 row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
                     if (cell.value && typeof cell.value === 'string') {
-                        const header = cell.value.trim(); // Remove extra spaces
-                        const normalizedHeader = header.toLowerCase(); // Normalize case
+                        const header = cell.value.trim();
+                        const normalizedHeader = header.toLowerCase();
 
                         expectedHeaders.forEach(expected => {
                             if (normalizedHeader === expected.toLowerCase()) {
@@ -2570,42 +2579,56 @@ ipcMain.handle('importBooksFromExcel', async () => {
                     }
                 });
 
-                // If all headers are found in this row, it's the header row
                 if (headersFound.length === expectedHeaders.length) {
-                    headerRow = rowNumber;
+                    possibleHeaderRow = rowNumber;
                     return false; // Stop searching further
                 }
             });
 
-            if (headerRow && Object.keys(currentMap).length === expectedHeaders.length) {
+            if (possibleHeaderRow && Object.keys(currentMap).length === expectedHeaders.length) {
                 targetWorksheet = worksheet;
-                columnMap = currentMap;
+                columnMap = { ...currentMap };
+                headerRow = possibleHeaderRow; 
             }
         });
 
         if (!targetWorksheet) {
-            throw new Error(`No worksheet with the required headers found. Expected headers: ${expectedHeaders.join(', ')}`);
+            throw new Error(
+                `No worksheet with the required headers found. Expected headers: ${expectedHeaders.join(', ')}`
+            );
         }
 
         console.log(`Using worksheet: ${targetWorksheet.name}`);
-        console.log(`Header mapping:`, columnMap);
+        console.log('Header mapping:', columnMap);
+        console.log(`Header row detected at row #${headerRow}`);
 
         let importedCount = 0;
+        let bookCounter = 0; 
 
-        // Loop through rows starting from the detected header row + 1
-        for (let rowNumber = targetWorksheet.getRow(2).number + 1; rowNumber <= targetWorksheet.rowCount; rowNumber++) {
+        for (let rowNumber = headerRow + 1; rowNumber <= targetWorksheet.rowCount; rowNumber++) {
             const row = targetWorksheet.getRow(rowNumber);
-            const title_of_book = row.getCell(columnMap['Title of Book']).value;
 
-            // Validate for missing title
-            if (!title_of_book) {
-                console.warn(`Row ${rowNumber} has incomplete data: Title of Book is required.`);
+            // If the row is completely empty, skip it
+            if (row.values.filter(val => val).length === 0) {
                 continue;
             }
 
+            const title_of_book = row.getCell(columnMap['Title of Book']).value ?? '';
+            console.log(`Processing Excel rowNumber = ${rowNumber}`);
+
+            if (!title_of_book) {
+                console.warn(`Row ${rowNumber} has incomplete data: Title of Book is required.`);
+                console.log(`Skipping row ${rowNumber} because no title_of_book`);
+                continue;
+            }
+
+            // 4) Log that we're assigning the current counter
+            console.log(`Inserting book number = ${bookCounter} for row ${rowNumber}`);
+
+            // Build the book object
             const book = {
                 id: row.getCell(columnMap['ID']).value ?? '',
-                number: row.getCell(columnMap['Book Number']).value ?? '',
+                number: bookCounter, 
                 date_received: row.getCell(columnMap['Date Received']).value ?? '',
                 class: row.getCell(columnMap['Class']).value ?? '',
                 author: row.getCell(columnMap['Author']).value ?? '',
@@ -2622,57 +2645,108 @@ ipcMain.handle('importBooksFromExcel', async () => {
                 createdAt: row.getCell(columnMap['Created At']).value ?? ''
             };
 
-            // Check if the Book ID already exists
+            // Upsert logic (update if ID exists; otherwise insert)
             if (book.id) {
                 const existingBook = await executeSelectQuery('SELECT * FROM books WHERE id = ?', [book.id]);
 
                 if (existingBook.length > 0) {
-                    // Update the existing record
+                    // If book with this ID already exists, update
                     await executeQuery(
                         `UPDATE books SET 
-                            number = ?, date_received = ?, class = ?, author = ?, title_of_book = ?, edition = ?, source_of_fund = ?, cost_price = ?, publisher = ?, year = ?, remarks = ?, volume = ?, pages = ?, createdAt = ?, condition = ? 
+                            number = ?, 
+                            date_received = ?, 
+                            class = ?, 
+                            author = ?, 
+                            title_of_book = ?, 
+                            edition = ?, 
+                            source_of_fund = ?, 
+                            cost_price = ?, 
+                            publisher = ?, 
+                            year = ?, 
+                            remarks = ?, 
+                            volume = ?, 
+                            pages = ?, 
+                            createdAt = ?, 
+                            condition = ? 
                          WHERE id = ?`,
                         [
-                            book.number, book.date_received, book.class, book.author,
-                            book.title_of_book, book.edition, book.source_of_fund,
-                            book.cost_price, book.publisher, book.year,
-                            book.remarks, book.volume, book.pages,
-                            book.createdAt, book.condition, book.id
+                            book.number, 
+                            book.date_received, 
+                            book.class, 
+                            book.author,
+                            book.title_of_book, 
+                            book.edition, 
+                            book.source_of_fund,
+                            book.cost_price, 
+                            book.publisher, 
+                            book.year,
+                            book.remarks, 
+                            book.volume, 
+                            book.pages,
+                            book.createdAt, 
+                            book.condition, 
+                            book.id
                         ]
                     );
                 } else {
-                    // Insert new record with the specified ID
+                    // If no existing record with this ID, insert new
                     await executeQuery(
-                        `INSERT INTO books (id, number, date_received, class, author, title_of_book, edition, source_of_fund, cost_price, publisher, year, remarks, volume, pages, createdAt, condition) 
+                        `INSERT INTO books (id, number, date_received, class, author, title_of_book, 
+                                            edition, source_of_fund, cost_price, publisher, year, remarks, 
+                                            volume, pages, createdAt, condition) 
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                         [
-                            book.id, book.number, book.date_received, book.class, book.author,
-                            book.title_of_book, book.edition, book.source_of_fund,
-                            book.cost_price, book.publisher, book.year,
-                            book.remarks, book.volume, book.pages,
-                            book.createdAt, book.condition
+                            book.id, 
+                            book.number, 
+                            book.date_received, 
+                            book.class, 
+                            book.author,
+                            book.title_of_book, 
+                            book.edition, 
+                            book.source_of_fund,
+                            book.cost_price, 
+                            book.publisher, 
+                            book.year,
+                            book.remarks, 
+                            book.volume, 
+                            book.pages,
+                            book.createdAt, 
+                            book.condition
                         ]
                     );
                 }
             } else {
-                // Insert a new record and let the database auto-increment the ID
+                // No ID means always insert new
                 await executeInsertQuery(
-                    `INSERT INTO books (number, date_received, class, author, title_of_book, edition, source_of_fund, cost_price, publisher, year, remarks, volume, pages, createdAt, condition) 
+                    `INSERT INTO books (number, date_received, class, author, title_of_book, 
+                                        edition, source_of_fund, cost_price, publisher, year, 
+                                        remarks, volume, pages, createdAt, condition) 
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
-                        book.number, book.date_received, book.class, book.author,
-                        book.title_of_book, book.edition, book.source_of_fund,
-                        book.cost_price, book.publisher, book.year,
-                        book.remarks, book.volume, book.pages,
-                        book.createdAt, book.condition
+                        book.number, 
+                        book.date_received, 
+                        book.class, 
+                        book.author,
+                        book.title_of_book, 
+                        book.edition, 
+                        book.source_of_fund,
+                        book.cost_price, 
+                        book.publisher, 
+                        book.year,
+                        book.remarks, 
+                        book.volume, 
+                        book.pages,
+                        book.createdAt, 
+                        book.condition
                     ]
                 );
             }
 
+            // 5) Increment only after a successful insert or update
+            bookCounter++;
             importedCount++;
         }
 
-        // Success message
         if (importedCount > 0) {
             await dialog.showMessageBox({
                 type: 'info',
@@ -2696,8 +2770,6 @@ ipcMain.handle('importBooksFromExcel', async () => {
         return { message: 'Error importing books.' };
     }
 });
-
-
 
 
 // GENERATE REPORTS
