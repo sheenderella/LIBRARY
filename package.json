@@ -43,7 +43,6 @@
     },
     "publish": null,
     "files": [
-      "**/*.db",
       "database.js",            
       "main.js",              
       "**/*.html",                      

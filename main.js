@@ -7,6 +7,9 @@ const betterSqlite = require('better-sqlite3');
 const fs = require('fs');
 const ExcelJS = require('exceljs'); 
 
+
+
+
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
@@ -3050,11 +3053,9 @@ ipcMain.handle('generateReport', async (event, timePeriod, category) => {
 
 
 //BACKUP & RESTORE - SETTINGS
-const dbPath = path.join(__dirname, './library.db');
-
 let isDialogOpen = false;
+const dbPath = path.join(app.getPath('userData'), 'library.db');
 
-// Execute an insert query with a new database connection
 function executeInsertQuery(sql, params = []) {
     const db = betterSqlite(dbPath);
     try {
@@ -3066,6 +3067,11 @@ function executeInsertQuery(sql, params = []) {
         db.close();
     }
 }
+
+module.exports = {
+    executeInsertQuery,
+    dbPath,
+};
 
 
 // Export database to a file
@@ -3122,115 +3128,60 @@ ipcMain.handle('exportDatabase', async () => {
 });
 
 
-// Import database from a file and merge it
+// Import database from a file
 ipcMain.handle('importDatabase', async () => {
-    if (isDialogOpen) {
-        return { success: false, message: 'Restore is already open.' };
-    }
-
-    isDialogOpen = true;
-
     try {
         const { filePaths } = await dialog.showOpenDialog({
-            title: 'Select Database Backup',
-            buttonLabel: 'Open',
+            title: 'Select Backup File to Import',
+            buttonLabel: 'Import',
             filters: [{ name: 'SQLite Database', extensions: ['sqlite'] }],
             properties: ['openFile'],
         });
 
         if (!filePaths || filePaths.length === 0) {
-            console.log('Restore cancelled');
+            console.log('Import cancelled');
             await dialog.showMessageBox({
                 type: 'warning',
-                title: 'Restore Cancelled',
-                message: 'No file was selected. Database restore was cancelled.',
-                buttons: ['OK'],
+                title: 'Import Cancelled',
+                message: 'No file was selected. Database import was cancelled.',
+                buttons: ['OK']
             });
-            return { success: false, message: 'Restore cancelled.' };
+            return { success: false, message: 'Import cancelled.' };
         }
 
-        const importedDbPath = filePaths[0];
-        await mergeDatabases(importedDbPath);
-        console.log('Restore successful:', importedDbPath);
+        const backupFilePath = filePaths[0];
+        console.log('Import filePath:', backupFilePath);
+
+        // Create a backup of the current database before importing
+        const backupCurrentDbPath = `${dbPath}.bak`;
+        fs.copyFileSync(dbPath, backupCurrentDbPath);
+        console.log('Current database backed up:', backupCurrentDbPath);
+
+        // Replace the current database with the selected backup file
+        fs.copyFileSync(backupFilePath, dbPath);
+        console.log('Database import successful:', dbPath);
 
         await dialog.showMessageBox({
             type: 'info',
-            title: 'Restore Successful',
-            message: 'The database restore was completed successfully!',
-            buttons: ['OK'],
+            title: 'Import Successful',
+            message: 'The database has been successfully imported!',
+            buttons: ['OK']
         });
 
-        return { success: true, message: 'Database restore was successful!' };
+        return { success: true, message: 'Database import successful!' };
     } catch (error) {
         console.error('Error importing database:', error);
+
         await dialog.showMessageBox({
             type: 'error',
-            title: 'Restore Failed',
-            message: `An error occurred during database restore: ${error.message}`,
-            buttons: ['OK'],
+            title: 'Import Failed',
+            message: `An error occurred during database import: ${error.message}`,
+            buttons: ['OK']
         });
+
         return { success: false, message: `Error: ${error.message}` };
-    } finally {
-        isDialogOpen = false;
     }
 });
 
+
 // Merge data from the imported database
-async function mergeDatabases(importedDbPath) {
-    const importedDb = betterSqlite(importedDbPath);
-    const mainDb = betterSqlite(dbPath);
-
-    const tables = importedDb.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
-
-    for (const table of tables) {
-        const tableName = table.name;
-
-        if (tableName === 'sqlite_sequence' || tableName === 'sqlite_stat1') {
-            continue; // Skip internal SQLite tables
-        }
-
-        const importedRows = importedDb.prepare(`SELECT * FROM ${tableName}`).all();
-
-        if (importedRows.length === 0) {
-            console.log(`No rows to merge in table: ${tableName}`);
-            continue;
-        }
-
-        const mainRows = mainDb.prepare(`SELECT * FROM ${tableName}`).all();
-        const mainRowIds = new Set(mainRows.map(row => row.id));
-
-        const columns = Object.keys(importedRows[0]).join(', ');
-        const placeholders = Object.keys(importedRows[0]).map(() => '?').join(', ');
-
-        const maxId = mainDb.prepare(`SELECT MAX(id) AS maxId FROM ${tableName}`).get().maxId || 0;
-        let nextId = maxId + 1;
-
-        const insertStmt = mainDb.prepare(
-            `INSERT OR REPLACE INTO ${tableName} (${columns}) VALUES (${placeholders})`
-        );
-
-        const transaction = mainDb.transaction((rows) => {
-            for (const row of rows) {
-                try {
-                    if (!row.id) {
-                        row.id = nextId++;
-                    }
-
-                    if (!mainRowIds.has(row.id)) {
-                        const rowValues = Object.keys(importedRows[0]).map((key) => row[key] || null);
-                        insertStmt.run(...rowValues);
-                    } else {
-                        console.log(`Skipped row with duplicate ID (${row.id}) in table ${tableName}:`, row);
-                    }
-                } catch (error) {
-                    console.error(`Failed to insert row in table ${tableName}:`, row, error.message);
-                }
-            }
-        });
-
-        transaction(importedRows);
-    }
-
-    importedDb.close();
-    mainDb.close();
-}
