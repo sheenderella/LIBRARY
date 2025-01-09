@@ -7,7 +7,7 @@ const betterSqlite = require('better-sqlite3');
 const fs = require('fs');
 const ExcelJS = require('exceljs'); 
 
-let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow, deleteNotifWindow;
+let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
 
 
@@ -234,17 +234,6 @@ function createForgotPasswordWindow() {
         });
     }
 };
-
-//DELETE WARNING
-function createDeleteNotifWindow() {
-    deleteNotifWindow = createWindow({
-        filePath: path.join(__dirname, 'books', 'deleteNotif.html'),
-        width: 400,
-        height: 300,
-        parent: mainWindow,
-        onClose: () => (deleteNotifWindow = null),
-    });
-}
 
 
 // Handle IPC calls
