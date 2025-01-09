@@ -5,7 +5,10 @@ const ExcelJS = require('exceljs');
 const db = require('./database'); 
 
 // Update this to the absolute path of your main database file
-const dbPath = path.join(__dirname, '../library.db');
+// Determine the database file path
+const dbPath = app.isPackaged
+  ? path.join(app.getPath('userData'), 'library.db') // For packaged app
+  : path.resolve(__dirname, '../library.db'); // For development
 
 // Export database to a file
 ipcMain.handle('exportDatabase', async () => {
