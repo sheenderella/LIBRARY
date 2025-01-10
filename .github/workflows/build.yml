@@ -10,6 +10,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # Checkout the code
       - name: Checkout Code
         uses: actions/checkout@v3
 
@@ -20,6 +21,7 @@ jobs:
           node-version: 20.18.1
           cache: 'npm'
 
+      # Install dependencies
       - name: Install Dependencies
         run: |
           npm install
@@ -29,32 +31,38 @@ jobs:
       - name: Build Windows .exe
         run: npx electron-builder --win
 
+      # Debug the dist directory
       - name: Debug dist directory
-        run: dir dist  # List dist directory contents in Windows
+        run: dir dist  # List dist directory contents
 
       # Verify .exe file existence
       - name: Verify .exe file existence
-        shell: bash
+        shell: pwsh
         run: |
-          EXE_FILE=$(find dist/ -name "*.exe" -print -quit)
-          if [ -z "$EXE_FILE" ]; then
-            echo "Error: .exe file not found in the dist/ directory."
+          $ExeFile = Get-ChildItem -Path dist -Filter "*.exe" -Recurse | Select-Object -First 1
+          if (-not $ExeFile) {
+            Write-Host "Error: .exe file not found in the dist/ directory."
             exit 1
-          fi
-          echo "Found Windows .exe: $EXE_FILE"
-          echo "exe_path=$EXE_FILE" >> $GITHUB_ENV  # Store the path to the .exe file
+          }
+          Write-Host "Found Windows .exe: $($ExeFile.FullName)"
+          echo "exe_path=$($ExeFile.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       # Archive .exe into .zip
       - name: Archive .exe into .zip
-        shell: bash
+        shell: pwsh
         run: |
-          ZIP_FILE="dist/Gruba-Law-Library-Windows.zip"
-          EXE_PATH="${{ env.exe_path }}"  # Use the path stored in the environment variable
-          echo "Zipping the .exe file from: $EXE_PATH"
-          zip -j $ZIP_FILE "$EXE_PATH"  # -j removes directory structure
-          echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV  # Save zip file path for later use
+          $ZipFile = "dist/Gruba-Law-Library-Windows.zip"
+          $ExeFile = "${{ env.exe_path }}"
+          if (Test-Path $ExeFile) {
+            Compress-Archive -Path $ExeFile -DestinationPath $ZipFile -Force
+            Write-Host "Created zip file: $ZipFile"
+            echo "zip_file=$ZipFile" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            Write-Host "Error: .exe file not found at $ExeFile"
+            exit 1
+          }
 
-      # Create GitHub Release for Windows
+      # Create GitHub Release
       - name: Create GitHub Release
         id: create_windows_release
         uses: actions/create-release@v1
@@ -72,7 +80,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_windows_release.outputs.upload_url }}
-          asset_path: ${{ env.zip_file }}  # Path to the zip file
+          asset_path: ${{ env.zip_file }}
           asset_name: Gruba-Law-Library-Windows.zip
           asset_content_type: application/zip
         env:
