@@ -28,31 +28,29 @@ document.getElementById('open-security-setup').addEventListener('click', () => {
     ipcRenderer.invoke('open-security-setup-window');
 });
 
-
 //BACKUP
 document.getElementById('backup-btn').addEventListener('click', async () => {
     const result = await ipcRenderer.invoke('exportDatabase');
     console.log('Backup result:', result);
    
 });
-
 document.getElementById('restore-btn').addEventListener('click', async () => {
-    // Inform the user that the process has started
     console.log('Starting database restore...');
 
     try {
         const result = await ipcRenderer.invoke('importDatabase');
         console.log('Restore result:', result);
 
-        // Display feedback based on the result
         if (result.success) {
-            
+            console.log('Restore successful:', result.message);
+            alert('Database restore completed successfully!');
         } else {
-            
+            console.error('Restore failed:', result.message);
+            alert(`Restore failed: ${result.message}`);
         }
     } catch (error) {
-        console.error('Error invoking database restore:', error);
-       
+        console.error('Error during restore:', error);
+        alert('An unexpected error occurred during the restore process.');
     }
 });
 

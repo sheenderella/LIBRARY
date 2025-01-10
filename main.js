@@ -1,14 +1,12 @@
-const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const sqlite3 = require('sqlite3').verbose();;
+require('./backup');
 
 const path = require('path');
 const db = require('./database.js');
 const betterSqlite = require('better-sqlite3');
 const fs = require('fs');
 const ExcelJS = require('exceljs'); 
-
-
-
 
 let mainWindow, loginWindow, addBorrowWindow, updateBorrowWindow, addBookWindow, editBookWindow;
 let selectedBookIds = []; // Make sure this variable is populated with the correct IDs
@@ -166,10 +164,20 @@ ipcMain.handle('getUniqueBorrowers', async () => {
     }
 });
 
-// Function to fetch unique borrowers from the database
 async function getUniqueBorrowersFromDB() {
-    const sql = 'SELECT DISTINCT borrowerName FROM borrow';
-    return executeSelectQuery(sql);
+    try {
+        const query = `
+            SELECT DISTINCT p.name AS borrowerName
+            FROM borrow b
+            JOIN Profiles p ON b.borrower_id = p.borrower_id
+        `;
+        const uniqueBorrowers = await executeSelectQuery(query);
+        console.log('Unique borrowers:', uniqueBorrowers);
+        return uniqueBorrowers;
+    } catch (error) {
+        console.error('Error fetching unique borrowers:', error);
+        throw error;
+    }
 }
 
 
@@ -2170,7 +2178,6 @@ ipcMain.handle('exportProfilesToExcel', async () => {
     }
 });
 
-
 // Import Profiles from Excel 
 ipcMain.handle('importProfilesFromExcel', async () => {
     try {
@@ -2529,30 +2536,32 @@ ipcMain.handle('importBooksFromExcel', async () => {
         await workbook.xlsx.readFile(filePaths[0]);
 
         const expectedHeaders = [
-            'ID',
-            'Date Received',
-            'Class',
+            'ID', 
+            'Date Received', 
+            'Class', 
             'Author',
-            'Title of Book',
-            'Edition',
-            'Source of Fund',
+            'Title of Book', 
+            'Edition', 
+            'Source of Fund', 
             'Cost Price',
-            'Publisher',
-            'Year',
-            'Remarks',
-            'Volume',
+            'Publisher', 
+            'Year', 
+            'Remarks', 
+            'Volume', 
             'Pages',
-            'Condition',
+            'Condition', 
             'Created At'
         ];
 
         let targetWorksheet = null;
         let columnMap = {};
+
+        // 2) Detect the header row
         let headerRow = null;
 
         workbook.worksheets.forEach(worksheet => {
             const currentMap = {};
-            let possibleHeaderRow = null;
+            let possibleHeaderRow = null; // We'll store the row number temporarily
 
             worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
                 const headersFound = [];
@@ -2579,30 +2588,51 @@ ipcMain.handle('importBooksFromExcel', async () => {
             if (possibleHeaderRow && Object.keys(currentMap).length === expectedHeaders.length) {
                 targetWorksheet = worksheet;
                 columnMap = { ...currentMap };
-                headerRow = possibleHeaderRow;
+                headerRow = possibleHeaderRow; 
             }
         });
 
         if (!targetWorksheet) {
-            throw new Error(`No worksheet with the required headers found. Expected headers: ${expectedHeaders.join(', ')}`);
+            throw new Error(
+                `No worksheet with the required headers found. Expected headers: ${expectedHeaders.join(', ')}`
+            );
         }
 
+        console.log(`Using worksheet: ${targetWorksheet.name}`);
+        console.log('Header mapping:', columnMap);
+        console.log(`Header row detected at row #${headerRow}`);
+
         let importedCount = 0;
-        let bookCounter = 0;
+        let bookCounter = 0; 
 
         for (let rowNumber = headerRow + 1; rowNumber <= targetWorksheet.rowCount; rowNumber++) {
             const row = targetWorksheet.getRow(rowNumber);
 
+            // If the row is completely empty, skip it
             if (row.values.filter(val => val).length === 0) {
                 continue;
             }
 
+            const title_of_book = row.getCell(columnMap['Title of Book']).value ?? '';
+            console.log(`Processing Excel rowNumber = ${rowNumber}`);
+
+            if (!title_of_book) {
+                console.warn(`Row ${rowNumber} has incomplete data: Title of Book is required.`);
+                console.log(`Skipping row ${rowNumber} because no title_of_book`);
+                continue;
+            }
+
+            // 4) Log that we're assigning the current counter
+            console.log(`Inserting book number = ${bookCounter} for row ${rowNumber}`);
+
+            // Build the book object
             const book = {
                 id: row.getCell(columnMap['ID']).value ?? '',
+                number: bookCounter, 
                 date_received: row.getCell(columnMap['Date Received']).value ?? '',
                 class: row.getCell(columnMap['Class']).value ?? '',
                 author: row.getCell(columnMap['Author']).value ?? '',
-                title_of_book: row.getCell(columnMap['Title of Book']).value ?? '',
+                title_of_book: title_of_book ?? '',
                 edition: row.getCell(columnMap['Edition']).value ?? '',
                 source_of_fund: row.getCell(columnMap['Source of Fund']).value ?? '',
                 cost_price: row.getCell(columnMap['Cost Price']).value ?? '',
@@ -2615,46 +2645,104 @@ ipcMain.handle('importBooksFromExcel', async () => {
                 createdAt: row.getCell(columnMap['Created At']).value ?? ''
             };
 
+            // Upsert logic (update if ID exists; otherwise insert)
             if (book.id) {
                 const existingBook = await executeSelectQuery('SELECT * FROM books WHERE id = ?', [book.id]);
 
                 if (existingBook.length > 0) {
-                    const isSameDetails = JSON.stringify(existingBook[0]) === JSON.stringify(book);
-
-                    if (isSameDetails) {
-                        console.log(`Skipping row ${rowNumber}: Same ID and same details.`);
-                        continue;
-                    }
-
-                    console.log(`Inserting new record with new ID for row ${rowNumber} (same ID, different details).`);
-                    book.id = `NEW-${Date.now()}-${bookCounter}`; // Assign a unique new ID
+                    // If book with this ID already exists, update
+                    await executeQuery(
+                        `UPDATE books SET 
+                            number = ?, 
+                            date_received = ?, 
+                            class = ?, 
+                            author = ?, 
+                            title_of_book = ?, 
+                            edition = ?, 
+                            source_of_fund = ?, 
+                            cost_price = ?, 
+                            publisher = ?, 
+                            year = ?, 
+                            remarks = ?, 
+                            volume = ?, 
+                            pages = ?, 
+                            createdAt = ?, 
+                            condition = ? 
+                         WHERE id = ?`,
+                        [
+                            book.number, 
+                            book.date_received, 
+                            book.class, 
+                            book.author,
+                            book.title_of_book, 
+                            book.edition, 
+                            book.source_of_fund,
+                            book.cost_price, 
+                            book.publisher, 
+                            book.year,
+                            book.remarks, 
+                            book.volume, 
+                            book.pages,
+                            book.createdAt, 
+                            book.condition, 
+                            book.id
+                        ]
+                    );
+                } else {
+                    // If no existing record with this ID, insert new
+                    await executeQuery(
+                        `INSERT INTO books (id, number, date_received, class, author, title_of_book, 
+                                            edition, source_of_fund, cost_price, publisher, year, remarks, 
+                                            volume, pages, createdAt, condition) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [
+                            book.id, 
+                            book.number, 
+                            book.date_received, 
+                            book.class, 
+                            book.author,
+                            book.title_of_book, 
+                            book.edition, 
+                            book.source_of_fund,
+                            book.cost_price, 
+                            book.publisher, 
+                            book.year,
+                            book.remarks, 
+                            book.volume, 
+                            book.pages,
+                            book.createdAt, 
+                            book.condition
+                        ]
+                    );
                 }
+            } else {
+                // No ID means always insert new
+                await executeInsertQuery(
+                    `INSERT INTO books (number, date_received, class, author, title_of_book, 
+                                        edition, source_of_fund, cost_price, publisher, year, 
+                                        remarks, volume, pages, createdAt, condition) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        book.number, 
+                        book.date_received, 
+                        book.class, 
+                        book.author,
+                        book.title_of_book, 
+                        book.edition, 
+                        book.source_of_fund,
+                        book.cost_price, 
+                        book.publisher, 
+                        book.year,
+                        book.remarks, 
+                        book.volume, 
+                        book.pages,
+                        book.createdAt, 
+                        book.condition
+                    ]
+                );
             }
 
-            await executeQuery(
-                `INSERT INTO books (id, date_received, class, author, title_of_book, 
-                                    edition, source_of_fund, cost_price, publisher, year, 
-                                    remarks, volume, pages, createdAt, condition) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    book.id,
-                    book.date_received,
-                    book.class,
-                    book.author,
-                    book.title_of_book,
-                    book.edition,
-                    book.source_of_fund,
-                    book.cost_price,
-                    book.publisher,
-                    book.year,
-                    book.remarks,
-                    book.volume,
-                    book.pages,
-                    book.createdAt,
-                    book.condition
-                ]
-            );
-
+            // 5) Increment only after a successful insert or update
             bookCounter++;
             importedCount++;
         }
@@ -2663,7 +2751,7 @@ ipcMain.handle('importBooksFromExcel', async () => {
             await dialog.showMessageBox({
                 type: 'info',
                 title: 'Import Successful',
-                message: `${importedCount} Books were imported successfully!`,
+                message: `${importedCount} Books were imported and merged successfully!`,
                 buttons: ['OK']
             });
         } else {
@@ -3053,9 +3141,14 @@ ipcMain.handle('generateReport', async (event, timePeriod, category) => {
 
 
 //BACKUP & RESTORE - SETTINGS
-let isDialogOpen = false;
-const dbPath = path.join(app.getPath('userData'), 'library.db');
+// Determine the database file path
+const dbPath = app.isPackaged
+  ? path.join(app.getPath('userData'), 'library.db') // For packaged app
+  : path.resolve(__dirname, 'library.db'); // For development
 
+let isDialogOpen = false;
+
+// Execute an insert query with a new database connection
 function executeInsertQuery(sql, params = []) {
     const db = betterSqlite(dbPath);
     try {
@@ -3067,12 +3160,6 @@ function executeInsertQuery(sql, params = []) {
         db.close();
     }
 }
-
-module.exports = {
-    executeInsertQuery,
-    dbPath,
-};
-
 
 // Export database to a file
 ipcMain.handle('exportDatabase', async () => {
@@ -3128,60 +3215,85 @@ ipcMain.handle('exportDatabase', async () => {
 });
 
 
-// Import database from a file
+
 ipcMain.handle('importDatabase', async () => {
     try {
-        const { filePaths } = await dialog.showOpenDialog({
-            title: 'Select Backup File to Import',
-            buttonLabel: 'Import',
-            filters: [{ name: 'SQLite Database', extensions: ['sqlite'] }],
-            properties: ['openFile'],
-        });
-
-        if (!filePaths || filePaths.length === 0) {
-            console.log('Import cancelled');
-            await dialog.showMessageBox({
-                type: 'warning',
-                title: 'Import Cancelled',
-                message: 'No file was selected. Database import was cancelled.',
-                buttons: ['OK']
-            });
-            return { success: false, message: 'Import cancelled.' };
+      const { filePaths } = await dialog.showOpenDialog({
+        title: 'Select Database to Restore',
+        buttonLabel: 'Restore',
+        filters: [{ name: 'SQLite Database', extensions: ['sqlite'] }],
+        properties: ['openFile'],
+      });
+  
+      if (!filePaths || filePaths.length === 0) {
+        return { success: false, message: 'No file selected. Restore cancelled.' };
+      }
+  
+      const restoreFilePath = filePaths[0];
+      console.log('Restore file selected:', restoreFilePath);
+      console.log('Current database location:', dbPath);
+  
+      if (!fs.existsSync(dbPath)) {
+        console.error('Current database file does not exist:', dbPath);
+        return { success: false, message: 'Current database file not found.' };
+      }
+  
+      const currentDb = betterSqlite(dbPath);
+      const restoreDb = betterSqlite(restoreFilePath);
+  
+      try {
+        currentDb.exec('BEGIN TRANSACTION');
+  
+        const currentTables = currentDb
+          .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+          .all()
+          .map(t => t.name);
+  
+        console.log('Current database tables:', currentTables);
+  
+        const restoreTables = restoreDb
+          .prepare("SELECT name, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+          .all();
+  
+        console.log('Restore database tables:', restoreTables.map(t => t.name));
+  
+        for (const { name: table, sql: createTableSql } of restoreTables) {
+          if (!currentTables.includes(table)) {
+            console.warn(`Table '${table}' does not exist in the current database. Creating it.`);
+            currentDb.exec(createTableSql);
+          }
+  
+          const restoreData = restoreDb.prepare(`SELECT * FROM ${table}`).all();
+  
+          if (restoreData.length > 0) {
+            console.log(`Restoring ${restoreData.length} rows into table: ${table}`);
+            const columns = Object.keys(restoreData[0]);
+            const placeholders = columns.map(() => '?').join(',');
+            const insertQuery = `INSERT OR IGNORE INTO ${table} (${columns.join(',')}) VALUES (${placeholders})`;
+            const stmt = currentDb.prepare(insertQuery);
+  
+            for (const row of restoreData) {
+              stmt.run(Object.values(row));
+            }
+          } else {
+            console.log(`Table '${table}' is empty in the restore database.`);
+          }
         }
-
-        const backupFilePath = filePaths[0];
-        console.log('Import filePath:', backupFilePath);
-
-        // Create a backup of the current database before importing
-        const backupCurrentDbPath = `${dbPath}.bak`;
-        fs.copyFileSync(dbPath, backupCurrentDbPath);
-        console.log('Current database backed up:', backupCurrentDbPath);
-
-        // Replace the current database with the selected backup file
-        fs.copyFileSync(backupFilePath, dbPath);
-        console.log('Database import successful:', dbPath);
-
-        await dialog.showMessageBox({
-            type: 'info',
-            title: 'Import Successful',
-            message: 'The database has been successfully imported!',
-            buttons: ['OK']
-        });
-
-        return { success: true, message: 'Database import successful!' };
+  
+        currentDb.exec('COMMIT');
+        console.log('Transaction committed successfully.');
+        return { success: true, message: 'Database restore completed successfully!' };
+      } catch (error) {
+        currentDb.exec('ROLLBACK');
+        console.error('Error during restore process:', error);
+        return { success: false, message: `Error during restore process: ${error.message}` };
+      } finally {
+        restoreDb.close();
+        currentDb.close();
+      }
     } catch (error) {
-        console.error('Error importing database:', error);
-
-        await dialog.showMessageBox({
-            type: 'error',
-            title: 'Import Failed',
-            message: `An error occurred during database import: ${error.message}`,
-            buttons: ['OK']
-        });
-
-        return { success: false, message: `Error: ${error.message}` };
+      console.error('Error during restore operation:', error);
+      return { success: false, message: `Error: ${error.message}` };
     }
-});
-
-
-// Merge data from the imported database
+  });
+  
