@@ -30,23 +30,11 @@ jobs:
         run: npx electron-builder --win
 
       - name: Debug dist directory
-        run: ls -R dist  # Verify the dist directory contents
-
-      # Create GitHub Release for Windows
-      - name: Create GitHub Release for Windows
-        id: create_windows_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: v1.0.0
-          release_name: "GRUBA LAW LIBRARY v1.0.0 (Windows)"
-          body: "Windows release of the Gruba Law Library"
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dir dist  # List dist directory contents in Windows
 
       # Verify .exe file existence
       - name: Verify .exe file existence
+        shell: bash
         run: |
           EXE_FILE=$(find dist/ -name "*.exe" -print -quit)
           if [ -z "$EXE_FILE" ]; then
@@ -58,12 +46,26 @@ jobs:
 
       # Archive .exe into .zip
       - name: Archive .exe into .zip
+        shell: bash
         run: |
           ZIP_FILE="dist/Gruba-Law-Library-Windows.zip"
           EXE_PATH="${{ env.exe_path }}"  # Use the path stored in the environment variable
           echo "Zipping the .exe file from: $EXE_PATH"
           zip -j $ZIP_FILE "$EXE_PATH"  # -j removes directory structure
           echo "zip_file=$ZIP_FILE" >> $GITHUB_ENV  # Save zip file path for later use
+
+      # Create GitHub Release for Windows
+      - name: Create GitHub Release
+        id: create_windows_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v1.0.0
+          release_name: "GRUBA LAW LIBRARY v1.0.0 (Windows)"
+          body: "Windows release of the Gruba Law Library"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Upload Windows .exe Release Asset
       - name: Upload Windows .exe Release Asset
