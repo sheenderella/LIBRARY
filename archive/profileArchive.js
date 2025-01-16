@@ -73,7 +73,6 @@ function setupSelectAllCheckbox() {
             // Deselect all checkboxes across all pages
             currentProfiles.forEach(profile => {
                 selectedProfileIds.delete(profile.id);
-                selectedProfileIds.archive(profile.id);
             });
             // Deselect all checkboxes on the current page
             checkboxes.forEach(checkbox => {
