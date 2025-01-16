@@ -1,7 +1,27 @@
 const { ipcRenderer } = require('electron');
 
+// Restrict borrower_id input to match the format XXX-XXX-XXXX
+const borrowerIdInput = document.getElementById('borrower_id');
+
+borrowerIdInput.addEventListener('input', () => {
+    let value = borrowerIdInput.value;
+    
+    // Remove invalid characters and enforce the correct format
+    value = value.replace(/[^\d]/g, ''); // Remove non-digit characters
+    if (value.length > 3 && value.length <= 6) {
+        value = `${value.slice(0, 3)}-${value.slice(3)}`;
+    } else if (value.length > 6) {
+        value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(6, 10)}`;
+    }
+    
+    // Restrict the length to exactly 13 characters including dashes
+    borrowerIdInput.value = value.slice(0, 13);
+});
+
+
 // Get the form element
 const form = document.getElementById('addProfileForm');
+
 
 // Add a submit event listener to handle the form submission
 form.addEventListener('submit', async (event) => {

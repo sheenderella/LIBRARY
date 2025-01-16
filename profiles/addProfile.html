@@ -16,7 +16,15 @@
             <h1 class="text-center mb-4">Add Borrower</h1>
             <form id="addProfileForm">
                 <small class="form-text text-muted">Borrower ID:</small>
-                <input type="number" id="borrower_id" placeholder="Borrower ID" required title="Enter the unique ID for the borrower"><br>
+                <input 
+                    type="text" 
+                    id="borrower_id" 
+                    placeholder="XXX-XXX-XXXX" 
+                    required 
+                    title="Enter the Borrower ID in the format XXX-XXX-XXXX"
+                    pattern="\d{3}-\d{3}-\d{4}" 
+                    maxlength="13"
+                ><br>
                 
                 <small class="form-text text-muted">Name:</small>
                 <input type="text" id="name" placeholder="Name" required title="Enter the full name of the borrower"><br>
