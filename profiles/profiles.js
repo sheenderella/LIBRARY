@@ -82,7 +82,6 @@ function setupSelectAllCheckbox() {
             // Deselect all checkboxes across all pages
             currentProfiles.forEach(profile => {
                 selectedProfileIds.delete(profile.id);
-                selectedProfileIds.archive(profile.id);
             });
             // Deselect all checkboxes on the current page
             checkboxes.forEach(checkbox => {
@@ -403,7 +402,7 @@ function setupDeleteSelectedButton() {
     });
 }
 
-// Function to handle delete selected profiles
+// Function to handle archiving selected profiles
 function setupArchiveSelectedButton() {
     const archiveButton = document.getElementById('archiveSelected');
     
@@ -412,7 +411,7 @@ function setupArchiveSelectedButton() {
         const idsToArchive = Array.from(selectedProfileIds); // Convert the Set to an Array
 
         if (idsToArchive.length === 0) {
-            showNotification('No profiles selected for archive.', 'error');
+            showNotification('No profiles selected for archiving.', 'error');
             return; // Exit if no profiles are selected
         }
 
@@ -426,17 +425,21 @@ function setupArchiveSelectedButton() {
             return; // Exit if the user cancels
         }
 
-
-        // Send the delete request for each selected profile
+        // Send the archive request for each selected profile
         for (const id of idsToArchive){
-            await ipcRenderer.invoke('archiveProfile', id); // Invoke the deleteProfile method in main.js
-            showNotification(`${idsToArchive.length} Profile(s) has been archived!`, 'archive');
-            loadProfiles(); // Reload profiles after deletion
+            try {
+                await ipcRenderer.invoke('archiveProfile', id); // Invoke the archiveProfile method in backend
+                showNotification(`${idsToArchive.length} profile(s) has been archived!`, 'success');
+                loadProfiles(); // Reload profiles after archiving
+            } catch (error) {
+                console.error('Error archiving profile:', error);
+                showNotification(`Failed to archive ${idsToArchive.length} profile(s)!`, 'error');
+            }
         }
 
         // Optionally, clear the selectedProfileIds Set and update UI
-        selectedProfileIds.clear(); // Clear the selected IDs after deletion
-        updateCheckboxStates(); // Update checkbox states after deletion
+        selectedProfileIds.clear(); // Clear the selected IDs after archiving
+        updateCheckboxStates(); // Update checkbox states after archiving
     });
 }
 

@@ -409,7 +409,7 @@ function setupUnarchiveSelectedButton() {
 
         // Prepare title and message for the confirmation dialog
         const title = 'Confirm Unarchive';
-        const message = `Are you sure you want to archive ${idsToUnarchive.length} profile(s)?`;
+        const message = `Are you sure you want to unarchive ${idsToUnarchive.length} profile(s)?`;
 
         // Send a request to show the confirmation dialog
         const confirmArchive = await ipcRenderer.invoke('show-confirmation-dialog', { title, message });
