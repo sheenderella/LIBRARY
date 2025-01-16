@@ -1,7 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const sqlite3 = require('sqlite3').verbose();;
-require('./backup');
-
 const path = require('path');
 const db = require('./database.js');
 const betterSqlite = require('better-sqlite3');
@@ -2930,6 +2928,7 @@ ipcMain.handle('checkBooksAvailability', async () => {
 });
 
 // Borrowing Details - Handle generating reports based on time period and category
+
 // Define function to get SQL time condition based on borrowDate and selected time period
 function getTimePeriodCondition(timePeriod) {
     let condition = '1 = 1';  // Default condition to match all records ("all time")
@@ -2952,6 +2951,7 @@ function getTimePeriodCondition(timePeriod) {
 
     return condition;
 }
+
 
 ipcMain.handle('generateReport', async (event, timePeriod, category) => {
     try {
@@ -3145,7 +3145,6 @@ ipcMain.handle('generateReport', async (event, timePeriod, category) => {
 const dbPath = app.isPackaged
   ? path.join(app.getPath('userData'), 'library.db') // For packaged app
   : path.resolve(__dirname, 'library.db'); // For development
-
 let isDialogOpen = false;
 
 // Execute an insert query with a new database connection
@@ -3214,8 +3213,7 @@ ipcMain.handle('exportDatabase', async () => {
     }
 });
 
-
-
+// Import database to a file
 ipcMain.handle('importDatabase', async () => {
     try {
       const { filePaths } = await dialog.showOpenDialog({
