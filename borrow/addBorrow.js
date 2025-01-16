@@ -50,11 +50,41 @@ function filterIDSuggestions(ids, input) {
     return ids.filter(id => id.toString().toLowerCase().includes(lowerInput)); // Return matching IDs
 }
 
+
 // Function to filter borrower name suggestions based on user input
 function filterNameSuggestions(names, input) {
     const lowerInput = input.toLowerCase(); // Convert input to lowercase for case-insensitive matching
     return names.filter(name => name.toLowerCase().includes(lowerInput)); // Return matching names
 }
+// Event listener for the borrower ID input field
+document.getElementById('addBorrowerID').addEventListener('input', async function () {
+    let value = this.value;
+
+    // Remove invalid characters and enforce the correct format
+    value = value.replace(/[^\d]/g, ''); // Remove non-numeric characters
+    
+    if (value.length > 3 && value.length <= 6) {
+        value = `${value.slice(0, 3)}-${value.slice(3)}`;
+    } else if (value.length > 6) {
+        value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(6, 10)}`;
+    }
+
+    // Restrict the length to exactly 13 characters, including dashes
+    this.value = value.slice(0, 13);
+
+    // Clear suggestions if input is empty
+    if (value.length === 0) {
+        document.getElementById('borrowerSuggestionList').innerHTML = '';
+        return;
+    }
+
+    // Fetch borrower IDs, filter suggestions based on the formatted input, and display them
+    const ids = await fetchBorrowerIDs();
+    const suggestions = filterIDSuggestions(ids, value);
+    displayIDSuggestions(suggestions);
+});
+
+
 
 // Function to display borrower ID suggestions in the UI
 function displayIDSuggestions(suggestions) {
@@ -69,12 +99,15 @@ function displayIDSuggestions(suggestions) {
         // When a suggestion is clicked, set it as the input value and autofill the borrower name
         option.addEventListener('click', async () => {
             document.getElementById('addBorrowerID').value = id; // Set ID input value
-            suggestionList.innerHTML = ''; // Clear the suggestion list
 
+            // Optional: Autofill borrower name if needed
             const name = await fetchBorrowerNameByID(id); // Fetch the name associated with the ID
             if (name) {
                 document.getElementById('addBorrowerName').value = name; // Autofill the borrower name
             }
+
+            // Keep the suggestions list visible even after selection
+            document.getElementById('borrowerSuggestionList').innerHTML = ''; // Clear suggestions after selection
         });
 
         suggestionList.appendChild(option); // Add the suggestion to the suggestion list
@@ -106,19 +139,7 @@ function displayNameSuggestions(suggestions) {
     });
 }
 
-// Event listener for the borrower ID input field
-document.getElementById('addBorrowerID').addEventListener('input', async function () {
-    const input = this.value;
 
-    if (input.length === 0) {
-        document.getElementById('borrowerSuggestionList').innerHTML = ''; // Clear suggestions if input is empty
-        return;
-    }
-
-    const ids = await fetchBorrowerIDs(); // Fetch all borrower IDs
-    const suggestions = filterIDSuggestions(ids, input); // Filter based on the user's input
-    displayIDSuggestions(suggestions); // Display the filtered suggestions
-});
 
 // Event listener for the borrower name input field
 document.getElementById('addBorrowerName').addEventListener('input', async function () {
@@ -315,7 +336,6 @@ function updateBorrowedBooksList() {
     });
 };
 
-
 // Event listener for form submission
 document.addEventListener('DOMContentLoaded', () => {
 // Update form submission to include all borrowed books
@@ -359,6 +379,7 @@ document.getElementById('addBorrowForm').addEventListener('submit', async (event
 });
 });
 
+
 // Function to check if a specific book is already borrowed
 async function checkIfBookIsBorrowed(book_id) {
     try {
@@ -369,11 +390,6 @@ async function checkIfBookIsBorrowed(book_id) {
         return false; // Default to false in case of error
     }
 }
-
-
-
-
-
 
 function showModal(title, message) {
     const modalTitle = document.getElementById('modal-title');
